@@ -1,12 +1,12 @@
 import { Input } from '@/components/ui/input'
-import { ITransaction } from '@/types/types'
+import { TTransactionDiscord } from '@/types/types'
 import { Table } from '@tanstack/react-table'
 import React, { ChangeEvent, RefObject } from 'react'
 
 interface TransactionSearchProps {
-  table: Table<ITransaction>
+  table: Table<TTransactionDiscord>
   inputRef: RefObject<HTMLInputElement | null>
-  inputType: keyof ITransaction
+  inputType: keyof TTransactionDiscord
   placeholder: string
   initialValue?: string // add initialValue prop
 }

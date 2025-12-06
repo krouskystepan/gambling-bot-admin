@@ -11,7 +11,7 @@ import {
 } from '@tanstack/react-table'
 import { Table } from '@/components/ui/table'
 import { useSearchParams } from 'next/navigation'
-import { ITransaction, ITransactionCounts } from '@/types/types'
+import { TTransactionDiscord, ITransactionCounts } from '@/types/types'
 import { transactionsColumns } from './transactionColumns'
 import TransactionTableHeader from './TransactionTableHeader'
 import TransactionTableBody from './TransactionTableBody'
@@ -22,7 +22,7 @@ import TransactionTableSummary from './TransactionTableSummary'
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
 
 interface TransactionTableProps {
-  transactions: ITransaction[]
+  transactions: TTransactionDiscord[]
   transactionCounts: ITransactionCounts
   guildId: string
   managerId: string

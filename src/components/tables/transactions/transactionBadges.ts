@@ -1,6 +1,6 @@
-import { TransactionDoc } from '@/models/Transaction'
+import { TTransaction } from 'gambling-bot-shared'
 
-export const typeBadgeMap: Record<TransactionDoc['type'], string> = {
+export const typeBadgeMap: Record<TTransaction['type'], string> = {
   deposit: 'bg-emerald-500 text-white',
   withdraw: 'bg-rose-500 text-white',
   bet: 'bg-indigo-500 text-white',
@@ -10,7 +10,7 @@ export const typeBadgeMap: Record<TransactionDoc['type'], string> = {
   vip: 'bg-pink-500 text-white',
 }
 
-export const sourceBadgeMap: Record<TransactionDoc['source'], string> = {
+export const sourceBadgeMap: Record<TTransaction['source'], string> = {
   casino: 'bg-orange-500 text-white',
   command: 'bg-cyan-500 text-white',
   manual: 'bg-gray-500 text-white',

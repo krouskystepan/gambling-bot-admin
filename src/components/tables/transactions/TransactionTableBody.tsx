@@ -1,13 +1,13 @@
 import { Skeleton } from '@/components/ui/skeleton'
 import { TableBody, TableCell, TableRow } from '@/components/ui/table'
-import { ITransaction } from '@/types/types'
+import { TTransactionDiscord } from '@/types/types'
 import { flexRender, Table } from '@tanstack/react-table'
 
 const TransactionTableBody = ({
   table,
   isLoading,
 }: {
-  table: Table<ITransaction>
+  table: Table<TTransactionDiscord>
   isLoading: boolean
 }) => {
   return (

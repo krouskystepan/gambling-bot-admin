@@ -1,52 +1,5 @@
-import { Schema, model, Document, models } from 'mongoose'
-
-export type TransactionDoc = Document & {
-  userId: string
-  guildId: string
-  amount: number
-  type: 'deposit' | 'withdraw' | 'bet' | 'win' | 'refund' | 'bonus' | 'vip'
-  source: 'command' | 'manual' | 'web' | 'system' | 'casino'
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  meta?: Record<string, any>
-  betId?: string
-  handledBy?: string
-  createdAt: Date
-}
-
-const TransactionSchema = new Schema<TransactionDoc>(
-  {
-    userId: { type: String, required: true },
-    guildId: { type: String, required: true },
-    amount: { type: Number, required: true },
-    type: {
-      type: String,
-      required: true,
-      enum: ['deposit', 'withdraw', 'bet', 'win', 'refund', 'bonus', 'vip'],
-    },
-    source: {
-      type: String,
-      required: true,
-      enum: ['command', 'manual', 'web', 'system', 'casino'],
-    },
-    meta: { type: Schema.Types.Mixed, default: {} },
-    betId: { type: String, default: null },
-    handledBy: { type: String, default: null },
-  },
-  { timestamps: { createdAt: true, updatedAt: false } }
-)
-
-// for pagination / sorting
-TransactionSchema.index({ guildId: 1, createdAt: -1 })
-// filter + sort
-TransactionSchema.index({ guildId: 1, type: 1, createdAt: -1 })
-// filter + sort
-TransactionSchema.index({ guildId: 1, source: 1, createdAt: -1 })
-// user search
-TransactionSchema.index({ guildId: 1, userId: 1, createdAt: -1 })
-// admin search
-TransactionSchema.index({ guildId: 1, handledBy: 1, createdAt: -1 })
-// for bet lookups
-TransactionSchema.index({ guildId: 1, betId: 1 })
+import { TTransaction, TransactionSchema } from 'gambling-bot-shared'
+import { models, model } from 'mongoose'
 
 export default models.Transaction ||
-  model<TransactionDoc>('Transaction', TransactionSchema)
+  model<TTransaction>('Transaction', TransactionSchema)

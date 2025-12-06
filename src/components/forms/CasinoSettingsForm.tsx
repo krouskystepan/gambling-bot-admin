@@ -9,12 +9,6 @@ import SaveButton from '../SaveButton'
 import { toast } from 'sonner'
 import { casinoSettingsSchema } from '@/types/schemas'
 import { Input } from '../ui/input'
-import defaultCasinoSettings, {
-  getReadableName,
-  readableGamesNames,
-  readableGameValueNames,
-} from '@/lib/defaultConfig'
-import { calculateRTP } from '@/lib/utils'
 import { RotateCw, TriangleAlert } from 'lucide-react'
 import { Button } from '../ui/button'
 import { TCasinoSettingsValues } from '@/types/types'
@@ -23,6 +17,13 @@ import {
   getCasinoSettings,
   saveCasinoSettings,
 } from '@/actions/database/casinoSettings.action'
+import { getReadableName } from '@/lib/utils'
+import {
+  defaultCasinoSettings,
+  calculateRTP,
+  readableGameValueNames,
+  readableGameNames,
+} from 'gambling-bot-shared'
 
 type NestedGameKeys = 'winMultipliers' | 'symbolWeights'
 
@@ -176,7 +177,7 @@ const CasinoSettingsForm = ({ guildId }: { guildId: string }) => {
             return (
               <section key={game} className="flex flex-col gap-3">
                 <h4 className="text-xl font-semibold text-yellow-400">
-                  {getReadableName(game, readableGamesNames)}{' '}
+                  {getReadableName(game, readableGameNames)}{' '}
                   {typeof rtp === 'number' ? (
                     <span className="text-xs text-gray-400 flex gap-1">
                       {`RTP: ${rtp.toFixed(2)}%`}

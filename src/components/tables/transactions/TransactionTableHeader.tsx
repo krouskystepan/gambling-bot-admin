@@ -1,9 +1,13 @@
 import { TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { ITransaction } from '@/types/types'
+import { TTransactionDiscord } from '@/types/types'
 import { flexRender, Table } from '@tanstack/react-table'
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
 
-const TransactionTableHeader = ({ table }: { table: Table<ITransaction> }) => {
+const TransactionTableHeader = ({
+  table,
+}: {
+  table: Table<TTransactionDiscord>
+}) => {
   return (
     <TableHeader>
       {table.getHeaderGroups().map((headerGroup) => (

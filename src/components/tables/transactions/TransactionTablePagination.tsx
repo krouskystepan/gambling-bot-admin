@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { formatNumberWithSpaces } from '@/lib/utils'
-import { ITransaction } from '@/types/types'
+import { TTransactionDiscord } from '@/types/types'
 import { Table } from '@tanstack/react-table'
 import {
   ChevronFirstIcon,
@@ -26,7 +26,7 @@ const TransactionTablePagination = ({
   table,
   total,
 }: {
-  table: Table<ITransaction>
+  table: Table<TTransactionDiscord>
   total: number
 }) => {
   return (

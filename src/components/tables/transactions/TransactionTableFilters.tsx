@@ -1,4 +1,4 @@
-import { ITransaction, ITransactionCounts } from '@/types/types'
+import { TTransactionDiscord, ITransactionCounts } from '@/types/types'
 import { Table as ReactTable } from '@tanstack/react-table'
 import {
   DropdownMenu,
@@ -24,7 +24,7 @@ const TransactionTableFilters = ({
   userSearchRef,
   adminSearchRef,
 }: {
-  table: ReactTable<ITransaction>
+  table: ReactTable<TTransactionDiscord>
   counts: ITransactionCounts
   isLoading: boolean
   setIsLoading: Dispatch<SetStateAction<boolean>>
@@ -53,7 +53,7 @@ const TransactionTableFilters = ({
   const sourceOptions = mapToOptions(sourceBadgeMap)
 
   function getSelectedOptions<T extends string>(
-    table: ReactTable<ITransaction>,
+    table: ReactTable<TTransactionDiscord>,
     columnId: string,
     options: Option<T>[]
   ): Option<T>[] {

@@ -6,7 +6,7 @@ import {
   managerRoleFormSchema,
   vipSettingsFormSchema,
 } from './schemas'
-import { TransactionDoc } from '@/models/Transaction'
+import { TTransaction } from 'gambling-bot-shared'
 
 export interface IGuild {
   id: string
@@ -62,10 +62,9 @@ export type TVipChannels = {
   avatar: string
 }
 
-export interface ITransaction
+export interface TTransactionDiscord
   extends Pick<
-    TransactionDoc,
-    | 'id'
+    TTransaction,
     | 'userId'
     | 'type'
     | 'amount'
@@ -75,6 +74,7 @@ export interface ITransaction
     | 'handledBy'
     | 'meta'
   > {
+  id: string
   username: string
   nickname: string | null
   avatar: string
@@ -84,8 +84,8 @@ export interface ITransaction
 }
 
 export interface ITransactionCounts {
-  type: Record<TransactionDoc['type'], number>
-  source: Record<TransactionDoc['source'], number>
+  type: Record<TTransaction['type'], number>
+  source: Record<TTransaction['source'], number>
 }
 
 export interface TUpdateUrl {

@@ -1,6 +1,5 @@
 import { formatNumberToReadableString } from '@/lib/utils'
-import { TransactionDoc } from '@/models/Transaction'
-import { ITransaction } from '@/types/types'
+import { TTransactionDiscord } from '@/types/types'
 import { ColumnDef } from '@tanstack/react-table'
 import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
@@ -14,6 +13,7 @@ import {
   // Trash
 } from 'lucide-react'
 import { typeBadgeMap, sourceBadgeMap } from './transactionBadges'
+import { TTransaction } from 'gambling-bot-shared'
 // import { Button } from '@/components/ui/button'
 // import { toast } from 'sonner'
 // import { deleteTransaction } from '@/actions/database/transaction.action'
@@ -32,7 +32,7 @@ import { typeBadgeMap, sourceBadgeMap } from './transactionBadges'
 export const transactionsColumns = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onDelete: (id: string) => void
-): ColumnDef<ITransaction>[] => [
+): ColumnDef<TTransactionDiscord>[] => [
   {
     header: 'Avatar',
     accessorKey: 'avatar',
@@ -78,7 +78,7 @@ export const transactionsColumns = (
     enableSorting: false,
     size: 80,
     cell: ({ row }) => {
-      const type = row.getValue('type') as TransactionDoc['type']
+      const type = row.getValue('type') as TTransaction['type']
       const className = typeBadgeMap[type] ?? 'bg-gray-600'
 
       const meta = row.original.meta ?? {}
@@ -175,7 +175,7 @@ export const transactionsColumns = (
     enableSorting: false,
     size: 80,
     cell: ({ row }) => {
-      const source = row.getValue('source') as TransactionDoc['source']
+      const source = row.getValue('source') as TTransaction['source']
 
       const className = sourceBadgeMap[source] ?? 'bg-gray-600'
 

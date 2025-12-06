@@ -1,12 +1,13 @@
 'use server'
 
 import { connectToDatabase } from '@/lib/utils'
-import Transaction, { TransactionDoc } from '@/models/Transaction'
+import Transaction from '@/models/Transaction'
 import { getServerSession, Session } from 'next-auth'
 import { getDiscordGuildMembers } from '../discord/member.action'
 import { FilterQuery } from 'mongoose'
-import { ITransaction, ITransactionCounts } from '@/types/types'
+import { TTransactionDiscord, ITransactionCounts } from '@/types/types'
 import { authOptions } from '@/lib/authOptions'
+import { TTransaction } from 'gambling-bot-shared'
 
 function escapeRegExp(string: string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -25,7 +26,7 @@ export const getTransactions = async (
   dateTo?: string,
   sort?: string
 ): Promise<{
-  transactions: ITransaction[]
+  transactions: TTransactionDiscord[]
   total: number
   gamePnL: number
   cashFlow: number
@@ -38,8 +39,8 @@ export const getTransactions = async (
 
   await connectToDatabase()
 
-  const query: FilterQuery<TransactionDoc> = { guildId }
-  const andFilters: FilterQuery<TransactionDoc>[] = []
+  const query: FilterQuery<TTransaction> = { guildId }
+  const andFilters: FilterQuery<TTransaction>[] = []
 
   if (search) {
     const regex = new RegExp(escapeRegExp(search), 'i')
@@ -150,7 +151,7 @@ export const getTransactions = async (
       ])
   )
 
-  const transactionsWithUser: ITransaction[] = transactions.map((tx) => {
+  const transactionsWithUser: TTransactionDiscord[] = transactions.map((tx) => {
     const user = discordMap.get(tx.userId)
     const handler = tx.handledBy ? discordMap.get(tx.handledBy) : null
 
@@ -174,7 +175,7 @@ export const getTransactions = async (
   return { transactions: transactionsWithUser, total, gamePnL, cashFlow }
 }
 
-const typeBadgeMap: Record<TransactionDoc['type'], string> = {
+const typeBadgeMap: Record<TTransaction['type'], string> = {
   deposit: '',
   withdraw: '',
   bet: '',
@@ -184,7 +185,7 @@ const typeBadgeMap: Record<TransactionDoc['type'], string> = {
   vip: '',
 }
 
-const sourceBadgeMap: Record<TransactionDoc['source'], string> = {
+const sourceBadgeMap: Record<TTransaction['source'], string> = {
   casino: '',
   command: '',
   manual: '',
@@ -206,17 +207,17 @@ export const getTransactionCounts = async (
     return {
       type: Object.fromEntries(
         Object.keys(typeBadgeMap).map((t) => [t, 0])
-      ) as Record<TransactionDoc['type'], number>,
+      ) as Record<TTransaction['type'], number>,
       source: Object.fromEntries(
         Object.keys(sourceBadgeMap).map((s) => [s, 0])
-      ) as Record<TransactionDoc['source'], number>,
+      ) as Record<TTransaction['source'], number>,
     }
   }
 
   await connectToDatabase()
 
-  const query: FilterQuery<TransactionDoc> = { guildId }
-  const andFilters: FilterQuery<TransactionDoc>[] = []
+  const query: FilterQuery<TTransaction> = { guildId }
+  const andFilters: FilterQuery<TTransaction>[] = []
 
   if (search) {
     const regex = new RegExp(escapeRegExp(search), 'i')
@@ -258,16 +259,16 @@ export const getTransactionCounts = async (
 
   const typeCounts = Object.fromEntries(
     Object.keys(typeBadgeMap).map((t) => [t, 0])
-  ) as Record<TransactionDoc['type'], number>
+  ) as Record<TTransaction['type'], number>
   typeAgg.forEach((t) => {
-    typeCounts[t._id as TransactionDoc['type']] = t.count
+    typeCounts[t._id as TTransaction['type']] = t.count
   })
 
   const sourceCounts = Object.fromEntries(
     Object.keys(sourceBadgeMap).map((s) => [s, 0])
-  ) as Record<TransactionDoc['source'], number>
+  ) as Record<TTransaction['source'], number>
   sourceAgg.forEach((s) => {
-    sourceCounts[s._id as TransactionDoc['source']] = s.count
+    sourceCounts[s._id as TTransaction['source']] = s.count
   })
 
   return { type: typeCounts, source: sourceCounts }
