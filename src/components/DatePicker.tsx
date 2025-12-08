@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   endOfMonth,
   endOfYear,
@@ -27,19 +27,10 @@ const DatePicker = ({
 }) => {
   const today = new Date()
 
-  const [month, setMonth] = useState(today)
-  const [date, setDate] = useState<DateRange | undefined>(initialRange)
-
-  useEffect(() => {
-    if (initialRange) {
-      setDate(initialRange)
-      if (initialRange.to) {
-        setMonth(initialRange.to)
-      } else if (initialRange.from) {
-        setMonth(initialRange.from)
-      }
-    }
-  }, [initialRange])
+  const [date, setDate] = useState(initialRange)
+  const [month, setMonth] = useState(
+    initialRange?.to ?? initialRange?.from ?? undefined
+  )
 
   const yesterday = {
     from: subDays(today, 1),

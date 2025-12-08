@@ -574,7 +574,7 @@ function RowActions({
               ? {
                   ...u,
                   registered: !u.registered,
-                  registeredAt: !u.registered ? new Date().toISOString() : null,
+                  registeredAt: !u.registered ? new Date() : null,
                 }
               : u
           )

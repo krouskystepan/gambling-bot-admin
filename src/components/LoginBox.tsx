@@ -15,11 +15,11 @@ const LoginBox = ({ session }: { session: Session | null }) => {
       transition={{ duration: 0.6, ease: 'easeOut' }}
       className="relative z-10 w-[92%] max-w-lg"
     >
-      <div className="relative group rounded-2xl p-[1px] bg-gradient-to-br from-yellow-500/50 via-yellow-300/20 to-transparent shadow-[0_0_40px_rgba(255,215,0,0.12)]">
+      <div className="relative group rounded-2xl p-px bg-linear-to-br from-yellow-500/50 via-yellow-300/20 to-transparent shadow-[0_0_40px_rgba(255,215,0,0.12)]">
         <div className="p-6 relative rounded-2xl bg-black/60 border border-yellow-500/20 shadow-lg">
           <div className="mb-4 flex flex-col items-center gap-3">
             <div className="flex items-center gap-2">
-              <h1 className="text-4xl !mb-0 font-extrabold bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-300 bg-clip-text text-transparent animate-gradient-x bg-size-[200%_200%]">
+              <h1 className="text-4xl mb-0 font-extrabold bg-linear-to-r from-yellow-300 via-yellow-500 to-yellow-300 bg-clip-text text-transparent animate-gradient-x bg-size-[200%_200%]">
                 {session ? 'Welcome Back!' : 'Welcome'}
               </h1>
             </div>
@@ -51,7 +51,7 @@ const LoginButton = () => {
   return (
     <Button
       onClick={() => signIn('discord', { callbackUrl: '/dashboard' })}
-      className="cursor-pointer w-full rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-3 text-white font-semibold shadow-lg hover:scale-[1.03] active:scale-[0.99] transition duration-300 h-12"
+      className="cursor-pointer w-full rounded-xl bg-linear-to-r from-blue-600 to-blue-700 px-4 py-3 text-white font-semibold shadow-lg hover:scale-[1.03] active:scale-[0.99] transition duration-300 h-12"
     >
       🎮 Login with Discord
     </Button>
@@ -75,7 +75,7 @@ const ContinueToDiscordButton = () => {
     <Button
       variant={'link'}
       asChild
-      className="w-full rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600 px-4 py-3 text-center text-black font-bold shadow-lg hover:scale-[1.02] active:scale-[0.99] transition h-13 hover:no-underline"
+      className="w-full rounded-xl bg-linear-to-r from-yellow-500 to-yellow-600 px-4 py-3 text-center text-black font-bold shadow-lg hover:scale-[1.02] active:scale-[0.99] transition h-13 hover:no-underline"
       size={'lg'}
     >
       <Link

@@ -1,5 +1,4 @@
+import { getModel } from '@/lib/utils'
 import { TTransaction, TransactionSchema } from 'gambling-bot-shared'
-import { models, model } from 'mongoose'
 
-export default models.Transaction ||
-  model<TTransaction>('Transaction', TransactionSchema)
+export default getModel<TTransaction>('Transaction', TransactionSchema)

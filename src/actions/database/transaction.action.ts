@@ -165,10 +165,10 @@ export const getTransactions = async (
       meta: tx.meta,
       amount: tx.amount,
       source: tx.source,
-      createdAt: tx.createdAt.toISOString(),
-      betId: tx.betId || null,
-      handledBy: tx.handledBy || null,
-      handledByUsername: handler?.username || null,
+      createdAt: tx.createdAt,
+      betId: tx.betId || undefined,
+      handledBy: tx.handledBy || undefined,
+      handledByUsername: handler?.username || undefined,
     }
   })
 

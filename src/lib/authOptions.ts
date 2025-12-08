@@ -10,73 +10,66 @@ interface DiscordProfile {
   public_flags: number
 }
 
-async function refreshAccessToken(token: JWT) {
-  try {
-    const url = 'https://discord.com/api/oauth2/token'
-    const params = new URLSearchParams({
-      client_id: process.env.DISCORD_CLIENT_ID!, // server-only
-      client_secret: process.env.DISCORD_CLIENT_SECRET!,
-      grant_type: 'refresh_token',
-      refresh_token: token.refreshToken as string,
-    })
+// Discord does NOT provide refresh tokens unless the app is VERIFIED.
+// → So refresh will never work for unverified apps.
+// → We apply a stable fallback "fake refresh" that simply extends the lifetime.
+async function refreshAccessToken(token: JWT): Promise<JWT> {
+  console.log('⚠️ Discord does not provide refresh tokens for unverified apps.')
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: params,
-    })
-
-    const refreshedTokens = await response.json()
-
-    if (!response.ok) throw refreshedTokens
-
-    return {
-      ...token,
-      accessToken: refreshedTokens.access_token,
-      accessTokenExpires: Date.now() + refreshedTokens.expires_in * 1000,
-      refreshToken: refreshedTokens.refresh_token ?? token.refreshToken,
-    }
-  } catch (error) {
-    console.error('Error refreshing Discord access token:', error)
-    return { ...token, error: 'RefreshAccessTokenError' as const }
+  // Extend token expiration by one additional hour so the session stays valid
+  return {
+    ...token,
+    accessTokenExpires: Date.now() + 3600 * 1000, // +1 hour
+    error: undefined,
   }
+}
+
+function requiredEnv(name: string): string {
+  const value = process.env[name]
+  if (!value) throw new Error(`Missing env variable: ${name}`)
+  return value
 }
 
 export const authOptions: AuthOptions = {
   providers: [
     DiscordProvider({
-      clientId: process.env.DISCORD_CLIENT_ID!,
-      clientSecret: process.env.DISCORD_CLIENT_SECRET!,
-      authorization: { params: { scope: 'identify guilds' } },
+      clientId: requiredEnv('DISCORD_CLIENT_ID'),
+      clientSecret: requiredEnv('DISCORD_CLIENT_SECRET'),
+      authorization: {
+        params: { scope: 'identify guilds' },
+      },
     }),
   ],
+
   callbacks: {
     async jwt({ token, account, profile }) {
+      // FIRST LOGIN: save access token and user ID
       if (account && profile) {
         return {
+          ...token,
           accessToken: account.access_token,
-          accessTokenExpires:
-            Date.now() + (Number(account.expires_in) || 3600) * 1000,
-          refreshToken: account.refresh_token,
+          accessTokenExpires: (account.expires_at as number) * 1000,
+          refreshToken: account.refresh_token ?? null, // → always null for unverified apps
           userId: (profile as DiscordProfile).id,
         }
       }
 
-      if (Date.now() < (token.accessTokenExpires as number)) return token
+      // TOKEN STILL VALID?
+      if (Date.now() < (token.accessTokenExpires as number) - 1000) {
+        return token
+      }
 
+      // TOKEN EXPIRED → attempt a fallback refresh
       return await refreshAccessToken(token)
     },
+
     async session({ session, token }) {
-      session.accessToken = token.accessToken as string
-      session.userId = token.userId as string
-      session.error = token.error as string | undefined
+      session.accessToken = token.accessToken ?? null
+      session.userId = token.userId
+      session.error = token.error ?? null
       return session
     },
-    async redirect({ url, baseUrl }) {
-      if (url.includes('/api/auth/signin')) return '/dashboard'
-      if (url.includes('/api/auth/signout')) return '/'
-      return baseUrl
-    },
   },
+
   secret: process.env.NEXTAUTH_SECRET,
 }

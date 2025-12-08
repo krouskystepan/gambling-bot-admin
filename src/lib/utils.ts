@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx'
-import mongoose from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
+import { model, models, Model } from 'mongoose'
 import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
@@ -48,4 +49,11 @@ export function getReadableName(
 ): string {
   const found = map.find((item) => item.value === key)
   return found ? found.name : key
+}
+
+export function getModel<T>(
+  name: string,
+  schema: Schema<T> | Model<T>
+): Model<T> {
+  return (models[name] as Model<T>) || model<T>(name, schema as Schema<T>)
 }

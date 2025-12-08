@@ -44,7 +44,7 @@ export type TGuildMemberStatus = {
   username: string
   nickname: string | null
   registered: boolean
-  registeredAt: string | null
+  registeredAt: Date | null
   avatar: string
   balance?: number
   netProfit?: number
