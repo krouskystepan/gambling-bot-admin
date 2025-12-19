@@ -16,10 +16,13 @@ export async function getVipSettings(
   if (!doc) return null
 
   return {
-    roleId: doc.vipSettings?.roleId ?? '',
+    roleOwnerId: doc.vipSettings?.roleOwnerId ?? '',
+    roleMemberId: doc.vipSettings?.roleMemberId ?? '',
     categoryId: doc.vipSettings?.categoryId ?? '',
+    pricePerAdditionalMember: doc.vipSettings?.pricePerAdditionalMember ?? 0,
+    maxMembers: doc.vipSettings?.maxMembers ?? 0,
     pricePerDay: doc.vipSettings?.pricePerDay ?? 0,
-    pricePerCreate: doc.vipSettings?.pricePerCreate ?? 0,
+    pricePerCreate: doc.vipSettings?.pricePerCreate ?? 0
   }
 }
 
@@ -42,9 +45,13 @@ export async function saveVipSettings(
   if (!updatedDoc) return null
 
   return {
-    roleId: updatedDoc.vipSettings?.roleId ?? '',
+    roleOwnerId: updatedDoc.vipSettings?.roleOwnerId ?? '',
+    roleMemberId: updatedDoc.vipSettings?.roleMemberId ?? '',
     categoryId: updatedDoc.vipSettings?.categoryId ?? '',
+    pricePerAdditionalMember:
+      updatedDoc.vipSettings?.pricePerAdditionalMember ?? 0,
+    maxMembers: updatedDoc.vipSettings?.maxMembers ?? 0,
     pricePerDay: updatedDoc.vipSettings?.pricePerDay ?? 0,
-    pricePerCreate: updatedDoc.vipSettings?.pricePerCreate ?? 0,
+    pricePerCreate: updatedDoc.vipSettings?.pricePerCreate ?? 0
   }
 }

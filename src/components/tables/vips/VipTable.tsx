@@ -11,7 +11,7 @@ import {
   PaginationState,
   SortingState,
   Row,
-  useReactTable,
+  useReactTable
 } from '@tanstack/react-table'
 import {
   ChevronDownIcon,
@@ -20,7 +20,7 @@ import {
   ChevronLastIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  PlusIcon,
+  PlusIcon
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -30,12 +30,12 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
+  TableRow
 } from '@/components/ui/table'
 import {
   Pagination,
   PaginationContent,
-  PaginationItem,
+  PaginationItem
 } from '@/components/ui/pagination'
 // import { formatNumberToReadableString } from '@/lib/utils'
 import { TVipChannels } from '@/types/types'
@@ -82,7 +82,7 @@ const multiColumnFilter = (
 ) => {
   const searchableContent = `${row.original.username} ${
     row.original.nickname ?? ''
-  } ${row.original.userId}`.toLowerCase()
+  } ${row.original.ownerId}`.toLowerCase()
   return searchableContent.includes(filterValue.toLowerCase())
 }
 
@@ -92,7 +92,7 @@ const VipTable = ({ vips, guildId, managerId }: VipTableProps) => {
   const [data, setData] = useState(vips)
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 10
   })
   const [sorting, setSorting] = useState<SortingState>([])
   const inputRef = useRef<HTMLInputElement>(null)
@@ -112,7 +112,7 @@ const VipTable = ({ vips, guildId, managerId }: VipTableProps) => {
           alt={row.getValue('username')}
           src={row.getValue('avatar')}
         />
-      ),
+      )
     },
     {
       header: 'Channel Name',
@@ -127,7 +127,7 @@ const VipTable = ({ vips, guildId, managerId }: VipTableProps) => {
             ({row.original.channelId})
           </span>
         </p>
-      ),
+      )
     },
     {
       header: 'Username',
@@ -139,17 +139,17 @@ const VipTable = ({ vips, guildId, managerId }: VipTableProps) => {
           {row.getValue('username')}
           <br />
           <span className="text-xs text-neutral-500">
-            ({row.original.userId})
+            ({row.original.ownerId})
           </span>
         </p>
-      ),
+      )
     },
     {
       header: 'Nickname',
       accessorKey: 'nickname',
       size: 160,
       filterFn: multiColumnFilter,
-      cell: ({ row }) => row.getValue('nickname'),
+      cell: ({ row }) => row.getValue('nickname')
     },
     {
       header: 'Created At',
@@ -160,7 +160,7 @@ const VipTable = ({ vips, guildId, managerId }: VipTableProps) => {
       cell: ({ row }) => {
         const dateString = row.getValue('createdAt') as string | null
         return dateString ? new Date(dateString).toLocaleDateString('cs') : '-'
-      },
+      }
     },
     {
       header: 'Expires At',
@@ -171,8 +171,8 @@ const VipTable = ({ vips, guildId, managerId }: VipTableProps) => {
       cell: ({ row }) => {
         const dateString = row.getValue('expiresAt') as string | null
         return dateString ? new Date(dateString).toLocaleDateString('cs') : '-'
-      },
-    },
+      }
+    }
     // {
     //   id: 'actions',
     //   header: 'Actions',
@@ -197,7 +197,7 @@ const VipTable = ({ vips, guildId, managerId }: VipTableProps) => {
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    getSortedRowModel: getSortedRowModel()
   })
 
   return (
@@ -238,7 +238,7 @@ const VipTable = ({ vips, guildId, managerId }: VipTableProps) => {
                         )}
                         {{
                           asc: <ChevronUpIcon className="w-4 h-4" />,
-                          desc: <ChevronDownIcon className="w-4 h-4" />,
+                          desc: <ChevronDownIcon className="w-4 h-4" />
                         }[header.column.getIsSorted() as string] ?? null}
                       </div>
                     ) : (

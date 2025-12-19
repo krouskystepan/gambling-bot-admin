@@ -25,11 +25,11 @@ export async function getVips(
   const channelsMap = new Map(guildChannels.map((c) => [c.id, c.name]))
 
   return docs.map((vip) => {
-    const member = membersMap.get(vip.userId)
+    const member = membersMap.get(vip.ownerId)
     const channelName = channelsMap.get(vip.channelId) || 'Unknown'
 
     return {
-      userId: vip.userId,
+      ownerId: vip.ownerId,
       guildId: vip.guildId,
       channelId: vip.channelId,
       channelName,
@@ -37,7 +37,7 @@ export async function getVips(
       createdAt: vip.createdAt,
       username: member?.username || 'Unknown',
       nickname: member?.nickname || '',
-      avatar: member?.avatarUrl || '/default-avatar.jpg',
+      avatar: member?.avatarUrl || '/default-avatar.jpg'
     }
   })
 }

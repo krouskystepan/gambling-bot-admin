@@ -13,12 +13,12 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '../ui/select'
 import { managerRoleFormSchema } from '@/types/schemas'
 import {
   getManagerRole,
-  saveManagerRole,
+  saveManagerRole
 } from '@/actions/database/managerRole.action'
 import { getGuildRoles } from '@/actions/discord/role.action'
 
@@ -26,8 +26,8 @@ const ManagerRoleForm = ({ guildId }: { guildId: string }) => {
   const form = useForm<TManagerRoleValues>({
     resolver: zodResolver(managerRoleFormSchema),
     defaultValues: {
-      managerRoleId: '',
-    },
+      managerRoleId: ''
+    }
   })
 
   const [roles, setRoles] = useState<IGuildRole[]>([])
@@ -37,12 +37,12 @@ const ManagerRoleForm = ({ guildId }: { guildId: string }) => {
       try {
         const [guildRoles, config] = await Promise.all([
           getGuildRoles(guildId),
-          getManagerRole(guildId),
+          getManagerRole(guildId)
         ])
         setRoles(guildRoles)
 
         form.reset({
-          managerRoleId: config?.managerRoleId ?? '',
+          managerRoleId: config?.managerRoleId ?? ''
         })
       } catch (err) {
         console.error(err)
@@ -74,7 +74,6 @@ const ManagerRoleForm = ({ guildId }: { guildId: string }) => {
             <h4 className="text-xl font-semibold text-yellow-400">
               Manager Role
             </h4>
-
             <FormField
               control={form.control}
               name="managerRoleId"
@@ -83,8 +82,9 @@ const ManagerRoleForm = ({ guildId }: { guildId: string }) => {
                   <Label>Manager Role</Label>
                   <FormControl>
                     <Select
-                      onValueChange={field.onChange}
+                      key={field.value}
                       value={field.value ?? ''}
+                      onValueChange={field.onChange}
                     >
                       <SelectTrigger className="bg-muted border-transparent shadow-none">
                         <SelectValue placeholder="Select Manager Role" />
@@ -99,7 +99,7 @@ const ManagerRoleForm = ({ guildId }: { guildId: string }) => {
                             <SelectItem key={role.id} value={role.id}>
                               <div className="flex items-center gap-2">
                                 <span
-                                  className="w-3 h-3 rounded-full flex-shrink-0"
+                                  className="w-3 h-3 rounded-full shrink-0"
                                   style={{ backgroundColor: hexColor }}
                                 />
                                 <span>{role.name}</span>

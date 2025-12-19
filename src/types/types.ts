@@ -4,7 +4,7 @@ import {
   casinoSettingsSchema,
   channelsFormSchema,
   managerRoleFormSchema,
-  vipSettingsFormSchema,
+  vipSettingsFormSchema
 } from './schemas'
 import { TTransaction } from 'gambling-bot-shared'
 
@@ -51,7 +51,7 @@ export type TGuildMemberStatus = {
 }
 
 export type TVipChannels = {
-  userId: string
+  ownerId: string
   guildId: string
   channelId: string
   channelName: string

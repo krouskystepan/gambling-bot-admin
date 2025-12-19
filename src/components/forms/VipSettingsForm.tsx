@@ -13,13 +13,13 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '../ui/select'
 import { Input } from '../ui/input'
 import { vipSettingsFormSchema } from '@/types/schemas'
 import {
   getVipSettings,
-  saveVipSettings,
+  saveVipSettings
 } from '@/actions/database/vipSettings.action'
 import { getGuildCategories } from '@/actions/discord/category.action'
 import { getGuildRoles } from '@/actions/discord/role.action'
@@ -28,15 +28,19 @@ const VipSettingsForm = ({ guildId }: { guildId: string }) => {
   const form = useForm<TVipSettingsValues>({
     resolver: zodResolver(vipSettingsFormSchema),
     defaultValues: {
-      roleId: '',
-      categoryId: '',
+      roleOwnerId: '',
+      roleMemberId: '',
       pricePerDay: 0,
+      pricePerAdditionalMember: 0,
+      maxMembers: 0,
       pricePerCreate: 0,
-    },
+      categoryId: ''
+    }
   })
 
   const [roles, setRoles] = useState<IGuildRole[]>([])
   const [categories, setCategories] = useState<IGuildChannel[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,18 +48,23 @@ const VipSettingsForm = ({ guildId }: { guildId: string }) => {
         const [guildRoles, guildCategories, vipConfig] = await Promise.all([
           getGuildRoles(guildId),
           getGuildCategories(guildId),
-          getVipSettings(guildId),
+          getVipSettings(guildId)
         ])
 
         setRoles(guildRoles)
         setCategories(guildCategories)
 
         form.reset({
-          roleId: vipConfig?.roleId ?? '',
+          roleOwnerId: vipConfig?.roleOwnerId ?? '',
+          roleMemberId: vipConfig?.roleMemberId ?? '',
           categoryId: vipConfig?.categoryId ?? '',
           pricePerDay: vipConfig?.pricePerDay ?? 0,
           pricePerCreate: vipConfig?.pricePerCreate ?? 0,
+          pricePerAdditionalMember: vipConfig?.pricePerAdditionalMember ?? 0,
+          maxMembers: vipConfig?.maxMembers ?? 0
         })
+
+        setLoading(false)
       } catch (err) {
         console.error(err)
       }
@@ -83,19 +92,61 @@ const VipSettingsForm = ({ guildId }: { guildId: string }) => {
           className="flex flex-col gap-4 w-1/2"
         >
           <h4 className="text-xl font-semibold text-yellow-400">
-            Channels and Categories
+            Roles and Categories
           </h4>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <FormField
               control={form.control}
-              name="roleId"
+              name="roleOwnerId"
               render={({ field }) => (
                 <FormItem>
-                  <Label>VIP Role</Label>
+                  <Label>Owner VIP Role</Label>
                   <FormControl>
                     <Select
-                      onValueChange={field.onChange}
+                      key={field.value}
                       value={field.value ?? ''}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger className="bg-muted border-transparent shadow-none">
+                        <SelectValue placeholder="Select Owner VIP Role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {roles.map((role) => {
+                          const hexColor = `#${role.color
+                            .toString(16)
+                            .padStart(6, '0')}`
+
+                          return (
+                            <SelectItem key={role.id} value={role.id}>
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className="w-3 h-3 rounded-full shrink-0"
+                                  style={{ backgroundColor: hexColor }}
+                                />
+                                <span>{role.name}</span>
+                              </div>
+                            </SelectItem>
+                          )
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="roleMemberId"
+              render={({ field }) => (
+                <FormItem>
+                  <Label>Owner Member VIP Role</Label>
+                  <FormControl>
+                    <Select
+                      key={field.value}
+                      value={field.value ?? ''}
+                      onValueChange={field.onChange}
                     >
                       <SelectTrigger className="bg-muted border-transparent shadow-none">
                         <SelectValue placeholder="Select VIP Role" />
@@ -109,7 +160,7 @@ const VipSettingsForm = ({ guildId }: { guildId: string }) => {
                             <SelectItem key={role.id} value={role.id}>
                               <div className="flex items-center gap-2">
                                 <span
-                                  className="w-3 h-3 rounded-full flex-shrink-0"
+                                  className="w-3 h-3 rounded-full shrink-0"
                                   style={{ backgroundColor: hexColor }}
                                 />
                                 <span>{role.name}</span>
@@ -133,8 +184,9 @@ const VipSettingsForm = ({ guildId }: { guildId: string }) => {
                   <Label>VIP Category</Label>
                   <FormControl>
                     <Select
-                      onValueChange={field.onChange}
+                      key={field.value}
                       value={field.value ?? ''}
+                      onValueChange={field.onChange}
                     >
                       <SelectTrigger className="bg-muted border-transparent shadow-none">
                         <SelectValue placeholder="Select Category" />
@@ -155,7 +207,7 @@ const VipSettingsForm = ({ guildId }: { guildId: string }) => {
           </div>
 
           <h4 className="text-xl font-semibold text-yellow-400">Prices</h4>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-4 gap-4">
             <FormField
               control={form.control}
               name="pricePerDay"
@@ -183,6 +235,50 @@ const VipSettingsForm = ({ guildId }: { guildId: string }) => {
               render={({ field }) => (
                 <FormItem>
                   <Label>Price per Create</Label>
+                  <FormControl>
+                    <Input
+                      className="bg-muted border-transparent shadow-none"
+                      type="text"
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '')
+                        field.onChange(Number(value))
+                      }}
+                      value={field.value}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="pricePerAdditionalMember"
+              render={({ field }) => (
+                <FormItem>
+                  <Label>Price per Additional Member</Label>
+                  <FormControl>
+                    <Input
+                      className="bg-muted border-transparent shadow-none"
+                      type="text"
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '')
+                        field.onChange(Number(value))
+                      }}
+                      value={field.value}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="maxMembers"
+              render={({ field }) => (
+                <FormItem>
+                  <Label>Max Members in VIP Room</Label>
                   <FormControl>
                     <Input
                       className="bg-muted border-transparent shadow-none"
