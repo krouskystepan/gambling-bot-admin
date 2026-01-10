@@ -1,9 +1,12 @@
 'use server'
 
-import { connectToDatabase } from '@/lib/utils'
+import { TVipRoom } from 'gambling-bot-shared'
+import { Session } from 'next-auth'
+
+import { connectToDatabase } from '@/lib/db'
 import VipRoom from '@/models/VipRoom'
 import { TVipChannels } from '@/types/types'
-import { Session } from 'next-auth'
+
 import { getGuildChannels } from '../discord/channel.action'
 import { getDiscordGuildMembers } from '../discord/member.action'
 
@@ -24,7 +27,7 @@ export async function getVips(
   const guildChannels = await getGuildChannels(guildId)
   const channelsMap = new Map(guildChannels.map((c) => [c.id, c.name]))
 
-  return docs.map((vip) => {
+  return docs.map((vip: TVipRoom) => {
     const member = membersMap.get(vip.ownerId)
     const channelName = channelsMap.get(vip.channelId) || 'Unknown'
 

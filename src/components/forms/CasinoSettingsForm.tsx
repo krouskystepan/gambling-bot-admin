@@ -1,29 +1,38 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, FormProvider, Path, UseFormReturn } from 'react-hook-form'
-import { useEffect } from 'react'
-import { Form, FormField, FormItem, FormControl, FormMessage } from '../ui/form'
-import { Label } from '../ui/label'
-import SaveButton from '../SaveButton'
-import { toast } from 'sonner'
-import { casinoSettingsSchema } from '@/types/schemas'
-import { Input } from '../ui/input'
+import {
+  calculateRTP,
+  defaultCasinoSettings,
+  readableGameNames,
+  readableGameValueNames
+} from 'gambling-bot-shared'
 import { RotateCw, TriangleAlert } from 'lucide-react'
-import { Button } from '../ui/button'
-import { TCasinoSettingsValues } from '@/types/types'
+import {
+  FormProvider,
+  Path,
+  UseFormReturn,
+  useForm,
+  useWatch
+} from 'react-hook-form'
+import { toast } from 'sonner'
 import z from 'zod'
+
+import { useEffect } from 'react'
+
 import {
   getCasinoSettings,
-  saveCasinoSettings,
+  saveCasinoSettings
 } from '@/actions/database/casinoSettings.action'
 import { getReadableName } from '@/lib/utils'
-import {
-  defaultCasinoSettings,
-  calculateRTP,
-  readableGameValueNames,
-  readableGameNames,
-} from 'gambling-bot-shared'
+import { casinoSettingsSchema } from '@/types/schemas'
+import { TCasinoSettingsValues } from '@/types/types'
+
+import SaveButton from '../SaveButton'
+import { Button } from '../ui/button'
+import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form'
+import { Input } from '../ui/input'
+import { Label } from '../ui/label'
 
 type NestedGameKeys = 'winMultipliers' | 'symbolWeights'
 
@@ -31,10 +40,10 @@ const NestedFields = ({
   game,
   settings,
   nestedKeys,
-  form,
+  form
 }: {
   game: keyof Pick<TCasinoSettingsValues, 'slots' | 'lottery' | 'roulette'>
-  settings: Record<string, unknown>
+  settings: Record<string, unknown> | undefined
   nestedKeys: NestedGameKeys[]
   form: UseFormReturn<
     z.input<typeof casinoSettingsSchema>,
@@ -43,6 +52,8 @@ const NestedFields = ({
     z.output<typeof casinoSettingsSchema>
   >
 }) => {
+  if (!settings) return null
+
   return (
     <div className="grid grid-cols-1 gap-3">
       {nestedKeys.map((nestedKey) => {
@@ -52,11 +63,11 @@ const NestedFields = ({
         return (
           <div
             key={nestedKey}
-            className="grid gap-3 mt-2"
+            className="mt-2 grid gap-3"
             style={{
               gridTemplateColumns: `repeat(${
                 Object.keys(nestedObj).length
-              }, minmax(0,1fr))`,
+              }, minmax(0,1fr))`
             }}
           >
             {Object.entries(nestedObj).map(([symbol]) => (
@@ -90,7 +101,7 @@ const NestedFields = ({
                         <Button
                           type="reset"
                           variant="ghost"
-                          className="bg-muted text-destructive/60 inline-flex w-9 items-center justify-center rounded-none rounded-e-md text-sm outline-none focus:z-10 hover:text-destructive duration-200 transition-colors cursor-pointer"
+                          className="bg-muted text-destructive/60 hover:text-destructive inline-flex w-9 cursor-pointer items-center justify-center rounded-none rounded-e-md text-sm transition-colors duration-200 outline-none focus:z-10"
                           onClick={() => {
                             const defaultGameSettings = defaultCasinoSettings[
                               game as keyof TCasinoSettingsValues
@@ -131,10 +142,12 @@ const CasinoSettingsForm = ({ guildId }: { guildId: string }) => {
     z.output<typeof casinoSettingsSchema>
   >({
     resolver: zodResolver(casinoSettingsSchema),
-    defaultValues: defaultCasinoSettings,
+    defaultValues: defaultCasinoSettings
   })
 
-  const watchedValues = form.watch()
+  const watchedValues = useWatch({
+    control: form.control
+  })
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -166,7 +179,7 @@ const CasinoSettingsForm = ({ guildId }: { guildId: string }) => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-4 w-full"
+          className="flex w-full flex-col gap-4"
         >
           {Object.entries(watchedValues).map(([game, settings]) => {
             const rtp = calculateRTP(
@@ -179,27 +192,27 @@ const CasinoSettingsForm = ({ guildId }: { guildId: string }) => {
                 <h4 className="text-xl font-semibold text-yellow-400">
                   {getReadableName(game, readableGameNames)}{' '}
                   {typeof rtp === 'number' ? (
-                    <span className="text-xs text-gray-400 flex gap-1">
+                    <span className="flex gap-1 text-xs text-gray-400">
                       {`RTP: ${rtp.toFixed(2)}%`}
                       {rtp > 95 && (
-                        <span className="text-red-500 flex gap-0.5">
+                        <span className="flex gap-0.5 text-red-500">
                           <TriangleAlert size={16} /> (≥ 95%)
                         </span>
                       )}
                     </span>
                   ) : (
-                    <div className="text-xs text-gray-400 flex flex-wrap gap-1">
+                    <div className="flex flex-wrap gap-1 text-xs text-gray-400">
                       <span className="font-medium">RTPs:</span>
                       {Object.entries(rtp).flatMap(([bet, value], i) => [
                         i > 0 && <span key={`sep-${i}`}>|</span>,
                         <span key={bet} className="flex gap-1">
                           {`${bet}: ${value.toFixed(2)}%`}
                           {value > 95 && (
-                            <span className="text-red-500 flex gap-0.5">
+                            <span className="flex gap-0.5 text-red-500">
                               <TriangleAlert size={16} /> (≥ 95%)
                             </span>
                           )}
-                        </span>,
+                        </span>
                       ])}
                     </div>
                   )}
@@ -244,7 +257,7 @@ const CasinoSettingsForm = ({ guildId }: { guildId: string }) => {
                                     <Button
                                       type="reset"
                                       variant="ghost"
-                                      className="bg-muted text-destructive/60 inline-flex w-9 items-center justify-center rounded-none rounded-e-md text-sm outline-none focus:z-10 hover:text-destructive duration-200 transition-colors cursor-pointer"
+                                      className="bg-muted text-destructive/60 hover:text-destructive inline-flex w-9 cursor-pointer items-center justify-center rounded-none rounded-e-md text-sm transition-colors duration-200 outline-none focus:z-10"
                                       onClick={() => {
                                         const defaultValue = (
                                           defaultCasinoSettings[

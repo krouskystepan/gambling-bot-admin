@@ -1,4 +1,6 @@
+import { TTransaction } from 'gambling-bot-shared'
 import z from 'zod'
+
 import {
   bonusFormSchema,
   casinoSettingsSchema,
@@ -6,7 +8,6 @@ import {
   managerRoleFormSchema,
   vipSettingsFormSchema
 } from './schemas'
-import { TTransaction } from 'gambling-bot-shared'
 
 export interface IGuild {
   id: string
@@ -62,18 +63,17 @@ export type TVipChannels = {
   avatar: string
 }
 
-export interface TTransactionDiscord
-  extends Pick<
-    TTransaction,
-    | 'userId'
-    | 'type'
-    | 'amount'
-    | 'source'
-    | 'createdAt'
-    | 'betId'
-    | 'handledBy'
-    | 'meta'
-  > {
+export interface TTransactionDiscord extends Pick<
+  TTransaction,
+  | 'userId'
+  | 'type'
+  | 'amount'
+  | 'source'
+  | 'createdAt'
+  | 'betId'
+  | 'handledBy'
+  | 'meta'
+> {
   id: string
   username: string
   nickname: string | null

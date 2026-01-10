@@ -1,13 +1,22 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, FormProvider } from 'react-hook-form'
-import { useEffect, useState } from 'react'
-import { Form, FormField, FormItem, FormControl, FormMessage } from '../ui/form'
-import { Label } from '../ui/label'
-import SaveButton from '../SaveButton'
+import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+
+import { useEffect, useState } from 'react'
+
+import {
+  getManagerRole,
+  saveManagerRole
+} from '@/actions/database/managerRole.action'
+import { getGuildRoles } from '@/actions/discord/role.action'
+import { managerRoleFormSchema } from '@/types/schemas'
 import { IGuildRole, TManagerRoleValues } from '@/types/types'
+
+import SaveButton from '../SaveButton'
+import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form'
+import { Label } from '../ui/label'
 import {
   Select,
   SelectContent,
@@ -15,12 +24,6 @@ import {
   SelectTrigger,
   SelectValue
 } from '../ui/select'
-import { managerRoleFormSchema } from '@/types/schemas'
-import {
-  getManagerRole,
-  saveManagerRole
-} from '@/actions/database/managerRole.action'
-import { getGuildRoles } from '@/actions/discord/role.action'
 
 const ManagerRoleForm = ({ guildId }: { guildId: string }) => {
   const form = useForm<TManagerRoleValues>({
@@ -68,7 +71,7 @@ const ManagerRoleForm = ({ guildId }: { guildId: string }) => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-4 w-1/3"
+          className="flex w-1/3 flex-col gap-4"
         >
           <section className="flex flex-col gap-4">
             <h4 className="text-xl font-semibold text-yellow-400">
@@ -99,7 +102,7 @@ const ManagerRoleForm = ({ guildId }: { guildId: string }) => {
                             <SelectItem key={role.id} value={role.id}>
                               <div className="flex items-center gap-2">
                                 <span
-                                  className="w-3 h-3 rounded-full shrink-0"
+                                  className="h-3 w-3 shrink-0 rounded-full"
                                   style={{ backgroundColor: hexColor }}
                                 />
                                 <span>{role.name}</span>

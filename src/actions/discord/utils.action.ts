@@ -1,55 +1,50 @@
 'use server'
 
 import { REST } from '@discordjs/rest'
-import axios from 'axios'
 import { Routes } from 'discord-api-types/v10'
 
-export const isBotInGuild = async (guildId: string): Promise<boolean> => {
-  if (!process.env.DISCORD_BOT_TOKEN) {
-    throw new Error('Bot token missing')
-  }
+import { discordBotRequest } from '@/lib/discordReq'
 
+export const isBotInGuild = async (guildId: string): Promise<boolean> => {
   try {
-    await axios.get(`https://discord.com/api/v10/guilds/${guildId}`, {
-      headers: {
-        Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
-      },
+    await discordBotRequest({
+      url: `/guilds/${guildId}`,
+      method: 'GET'
     })
+
     return true
-  } catch (err) {
-    if (axios.isAxiosError(err)) {
-      const status = err.response?.status
-      if (status === 403 || status === 404) return false
-      throw new Error(`Discord API error: ${status}`)
-    }
-    throw err
+  } catch {
+    return false
   }
 }
+
+const rest = new REST({ version: '10' }).setToken(
+  process.env.DISCORD_BOT_TOKEN!
+)
 
 export async function sendEmbed(
   channelId: string,
   title: string,
   description: string,
   color: number
-) {
-  if (!channelId) throw new Error('No channel ID provided')
-  if (!process.env.DISCORD_BOT_TOKEN) throw new Error('Discord token not set')
+): Promise<void> {
+  if (!channelId) {
+    throw new Error('No channel ID provided')
+  }
 
   try {
-    const rest = new REST({ version: '10' }).setToken(
-      process.env.DISCORD_BOT_TOKEN
-    )
-
-    const embed = {
-      title,
-      description,
-      color,
-    }
-
     await rest.post(Routes.channelMessages(channelId), {
-      body: { embeds: [embed] },
+      body: {
+        embeds: [
+          {
+            title,
+            description,
+            color
+          }
+        ]
+      }
     })
   } catch (err) {
-    console.error(`Failed to send message to channel ${channelId}:`, err)
+    console.error(`Failed to send embed to channel ${channelId}`, err)
   }
 }

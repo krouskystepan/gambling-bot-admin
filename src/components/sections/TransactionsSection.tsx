@@ -1,14 +1,16 @@
+import { getServerSession } from 'next-auth'
+
 import {
-  getTransactions,
   getTransactionCounts,
+  getTransactions
 } from '@/actions/database/transaction.action'
 import { authOptions } from '@/lib/authOptions'
-import { getServerSession } from 'next-auth'
+
 import TransactionTable from '../tables/transactions/TransactionTable'
 
 const TransactionsSection = async ({
   guildId,
-  searchParams,
+  searchParams
 }: {
   guildId: string
   searchParams?: {

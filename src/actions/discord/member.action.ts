@@ -1,21 +1,27 @@
 'use server'
 
-import axios from 'axios'
+import { discordBotRequest } from '@/lib/discordReq'
+
+type GuildMember = {
+  userId: string
+  username: string
+  nickname: string | null
+  avatarUrl: string
+}
 
 const guildMembersCache = new Map<
   string,
   {
-    data: {
-      userId: string
-      username: string
-      nickname: string | null
-      avatarUrl: string
-    }[]
+    data: GuildMember[]
     expiresAt: number
   }
 >()
 
-export const getDiscordGuildMembers = async (guildId: string) => {
+const MEMBERS_CACHE_DURATION = 60_000 // 1 min
+
+export const getDiscordGuildMembers = async (
+  guildId: string
+): Promise<GuildMember[]> => {
   const now = Date.now()
   const cached = guildMembersCache.get(guildId)
 
@@ -24,7 +30,7 @@ export const getDiscordGuildMembers = async (guildId: string) => {
   }
 
   try {
-    const { data: members } = await axios.get<
+    const members = await discordBotRequest<
       {
         user: {
           id: string
@@ -34,29 +40,30 @@ export const getDiscordGuildMembers = async (guildId: string) => {
         }
         nick?: string | null
       }[]
-    >(`https://discord.com/api/v10/guilds/${guildId}/members?limit=1000`, {
-      headers: { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}` },
+    >({
+      url: `/guilds/${guildId}/members`,
+      method: 'GET',
+      params: { limit: 1000 }
     })
 
-    const mappedMembers = members
+    const mappedMembers: GuildMember[] = members
       .filter((m) => !m.user.bot)
       .map((m) => ({
         userId: m.user.id,
         username: m.user.username,
-        nickname: m.nick || null,
+        nickname: m.nick ?? null,
         avatarUrl: m.user.avatar
           ? `https://cdn.discordapp.com/avatars/${m.user.id}/${m.user.avatar}.png?size=128`
-          : '/default-avatar.jpg',
+          : '/default-avatar.jpg'
       }))
 
     guildMembersCache.set(guildId, {
       data: mappedMembers,
-      expiresAt: now + 60_000,
+      expiresAt: now + MEMBERS_CACHE_DURATION
     })
 
     return mappedMembers
-  } catch (err) {
-    console.error(`Failed to fetch Discord members for guild ${guildId}`, err)
+  } catch {
     return []
   }
 }

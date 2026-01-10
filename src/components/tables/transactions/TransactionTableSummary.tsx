@@ -1,15 +1,16 @@
+import { CircleQuestionMark } from 'lucide-react'
+
 import { Label } from '@/components/ui/label'
 import {
   Tooltip,
   TooltipContent,
-  TooltipTrigger,
+  TooltipTrigger
 } from '@/components/ui/tooltip'
 import {
   formatNumberToReadableString,
-  formatNumberWithSpaces,
+  formatNumberWithSpaces
 } from '@/lib/utils'
 import { ITransactionCounts } from '@/types/types'
-import { CircleQuestionMark } from 'lucide-react'
 
 const getCashFlowFormula = (counts: ITransactionCounts) => {
   const { deposit, withdraw } = counts.type
@@ -25,7 +26,7 @@ const getPnLFormula = (counts: ITransactionCounts) => {
   const positiveTypes: (keyof ITransactionCounts['type'])[] = [
     'win',
     'bonus',
-    'refund',
+    'refund'
   ]
   const negativeTypes: (keyof ITransactionCounts['type'])[] = ['bet', 'vip']
 
@@ -53,7 +54,7 @@ interface SummaryPanelProps {
 const TransactionTableSummary = ({
   cashFlow,
   gamePnL,
-  counts,
+  counts
 }: SummaryPanelProps) => {
   const formatCurrency = (value: number) => {
     const roundedValue = Math.round(value)
@@ -130,7 +131,7 @@ const SummaryItem = ({
   value,
   positiveIsGreen = false,
   tooltip = undefined,
-  formatter,
+  formatter
 }: SummaryItemProps) => {
   const colorClass = positiveIsGreen
     ? value >= 0
@@ -142,17 +143,17 @@ const SummaryItem = ({
 
   return (
     <div>
-      <Label className="text-sm text-gray-500 items-center gap-1 inline-flex">
+      <Label className="inline-flex items-center gap-1 text-sm text-gray-500">
         {label}
         {tooltip ? (
           <Tooltip>
             <TooltipTrigger asChild>
               <CircleQuestionMark
                 size={16}
-                className="text-gray-500 cursor-pointer"
+                className="cursor-pointer text-gray-500"
               />
             </TooltipTrigger>
-            <TooltipContent className="flex flex-col max-w-sm">
+            <TooltipContent className="flex max-w-sm flex-col">
               <span className="font-semibold">
                 Only active items are counted.
               </span>

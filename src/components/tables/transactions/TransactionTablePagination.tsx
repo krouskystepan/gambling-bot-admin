@@ -1,30 +1,31 @@
+import { Table } from '@tanstack/react-table'
+import {
+  ChevronFirstIcon,
+  ChevronLastIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon
+} from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import {
   Pagination,
   PaginationContent,
-  PaginationItem,
+  PaginationItem
 } from '@/components/ui/pagination'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/select'
 import { formatNumberWithSpaces } from '@/lib/utils'
 import { TTransactionDiscord } from '@/types/types'
-import { Table } from '@tanstack/react-table'
-import {
-  ChevronFirstIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronLastIcon,
-} from 'lucide-react'
 
 const TransactionTablePagination = ({
   table,
-  total,
+  total
 }: {
   table: Table<TTransactionDiscord>
   total: number

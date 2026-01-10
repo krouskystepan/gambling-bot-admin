@@ -1,79 +1,41 @@
 'use client'
 
-import { useRef, useState } from 'react'
 import {
   ColumnDef,
+  PaginationState,
+  Row,
+  SortingState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  PaginationState,
-  SortingState,
-  Row,
-  useReactTable,
+  useReactTable
 } from '@tanstack/react-table'
 import {
   ChevronDownIcon,
-  ChevronUpIcon,
-  EllipsisIcon,
   ChevronFirstIcon,
   ChevronLastIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  ChevronUpIcon,
   CircleQuestionMark,
+  EllipsisIcon
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-} from '@/components/ui/pagination'
-import { cn, formatNumberToReadableString } from '@/lib/utils'
-import { TGuildMemberStatus } from '@/types/types'
-import Image from 'next/image'
 import { toast } from 'sonner'
+
+import { useRef, useState } from 'react'
+
+import Image from 'next/image'
+
 import {
+  bonusBalance,
   depositBalance,
-  withdrawBalance,
+  registerUser,
   resetBalance,
   unregisterUser,
-  registerUser,
-  bonusBalance,
+  withdrawBalance
 } from '@/actions/database/user.action'
-import { Badge } from '@/components/ui/badge'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -82,8 +44,49 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialogTitle
 } from '@/components/ui/alert-dialog'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem
+} from '@/components/ui/pagination'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
+import { cn, formatNumberToReadableString } from '@/lib/utils'
+import { TGuildMemberStatus } from '@/types/types'
 
 interface UserTableProps {
   users: TGuildMemberStatus[]
@@ -106,13 +109,13 @@ const UserTable = ({ users, guildId, managerId }: UserTableProps) => {
   const [data, setData] = useState(users)
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 10
   })
   const [sorting, setSorting] = useState<SortingState>([
     {
       id: 'balance',
-      desc: true,
-    },
+      desc: true
+    }
   ])
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -131,7 +134,7 @@ const UserTable = ({ users, guildId, managerId }: UserTableProps) => {
           alt={row.getValue('username')}
           src={row.getValue('avatar')}
         />
-      ),
+      )
     },
     {
       header: 'Username',
@@ -146,13 +149,13 @@ const UserTable = ({ users, guildId, managerId }: UserTableProps) => {
             ({row.original.userId})
           </span>
         </p>
-      ),
+      )
     },
     {
       header: 'Nickname',
       accessorKey: 'nickname',
       size: 140,
-      filterFn: multiColumnFilter,
+      filterFn: multiColumnFilter
     },
     {
       header: 'Balance',
@@ -161,7 +164,7 @@ const UserTable = ({ users, guildId, managerId }: UserTableProps) => {
       cell: ({ row }) =>
         row.original.registered
           ? `${formatNumberToReadableString(row.getValue('balance'))}`
-          : '-',
+          : '-'
     },
     {
       header: 'Profit/Loss',
@@ -186,7 +189,7 @@ const UserTable = ({ users, guildId, managerId }: UserTableProps) => {
             ${formatNumberToReadableString(netProfit)}
           </span>
         )
-      },
+      }
     },
     {
       header: 'Registered At',
@@ -197,7 +200,7 @@ const UserTable = ({ users, guildId, managerId }: UserTableProps) => {
       cell: ({ row }) => {
         const dateString = row.getValue('registeredAt') as string | null
         return dateString ? new Date(dateString).toLocaleDateString('cs') : '-'
-      },
+      }
     },
     {
       header: 'Registered',
@@ -216,7 +219,7 @@ const UserTable = ({ users, guildId, managerId }: UserTableProps) => {
             {isRegistered ? 'Registered' : 'Not Registered'}
           </Badge>
         )
-      },
+      }
     },
     {
       id: 'actions',
@@ -229,10 +232,11 @@ const UserTable = ({ users, guildId, managerId }: UserTableProps) => {
           managerId={managerId}
           setData={setData}
         />
-      ),
-    },
+      )
+    }
   ]
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
@@ -242,7 +246,7 @@ const UserTable = ({ users, guildId, managerId }: UserTableProps) => {
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    getSortedRowModel: getSortedRowModel()
   })
 
   const totalBalance = data
@@ -257,14 +261,14 @@ const UserTable = ({ users, guildId, managerId }: UserTableProps) => {
   const totalProfitStr = `$${formatNumberToReadableString(totalNetProfit)}`
 
   return (
-    <div className="space-y-4 w-5xl">
+    <div className="w-5xl space-y-4">
       <Input
         ref={inputRef}
         placeholder="Search by username, nickname or ID..."
         onChange={(e) =>
           table.getColumn('username')?.setFilterValue(e.target.value)
         }
-        className="max-w-xs mb-4"
+        className="mb-4 max-w-xs"
       />
 
       <div className="overflow-hidden rounded-md border">
@@ -279,7 +283,7 @@ const UserTable = ({ users, guildId, managerId }: UserTableProps) => {
                   >
                     {header.isPlaceholder ? null : header.column.getCanSort() ? (
                       <div
-                        className="flex items-center gap-2 cursor-pointer select-none"
+                        className="flex cursor-pointer items-center gap-2 select-none"
                         onClick={header.column.getToggleSortingHandler()}
                       >
                         {flexRender(
@@ -287,8 +291,8 @@ const UserTable = ({ users, guildId, managerId }: UserTableProps) => {
                           header.getContext()
                         )}
                         {{
-                          asc: <ChevronUpIcon className="w-4 h-4" />,
-                          desc: <ChevronDownIcon className="w-4 h-4" />,
+                          asc: <ChevronUpIcon className="h-4 w-4" />,
+                          desc: <ChevronDownIcon className="h-4 w-4" />
                         }[header.column.getIsSorted() as string] ?? null}
                       </div>
                     ) : (
@@ -323,7 +327,7 @@ const UserTable = ({ users, guildId, managerId }: UserTableProps) => {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="text-center py-6"
+                  className="py-6 text-center"
                 >
                   No results.
                 </TableCell>
@@ -344,8 +348,8 @@ const UserTable = ({ users, guildId, managerId }: UserTableProps) => {
                   totalNetProfit > 0
                     ? 'text-green-500'
                     : totalNetProfit < 0
-                    ? 'text-red-500'
-                    : 'text-white'
+                      ? 'text-red-500'
+                      : 'text-white'
                 )}
               >
                 {totalProfitStr}
@@ -452,7 +456,7 @@ function RowActions({
   row,
   guildId,
   managerId,
-  setData,
+  setData
 }: {
   row: Row<TGuildMemberStatus>
   guildId: string
@@ -574,7 +578,7 @@ function RowActions({
               ? {
                   ...u,
                   registered: !u.registered,
-                  registeredAt: !u.registered ? new Date() : null,
+                  registeredAt: !u.registered ? new Date() : null
                 }
               : u
           )
@@ -595,7 +599,7 @@ function RowActions({
       >
         <DropdownMenuTrigger asChild>
           <Button size="icon" variant="ghost">
-            <EllipsisIcon className="w-5 h-5" />
+            <EllipsisIcon className="h-5 w-5" />
           </Button>
         </DropdownMenuTrigger>
 
@@ -607,14 +611,14 @@ function RowActions({
               deposit: 'Deposit',
               withdraw: 'Withdraw',
               bonus: 'Bonus',
-              reset: 'Reset',
+              reset: 'Reset'
             }
 
             const descriptions: Record<string, string> = {
               deposit: 'Add balance to user account.',
               withdraw: 'Remove balance from user account.',
               reset: 'Reset user balance (delete all transactions).',
-              bonus: 'Give a bonus to user account.',
+              bonus: 'Give a bonus to user account.'
             }
 
             return (
@@ -630,11 +634,11 @@ function RowActions({
               >
                 {labels[action]}
                 <Tooltip>
-                  <TooltipTrigger className="ml-2 text-gray-400 hover:text-gray-600 transition">
+                  <TooltipTrigger className="ml-2 text-gray-400 transition hover:text-gray-600">
                     <CircleQuestionMark size={16} />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p className="font-semibold mb-1">{labels[action]}</p>
+                    <p className="mb-1 font-semibold">{labels[action]}</p>
                     <p className="text-sm">{descriptions[action]}</p>
                   </TooltipContent>
                 </Tooltip>
@@ -651,11 +655,11 @@ function RowActions({
           >
             {row.original.registered ? 'Unregister' : 'Register'}
             <Tooltip>
-              <TooltipTrigger className="ml-2 text-gray-400 hover:text-gray-600 transition">
+              <TooltipTrigger className="ml-2 text-gray-400 transition hover:text-gray-600">
                 <CircleQuestionMark size={16} />
               </TooltipTrigger>
               <TooltipContent>
-                <p className="font-semibold mb-1">
+                <p className="mb-1 font-semibold">
                   {row.original.registered ? 'Unregister' : 'Register'}
                 </p>
                 <p className="text-sm">
@@ -690,7 +694,7 @@ function RowActions({
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="border rounded p-2 w-full my-2"
+              className="my-2 w-full rounded border p-2"
               placeholder="Enter amount"
             />
           )}

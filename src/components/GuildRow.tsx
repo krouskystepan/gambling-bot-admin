@@ -1,8 +1,10 @@
 'use client'
 
-import { IGuild } from '@/types/types'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+
+import { IGuild } from '@/types/types'
+
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 
 const GuildRow = ({ guild }: { guild: IGuild }) => {
@@ -13,10 +15,10 @@ const GuildRow = ({ guild }: { guild: IGuild }) => {
   return (
     <a
       href={`/dashboard/g/${guild.id}`}
-      className="group overflow-hidden flex items-center justify-center rounded-lg"
+      className="group flex items-center justify-center overflow-hidden rounded-lg"
     >
       <div
-        className={`transition-all duration-200 opacity-0 absolute -left-1 w-2 bg-white rounded-r-sm ${
+        className={`absolute -left-1 w-2 rounded-r-sm bg-white opacity-0 transition-all duration-200 ${
           activeGuildId === guild.id
             ? 'h-10 opacity-100'
             : 'h-6 group-hover:opacity-100'
@@ -34,7 +36,7 @@ const GuildRow = ({ guild }: { guild: IGuild }) => {
               width={40}
             />
           ) : (
-            <div className="size-10 bg-gray-600 flex items-center justify-center text-sm text-white">
+            <div className="flex size-10 items-center justify-center bg-gray-600 text-sm text-white">
               {guild.name.slice(0, 2).toUpperCase()}
             </div>
           )}

@@ -1,10 +1,11 @@
-import { TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { TTransactionDiscord } from '@/types/types'
-import { flexRender, Table } from '@tanstack/react-table'
+import { Table, flexRender } from '@tanstack/react-table'
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
 
+import { TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { TTransactionDiscord } from '@/types/types'
+
 const TransactionTableHeader = ({
-  table,
+  table
 }: {
   table: Table<TTransactionDiscord>
 }) => {
@@ -19,7 +20,7 @@ const TransactionTableHeader = ({
             >
               {header.isPlaceholder ? null : header.column.getCanSort() ? (
                 <div
-                  className="flex items-center gap-2 cursor-pointer select-none"
+                  className="flex cursor-pointer items-center gap-2 select-none"
                   onClick={header.column.getToggleSortingHandler()}
                 >
                   {flexRender(
@@ -27,8 +28,8 @@ const TransactionTableHeader = ({
                     header.getContext()
                   )}
                   {{
-                    asc: <ChevronUpIcon className="w-4 h-4" />,
-                    desc: <ChevronDownIcon className="w-4 h-4" />,
+                    asc: <ChevronUpIcon className="h-4 w-4" />,
+                    desc: <ChevronDownIcon className="h-4 w-4" />
                   }[header.column.getIsSorted() as string] ?? null}
                 </div>
               ) : (

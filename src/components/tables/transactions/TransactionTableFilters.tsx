@@ -1,20 +1,24 @@
-import { TTransactionDiscord, ITransactionCounts } from '@/types/types'
 import { Table as ReactTable } from '@tanstack/react-table'
+import { Columns3Icon, RefreshCcw } from 'lucide-react'
+
+import { Dispatch, RefObject, SetStateAction } from 'react'
+
+import { useRouter } from 'next/navigation'
+
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuLabel,
-  DropdownMenuCheckboxItem,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { Button } from '@/components/ui/button'
-import { Columns3Icon, RefreshCcw } from 'lucide-react'
+import { ITransactionCounts, TTransactionDiscord } from '@/types/types'
+
 import DatePicker from '../../DatePicker'
-import { useRouter } from 'next/navigation'
-import { sourceBadgeMap, typeBadgeMap } from './transactionBadges'
-import TransactionSearch from './TransactionTableSearch'
 import TransactionFilter from './TransactionTableFilter'
-import { Dispatch, RefObject, SetStateAction } from 'react'
+import TransactionSearch from './TransactionTableSearch'
+import { sourceBadgeMap, typeBadgeMap } from './transactionBadges'
 
 const TransactionTableFilters = ({
   table,
@@ -22,7 +26,7 @@ const TransactionTableFilters = ({
   isLoading,
   setIsLoading,
   userSearchRef,
-  adminSearchRef,
+  adminSearchRef
 }: {
   table: ReactTable<TTransactionDiscord>
   counts: ITransactionCounts
@@ -45,7 +49,7 @@ const TransactionTableFilters = ({
     return Object.keys(entries).map((key, idx) => ({
       value: `${key}-${idx}`,
       label: key.charAt(0).toUpperCase() + key.slice(1).toLowerCase(),
-      realValue: key as T,
+      realValue: key as T
     }))
   }
 
@@ -84,7 +88,7 @@ const TransactionTableFilters = ({
 
   return (
     <div className="flex justify-between gap-2">
-      <div className="flex gap-2 flex-1 min-w-0">
+      <div className="flex min-w-0 flex-1 gap-2">
         <TransactionSearch
           table={table}
           inputRef={userSearchRef}
@@ -147,7 +151,7 @@ const TransactionTableFilters = ({
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-[38px]">
+            <Button variant="outline" className="h-9.5">
               <Columns3Icon size={16} className="-ms-1 size-4 opacity-60" />{' '}
               View
             </Button>
@@ -179,7 +183,7 @@ const TransactionTableFilters = ({
             const url = new URL(window.location.href)
             router.replace(url.pathname + url.search, { scroll: false })
           }}
-          className="h-[38px] flex justify-between items-center"
+          className="flex h-9.5 items-center justify-between"
           disabled={isLoading}
         >
           <RefreshCcw

@@ -1,29 +1,38 @@
 'use client'
 
-import { useRef, useState } from 'react'
 import {
   ColumnDef,
+  PaginationState,
+  Row,
+  SortingState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  PaginationState,
-  SortingState,
-  Row,
   useReactTable
 } from '@tanstack/react-table'
 import {
   ChevronDownIcon,
-  ChevronUpIcon,
   ChevronFirstIcon,
   ChevronLastIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  ChevronUpIcon,
   PlusIcon
 } from 'lucide-react'
+
+import { useRef, useState } from 'react'
+
+import Image from 'next/image'
+
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem
+} from '@/components/ui/pagination'
 import {
   Table,
   TableBody,
@@ -32,14 +41,9 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem
-} from '@/components/ui/pagination'
 // import { formatNumberToReadableString } from '@/lib/utils'
 import { TVipChannels } from '@/types/types'
-import Image from 'next/image'
+
 // import {
 //   DropdownMenu,
 //   DropdownMenuContent,
@@ -188,6 +192,7 @@ const VipTable = ({ vips, guildId, managerId }: VipTableProps) => {
     // },
   ]
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
@@ -201,7 +206,7 @@ const VipTable = ({ vips, guildId, managerId }: VipTableProps) => {
   })
 
   return (
-    <div className="space-y-4 w-5xl">
+    <div className="w-5xl space-y-4">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <Input
           ref={inputRef}
@@ -229,7 +234,7 @@ const VipTable = ({ vips, guildId, managerId }: VipTableProps) => {
                   >
                     {header.isPlaceholder ? null : header.column.getCanSort() ? (
                       <div
-                        className="flex items-center gap-2 cursor-pointer select-none"
+                        className="flex cursor-pointer items-center gap-2 select-none"
                         onClick={header.column.getToggleSortingHandler()}
                       >
                         {flexRender(
@@ -237,8 +242,8 @@ const VipTable = ({ vips, guildId, managerId }: VipTableProps) => {
                           header.getContext()
                         )}
                         {{
-                          asc: <ChevronUpIcon className="w-4 h-4" />,
-                          desc: <ChevronDownIcon className="w-4 h-4" />
+                          asc: <ChevronUpIcon className="h-4 w-4" />,
+                          desc: <ChevronDownIcon className="h-4 w-4" />
                         }[header.column.getIsSorted() as string] ?? null}
                       </div>
                     ) : (
@@ -273,7 +278,7 @@ const VipTable = ({ vips, guildId, managerId }: VipTableProps) => {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="text-center py-6"
+                  className="py-6 text-center"
                 >
                   No results.
                 </TableCell>

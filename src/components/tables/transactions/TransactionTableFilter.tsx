@@ -1,12 +1,13 @@
+import { FilterIcon } from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger,
+  PopoverTrigger
 } from '@/components/ui/popover'
-import { FilterIcon } from 'lucide-react'
 
 type Option<T = string> = {
   value: string
@@ -29,12 +30,12 @@ const TransactionTableFilter = <T extends string>({
   selected,
   counts,
   columnId,
-  onChange,
+  onChange
 }: TransactionFilterProps<T>) => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="h-[38px]">
+        <Button variant="outline" className="h-9.5">
           <FilterIcon
             className="-ms-1 opacity-60"
             size={16}

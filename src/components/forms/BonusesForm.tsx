@@ -1,28 +1,31 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, FormProvider, useWatch } from 'react-hook-form'
-import { useEffect } from 'react'
-import { FormField, FormItem, FormControl, FormMessage, Form } from '../ui/form'
-import { Label } from '../ui/label'
-import SaveButton from '../SaveButton'
+import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
-import { Input } from '../ui/input'
-import { formatNumberToReadableString } from '@/lib/utils'
-import { Switch } from '../ui/switch'
+
+import { useEffect } from 'react'
+
 import {
   getBonusSettings,
-  saveBonusSettings,
+  saveBonusSettings
 } from '@/actions/database/bonusSettings.action'
+import { formatNumberToReadableString } from '@/lib/utils'
 import { bonusFormSchema } from '@/types/schemas'
 import { TBonusFormValues } from '@/types/types'
+
+import SaveButton from '../SaveButton'
+import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form'
+import { Input } from '../ui/input'
+import { Label } from '../ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '../ui/select'
+import { Switch } from '../ui/switch'
 
 const BonusesForm = ({ guildId }: { guildId: string }) => {
   const form = useForm<TBonusFormValues>({
@@ -36,9 +39,9 @@ const BonusesForm = ({ guildId }: { guildId: string }) => {
       resetOnMax: false,
       milestoneBonus: {
         weekly: 0,
-        monthly: 0,
-      },
-    },
+        monthly: 0
+      }
+    }
   })
 
   useEffect(() => {
@@ -73,9 +76,9 @@ const BonusesForm = ({ guildId }: { guildId: string }) => {
     resetOnMax = false,
     milestoneBonus: {
       weekly: milestoneWeekly = 0,
-      monthly: milestoneMonthly = 0,
+      monthly: milestoneMonthly = 0
     } = {},
-    rewardMode = 'linear',
+    rewardMode = 'linear'
   } = watched ?? {}
 
   const preview: {
@@ -128,7 +131,7 @@ const BonusesForm = ({ guildId }: { guildId: string }) => {
       reward: total,
       base: baseOnly,
       weekly: weeklyOnly,
-      monthly: monthlyOnly,
+      monthly: monthlyOnly
     })
 
     simRewardStreak++
@@ -139,13 +142,13 @@ const BonusesForm = ({ guildId }: { guildId: string }) => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-4 w-full max-w-2xl"
+          className="flex w-full max-w-2xl flex-col gap-4"
         >
           <h4 className="text-xl font-semibold text-yellow-400">
             Bonus Settings
           </h4>
 
-          <div className="grid grid-cols-3 gap-4 w-full">
+          <div className="grid w-full grid-cols-3 gap-4">
             <FormField
               control={form.control}
               name="rewardMode"
@@ -324,11 +327,11 @@ const BonusesForm = ({ guildId }: { guildId: string }) => {
 
           <SaveButton />
 
-          <div className="p-2 w-full text-white">
-            <h5 className="text-yellow-400 font-semibold mb-2 text-lg">
+          <div className="w-full p-2 text-white">
+            <h5 className="mb-2 text-lg font-semibold text-yellow-400">
               Preview (Next 90 Days)
             </h5>
-            <div className="grid grid-cols-3 gap-4 max-h-[540px] overflow-y-auto hide-scrollbar">
+            <div className="hide-scrollbar grid max-h-135 grid-cols-3 gap-4 overflow-y-auto">
               {preview.map((p) => {
                 const weekly = p.weekly
                 const monthly = p.monthly
@@ -339,8 +342,8 @@ const BonusesForm = ({ guildId }: { guildId: string }) => {
                 return (
                   <div
                     key={p.day}
-                    className={`flex flex-col p-2 border-b border-gray-700 ${
-                      isResetRow ? 'bg-red-900/20 rounded-lg' : ''
+                    className={`flex flex-col border-b border-gray-700 p-2 ${
+                      isResetRow ? 'rounded-lg bg-red-900/20' : ''
                     }`}
                   >
                     <div className="flex justify-between">
@@ -354,12 +357,12 @@ const BonusesForm = ({ guildId }: { guildId: string }) => {
                         B: {formatNumberToReadableString(baseOnly)}
                       </span>
                       {weekly > 0 && (
-                        <span className="text-blue-400 font-medium">
+                        <span className="font-medium text-blue-400">
                           W: {formatNumberToReadableString(weekly)}
                         </span>
                       )}
                       {monthly > 0 && (
-                        <span className="text-green-400 font-bold">
+                        <span className="font-bold text-green-400">
                           M: {formatNumberToReadableString(monthly)}
                         </span>
                       )}

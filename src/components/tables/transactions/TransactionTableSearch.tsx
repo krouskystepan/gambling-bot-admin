@@ -1,7 +1,9 @@
+import { Table } from '@tanstack/react-table'
+
+import React, { ChangeEvent, RefObject } from 'react'
+
 import { Input } from '@/components/ui/input'
 import { TTransactionDiscord } from '@/types/types'
-import { Table } from '@tanstack/react-table'
-import React, { ChangeEvent, RefObject } from 'react'
 
 interface TransactionSearchProps {
   table: Table<TTransactionDiscord>
@@ -16,7 +18,7 @@ const TransactionTableSearch = ({
   inputRef,
   inputType,
   placeholder,
-  initialValue = '',
+  initialValue = ''
 }: TransactionSearchProps) => {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -29,7 +31,7 @@ const TransactionTableSearch = ({
       placeholder={placeholder}
       value={initialValue}
       onChange={handleChange}
-      className="max-w-60 h-[38px]"
+      className="h-[38px] max-w-60"
     />
   )
 }

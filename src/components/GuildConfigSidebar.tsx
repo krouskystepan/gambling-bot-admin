@@ -1,36 +1,37 @@
 'use client'
 
-import Link from 'next/link'
 import {
+  Award,
+  ChartBar,
   Crown,
+  Dices,
+  Home,
+  Landmark,
   LucideIcon,
   MessagesSquare,
   ShieldCheck,
-  Dices,
-  User,
-  Home,
-  ChartBar,
-  Award,
-  Landmark,
+  User
 } from 'lucide-react'
-import { usePathname } from 'next/navigation'
 import { undefined } from 'zod'
+
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 const LINKS = [
   {
     title: 'General',
     links: [
       { id: 'home', label: 'Home', icon: Home },
-      { id: 'transactions', label: 'Transactions', icon: Landmark },
-    ],
+      { id: 'transactions', label: 'Transactions', icon: Landmark }
+    ]
   },
   {
     title: 'Manage',
     links: [
       { id: 'users', label: 'Users', icon: User },
       { id: 'vips', label: 'VIPs', icon: Crown },
-      { id: 'predictions', label: 'Predictions', icon: ChartBar },
-    ],
+      { id: 'predictions', label: 'Predictions', icon: ChartBar }
+    ]
   },
   {
     title: 'Setup',
@@ -39,9 +40,9 @@ const LINKS = [
       { id: 'managerRoleId', label: 'Manager Role', icon: ShieldCheck },
       { id: 'vipSettings', label: 'VIP', icon: Crown },
       { id: 'bonusSettings', label: 'Bonuses', icon: Award },
-      { id: 'casinoSettings', label: 'Casino', icon: Dices },
-    ],
-  },
+      { id: 'casinoSettings', label: 'Casino', icon: Dices }
+    ]
+  }
 ]
 
 interface GuildConfigSidebarProps {
@@ -53,24 +54,24 @@ interface GuildConfigSidebarProps {
 const GuildConfigSidebar = ({
   guildId,
   guildName,
-  isAdmin,
+  isAdmin
 }: GuildConfigSidebarProps) => {
   const pathname = usePathname()
   const activeSectionId = pathname.split('/')[4] || undefined
 
   return (
-    <section className="w-60 bg-black/40 border-r border-yellow-500/10 flex flex-col">
+    <section className="flex w-60 flex-col border-r border-yellow-500/10 bg-black/40">
       <div className="p-3 text-center text-lg font-bold text-yellow-400">
         {guildName}
       </div>
 
-      <aside className="flex-1 overflow-y-auto p-3 flex flex-col gap-4">
+      <aside className="flex flex-1 flex-col gap-4 overflow-y-auto p-3">
         {LINKS.map((group) => {
           if (group.title === 'Setup' && !isAdmin) return null
 
           return (
             <div key={group.title} className="flex flex-col gap-1">
-              <div className="px-3 py-1 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              <div className="px-3 py-1 text-xs font-semibold tracking-wider text-gray-400 uppercase">
                 {group.title}
               </div>
 
@@ -79,14 +80,8 @@ const GuildConfigSidebar = ({
                 return (
                   <Link
                     key={link.id}
-                    href={
-                      link.id === 'home'
-                        ? { pathname: `/dashboard/g/${guildId}` }
-                        : {
-                            pathname: `/dashboard/g/${guildId}/${link.id}`,
-                          }
-                    }
-                    className="flex items-center gap-2 px-5 py-2 text-gray-200 rounded hover:bg-yellow-500/10 hover:text-yellow-400 transition text-sm relative overflow-hidden"
+                    href={`/dashboard/g/${guildId}/${link.id}`}
+                    className="relative flex items-center gap-2 overflow-hidden rounded px-5 py-2 text-sm text-gray-200 transition hover:bg-yellow-500/10 hover:text-yellow-400"
                   >
                     {activeSectionId === link.id ||
                     (link.id === 'home' && activeSectionId === undefined) ? (

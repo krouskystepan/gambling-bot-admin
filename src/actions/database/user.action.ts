@@ -1,14 +1,19 @@
 'use server'
 
-import GuildConfiguration from '@/models/GuildConfiguration'
-import { revalidatePath } from 'next/cache'
-import User from '@/models/User'
-import { connectToDatabase, formatNumberToReadableString } from '@/lib/utils'
-import { TGuildMemberStatus } from '@/types/types'
+import { TUser } from 'gambling-bot-shared'
 import { Session } from 'next-auth'
+
+import { revalidatePath } from 'next/cache'
+
+import { connectToDatabase } from '@/lib/db'
+import { formatNumberToReadableString } from '@/lib/utils'
+import GuildConfiguration from '@/models/GuildConfiguration'
+import Transaction from '@/models/Transaction'
+import User from '@/models/User'
+import { TGuildMemberStatus } from '@/types/types'
+
 import { getDiscordGuildMembers } from '../discord/member.action'
 import { sendEmbed } from '../discord/utils.action'
-import Transaction from '@/models/Transaction'
 
 export async function registerUser(
   userId: string,
@@ -106,7 +111,7 @@ export async function depositBalance(
       type: 'deposit',
       source: 'web',
       handledBy: managerId,
-      createdAt: new Date(),
+      createdAt: new Date()
     })
 
     const guildConfig = await GuildConfiguration.findOne({ guildId })
@@ -159,7 +164,7 @@ export async function withdrawBalance(
       type: 'withdraw',
       source: 'web',
       handledBy: managerId,
-      createdAt: new Date(),
+      createdAt: new Date()
     })
 
     const guildConfig = await GuildConfiguration.findOne({ guildId })
@@ -196,7 +201,7 @@ export async function getUserWithRegistrationStatus(
 
   await connectToDatabase()
 
-  const dbUsers = await User.find({ guildId })
+  const dbUsers = (await User.find({ guildId })) as TUser[]
   const dbUsersMap = new Map(dbUsers.map((u) => [u.userId, u]))
 
   const discordMembers = await getDiscordGuildMembers(guildId)
@@ -226,7 +231,7 @@ export async function getUserWithRegistrationStatus(
 
   const allUserIds = new Set<string>([
     ...dbUsers.map((u) => u.userId),
-    ...discordMembers.map((m) => m.userId),
+    ...discordMembers.map((m) => m.userId)
   ])
 
   return Array.from(allUserIds).map((userId) => {
@@ -241,7 +246,7 @@ export async function getUserWithRegistrationStatus(
       registered: !!dbUser,
       registeredAt: dbUser?.createdAt || null,
       balance: dbUser?.balance || 0,
-      netProfit: netProfitMap.get(userId) || 0,
+      netProfit: netProfitMap.get(userId) || 0
     }
   })
 }
@@ -260,7 +265,7 @@ export async function resetBalance(
 
     await Transaction.deleteMany({
       userId,
-      guildId,
+      guildId
     })
 
     const guildConfig = await GuildConfiguration.findOne({ guildId })
@@ -306,7 +311,7 @@ export async function bonusBalance(
       type: 'bonus',
       source: 'web',
       handledBy: managerId,
-      createdAt: new Date(),
+      createdAt: new Date()
     })
 
     const guildConfig = await GuildConfiguration.findOne({ guildId })

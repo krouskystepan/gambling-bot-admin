@@ -1,4 +1,5 @@
-import { getModel } from '@/lib/utils'
-import { TPrediction, PredictionSchema } from 'gambling-bot-shared'
+import { PredictionSchema, TPrediction } from 'gambling-bot-shared'
+
+import { getModel } from '@/lib/db'
 
 export default getModel<TPrediction>('Prediction', PredictionSchema)

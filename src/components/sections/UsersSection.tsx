@@ -1,6 +1,8 @@
-import { authOptions } from '@/lib/authOptions'
 import { getServerSession } from 'next-auth'
+
 import { getUserWithRegistrationStatus } from '@/actions/database/user.action'
+import { authOptions } from '@/lib/authOptions'
+
 import UserTable from '../tables/users/UserTable'
 
 const UsersSection = async ({ guildId }: { guildId: string }) => {
@@ -9,7 +11,7 @@ const UsersSection = async ({ guildId }: { guildId: string }) => {
 
   return (
     <div>
-      <h4 className="text-3xl font-semibold text-yellow-400 mb-4">Users</h4>
+      <h4 className="mb-4 text-3xl font-semibold text-yellow-400">Users</h4>
 
       <UserTable users={users} guildId={guildId} managerId={session!.userId!} />
     </div>

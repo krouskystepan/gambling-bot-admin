@@ -1,41 +1,44 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, FormProvider } from 'react-hook-form'
-import { z } from 'zod'
-import { useEffect, useState } from 'react'
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormControl,
-  FormDescription,
-  FormMessage,
-} from '../ui/form'
-import { Label } from '../ui/label'
-import { IGuildChannel, TChannelsFormValues } from '@/types/types'
-import SaveButton from '../SaveButton'
+import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { z } from 'zod'
+
+import { useEffect, useState } from 'react'
+
+import { getChannels, saveChannels } from '@/actions/database/channels.action'
+import { getGuildChannels } from '@/actions/discord/channel.action'
 import {
   atmChannelsFormSchema,
-  predictionChannelsFormSchema,
   casinoChannelsFormSchema,
+  predictionChannelsFormSchema
 } from '@/types/schemas'
+import { IGuildChannel, TChannelsFormValues } from '@/types/types'
+
+import SaveButton from '../SaveButton'
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormMessage
+} from '../ui/form'
+import { Label } from '../ui/label'
+import MultipleSelector from '../ui/multiselect'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '../ui/select'
-import MultipleSelector from '../ui/multiselect'
-import { getChannels, saveChannels } from '@/actions/database/channels.action'
-import { getGuildChannels } from '@/actions/discord/channel.action'
 
 const channelsFormSchema = z.object({
   atm: atmChannelsFormSchema,
   casino: casinoChannelsFormSchema,
-  prediction: predictionChannelsFormSchema,
+  prediction: predictionChannelsFormSchema
 })
 
 const ChannelsForm = ({ guildId }: { guildId: string }) => {
@@ -44,8 +47,8 @@ const ChannelsForm = ({ guildId }: { guildId: string }) => {
     defaultValues: {
       atm: { actions: '', logs: '' },
       casino: { casinoChannelIds: [] },
-      prediction: { actions: '', logs: '' },
-    },
+      prediction: { actions: '', logs: '' }
+    }
   })
 
   const [channels, setChannels] = useState<IGuildChannel[]>([])
@@ -54,7 +57,7 @@ const ChannelsForm = ({ guildId }: { guildId: string }) => {
     const fetchData = async () => {
       const [guildChannels, channels] = await Promise.all([
         getGuildChannels(guildId),
-        getChannels(guildId),
+        getChannels(guildId)
       ])
 
       setChannels(guildChannels)
@@ -62,15 +65,15 @@ const ChannelsForm = ({ guildId }: { guildId: string }) => {
       form.reset({
         atm: {
           actions: channels?.atm?.actions || '',
-          logs: channels?.atm?.logs || '',
+          logs: channels?.atm?.logs || ''
         },
         casino: {
-          casinoChannelIds: channels?.casino?.casinoChannelIds || [],
+          casinoChannelIds: channels?.casino?.casinoChannelIds || []
         },
         prediction: {
           actions: channels?.prediction?.actions || '',
-          logs: channels?.prediction?.logs || '',
-        },
+          logs: channels?.prediction?.logs || ''
+        }
       })
     }
 
@@ -95,13 +98,13 @@ const ChannelsForm = ({ guildId }: { guildId: string }) => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-4 w-1/2"
+          className="flex w-1/2 flex-col gap-4"
         >
           <section className="flex flex-col gap-4">
             <h4 className="text-xl font-semibold text-yellow-400">
               ATM Channels
             </h4>
-            <div className="grid grid-cols-2 gap-8 w-full">
+            <div className="grid w-full grid-cols-2 gap-8">
               <FormField
                 control={form.control}
                 name="atm.actions"
@@ -181,7 +184,7 @@ const ChannelsForm = ({ guildId }: { guildId: string }) => {
                       className="bg-muted border-transparent shadow-none"
                       commandProps={{
                         label: 'Select channels',
-                        shouldFilter: false,
+                        shouldFilter: false
                       }}
                       placeholder="Select channels"
                       emptyIndicator={
@@ -193,7 +196,7 @@ const ChannelsForm = ({ guildId }: { guildId: string }) => {
                       })}
                       defaultOptions={channels.map((channel) => ({
                         label: channel.name,
-                        value: channel.id,
+                        value: channel.id
                       }))}
                       onChange={(options) =>
                         field.onChange(options.map((opt) => opt.value))
@@ -205,7 +208,7 @@ const ChannelsForm = ({ guildId }: { guildId: string }) => {
                         if (!term) {
                           return channels.map((c) => ({
                             label: c.name,
-                            value: c.id,
+                            value: c.id
                           }))
                         }
 
@@ -231,7 +234,7 @@ const ChannelsForm = ({ guildId }: { guildId: string }) => {
             <h4 className="text-xl font-semibold text-yellow-400">
               Prediction Channels
             </h4>
-            <div className="grid grid-cols-2 gap-8 w-full">
+            <div className="grid w-full grid-cols-2 gap-8">
               <FormField
                 control={form.control}
                 name="prediction.actions"

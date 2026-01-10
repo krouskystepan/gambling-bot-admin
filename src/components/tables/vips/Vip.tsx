@@ -1,6 +1,8 @@
-import { authOptions } from '@/lib/authOptions'
 import { getServerSession } from 'next-auth'
-import { getVips } from '@/actions/database/vipActionts.action'
+
+import { getVips } from '@/actions/database/vipActions.action'
+import { authOptions } from '@/lib/authOptions'
+
 import VipTable from './VipTable'
 
 const Vips = async ({ guildId }: { guildId: string }) => {
@@ -9,7 +11,7 @@ const Vips = async ({ guildId }: { guildId: string }) => {
 
   return (
     <div>
-      <h4 className="text-3xl font-semibold text-yellow-400 mb-4">
+      <h4 className="mb-4 text-3xl font-semibold text-yellow-400">
         VIPs Channels
       </h4>
 

@@ -1,11 +1,12 @@
+import { Table, flexRender } from '@tanstack/react-table'
+
 import { Skeleton } from '@/components/ui/skeleton'
 import { TableBody, TableCell, TableRow } from '@/components/ui/table'
 import { TTransactionDiscord } from '@/types/types'
-import { flexRender, Table } from '@tanstack/react-table'
 
 const TransactionTableBody = ({
   table,
-  isLoading,
+  isLoading
 }: {
   table: Table<TTransactionDiscord>
   isLoading: boolean
@@ -14,7 +15,7 @@ const TransactionTableBody = ({
     <TableBody>
       {isLoading ? (
         Array.from({
-          length: table.getState().pagination.pageSize,
+          length: table.getState().pagination.pageSize
         }).map((_, i) => (
           <TableRow key={i} className="h-16">
             {table.getHeaderGroups()[0]?.headers.map((header, j) => (
@@ -41,7 +42,7 @@ const TransactionTableBody = ({
         <TableRow>
           <TableCell
             colSpan={table.getHeaderGroups()[0]?.headers.length}
-            className="text-center py-6"
+            className="py-6 text-center"
           >
             No results.
           </TableCell>

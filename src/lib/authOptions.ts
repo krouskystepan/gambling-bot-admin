@@ -1,28 +1,6 @@
-import { AuthOptions } from 'next-auth'
-import DiscordProvider from 'next-auth/providers/discord'
+import { NextAuthOptions } from 'next-auth'
 import { JWT } from 'next-auth/jwt'
-
-interface DiscordProfile {
-  id: string
-  username: string
-  avatar: string
-  discriminator: string
-  public_flags: number
-}
-
-// Discord does NOT provide refresh tokens unless the app is VERIFIED.
-// → So refresh will never work for unverified apps.
-// → We apply a stable fallback "fake refresh" that simply extends the lifetime.
-async function refreshAccessToken(token: JWT): Promise<JWT> {
-  console.log('⚠️ Discord does not provide refresh tokens for unverified apps.')
-
-  // Extend token expiration by one additional hour so the session stays valid
-  return {
-    ...token,
-    accessTokenExpires: Date.now() + 3600 * 1000, // +1 hour
-    error: undefined,
-  }
-}
+import DiscordProvider from 'next-auth/providers/discord'
 
 function requiredEnv(name: string): string {
   const value = process.env[name]
@@ -30,46 +8,51 @@ function requiredEnv(name: string): string {
   return value
 }
 
-export const authOptions: AuthOptions = {
+// Discord does not issue refresh tokens for unverified apps.
+// We extend expiry instead of pretending to refresh.
+async function extendAccessToken(token: JWT): Promise<JWT> {
+  return {
+    ...token,
+    accessTokenExpires: Date.now() + 60 * 60 * 1000 // +1 hour
+  }
+}
+
+export const authOptions: NextAuthOptions = {
   providers: [
     DiscordProvider({
       clientId: requiredEnv('DISCORD_CLIENT_ID'),
       clientSecret: requiredEnv('DISCORD_CLIENT_SECRET'),
       authorization: {
-        params: { scope: 'identify guilds' },
-      },
-    }),
+        params: { scope: 'identify guilds' }
+      }
+    })
   ],
 
   callbacks: {
-    async jwt({ token, account, profile }) {
-      // FIRST LOGIN: save access token and user ID
-      if (account && profile) {
+    async jwt({ token, account }) {
+      if (account) {
         return {
           ...token,
           accessToken: account.access_token,
-          accessTokenExpires: (account.expires_at as number) * 1000,
-          refreshToken: account.refresh_token ?? null, // → always null for unverified apps
-          userId: (profile as DiscordProfile).id,
+          accessTokenExpires: Date.now() + 60 * 60 * 1000,
+          userId: account.providerAccountId
         }
       }
 
-      // TOKEN STILL VALID?
-      if (Date.now() < (token.accessTokenExpires as number) - 1000) {
+      if (token.accessTokenExpires && Date.now() < token.accessTokenExpires) {
         return token
       }
 
-      // TOKEN EXPIRED → attempt a fallback refresh
-      return await refreshAccessToken(token)
+      return extendAccessToken(token)
     },
 
     async session({ session, token }) {
       session.accessToken = token.accessToken ?? null
-      session.userId = token.userId
+      session.userId = token.userId ?? null
       session.error = token.error ?? null
       return session
-    },
+    }
   },
 
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: requiredEnv('NEXTAUTH_SECRET')
 }

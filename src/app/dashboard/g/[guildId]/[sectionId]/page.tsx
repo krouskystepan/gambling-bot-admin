@@ -3,8 +3,10 @@ import CasinoSettingsForm from '@/components/forms/CasinoSettingsForm'
 import ChannelsForm from '@/components/forms/ChannelsForm'
 import ManagerRoleForm from '@/components/forms/ManagerRoleForm'
 import VipSettingsForm from '@/components/forms/VipSettingsForm'
+import HomeSection from '@/components/sections/HomeSection'
 import TransactionsSection from '@/components/sections/TransactionsSection'
 import UsersSection from '@/components/sections/UsersSection'
+import NotFoundBox from '@/components/states/NotFoundBox'
 
 interface SectionPageProps {
   params: Promise<{ guildId: string; sectionId: string }>
@@ -24,6 +26,8 @@ const SectionPage = async ({ params, searchParams }: SectionPageProps) => {
 
   const renderSection = () => {
     switch (sectionId) {
+      case 'home':
+        return <HomeSection guildId={guildId} />
       case 'transactions':
         return (
           <TransactionsSection
@@ -48,12 +52,7 @@ const SectionPage = async ({ params, searchParams }: SectionPageProps) => {
       case 'predictions':
         return 'Coming soon...'
       default:
-        return (
-          <div>
-            <h3 className="text-3xl font-bold">GUILD ID: {guildId}</h3>
-            <p>Coming soon...</p>
-          </div>
-        )
+        return <NotFoundBox />
     }
   }
 

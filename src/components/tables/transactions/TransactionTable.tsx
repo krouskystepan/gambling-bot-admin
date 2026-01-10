@@ -1,25 +1,29 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
 import {
   ColumnFiltersState,
-  getCoreRowModel,
   PaginationState,
-  VisibilityState,
   SortingState,
-  useReactTable,
+  VisibilityState,
+  getCoreRowModel,
+  useReactTable
 } from '@tanstack/react-table'
-import { Table } from '@/components/ui/table'
+
+import { useEffect, useRef, useState } from 'react'
+
 import { useSearchParams } from 'next/navigation'
-import { TTransactionDiscord, ITransactionCounts } from '@/types/types'
-import { transactionsColumns } from './transactionColumns'
-import TransactionTableHeader from './TransactionTableHeader'
-import TransactionTableBody from './TransactionTableBody'
-import { useUpdateUrl } from '@/hooks/useUpdateUrl'
-import TransactionTablePagination from './TransactionTablePagination'
-import TransactionTableFilters from './TransactionTableFilters'
-import TransactionTableSummary from './TransactionTableSummary'
+
+import { Table } from '@/components/ui/table'
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
+import { useUpdateUrl } from '@/hooks/useUpdateUrl'
+import { ITransactionCounts, TTransactionDiscord } from '@/types/types'
+
+import TransactionTableBody from './TransactionTableBody'
+import TransactionTableFilters from './TransactionTableFilters'
+import TransactionTableHeader from './TransactionTableHeader'
+import TransactionTablePagination from './TransactionTablePagination'
+import TransactionTableSummary from './TransactionTableSummary'
+import { transactionsColumns } from './transactionColumns'
 
 interface TransactionTableProps {
   transactions: TTransactionDiscord[]
@@ -42,18 +46,18 @@ const TransactionTable = ({
   limit,
   total,
   gamePnL,
-  cashFlow,
+  cashFlow
 }: TransactionTableProps) => {
   const [data, setData] = useState(transactions)
 
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: page - 1,
-    pageSize: limit,
+    pageSize: limit
   })
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-    betId: false,
+    betId: false
   })
   const [isLoading, setIsLoading] = useState(false)
 
@@ -81,7 +85,7 @@ const TransactionTable = ({
       pagination,
       sorting,
       columnFilters,
-      columnVisibility,
+      columnVisibility
     },
     onColumnVisibilityChange: setColumnVisibility,
     onSortingChange: (updater) => {
@@ -122,7 +126,7 @@ const TransactionTable = ({
         filterType: typeFilter,
         filterSource: sourceFilter,
         dateFrom: dateRangeFilter?.[0],
-        dateTo: dateRangeFilter?.[1],
+        dateTo: dateRangeFilter?.[1]
       })
     },
     onPaginationChange: (updater) => {
@@ -134,7 +138,7 @@ const TransactionTable = ({
     manualPagination: true,
     manualSorting: true,
     manualFiltering: true,
-    getCoreRowModel: getCoreRowModel(),
+    getCoreRowModel: getCoreRowModel()
   })
 
   useEffect(() => {
@@ -162,8 +166,8 @@ const TransactionTable = ({
       { id: 'source', value: filterSource?.length ? filterSource : undefined },
       {
         id: 'createdAt',
-        value: dateFrom && dateTo ? [dateFrom, dateTo] : undefined,
-      },
+        value: dateFrom && dateTo ? [dateFrom, dateTo] : undefined
+      }
     ]
 
     table.setPageIndex(pageFromUrl - 1)
@@ -175,7 +179,7 @@ const TransactionTable = ({
   }, [])
 
   return (
-    <div className="space-y-4 w-7xl">
+    <div className="w-7xl space-y-4">
       <TransactionTableFilters
         table={table}
         counts={transactionCounts}

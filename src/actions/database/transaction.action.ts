@@ -1,13 +1,17 @@
 'use server'
 
-import { connectToDatabase } from '@/lib/utils'
-import Transaction from '@/models/Transaction'
-import { getServerSession, Session } from 'next-auth'
-import { getDiscordGuildMembers } from '../discord/member.action'
-import { FilterQuery } from 'mongoose'
-import { TTransactionDiscord, ITransactionCounts } from '@/types/types'
-import { authOptions } from '@/lib/authOptions'
 import { TTransaction } from 'gambling-bot-shared'
+import type { FilterQuery, HydratedDocument } from 'mongoose'
+import { Session, getServerSession } from 'next-auth'
+
+import { authOptions } from '@/lib/authOptions'
+import { connectToDatabase } from '@/lib/db'
+import Transaction from '@/models/Transaction'
+import { ITransactionCounts, TTransactionDiscord } from '@/types/types'
+
+import { getDiscordGuildMembers } from '../discord/member.action'
+
+type TransactionDoc = HydratedDocument<TTransaction>
 
 function escapeRegExp(string: string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -39,8 +43,8 @@ export const getTransactions = async (
 
   await connectToDatabase()
 
-  const query: FilterQuery<TTransaction> = { guildId }
-  const andFilters: FilterQuery<TTransaction>[] = []
+  const query: FilterQuery<TransactionDoc> = { guildId }
+  const andFilters: FilterQuery<TransactionDoc>[] = []
 
   if (search) {
     const regex = new RegExp(escapeRegExp(search), 'i')
@@ -80,16 +84,16 @@ export const getTransactions = async (
               branches: [
                 {
                   case: { $in: ['$type', ['bet', 'vip']] },
-                  then: '$amount',
+                  then: '$amount'
                 },
                 {
                   case: { $in: ['$type', ['win', 'bonus', 'refund']] },
-                  then: { $multiply: ['$amount', -1] },
-                },
+                  then: { $multiply: ['$amount', -1] }
+                }
               ],
-              default: 0,
-            },
-          },
+              default: 0
+            }
+          }
         },
         cashFlow: {
           $sum: {
@@ -98,15 +102,15 @@ export const getTransactions = async (
                 { case: { $eq: ['$type', 'deposit'] }, then: '$amount' },
                 {
                   case: { $eq: ['$type', 'withdraw'] },
-                  then: { $multiply: ['$amount', -1] },
-                },
+                  then: { $multiply: ['$amount', -1] }
+                }
               ],
-              default: 0,
-            },
-          },
-        },
-      },
-    },
+              default: 0
+            }
+          }
+        }
+      }
+    }
   ])
 
   const gamePnL = totalsAgg.length ? totalsAgg[0].gamePnL : 0
@@ -146,8 +150,8 @@ export const getTransactions = async (
         {
           username: m.username,
           nickname: m.nickname,
-          avatar: m.avatarUrl || '/default-avatar.jpg',
-        },
+          avatar: m.avatarUrl || '/default-avatar.jpg'
+        }
       ])
   )
 
@@ -168,7 +172,7 @@ export const getTransactions = async (
       createdAt: tx.createdAt,
       betId: tx.betId || undefined,
       handledBy: tx.handledBy || undefined,
-      handledByUsername: handler?.username || undefined,
+      handledByUsername: handler?.username || undefined
     }
   })
 
@@ -182,7 +186,7 @@ const typeBadgeMap: Record<TTransaction['type'], string> = {
   win: '',
   refund: '',
   bonus: '',
-  vip: '',
+  vip: ''
 }
 
 const sourceBadgeMap: Record<TTransaction['source'], string> = {
@@ -190,7 +194,7 @@ const sourceBadgeMap: Record<TTransaction['source'], string> = {
   command: '',
   manual: '',
   system: '',
-  web: '',
+  web: ''
 }
 
 export const getTransactionCounts = async (
@@ -210,14 +214,14 @@ export const getTransactionCounts = async (
       ) as Record<TTransaction['type'], number>,
       source: Object.fromEntries(
         Object.keys(sourceBadgeMap).map((s) => [s, 0])
-      ) as Record<TTransaction['source'], number>,
+      ) as Record<TTransaction['source'], number>
     }
   }
 
   await connectToDatabase()
 
-  const query: FilterQuery<TTransaction> = { guildId }
-  const andFilters: FilterQuery<TTransaction>[] = []
+  const query: FilterQuery<TransactionDoc> = { guildId }
+  const andFilters: FilterQuery<TransactionDoc>[] = []
 
   if (search) {
     const regex = new RegExp(escapeRegExp(search), 'i')
@@ -249,12 +253,12 @@ export const getTransactionCounts = async (
 
   const typeAgg = await Transaction.aggregate([
     { $match: query },
-    { $group: { _id: '$type', count: { $sum: 1 } } },
+    { $group: { _id: '$type', count: { $sum: 1 } } }
   ])
 
   const sourceAgg = await Transaction.aggregate([
     { $match: query },
-    { $group: { _id: '$source', count: { $sum: 1 } } },
+    { $group: { _id: '$source', count: { $sum: 1 } } }
   ])
 
   const typeCounts = Object.fromEntries(
@@ -289,7 +293,7 @@ export const deleteTransaction = async (
 
   await connectToDatabase()
 
-  const query: FilterQuery<typeof Transaction> = { _id: transactionId }
+  const query: FilterQuery<TransactionDoc> = { _id: transactionId }
 
   try {
     const deleted = await Transaction.findOneAndDelete(query)

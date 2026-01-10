@@ -1,16 +1,13 @@
-interface GuildPageProps {
-  params: Promise<{ guildId: string; sectionId: string }>
-}
+import { redirect } from 'next/navigation'
 
-const GuildPage = async ({ params }: GuildPageProps) => {
+const GuildPage = async ({
+  params
+}: {
+  params: Promise<{ guildId: string }>
+}) => {
   const { guildId } = await params
 
-  return (
-    <div>
-      <h3 className="text-3xl font-bold">GUILD ID: {guildId}</h3>
-      <p>Coming soon...</p>
-    </div>
-  )
+  return redirect(`/dashboard/g/${guildId}/home`)
 }
 
 export default GuildPage

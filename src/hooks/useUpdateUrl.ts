@@ -18,7 +18,7 @@ export const useUpdateUrl = () => {
     })
 
     router.replace(`${window.location.pathname}?${params.toString()}`, {
-      scroll: false,
+      scroll: false
     })
   }
 }

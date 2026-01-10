@@ -1,19 +1,23 @@
-import { formatNumberToReadableString } from '@/lib/utils'
-import { TTransactionDiscord } from '@/types/types'
 import { ColumnDef } from '@tanstack/react-table'
+import { TTransaction } from 'gambling-bot-shared'
+import {
+  CircleQuestionMark
+  // Trash
+} from 'lucide-react'
+
 import Image from 'next/image'
+
 import { Badge } from '@/components/ui/badge'
 import {
   Tooltip,
   TooltipContent,
-  TooltipTrigger,
+  TooltipTrigger
 } from '@/components/ui/tooltip'
-import {
-  CircleQuestionMark,
-  // Trash
-} from 'lucide-react'
-import { typeBadgeMap, sourceBadgeMap } from './transactionBadges'
-import { TTransaction } from 'gambling-bot-shared'
+import { formatNumberToReadableString } from '@/lib/utils'
+import { TTransactionDiscord } from '@/types/types'
+
+import { sourceBadgeMap, typeBadgeMap } from './transactionBadges'
+
 // import { Button } from '@/components/ui/button'
 // import { toast } from 'sonner'
 // import { deleteTransaction } from '@/actions/database/transaction.action'
@@ -48,7 +52,7 @@ export const transactionsColumns = (
         alt={row.getValue('username')}
         src={row.getValue('avatar')}
       />
-    ),
+    )
   },
   {
     header: 'Username',
@@ -63,14 +67,14 @@ export const transactionsColumns = (
           ({row.original.userId})
         </span>
       </div>
-    ),
+    )
   },
   {
     header: 'Nickname',
     accessorKey: 'nickname',
     enableHiding: false,
     enableSorting: false,
-    size: 120,
+    size: 120
   },
   {
     header: 'Type',
@@ -87,13 +91,13 @@ export const transactionsColumns = (
         action: (value) => `Action: ${value}`,
         durationDays: (value) => `Duration: ${value} days`,
         adminAction: (value) => `Action: admin ${value}`,
-        bonusStreak: (value) => `Streak: ${value} days`,
+        bonusStreak: (value) => `Streak: ${value} days`
       }
 
       const hasMeta = Object.keys(meta).length > 0
 
       return (
-        <div className="flex gap-1 justify-start items-center select-none">
+        <div className="flex items-center justify-start gap-1 select-none">
           <Badge className={`${className} px-2`}>{type.toUpperCase()}</Badge>
 
           {hasMeta && (
@@ -118,7 +122,7 @@ export const transactionsColumns = (
           )}
         </div>
       )
-    },
+    }
   },
   {
     header: 'Amount',
@@ -126,7 +130,7 @@ export const transactionsColumns = (
     enableHiding: false,
     size: 80,
     cell: ({ row }) =>
-      `$${formatNumberToReadableString(row.getValue('amount'))}`,
+      `$${formatNumberToReadableString(row.getValue('amount'))}`
   },
   {
     header: () => (
@@ -136,9 +140,9 @@ export const transactionsColumns = (
           <TooltipTrigger className="text-gray-400">
             <CircleQuestionMark size={16} />
           </TooltipTrigger>
-          <TooltipContent className="max-w-md break-normal space-y-2 p-2">
+          <TooltipContent className="max-w-md space-y-2 p-2 break-normal">
             <p>Source: Indicates who or what initiated the transaction.</p>
-            <ul className="list-disc pl-5 space-y-1 mb-0">
+            <ul className="mb-0 list-disc space-y-1 pl-5">
               <li>
                 <span className="font-semibold">system</span> - Action triggered
                 automatically by the system on behalf of a user (e.g., user
@@ -167,7 +171,7 @@ export const transactionsColumns = (
       </div>
     ),
     meta: {
-      label: 'Source',
+      label: 'Source'
     } as {
       label?: string
     },
@@ -184,7 +188,7 @@ export const transactionsColumns = (
           {source.toUpperCase()}
         </Badge>
       )
-    },
+    }
   },
   {
     header: 'Bet ID',
@@ -196,7 +200,7 @@ export const transactionsColumns = (
           {row.getValue('betId') ? row.getValue('betId') : '-'}
         </p>
       )
-    },
+    }
   },
   {
     header: 'Handled By',
@@ -217,14 +221,14 @@ export const transactionsColumns = (
           '-'
         )}
       </div>
-    ),
+    )
   },
   {
     header: 'Created At',
     accessorKey: 'createdAt',
     size: 140,
-    cell: ({ row }) => new Date(row.getValue('createdAt')).toLocaleString('cs'),
-  },
+    cell: ({ row }) => new Date(row.getValue('createdAt')).toLocaleString('cs')
+  }
   // {
   //   id: 'actions',
   //   header: 'Actions',
