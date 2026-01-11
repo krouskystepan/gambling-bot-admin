@@ -1,8 +1,23 @@
-# Gambling System - Admin
+# Gambling System – Admin Panel
 
-This repository is part of a larger project.
+This repository is **one part of a larger multi-repository system**.
 
-👉 **Full case study and documentation:**  
+👉 **Full case study & system documentation:**  
 https://www.krouskystepan.com/projects/discord-gambling-hub
 
-All architecture details, explanations, and context live in the case study above.
+## Repositories
+
+The project is split into three repositories:
+
+- **Admin Panel (this repository)**  
+  Web interface for managing data and configuration.
+
+- **Discord Bot**  
+  Uses the shared data and logic to run the gambling system inside Discord.  
+  🔗 https://github.com/krouskystepan/gambling-bot-discord
+
+- **Shared Package**  
+  Common types, database models, and business logic shared between the admin panel and the bot.  
+  🔗 https://github.com/krouskystepan/gambling-bot-shared
+
+All architecture decisions, data flow, and detailed explanations are documented in the case study linked above.
