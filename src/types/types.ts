@@ -36,6 +36,7 @@ export interface IGuildRole {
 
 export type TChannelsFormValues = z.infer<typeof channelsFormSchema>
 export type TCasinoSettingsValues = z.infer<typeof casinoSettingsSchema>
+export type TCasinoSettingsOutput = z.output<typeof casinoSettingsSchema>
 export type TManagerRoleValues = z.infer<typeof managerRoleFormSchema>
 export type TVipSettingsValues = z.infer<typeof vipSettingsFormSchema>
 export type TBonusFormValues = z.infer<typeof bonusFormSchema>
@@ -83,12 +84,12 @@ export interface TTransactionDiscord extends Pick<
   dateTo?: string
 }
 
-export interface ITransactionCounts {
+export type ITransactionCounts = {
   type: Record<TTransaction['type'], number>
   source: Record<TTransaction['source'], number>
 }
 
-export interface TUpdateUrl {
+export type TUpdateUrl = {
   page: number
   limit?: number
   search?: string

@@ -16,23 +16,22 @@ import {
   useWatch
 } from 'react-hook-form'
 import { toast } from 'sonner'
-import z from 'zod'
 
-import { useEffect } from 'react'
-
+import { saveCasinoSettings } from '@/actions/database/casinoSettings.action'
+import SaveButton from '@/components/SaveButton'
+import { Button } from '@/components/ui/button'
 import {
-  getCasinoSettings,
-  saveCasinoSettings
-} from '@/actions/database/casinoSettings.action'
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { getReadableName } from '@/lib/utils'
 import { casinoSettingsSchema } from '@/types/schemas'
-import { TCasinoSettingsValues } from '@/types/types'
-
-import SaveButton from '../SaveButton'
-import { Button } from '../ui/button'
-import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form'
-import { Input } from '../ui/input'
-import { Label } from '../ui/label'
+import { TCasinoSettingsOutput, TCasinoSettingsValues } from '@/types/types'
 
 type NestedGameKeys = 'winMultipliers' | 'symbolWeights'
 
@@ -43,14 +42,14 @@ const NestedFields = ({
   form
 }: {
   game: keyof Pick<TCasinoSettingsValues, 'slots' | 'lottery' | 'roulette'>
-  settings: Record<string, unknown> | undefined
+  settings:
+    | {
+        winMultipliers?: Record<string, number | undefined>
+        symbolWeights?: Record<string, number | undefined>
+      }
+    | undefined
   nestedKeys: NestedGameKeys[]
-  form: UseFormReturn<
-    z.input<typeof casinoSettingsSchema>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    any,
-    z.output<typeof casinoSettingsSchema>
-  >
+  form: UseFormReturn<TCasinoSettingsValues>
 }) => {
   if (!settings) return null
 
@@ -88,14 +87,21 @@ const NestedFields = ({
                       <div className="flex rounded-md shadow-xs">
                         <Input
                           className="bg-muted rounded-r-none border-transparent shadow-none"
-                          type="text"
-                          value={(field.value as string) ?? ''}
+                          value={String(field.value ?? '')}
                           onChange={(e) => {
-                            const val = e.target.value.replace(/[^0-9.]/g, '')
-                            field.onChange(val)
+                            const cleaned = e.target.value.replace(
+                              /[^0-9.]/g,
+                              ''
+                            )
+                            field.onChange(cleaned)
                           }}
-                          onBlur={field.onBlur}
-                          name={field.name}
+                          onBlur={(e) => {
+                            const value = e.target.value
+                            field.onChange(
+                              value === '' ? undefined : Number(value)
+                            )
+                            field.onBlur()
+                          }}
                           ref={field.ref}
                         />
                         <Button
@@ -114,7 +120,7 @@ const NestedFields = ({
                               nestedDefault !== null
                             ) {
                               const defaultValue = nestedDefault[symbol]
-                              field.onChange(String(defaultValue))
+                              field.onChange(defaultValue)
                             }
                           }}
                         >
@@ -134,42 +140,37 @@ const NestedFields = ({
   )
 }
 
-const CasinoSettingsForm = ({ guildId }: { guildId: string }) => {
-  const form = useForm<
-    z.input<typeof casinoSettingsSchema>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    any,
-    z.output<typeof casinoSettingsSchema>
-  >({
+type CasinoSettingsFormProps = {
+  guildId: string
+  savedSettings: TCasinoSettingsValues
+}
+
+type FormValues = TCasinoSettingsOutput
+
+const isPrimitive = (v: unknown): v is number | string =>
+  typeof v === 'number' || typeof v === 'string'
+
+const CasinoSettingsForm = ({
+  guildId,
+  savedSettings
+}: CasinoSettingsFormProps) => {
+  const form = useForm<FormValues>({
     resolver: zodResolver(casinoSettingsSchema),
-    defaultValues: defaultCasinoSettings
+    defaultValues: savedSettings,
+    mode: 'onBlur',
+    reValidateMode: 'onBlur'
   })
 
-  const watchedValues = useWatch({
+  const watchedValues = useWatch<TCasinoSettingsValues>({
     control: form.control
   })
-
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const settings = await getCasinoSettings(guildId)
-        if (settings) {
-          form.reset(settings)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-    fetchSettings()
-  }, [guildId, form])
 
   const onSubmit = async (values: TCasinoSettingsValues) => {
     const toastId = toast.loading('Saving...')
     try {
       await saveCasinoSettings(guildId, values)
       toast.success('Casino settings saved!', { id: toastId })
-    } catch (err) {
-      console.error(err)
+    } catch {
       toast.error('Failed to save casino settings', { id: toastId })
     }
   }
@@ -219,70 +220,66 @@ const CasinoSettingsForm = ({ guildId }: { guildId: string }) => {
                 </h4>
 
                 <div className="grid grid-cols-4 gap-3">
-                  {Object.entries(settings as Record<string, unknown>).map(
-                    ([key, value]) => {
-                      if (
-                        typeof value === 'number' ||
-                        typeof value === 'string'
-                      ) {
-                        return (
-                          <FormField
-                            key={key}
-                            control={form.control}
-                            name={
-                              `${game}.${key}` as Path<TCasinoSettingsValues>
-                            }
-                            render={({ field }) => (
-                              <FormItem>
-                                <Label>
-                                  {getReadableName(key, readableGameValueNames)}
-                                </Label>
-                                <FormControl>
-                                  <div className="flex rounded-md shadow-xs">
-                                    <Input
-                                      className="bg-muted rounded-r-none border-transparent shadow-none"
-                                      type="text"
-                                      value={(field.value as string) ?? ''}
-                                      onChange={(e) => {
-                                        const val = e.target.value.replace(
-                                          /[^0-9.]/g,
-                                          ''
-                                        )
-                                        field.onChange(val)
-                                      }}
-                                      onBlur={field.onBlur}
-                                      name={field.name}
-                                      ref={field.ref}
-                                    />
-                                    <Button
-                                      type="reset"
-                                      variant="ghost"
-                                      className="bg-muted text-destructive/60 hover:text-destructive inline-flex w-9 cursor-pointer items-center justify-center rounded-none rounded-e-md text-sm transition-colors duration-200 outline-none focus:z-10"
-                                      onClick={() => {
-                                        const defaultValue = (
-                                          defaultCasinoSettings[
-                                            game as keyof TCasinoSettingsValues
-                                          ] as Record<
-                                            string,
-                                            number | Record<string, number>
-                                          >
-                                        )[key]
-                                        field.onChange(String(defaultValue))
-                                      }}
-                                    >
-                                      <RotateCw size={16} aria-hidden="true" />
-                                    </Button>
-                                  </div>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        )
-                      }
-                      return null
-                    }
-                  )}
+                  {Object.entries(settings)
+                    .filter(([, value]) => isPrimitive(value))
+                    .map(([key]) => (
+                      <FormField
+                        key={key}
+                        control={form.control}
+                        name={`${game}.${key}` as Path<TCasinoSettingsValues>}
+                        render={({ field }) => (
+                          <FormItem>
+                            <Label>
+                              {getReadableName(key, readableGameValueNames)}
+                            </Label>
+                            <FormControl>
+                              <div className="flex rounded-md shadow-xs">
+                                <Input
+                                  className="bg-muted rounded-r-none border-transparent shadow-none"
+                                  type="text"
+                                  value={String(field.value ?? '')}
+                                  onChange={(e) => {
+                                    const cleaned = e.target.value.replace(
+                                      /[^0-9.]/g,
+                                      ''
+                                    )
+                                    field.onChange(cleaned)
+                                  }}
+                                  onBlur={(e) => {
+                                    const value = e.target.value
+                                    field.onChange(
+                                      value === '' ? undefined : Number(value)
+                                    )
+                                    field.onBlur()
+                                  }}
+                                />
+                                <Button
+                                  type="reset"
+                                  variant="ghost"
+                                  className="bg-muted text-destructive/60 hover:text-destructive inline-flex w-9 cursor-pointer items-center justify-center rounded-none rounded-e-md text-sm transition-colors duration-200 outline-none focus:z-10"
+                                  onClick={() => {
+                                    const defaultValue = (
+                                      defaultCasinoSettings[
+                                        game as keyof TCasinoSettingsValues
+                                      ] as Record<
+                                        string,
+                                        number | Record<string, number>
+                                      >
+                                    )[key]
+                                    if (typeof defaultValue === 'number') {
+                                      field.onChange(defaultValue)
+                                    }
+                                  }}
+                                >
+                                  <RotateCw size={16} aria-hidden="true" />
+                                </Button>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    ))}
                 </div>
 
                 {game === 'slots' && (

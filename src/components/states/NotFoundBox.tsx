@@ -9,7 +9,7 @@ const NotFoundBox = () => {
   return (
     <StateLayout
       Icon={
-        <AlertCircle className="animate-spin-slower h-12 w-12 text-red-500 drop-shadow-lg" />
+        <AlertCircle className="h-12 w-12 animate-pulse text-red-500 drop-shadow-lg" />
       }
       titleText="404 - Page Not Found"
       titleStyle="bg-linear-to-r from-red-600 to-red-500 bg-clip-text text-transparent animate-gradient-x"

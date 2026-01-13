@@ -6,7 +6,7 @@ const NoGuildSelected = () => {
   return (
     <StateLayout
       Icon={
-        <Sparkles className="animate-spin-slower h-12 w-12 text-yellow-400 drop-shadow-lg" />
+        <Sparkles className="h-12 w-12 animate-pulse text-yellow-400 drop-shadow-lg" />
       }
       titleText="No Guild Selected"
       titleStyle="bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-300 bg-clip-text text-transparent animate-gradient-x"

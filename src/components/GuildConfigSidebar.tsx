@@ -34,18 +34,18 @@ const LINKS = [
     ]
   },
   {
-    title: 'Setup',
+    title: 'Settings',
     links: [
-      { id: 'channels', label: 'Channels', icon: MessagesSquare },
-      { id: 'managerRoleId', label: 'Manager Role', icon: ShieldCheck },
-      { id: 'vipSettings', label: 'VIP', icon: Crown },
-      { id: 'bonusSettings', label: 'Bonuses', icon: Award },
-      { id: 'casinoSettings', label: 'Casino', icon: Dices }
+      { id: 'channel-settings', label: 'Channels', icon: MessagesSquare },
+      { id: 'manager-settings', label: 'Manager', icon: ShieldCheck },
+      { id: 'vip-settings', label: 'VIP', icon: Crown },
+      { id: 'bonus-settings', label: 'Bonuses', icon: Award },
+      { id: 'casino-settings', label: 'Casino', icon: Dices }
     ]
   }
 ]
 
-interface GuildConfigSidebarProps {
+type GuildConfigSidebarProps = {
   guildId: string
   guildName: string
   isAdmin: boolean
@@ -67,7 +67,7 @@ const GuildConfigSidebar = ({
 
       <aside className="flex flex-1 flex-col gap-4 overflow-y-auto p-3">
         {LINKS.map((group) => {
-          if (group.title === 'Setup' && !isAdmin) return null
+          if (group.title === 'Settings' && !isAdmin) return null
 
           return (
             <div key={group.title} className="flex flex-col gap-1">

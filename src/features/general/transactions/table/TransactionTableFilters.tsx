@@ -5,6 +5,7 @@ import { Dispatch, RefObject, SetStateAction } from 'react'
 
 import { useRouter } from 'next/navigation'
 
+import DatePicker from '@/components/DatePicker'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -15,7 +16,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { ITransactionCounts, TTransactionDiscord } from '@/types/types'
 
-import DatePicker from '../../DatePicker'
 import TransactionFilter from './TransactionTableFilter'
 import TransactionSearch from './TransactionTableSearch'
 import { sourceBadgeMap, typeBadgeMap } from './transactionBadges'

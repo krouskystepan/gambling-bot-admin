@@ -73,7 +73,7 @@ import { TVipChannels } from '@/types/types'
 //   DialogTitle,
 // } from './ui/dialog'
 
-interface VipTableProps {
+type VipTableProps = {
   vips: TVipChannels[]
   guildId: string
   managerId: string

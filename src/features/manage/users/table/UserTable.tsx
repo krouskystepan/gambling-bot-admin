@@ -88,7 +88,7 @@ import {
 import { cn, formatNumberToReadableString } from '@/lib/utils'
 import { TGuildMemberStatus } from '@/types/types'
 
-interface UserTableProps {
+type UserTableProps = {
   users: TGuildMemberStatus[]
   guildId: string
   managerId: string

@@ -31,7 +31,7 @@ const TransactionTableSearch = ({
       placeholder={placeholder}
       value={initialValue}
       onChange={handleChange}
-      className="h-[38px] max-w-60"
+      className="h-9.5 max-w-60"
     />
   )
 }

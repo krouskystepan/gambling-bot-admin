@@ -4,57 +4,42 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 
-import { useEffect } from 'react'
-
+import { saveBonusSettings } from '@/actions/database/bonusSettings.action'
+import SaveButton from '@/components/SaveButton'
 import {
-  getBonusSettings,
-  saveBonusSettings
-} from '@/actions/database/bonusSettings.action'
-import { formatNumberToReadableString } from '@/lib/utils'
-import { bonusFormSchema } from '@/types/schemas'
-import { TBonusFormValues } from '@/types/types'
-
-import SaveButton from '../SaveButton'
-import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form'
-import { Input } from '../ui/input'
-import { Label } from '../ui/label'
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '../ui/select'
-import { Switch } from '../ui/switch'
+} from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+import { formatNumberToReadableString } from '@/lib/utils'
+import { bonusFormSchema } from '@/types/schemas'
+import { TBonusFormValues } from '@/types/types'
 
-const BonusesForm = ({ guildId }: { guildId: string }) => {
+type BonusesSettigsProps = {
+  guildId: string
+  savedSettings: TBonusFormValues
+}
+
+const BonuseSettingsForm = ({
+  guildId,
+  savedSettings
+}: BonusesSettigsProps) => {
   const form = useForm<TBonusFormValues>({
     resolver: zodResolver(bonusFormSchema),
-    defaultValues: {
-      rewardMode: 'linear',
-      baseReward: 0,
-      streakIncrement: 0,
-      streakMultiplier: 1,
-      maxReward: 0,
-      resetOnMax: false,
-      milestoneBonus: {
-        weekly: 0,
-        monthly: 0
-      }
-    }
+    defaultValues: savedSettings
   })
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const settings = await getBonusSettings(guildId)
-        if (settings) form.reset(settings)
-      } catch (err) {
-        console.error(err)
-      }
-    }
-    fetchData()
-  }, [guildId, form])
 
   const onSubmit = async (values: TBonusFormValues) => {
     const toastId = toast.loading('Saving bonus settings...')
@@ -378,4 +363,4 @@ const BonusesForm = ({ guildId }: { guildId: string }) => {
   )
 }
 
-export default BonusesForm
+export default BonuseSettingsForm

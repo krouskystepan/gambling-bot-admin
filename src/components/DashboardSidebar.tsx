@@ -12,7 +12,6 @@ import GuildRow from './GuildRow'
 const DashboardSidebar = async () => {
   const session = await getServerSession(authOptions)
 
-  // refresh selhal → redirect na login
   if (!session?.accessToken || session?.error) {
     redirect('/login')
   }

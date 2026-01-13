@@ -1,9 +1,11 @@
-import React from 'react'
-
 import NotFoundBox from '@/components/states/NotFoundBox'
 
 const NotFound = () => {
-  return <NotFoundBox />
+  return (
+    <section className="min-h-screen">
+      <NotFoundBox />
+    </section>
+  )
 }
 
 export default NotFound

@@ -11,7 +11,7 @@ import NoPerms from '@/components/states/NoPerms'
 import RateLimited from '@/components/states/RateLimmited'
 import { authOptions } from '@/lib/authOptions'
 
-interface GuildConfLayoutProps {
+type GuildConfLayoutProps = {
   children: React.ReactNode
   params: Promise<{ guildId: string }>
 }

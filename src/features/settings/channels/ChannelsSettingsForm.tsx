@@ -5,18 +5,8 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { useEffect, useState } from 'react'
-
-import { getChannels, saveChannels } from '@/actions/database/channels.action'
-import { getGuildChannels } from '@/actions/discord/channel.action'
-import {
-  atmChannelsFormSchema,
-  casinoChannelsFormSchema,
-  predictionChannelsFormSchema
-} from '@/types/schemas'
-import { IGuildChannel, TChannelsFormValues } from '@/types/types'
-
-import SaveButton from '../SaveButton'
+import { saveChannels } from '@/actions/database/channels.action'
+import SaveButton from '@/components/SaveButton'
 import {
   Form,
   FormControl,
@@ -24,16 +14,22 @@ import {
   FormField,
   FormItem,
   FormMessage
-} from '../ui/form'
-import { Label } from '../ui/label'
-import MultipleSelector from '../ui/multiselect'
+} from '@/components/ui/form'
+import { Label } from '@/components/ui/label'
+import MultipleSelector from '@/components/ui/multiselect'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '../ui/select'
+} from '@/components/ui/select'
+import {
+  atmChannelsFormSchema,
+  casinoChannelsFormSchema,
+  predictionChannelsFormSchema
+} from '@/types/schemas'
+import { IGuildChannel, TChannelsFormValues } from '@/types/types'
 
 const channelsFormSchema = z.object({
   atm: atmChannelsFormSchema,
@@ -41,54 +37,45 @@ const channelsFormSchema = z.object({
   prediction: predictionChannelsFormSchema
 })
 
-const ChannelsForm = ({ guildId }: { guildId: string }) => {
+type ChannelsFormProps = {
+  guildId: string
+  guildChannels: IGuildChannel[]
+  savedChannels: {
+    atm: { actions: string; logs: string }
+    casino: { casinoChannelIds: string[] }
+    prediction: { actions: string; logs: string }
+  } | null
+}
+
+const ChannelsSettingsForm = ({
+  guildId,
+  guildChannels,
+  savedChannels
+}: ChannelsFormProps) => {
   const form = useForm<TChannelsFormValues>({
     resolver: zodResolver(channelsFormSchema),
     defaultValues: {
-      atm: { actions: '', logs: '' },
-      casino: { casinoChannelIds: [] },
-      prediction: { actions: '', logs: '' }
+      atm: {
+        actions: savedChannels?.atm?.actions ?? '',
+        logs: savedChannels?.atm?.logs ?? ''
+      },
+      casino: {
+        casinoChannelIds: savedChannels?.casino?.casinoChannelIds ?? []
+      },
+      prediction: {
+        actions: savedChannels?.prediction?.actions ?? '',
+        logs: savedChannels?.prediction?.logs ?? ''
+      }
     }
   })
-
-  const [channels, setChannels] = useState<IGuildChannel[]>([])
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const [guildChannels, channels] = await Promise.all([
-        getGuildChannels(guildId),
-        getChannels(guildId)
-      ])
-
-      setChannels(guildChannels)
-
-      form.reset({
-        atm: {
-          actions: channels?.atm?.actions || '',
-          logs: channels?.atm?.logs || ''
-        },
-        casino: {
-          casinoChannelIds: channels?.casino?.casinoChannelIds || []
-        },
-        prediction: {
-          actions: channels?.prediction?.actions || '',
-          logs: channels?.prediction?.logs || ''
-        }
-      })
-    }
-
-    fetchData()
-  }, [guildId, form])
 
   const onSubmit = async (values: TChannelsFormValues) => {
     const toastId = toast.loading('Saving...')
 
     try {
       await saveChannels(guildId, values)
-
       toast.success('Channels saved!', { id: toastId })
-    } catch (error) {
-      console.error(error)
+    } catch {
       toast.error('Failed to save channels', { id: toastId })
     }
   }
@@ -98,7 +85,7 @@ const ChannelsForm = ({ guildId }: { guildId: string }) => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex w-1/2 flex-col gap-4"
+          className="flex w-lg max-w-lg flex-col gap-4"
         >
           <section className="flex flex-col gap-4">
             <h4 className="text-xl font-semibold text-yellow-400">
@@ -121,7 +108,7 @@ const ChannelsForm = ({ guildId }: { guildId: string }) => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {channels.map((channel) => (
+                        {guildChannels.map((channel) => (
                           <SelectItem key={channel.id} value={channel.id}>
                             {channel.name}
                           </SelectItem>
@@ -152,7 +139,7 @@ const ChannelsForm = ({ guildId }: { guildId: string }) => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {channels.map((channel) => (
+                        {guildChannels.map((channel) => (
                           <SelectItem key={channel.id} value={channel.id}>
                             {channel.name}
                           </SelectItem>
@@ -169,7 +156,7 @@ const ChannelsForm = ({ guildId }: { guildId: string }) => {
             </div>
           </section>
 
-          <section className="flex flex-col gap-4">
+          <section className="flex w-full flex-col gap-4">
             <h4 className="text-xl font-semibold text-yellow-400">
               Casino Channels
             </h4>
@@ -186,15 +173,16 @@ const ChannelsForm = ({ guildId }: { guildId: string }) => {
                         label: 'Select channels',
                         shouldFilter: false
                       }}
-                      placeholder="Select channels"
+                      placeholder="Select Casino Channels"
+                      hidePlaceholderWhenSelected
                       emptyIndicator={
                         <p className="text-center text-sm">No results found</p>
                       }
                       value={(field.value ?? []).map((id: string) => {
-                        const channel = channels.find((c) => c.id === id)
+                        const channel = guildChannels.find((c) => c.id === id)
                         return { label: channel?.name ?? id, value: id }
                       })}
-                      defaultOptions={channels.map((channel) => ({
+                      defaultOptions={guildChannels.map((channel) => ({
                         label: channel.name,
                         value: channel.id
                       }))}
@@ -206,19 +194,19 @@ const ChannelsForm = ({ guildId }: { guildId: string }) => {
                         const term = search.toLowerCase().trim()
 
                         if (!term) {
-                          return channels.map((c) => ({
+                          return guildChannels.map((c) => ({
                             label: c.name,
                             value: c.id
                           }))
                         }
 
-                        const filtered = channels
+                        const filtered = guildChannels
                           .filter((c) => c.name.toLowerCase().includes(term))
                           .map((c) => ({ label: c.name, value: c.id }))
 
                         return filtered
                       }}
-                      key={channels.length}
+                      key={guildChannels.length}
                     />
                   </FormControl>
                   <FormDescription>
@@ -251,7 +239,7 @@ const ChannelsForm = ({ guildId }: { guildId: string }) => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {channels.map((channel) => (
+                        {guildChannels.map((channel) => (
                           <SelectItem key={channel.id} value={channel.id}>
                             {channel.name}
                           </SelectItem>
@@ -282,7 +270,7 @@ const ChannelsForm = ({ guildId }: { guildId: string }) => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {channels.map((channel) => (
+                        {guildChannels.map((channel) => (
                           <SelectItem key={channel.id} value={channel.id}>
                             {channel.name}
                           </SelectItem>
@@ -306,4 +294,4 @@ const ChannelsForm = ({ guildId }: { guildId: string }) => {
   )
 }
 
-export default ChannelsForm
+export default ChannelsSettingsForm
