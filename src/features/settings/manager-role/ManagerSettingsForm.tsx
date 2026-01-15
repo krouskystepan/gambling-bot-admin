@@ -57,7 +57,7 @@ const ManagerSettingsForm = ({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex w-full flex-col gap-4"
+          className="flex w-full max-w-52 flex-col gap-4"
         >
           <FormField
             control={form.control}

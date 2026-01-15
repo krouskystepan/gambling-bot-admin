@@ -58,7 +58,7 @@ const VipSettingsForm = ({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex w-full flex-col gap-4"
+          className="flex max-w-4xl w-full flex-col gap-4"
         >
           <h4 className="text-xl font-semibold text-yellow-400">
             Roles and Categories
