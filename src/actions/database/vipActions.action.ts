@@ -14,7 +14,7 @@ export async function getVips(
   guildId: string,
   session: Session
 ): Promise<TVipChannels[]> {
-  if (!session || !session.accessToken) return []
+  if (!session?.accessToken) return []
 
   await connectToDatabase()
 
@@ -28,19 +28,42 @@ export async function getVips(
   const channelsMap = new Map(guildChannels.map((c) => [c.id, c.name]))
 
   return docs.map((vip: TVipRoom) => {
-    const member = membersMap.get(vip.ownerId)
-    const channelName = channelsMap.get(vip.channelId) || 'Unknown'
+    const owner = membersMap.get(vip.ownerId)
+
+    const members = vip.memberIds
+      .map((id) => {
+        const m = membersMap.get(id)
+        if (!m) return null
+
+        return {
+          userId: m.userId,
+          username: m.username,
+          nickname: m.nickname || '',
+          avatar: m.avatarUrl || '/default-avatar.jpg'
+        }
+      })
+      .filter(
+        (
+          m
+        ): m is {
+          userId: string
+          username: string
+          nickname: string
+          avatar: string
+        } => m !== null
+      )
 
     return {
       ownerId: vip.ownerId,
       guildId: vip.guildId,
       channelId: vip.channelId,
-      channelName,
       expiresAt: vip.expiresAt,
       createdAt: vip.createdAt,
-      username: member?.username || 'Unknown',
-      nickname: member?.nickname || '',
-      avatar: member?.avatarUrl || '/default-avatar.jpg'
+      channelName: channelsMap.get(vip.channelId) || 'Unknown',
+      username: owner?.username || 'Unknown',
+      nickname: owner?.nickname || '',
+      avatar: owner?.avatarUrl || '/default-avatar.jpg',
+      members
     }
   })
 }

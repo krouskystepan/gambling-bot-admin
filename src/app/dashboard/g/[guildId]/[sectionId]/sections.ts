@@ -6,6 +6,7 @@ import {
   ManagerSettingsPage,
   TransactionsPage,
   UsersPage,
+  VipPage,
   VipSettingsPage
 } from '@/features'
 
@@ -13,8 +14,11 @@ export const sections = {
   // General
   home: HomePage,
   transactions: TransactionsPage,
+
   // Manage
   users: UsersPage,
+  vips: VipPage,
+
   // Settings
   'channel-settings': ChannelSettingsPage,
   'casino-settings': CasinoSettingsPage,

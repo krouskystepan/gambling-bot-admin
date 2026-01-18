@@ -1,4 +1,4 @@
-import { TTransaction } from 'gambling-bot-shared'
+import { TTransaction, TVipRoom } from 'gambling-bot-shared'
 import z from 'zod'
 
 import {
@@ -9,6 +9,7 @@ import {
   vipSettingsFormSchema
 } from './schemas'
 
+// TODO: Refactor types - use from shared package and extend where needed
 export interface IGuild {
   id: string
   name: string
@@ -52,15 +53,16 @@ export type TGuildMemberStatus = {
   netProfit?: number
 }
 
-export type TVipChannels = {
-  ownerId: string
-  guildId: string
-  channelId: string
+export type TVipChannels = Omit<TVipRoom, 'updatedAt' | 'memberIds'> & {
   channelName: string
-  expiresAt: Date
-  createdAt: Date
   username: string
   nickname: string
+  members: {
+    userId: string
+    username: string
+    nickname: string
+    avatar: string
+  }[]
   avatar: string
 }
 
