@@ -1,4 +1,5 @@
-import { TUser, UserSchema } from 'gambling-bot-shared'
+import type { TUser } from 'gambling-bot-shared'
+import { UserSchema } from 'gambling-bot-shared/server'
 
 import { getModel } from '@/lib/db'
 

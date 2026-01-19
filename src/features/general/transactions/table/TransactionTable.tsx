@@ -78,6 +78,7 @@ const TransactionTable = ({
     setData((prev) => prev.filter((t) => t.id !== id))
   }
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns: transactionsColumns(handleDelete),
@@ -174,9 +175,8 @@ const TransactionTable = ({
     table.setPageSize(limitFromUrl)
 
     table.setColumnFilters(filters)
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    //? INFO: If bugs delete this array
+  }, [searchParams, table])
 
   return (
     <div className="w-7xl space-y-4">

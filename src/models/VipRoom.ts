@@ -1,4 +1,5 @@
-import { TVipRoom, VipRoomSchema } from 'gambling-bot-shared'
+import type { TVipRoom } from 'gambling-bot-shared'
+import { VipRoomSchema } from 'gambling-bot-shared/server'
 
 import { getModel } from '@/lib/db'
 

@@ -208,7 +208,10 @@ export async function getUserWithRegistrationStatus(
   const discordMembersMap = new Map(discordMembers.map((m) => [m.userId, m]))
 
   const userIds = dbUsers.map((u) => u.userId)
-  const transactions = await Transaction.find({ userId: { $in: userIds } })
+  const transactions = await Transaction.find({
+    userId: { $in: userIds },
+    guildId
+  })
 
   const netProfitMap = new Map<string, number>()
 
