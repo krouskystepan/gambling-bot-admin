@@ -23,11 +23,18 @@ const UsersPage = async ({
 
   const query = normalizeUsersSearchParams(searchParams)
 
-  const { users } = await getUsersData(guildId, session, query)
+  const { users, total } = await getUsersData(guildId, session, query)
 
   return (
     <FeatureLayout title={'Users'}>
-      <UserTable users={users} guildId={guildId} managerId={session!.userId!} />
+      <UserTable
+        users={users}
+        guildId={guildId}
+        managerId={session.userId!}
+        page={query.page}
+        limit={query.limit}
+        total={total}
+      />
     </FeatureLayout>
   )
 }

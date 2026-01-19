@@ -73,6 +73,15 @@ export const userColumns = ({
   managerId,
   setData
 }: UserColumnsDeps): ColumnDef<TGuildMemberStatus>[] => [
+  // Only for filtering purposes
+  {
+    id: 'search',
+    header: () => null,
+    cell: () => null,
+    enableSorting: false,
+    enableColumnFilter: true
+  },
+  // Actual columns
   {
     header: 'Avatar',
     accessorKey: 'avatar',

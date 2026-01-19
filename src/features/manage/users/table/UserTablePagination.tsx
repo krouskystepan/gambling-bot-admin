@@ -7,47 +7,79 @@ import {
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
 import {
   Pagination,
   PaginationContent,
   PaginationItem
 } from '@/components/ui/pagination'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { formatNumberWithSpaces } from '@/lib/utils'
 import { TGuildMemberStatus } from '@/types/types'
 
 const UserTablePagination = ({
-  table
+  table,
+  total
 }: {
   table: Table<TGuildMemberStatus>
+  total: number
 }) => {
   return (
-    <div className="flex items-center justify-end gap-8">
+    <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center gap-3">
+        <Label className="max-sm:sr-only">Rows per page</Label>
+        <Select
+          value={table.getState().pagination.pageSize.toString()}
+          onValueChange={(value) => {
+            const newPageSize = Number(value)
+            table.setPageSize(newPageSize)
+          }}
+        >
+          <SelectTrigger className="w-fit whitespace-nowrap">
+            <SelectValue placeholder="Select number of results" />
+          </SelectTrigger>
+          <SelectContent className="[&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2">
+            {[5, 10, 25, 50].map((pageSize) => (
+              <SelectItem key={pageSize} value={pageSize.toString()}>
+                {pageSize}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="text-muted-foreground flex grow justify-end text-sm whitespace-nowrap">
         <p
           className="text-muted-foreground text-sm whitespace-nowrap"
           aria-live="polite"
         >
           <span className="text-foreground">
-            {table.getState().pagination.pageIndex *
-              table.getState().pagination.pageSize +
-              1}
-            -
-            {Math.min(
-              Math.max(
-                table.getState().pagination.pageIndex *
-                  table.getState().pagination.pageSize +
-                  table.getState().pagination.pageSize,
-                0
-              ),
-              table.getRowCount()
+            {formatNumberWithSpaces(
+              table.getState().pagination.pageIndex *
+                table.getState().pagination.pageSize +
+                1
             )}
-          </span>{' '}
-          of{' '}
+            {' - '}
+            {formatNumberWithSpaces(
+              Math.min(
+                (table.getState().pagination.pageIndex + 1) *
+                  table.getState().pagination.pageSize,
+                total
+              )
+            )}
+          </span>
+          {' of '}
           <span className="text-foreground">
-            {table.getRowCount().toString()}
+            {formatNumberWithSpaces(total)}
           </span>
         </p>
       </div>
-
       <div>
         <Pagination>
           <PaginationContent>

@@ -12,6 +12,7 @@ export interface UsersQuery {
 
 export interface UsersResult {
   users: TGuildMemberStatus[]
+  total: number
 }
 
 export async function getUsersData(
@@ -19,7 +20,7 @@ export async function getUsersData(
   session: Session,
   query: UsersQuery
 ): Promise<UsersResult> {
-  const users = await getUsers(
+  const { users, total } = await getUsers(
     guildId,
     session,
     query.page,
@@ -29,7 +30,8 @@ export async function getUsersData(
   )
 
   return {
-    users
+    users,
+    total
   }
 }
 

@@ -200,9 +200,12 @@ export async function getUsers(
   limit = 15,
   search?: string,
   sort?: string
-): Promise<TGuildMemberStatus[]> {
+): Promise<{ users: TGuildMemberStatus[]; total: number }> {
   if (!session?.accessToken || page < 1 || limit < 1 || limit > 50) {
-    return []
+    return {
+      users: [],
+      total: 0
+    }
   }
 
   await connectToDatabase()
@@ -264,7 +267,7 @@ export async function getUsers(
       (u) =>
         regex.test(u.userId) ||
         regex.test(u.username) ||
-        (u.nickname && regex.test(u.nickname))
+        (u.nickname !== null && regex.test(u.nickname))
     )
   }
 
@@ -287,10 +290,15 @@ export async function getUsers(
     }
   }
 
+  const total = users.length
+
   const start = (page - 1) * limit
   const end = start + limit
 
-  return users.slice(start, end)
+  return {
+    users: users.slice(start, end),
+    total
+  }
 }
 
 export async function resetBalance(
