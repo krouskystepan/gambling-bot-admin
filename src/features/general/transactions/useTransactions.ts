@@ -64,3 +64,46 @@ export async function getTransactionsData(
     cashFlow
   }
 }
+
+type RawSearchParams = {
+  page?: string
+  limit?: string
+  search?: string
+  adminSearch?: string
+  filterType?: string
+  filterSource?: string
+  dateFrom?: string
+  dateTo?: string
+  sort?: string
+}
+
+type NormalizedSearchParams = {
+  page: number
+  limit: number
+  search?: string
+  adminSearch?: string
+  filterType: string[]
+  filterSource: string[]
+  dateFrom?: string
+  dateTo?: string
+  sort?: string
+}
+
+export function normalizeTransactionsSearchParams(
+  searchParams: RawSearchParams = {}
+): NormalizedSearchParams {
+  const page = Number(searchParams.page)
+  const limit = Number(searchParams.limit)
+
+  return {
+    page: Number.isInteger(page) && page > 0 ? page : 1,
+    limit: Number.isInteger(limit) && limit > 0 ? limit : 10,
+    search: searchParams.search,
+    adminSearch: searchParams.adminSearch,
+    filterType: searchParams.filterType?.split(',').filter(Boolean) ?? [],
+    filterSource: searchParams.filterSource?.split(',').filter(Boolean) ?? [],
+    dateFrom: searchParams.dateFrom,
+    dateTo: searchParams.dateTo,
+    sort: searchParams.sort
+  }
+}

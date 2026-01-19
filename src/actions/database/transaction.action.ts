@@ -5,16 +5,13 @@ import { Session, getServerSession } from 'next-auth'
 
 import { authOptions } from '@/lib/authOptions'
 import { connectToDatabase } from '@/lib/db'
+import { escapeRegExp } from '@/lib/utils'
 import Transaction from '@/models/Transaction'
 import { ITransactionCounts, TTransactionDiscord } from '@/types/types'
 
 import { getDiscordGuildMembers } from '../discord/member.action'
 
 type TransactionFilter = Record<string, unknown>
-
-function escapeRegExp(value: string) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-}
 
 export const getTransactions = async (
   guildId: string,

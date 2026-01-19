@@ -1,14 +1,29 @@
 import { getServerSession } from 'next-auth'
 
-import { getUserWithRegistrationStatus } from '@/actions/database/user.action'
 import FeatureLayout from '@/features/FeatureLayout'
 import { authOptions } from '@/lib/authOptions'
 
 import UserTable from './table/UserTable'
+import { getUsersData, normalizeUsersSearchParams } from './useUsers'
 
-const UsersPage = async ({ guildId }: { guildId: string }) => {
+const UsersPage = async ({
+  guildId,
+  searchParams
+}: {
+  guildId: string
+  searchParams?: {
+    page?: string
+    limit?: string
+    search?: string
+    sort?: string
+  }
+}) => {
   const session = await getServerSession(authOptions)
-  const users = await getUserWithRegistrationStatus(guildId, session)
+  if (!session) return null
+
+  const query = normalizeUsersSearchParams(searchParams)
+
+  const { users } = await getUsersData(guildId, session, query)
 
   return (
     <FeatureLayout title={'Users'}>

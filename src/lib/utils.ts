@@ -36,3 +36,7 @@ export function getReadableName(
   const found = map.find((item) => item.value === key)
   return found ? found.name : key
 }
+
+export function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}

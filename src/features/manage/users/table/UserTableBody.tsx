@@ -3,8 +3,6 @@ import { Table, flexRender } from '@tanstack/react-table'
 import { TableBody, TableCell, TableRow } from '@/components/ui/table'
 import { TGuildMemberStatus } from '@/types/types'
 
-import { userColumns } from './userColumns'
-
 const UserTableBody = ({ table }: { table: Table<TGuildMemberStatus> }) => {
   return (
     <TableBody>
@@ -23,7 +21,10 @@ const UserTableBody = ({ table }: { table: Table<TGuildMemberStatus> }) => {
         ))
       ) : (
         <TableRow>
-          <TableCell colSpan={userColumns.length} className="py-6 text-center">
+          <TableCell
+            colSpan={table.getHeaderGroups()[0]?.headers.length}
+            className="py-6 text-center"
+          >
             No results.
           </TableCell>
         </TableRow>
