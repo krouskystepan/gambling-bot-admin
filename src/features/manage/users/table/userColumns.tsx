@@ -65,13 +65,13 @@ const multiColumnFilter = (
 interface UserColumnsDeps {
   guildId: string
   managerId: string
-  setData: React.Dispatch<React.SetStateAction<TGuildMemberStatus[]>>
+  onUserUpdated: () => void
 }
 
 export const userColumns = ({
   guildId,
   managerId,
-  setData
+  onUserUpdated
 }: UserColumnsDeps): ColumnDef<TGuildMemberStatus>[] => [
   // Only for filtering purposes
   {
@@ -189,7 +189,7 @@ export const userColumns = ({
         row={row}
         guildId={guildId}
         managerId={managerId}
-        setData={setData}
+        onUserUpdated={onUserUpdated}
       />
     )
   }
@@ -199,12 +199,12 @@ function RowActions({
   row,
   guildId,
   managerId,
-  setData
+  onUserUpdated
 }: {
   row: Row<TGuildMemberStatus>
   guildId: string
   managerId: string
-  setData: React.Dispatch<React.SetStateAction<TGuildMemberStatus[]>>
+  onUserUpdated: () => void
 }) {
   const [open, setOpen] = useState(false)
 
@@ -233,14 +233,8 @@ function RowActions({
           value
         )
         if (result.success) {
-          setData((prev) =>
-            prev.map((u) =>
-              u.userId === row.original.userId
-                ? { ...u, balance: (u.balance || 0) + value }
-                : u
-            )
-          )
           toast.success(result.message)
+          onUserUpdated()
         } else toast.error(result.message)
       } else if (balanceModal === 'withdraw') {
         const result = await withdrawBalance(
@@ -250,14 +244,8 @@ function RowActions({
           value
         )
         if (result.success) {
-          setData((prev) =>
-            prev.map((u) =>
-              u.userId === row.original.userId
-                ? { ...u, balance: (u.balance || 0) - value }
-                : u
-            )
-          )
           toast.success(result.message)
+          onUserUpdated()
         } else toast.error(result.message)
       } else if (balanceModal === 'reset') {
         const result = await resetBalance(
@@ -266,14 +254,8 @@ function RowActions({
           managerId
         )
         if (result.success) {
-          setData((prev) =>
-            prev.map((u) =>
-              u.userId === row.original.userId
-                ? { ...u, balance: 0, netProfit: 0 }
-                : u
-            )
-          )
           toast.success(result.message)
+          onUserUpdated()
         } else toast.error(result.message)
       } else if (balanceModal === 'bonus') {
         const result = await bonusBalance(
@@ -283,14 +265,8 @@ function RowActions({
           value
         )
         if (result.success) {
-          setData((prev) =>
-            prev.map((u) =>
-              u.userId === row.original.userId
-                ? { ...u, balance: (u.balance || 0) + value }
-                : u
-            )
-          )
           toast.success(result.message)
+          onUserUpdated()
         } else toast.error(result.message)
       }
     } catch (err) {
@@ -310,17 +286,7 @@ function RowActions({
 
       if (result.success) {
         toast.success(result.message)
-        setData((prev) =>
-          prev.map((u) =>
-            u.userId === row.original.userId
-              ? {
-                  ...u,
-                  registered: !u.registered,
-                  registeredAt: !u.registered ? new Date() : null
-                }
-              : u
-          )
-        )
+        onUserUpdated()
       } else {
         toast.error(result.message)
       }

@@ -2,20 +2,18 @@ import { Table, flexRender } from '@tanstack/react-table'
 
 import { Skeleton } from '@/components/ui/skeleton'
 import { TableBody, TableCell, TableRow } from '@/components/ui/table'
-import { TGuildMemberStatus } from '@/types/types'
 
-const UserTableBody = ({
-  table,
-  isLoading
-}: {
-  table: Table<TGuildMemberStatus>
+type TableBodyProps<T> = {
+  table: Table<T>
   isLoading: boolean
-}) => {
+}
+
+const CustomTableBody = <T,>({ table, isLoading }: TableBodyProps<T>) => {
   return (
     <TableBody>
       {isLoading ? (
         Array.from({
-          length: table.getState().pagination.pageSize
+          length: table.getPaginationRowModel().rows.length
         }).map((_, i) => (
           <TableRow key={i} className="h-16">
             {table.getHeaderGroups()[0]?.headers.map((header, j) => (
@@ -52,4 +50,4 @@ const UserTableBody = ({
   )
 }
 
-export default UserTableBody
+export default CustomTableBody

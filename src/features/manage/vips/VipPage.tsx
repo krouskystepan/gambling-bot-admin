@@ -8,11 +8,20 @@ import VipTable from './table/VipTable'
 
 const VipPage = async ({ guildId }: { guildId: string }) => {
   const session = await getServerSession(authOptions)
+  if (!session) return null
+
   const vips = await getVips(guildId, session!)
 
   return (
     <FeatureLayout title={'VIPs Channels'}>
-      <VipTable vips={vips} guildId={guildId} managerId={session!.userId!} />
+      <VipTable
+        vips={vips}
+        guildId={guildId}
+        managerId={session.userId!}
+        // page={query.page}
+        // limit={query.limit}
+        // total={total}
+      />
     </FeatureLayout>
   )
 }

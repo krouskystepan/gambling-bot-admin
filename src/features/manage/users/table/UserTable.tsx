@@ -1,28 +1,23 @@
 'use client'
 
-import {
-  ColumnFiltersState,
-  PaginationState,
-  SortingState,
-  VisibilityState,
-  getCoreRowModel,
-  useReactTable
-} from '@tanstack/react-table'
-
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { useSearchParams } from 'next/dist/client/components/navigation'
+import { useRouter } from 'next/navigation'
 
+import {
+  CustomTableBody,
+  CustomTableHeader,
+  CustomTablePagination
+} from '@/components/table'
 import { Table } from '@/components/ui/table'
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
+import { useServerTable } from '@/hooks/useServerTable'
 import { useUpdateUrl } from '@/hooks/useUpdateUrl'
 import { formatNumberToReadableString } from '@/lib/utils'
 import { TGuildMemberStatus } from '@/types/types'
 
-import UserTableBody from './UserTableBody'
 import UserTableFooter from './UserTableFooter'
-import UserTableHeader from './UserTableHeader'
-import UserTablePagination from './UserTablePagination'
 import UsersTableFilters from './UsersTableFilters'
 import { userColumns } from './userColumns'
 
@@ -43,75 +38,60 @@ const UserTable = ({
   guildId,
   managerId
 }: UserTableProps) => {
-  const [data, setData] = useState(users)
+  const router = useRouter()
 
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: page - 1,
-    pageSize: limit
-  })
-  const [sorting, setSorting] = useState<SortingState>([
+  const { table, isLoading, setIsLoading } = useServerTable<TGuildMemberStatus>(
     {
-      id: 'balance',
-      desc: true
+      data: users,
+      page,
+      limit,
+      total,
+      columns: userColumns({
+        guildId,
+        managerId,
+        onUserUpdated: () => {
+          const url = new URL(window.location.href)
+          router.replace(url.pathname + url.search, { scroll: false })
+        }
+      }),
+      initialSorting: [{ id: 'balance', desc: true }],
+      initialVisibility: { search: false },
+
+      onSortingChange: (sorting) => {
+        debouncedUpdateUrl({
+          sort: sorting
+            .map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`)
+            .join(',')
+        })
+      },
+
+      onColumnFiltersChange: (filters) => {
+        const search =
+          (filters.find((f) => f.id === 'search')?.value as
+            | string
+            | undefined) ?? ''
+        debouncedUpdateUrl({ search })
+      },
+
+      onPaginationChange: (pagination) => {
+        debouncedUpdateUrl({
+          page: pagination.pageIndex + 1,
+          limit: pagination.pageSize
+        })
+      }
     }
-  ])
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [columnVisibility] = useState<VisibilityState>({
-    search: false
-  })
-  const [isLoading, setIsLoading] = useState(false)
+  )
+
+  useEffect(() => {
+    setIsLoading(false)
+  }, [setIsLoading, users])
 
   const updateUrl = useUpdateUrl()
   const debouncedUpdateUrl = useDebouncedCallback(updateUrl, 300)
 
-  useEffect(() => {
-    setData(users)
-    setIsLoading(false)
-  }, [users])
-
   const searchParams = useSearchParams()
 
   const searchRef = useRef<HTMLInputElement>(null)
-
-  const table = useReactTable({
-    data,
-    columns: userColumns({ guildId, managerId, setData }),
-    state: {
-      pagination,
-      sorting,
-      columnFilters,
-      columnVisibility
-    },
-    onSortingChange: (updater) => {
-      const next = typeof updater === 'function' ? updater(sorting) : updater
-      setSorting(next)
-      const sort = next
-        .map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`)
-        .join(',')
-      debouncedUpdateUrl({ sort })
-    },
-    onColumnFiltersChange: (updater) => {
-      const next =
-        typeof updater === 'function' ? updater(columnFilters) : updater
-
-      setColumnFilters(next)
-
-      const search =
-        (next.find((f) => f.id === 'search')?.value as string | undefined) ?? ''
-
-      debouncedUpdateUrl({ search })
-    },
-    onPaginationChange: (updater) => {
-      const next = typeof updater === 'function' ? updater(pagination) : updater
-      setPagination(next)
-      debouncedUpdateUrl({ page: next.pageIndex + 1, limit: next.pageSize })
-    },
-    pageCount: Math.ceil(total / limit),
-    manualPagination: true,
-    manualSorting: true,
-    manualFiltering: true,
-    getCoreRowModel: getCoreRowModel()
-  })
 
   useEffect(() => {
     const pageFromUrl = Number(searchParams?.get('page') || 1)
@@ -124,11 +104,13 @@ const UserTable = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const totalBalance = data
+  const rows = table.getRowModel().rows.map((r) => r.original)
+
+  const totalBalance = rows
     .filter((u) => u.registered)
     .reduce((acc, u) => acc + (u.balance || 0), 0)
 
-  const totalNetProfit = data
+  const totalNetProfit = rows
     .filter((u) => u.registered)
     .reduce((acc, u) => acc + (u.netProfit || 0), 0)
 
@@ -146,18 +128,18 @@ const UserTable = ({
 
       <div className="overflow-hidden rounded-md border">
         <Table className="w-full table-auto">
-          <UserTableHeader table={table} />
-          <UserTableBody table={table} isLoading={isLoading} />
+          <CustomTableHeader table={table} />
+          <CustomTableBody table={table} isLoading={isLoading} />
           <UserTableFooter
             totalBalanceStr={totalBalanceStr}
             totalNetProfit={totalNetProfit}
             totalProfitStr={totalProfitStr}
-            data={data}
+            data={users}
           />
         </Table>
       </div>
 
-      <UserTablePagination table={table} total={total} />
+      <CustomTablePagination table={table} total={total} />
     </div>
   )
 }

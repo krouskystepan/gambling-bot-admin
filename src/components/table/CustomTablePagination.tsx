@@ -21,15 +21,16 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { formatNumberWithSpaces } from '@/lib/utils'
-import { TTransactionDiscord } from '@/types/types'
 
-const TransactionTablePagination = ({
+type TablePaginationProps<T> = {
+  table: Table<T>
+  total: number
+}
+
+const CustomTablePagination = <T,>({
   table,
   total
-}: {
-  table: Table<TTransactionDiscord>
-  total: number
-}) => {
+}: TablePaginationProps<T>) => {
   return (
     <div className="flex items-center justify-between gap-3">
       <div className="flex items-center gap-3">
@@ -138,4 +139,4 @@ const TransactionTablePagination = ({
   )
 }
 
-export default TransactionTablePagination
+export default CustomTablePagination

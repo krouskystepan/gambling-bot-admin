@@ -13,15 +13,17 @@ import { useEffect, useRef, useState } from 'react'
 
 import { useSearchParams } from 'next/navigation'
 
+import {
+  CustomTableBody,
+  CustomTableHeader,
+  CustomTablePagination
+} from '@/components/table'
 import { Table } from '@/components/ui/table'
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
 import { useUpdateUrl } from '@/hooks/useUpdateUrl'
 import { ITransactionCounts, TTransactionDiscord } from '@/types/types'
 
-import TransactionTableBody from './TransactionTableBody'
 import TransactionTableFilters from './TransactionTableFilters'
-import TransactionTableHeader from './TransactionTableHeader'
-import TransactionTablePagination from './TransactionTablePagination'
 import TransactionTableSummary from './TransactionTableSummary'
 import { transactionsColumns } from './transactionColumns'
 
@@ -190,8 +192,8 @@ const TransactionTable = ({
 
       <div className="overflow-hidden rounded-md border">
         <Table className="w-full table-auto">
-          <TransactionTableHeader table={table} />
-          <TransactionTableBody table={table} isLoading={isLoading} />
+          <CustomTableHeader table={table} />
+          <CustomTableBody table={table} isLoading={isLoading} />
         </Table>
       </div>
 
@@ -201,7 +203,7 @@ const TransactionTable = ({
         counts={transactionCounts}
       />
 
-      <TransactionTablePagination table={table} total={total} />
+      <CustomTablePagination table={table} total={total} />
     </div>
   )
 }

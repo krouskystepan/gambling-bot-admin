@@ -2,13 +2,12 @@ import { Table, flexRender } from '@tanstack/react-table'
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
 
 import { TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { TTransactionDiscord } from '@/types/types'
 
-const TransactionTableHeader = ({
-  table
-}: {
-  table: Table<TTransactionDiscord>
-}) => {
+type TableHeaderProps<T> = {
+  table: Table<T>
+}
+
+const CustomTableHeader = <T,>({ table }: TableHeaderProps<T>) => {
   return (
     <TableHeader>
       {table.getHeaderGroups().map((headerGroup) => (
@@ -43,4 +42,4 @@ const TransactionTableHeader = ({
   )
 }
 
-export default TransactionTableHeader
+export default CustomTableHeader
