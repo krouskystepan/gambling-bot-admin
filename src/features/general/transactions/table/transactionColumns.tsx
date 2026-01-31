@@ -1,9 +1,6 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { TTransaction } from 'gambling-bot-shared'
-import {
-  CircleQuestionMark
-  // Trash
-} from 'lucide-react'
+import { CircleQuestionMark } from 'lucide-react'
 
 import Image from 'next/image'
 
@@ -18,25 +15,7 @@ import { TTransactionDiscord } from '@/types/types'
 
 import { sourceBadgeMap, typeBadgeMap } from './transactionBadges'
 
-// import { Button } from '@/components/ui/button'
-// import { toast } from 'sonner'
-// import { deleteTransaction } from '@/actions/database/transaction.action'
-// import {
-//   AlertDialog,
-//   AlertDialogAction,
-//   AlertDialogCancel,
-//   AlertDialogContent,
-//   AlertDialogDescription,
-//   AlertDialogFooter,
-//   AlertDialogHeader,
-//   AlertDialogTitle,
-//   AlertDialogTrigger,
-// } from '@/components/ui/alert-dialog'
-
-export const transactionsColumns = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onDelete: (id: string) => void
-): ColumnDef<TTransactionDiscord>[] => [
+export const transactionsColumns = (): ColumnDef<TTransactionDiscord>[] => [
   {
     header: 'Avatar',
     accessorKey: 'avatar',
@@ -229,48 +208,4 @@ export const transactionsColumns = (
     size: 140,
     cell: ({ row }) => new Date(row.getValue('createdAt')).toLocaleString('cs')
   }
-  // {
-  //   id: 'actions',
-  //   header: 'Actions',
-  //   size: 10,
-  //   cell: ({ row }) => (
-  //     <AlertDialog>
-  //       <AlertDialogTrigger asChild>
-  //         <Button size="icon" variant="ghost">
-  //           <Trash className="w-5 h-5" />
-  //         </Button>
-  //       </AlertDialogTrigger>
-  //       <AlertDialogContent>
-  //         <AlertDialogHeader>
-  //           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-  //           <AlertDialogDescription>
-  //             This action cannot be undone. This will permanently delete
-  //             transaction.
-  //           </AlertDialogDescription>
-  //         </AlertDialogHeader>
-  //         <AlertDialogFooter>
-  //           <AlertDialogCancel>Cancel</AlertDialogCancel>
-  //           <AlertDialogAction
-  //             onClick={async () => {
-  //               try {
-  //                 // const result = await deleteTransaction(row.original.id)
-
-  //                 if (result.success) {
-  //                   onDelete(row.original.id)
-  //                   toast.success(result.message)
-  //                 } else {
-  //                   toast.error(result.message)
-  //                 }
-  //               } catch {
-  //                 toast.error('Something went wrong!')
-  //               }
-  //             }}
-  //           >
-  //             Confirm
-  //           </AlertDialogAction>
-  //         </AlertDialogFooter>
-  //       </AlertDialogContent>
-  //     </AlertDialog>
-  //   ),
-  // },
 ]

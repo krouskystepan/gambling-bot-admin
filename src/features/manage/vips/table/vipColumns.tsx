@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/tooltip'
 import { TVipChannels } from '@/types/types'
 
-export const vipColumns: ColumnDef<TVipChannels>[] = [
+export const vipColumns = (): ColumnDef<TVipChannels>[] => [
   {
     header: 'Image',
     accessorKey: 'avatar',

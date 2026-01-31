@@ -1,15 +1,6 @@
 'use client'
 
-import {
-  ColumnFiltersState,
-  PaginationState,
-  SortingState,
-  VisibilityState,
-  getCoreRowModel,
-  useReactTable
-} from '@tanstack/react-table'
-
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { useSearchParams } from 'next/navigation'
 
@@ -20,6 +11,8 @@ import {
 } from '@/components/table'
 import { Table } from '@/components/ui/table'
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
+import { useHydrateServerTableFromUrl } from '@/hooks/useHydrateServerTableFromUrl'
+import { useServerTable } from '@/hooks/useServerTable'
 import { useUpdateUrl } from '@/hooks/useUpdateUrl'
 import { ITransactionCounts, TTransactionDiscord } from '@/types/types'
 
@@ -50,134 +43,104 @@ const TransactionTable = ({
   gamePnL,
   cashFlow
 }: TransactionTableProps) => {
-  const [data, setData] = useState(transactions)
+  const { table, isLoading, setIsLoading } =
+    useServerTable<TTransactionDiscord>({
+      data: transactions,
+      page,
+      limit,
+      total,
+      columns: transactionsColumns(),
 
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: page - 1,
-    pageSize: limit
-  })
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-    betId: false
-  })
-  const [isLoading, setIsLoading] = useState(false)
+      onSortingChange: (sorting) => {
+        const sort = sorting
+          .map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`)
+          .join(',')
 
-  const userSearchRef = useRef<HTMLInputElement>(null)
-  const adminSearchRef = useRef<HTMLInputElement>(null)
+        debouncedUpdateUrl({ sort })
+      },
+
+      onColumnFiltersChange: (filters) => {
+        const search =
+          (filters.find((f) => f.id === 'username')?.value as
+            | string
+            | undefined) ?? ''
+        const adminSearch =
+          (filters.find((f) => f.id === 'handledByUsername')?.value as
+            | string
+            | undefined) ?? ''
+
+        const filterType =
+          (
+            filters.find((f) => f.id === 'type')?.value as string[] | undefined
+          )?.join(',') ?? ''
+
+        const filterSource =
+          (
+            filters.find((f) => f.id === 'source')?.value as
+              | string[]
+              | undefined
+          )?.join(',') ?? ''
+
+        const dateRange = filters.find((f) => f.id === 'createdAt')?.value as
+          | [string, string]
+          | undefined
+
+        debouncedUpdateUrl({
+          search,
+          adminSearch,
+          filterType,
+          filterSource,
+          dateFrom: dateRange?.[0],
+          dateTo: dateRange?.[1]
+        })
+      },
+
+      onPaginationChange: (pagination) => {
+        debouncedUpdateUrl({
+          page: pagination.pageIndex + 1,
+          limit: pagination.pageSize
+        })
+      }
+    })
+
+  useEffect(() => {
+    setIsLoading(false)
+  }, [setIsLoading, transactions])
 
   const updateUrl = useUpdateUrl()
   const debouncedUpdateUrl = useDebouncedCallback(updateUrl, 300)
 
-  useEffect(() => {
-    setData(transactions)
-    setIsLoading(false)
-  }, [transactions])
-
   const searchParams = useSearchParams()
 
-  const handleDelete = (id: string) => {
-    setData((prev) => prev.filter((t) => t.id !== id))
-  }
+  const userSearchRef = useRef<HTMLInputElement>(null)
+  const adminSearchRef = useRef<HTMLInputElement>(null)
 
-  const table = useReactTable({
-    data,
-    columns: transactionsColumns(handleDelete),
-    state: {
-      pagination,
-      sorting,
-      columnFilters,
-      columnVisibility
-    },
-    onColumnVisibilityChange: setColumnVisibility,
-    onSortingChange: (updater) => {
-      const next = typeof updater === 'function' ? updater(sorting) : updater
-      setSorting(next)
-      const sort = next
-        .map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`)
-        .join(',')
-      debouncedUpdateUrl({ sort })
-    },
-    onColumnFiltersChange: (updater) => {
-      const next =
-        typeof updater === 'function' ? updater(columnFilters) : updater
-      setColumnFilters(next)
+  useHydrateServerTableFromUrl(table, searchParams, {
+    filters: (params) => {
+      const search = params.get('search') || ''
+      const adminSearch = params.get('adminSearch') || ''
 
-      const searchFilter =
-        (next.find((f) => f.id === 'username')?.value as string | undefined) ??
-        ''
-      const adminSearchFilter =
-        (next.find((f) => f.id === 'handledByUsername')?.value as
-          | string
-          | undefined) ?? ''
-      const typeFilter =
-        (
-          next.find((f) => f.id === 'type')?.value as string[] | undefined
-        )?.join(',') ?? ''
-      const sourceFilter =
-        (
-          next.find((f) => f.id === 'source')?.value as string[] | undefined
-        )?.join(',') ?? ''
-      const dateRangeFilter = next.find((f) => f.id === 'createdAt')?.value as
-        | [string, string]
-        | undefined
+      const filterType = params.get('filterType')?.split(',')
+      const filterSource = params.get('filterSource')?.split(',')
 
-      debouncedUpdateUrl({
-        search: searchFilter,
-        adminSearch: adminSearchFilter,
-        filterType: typeFilter,
-        filterSource: sourceFilter,
-        dateFrom: dateRangeFilter?.[0],
-        dateTo: dateRangeFilter?.[1]
-      })
-    },
-    onPaginationChange: (updater) => {
-      const next = typeof updater === 'function' ? updater(pagination) : updater
-      setPagination(next)
-      debouncedUpdateUrl({ page: next.pageIndex + 1, limit: next.pageSize })
-    },
-    pageCount: Math.ceil(total / limit),
-    manualPagination: true,
-    manualSorting: true,
-    manualFiltering: true,
-    getCoreRowModel: getCoreRowModel()
+      const dateFrom = params.get('dateFrom') || undefined
+      const dateTo = params.get('dateTo') || undefined
+
+      return [
+        { id: 'username', value: search || undefined },
+        { id: 'handledByUsername', value: adminSearch || undefined },
+        { id: 'type', value: filterType?.length ? filterType : undefined },
+        {
+          id: 'source',
+          value: filterSource?.length ? filterSource : undefined
+        },
+        {
+          id: 'createdAt',
+          value: dateFrom && dateTo ? [dateFrom, dateTo] : undefined
+        }
+      ]
+    }
   })
-
-  useEffect(() => {
-    const pageFromUrl = Number(searchParams?.get('page') || 1)
-    const limitFromUrl = Number(searchParams?.get('limit') || 10)
-
-    const search = searchParams?.get('search') || ''
-    const adminSearch = searchParams?.get('adminSearch') || ''
-
-    const filterType = searchParams?.get('filterType')?.split(',') || undefined
-    const filterSource =
-      searchParams?.get('filterSource')?.split(',') || undefined
-
-    const dateFrom = searchParams?.get('dateFrom')
-      ? searchParams.get('dateFrom')
-      : undefined
-    const dateTo = searchParams?.get('dateTo')
-      ? searchParams.get('dateTo')
-      : undefined
-
-    const filters: { id: string; value: string[] | string | undefined }[] = [
-      { id: 'username', value: search || undefined },
-      { id: 'handledByUsername', value: adminSearch || undefined },
-      { id: 'type', value: filterType?.length ? filterType : undefined },
-      { id: 'source', value: filterSource?.length ? filterSource : undefined },
-      {
-        id: 'createdAt',
-        value: dateFrom && dateTo ? [dateFrom, dateTo] : undefined
-      }
-    ]
-
-    table.setPageIndex(pageFromUrl - 1)
-    table.setPageSize(limitFromUrl)
-
-    table.setColumnFilters(filters)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   return (
     <div className="w-7xl space-y-4">

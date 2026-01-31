@@ -1,17 +1,8 @@
 'use client'
 
-import {
-  PaginationState,
-  SortingState,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable
-} from '@tanstack/react-table'
 import { PlusIcon } from 'lucide-react'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 import {
   CustomTableBody,
@@ -21,39 +12,68 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Table } from '@/components/ui/table'
+import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
+import { useServerTable } from '@/hooks/useServerTable'
+import { useUpdateUrl } from '@/hooks/useUpdateUrl'
 import { TVipChannels } from '@/types/types'
 
 import { vipColumns } from './vipColumns'
 
 type VipTableProps = {
   vips: TVipChannels[]
+  page: number
+  limit: number
+  total: number
   guildId: string
   managerId: string
 }
 
-const VipTable = ({ vips, guildId, managerId }: VipTableProps) => {
-  const [data, setData] = useState(vips)
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10
+const VipTable = ({
+  vips,
+  page,
+  limit,
+  total
+  // guildId,
+  // managerId
+}: VipTableProps) => {
+  const { table, isLoading, setIsLoading } = useServerTable<TVipChannels>({
+    data: vips,
+    page,
+    limit,
+    total,
+    columns: vipColumns(),
+    initialSorting: [],
+    initialVisibility: {},
+
+    onSortingChange: (sorting) => {
+      debouncedUpdateUrl({
+        sort: sorting.map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`).join(',')
+      })
+    },
+
+    onColumnFiltersChange: (filters) => {
+      const search =
+        (filters.find((f) => f.id === 'search')?.value as string | undefined) ??
+        ''
+      debouncedUpdateUrl({ search })
+    },
+
+    onPaginationChange: (pagination) => {
+      debouncedUpdateUrl({
+        page: pagination.pageIndex + 1,
+        limit: pagination.pageSize
+      })
+    }
   })
-  const [sorting, setSorting] = useState<SortingState>([])
+
+  useEffect(() => {
+    setIsLoading(false)
+  }, [setIsLoading, vips])
+
+  const updateUrl = useUpdateUrl()
+  const debouncedUpdateUrl = useDebouncedCallback(updateUrl, 300)
+
   const inputRef = useRef<HTMLInputElement>(null)
-
-  // eslint-disable-next-line react-hooks/incompatible-library
-  const table = useReactTable({
-    data,
-    columns: vipColumns,
-    state: { pagination, sorting },
-    onPaginationChange: setPagination,
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel()
-  })
-
-  const total = data.length
 
   return (
     <div className="w-5xl space-y-4">
@@ -73,7 +93,7 @@ const VipTable = ({ vips, guildId, managerId }: VipTableProps) => {
       <div className="overflow-hidden rounded-md border">
         <Table className="w-full table-auto">
           <CustomTableHeader table={table} />
-          <CustomTableBody table={table} isLoading={false} />
+          <CustomTableBody table={table} isLoading={isLoading} />
         </Table>
       </div>
 

@@ -1,3 +1,4 @@
+import { SortingState } from '@tanstack/react-table'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
@@ -39,4 +40,16 @@ export function getReadableName(
 
 export function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+export function parseSortingFromUrl(param: string | null): SortingState {
+  if (!param) return []
+
+  return param.split(',').map((entry) => {
+    const [id, dir] = entry.split(':')
+    return {
+      id,
+      desc: dir === 'desc'
+    }
+  })
 }

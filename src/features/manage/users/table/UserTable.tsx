@@ -12,6 +12,7 @@ import {
 } from '@/components/table'
 import { Table } from '@/components/ui/table'
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
+import { useHydrateServerTableFromUrl } from '@/hooks/useHydrateServerTableFromUrl'
 import { useServerTable } from '@/hooks/useServerTable'
 import { useUpdateUrl } from '@/hooks/useUpdateUrl'
 import { formatNumberToReadableString } from '@/lib/utils'
@@ -93,16 +94,12 @@ const UserTable = ({
 
   const searchRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    const pageFromUrl = Number(searchParams?.get('page') || 1)
-    const limitFromUrl = Number(searchParams?.get('limit') || 10)
-    const search = searchParams?.get('search') || ''
-
-    table.setPageIndex(pageFromUrl - 1)
-    table.setPageSize(limitFromUrl)
-    table.setColumnFilters(search ? [{ id: 'search', value: search }] : [])
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  useHydrateServerTableFromUrl(table, searchParams, {
+    filters: (params) => {
+      const search = params.get('search') || ''
+      return search ? [{ id: 'search', value: search }] : []
+    }
+  })
 
   const rows = table.getRowModel().rows.map((r) => r.original)
 
