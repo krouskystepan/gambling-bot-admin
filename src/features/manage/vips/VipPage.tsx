@@ -12,15 +12,22 @@ const VipPage = async ({ guildId }: { guildId: string }) => {
 
   const vips = await getVips(guildId, session!)
 
+  const query = {
+    page: 1,
+    limit: 5
+  }
+
+  const total = 5
+
   return (
     <FeatureLayout title={'VIPs Channels'}>
       <VipTable
         vips={vips}
         guildId={guildId}
         managerId={session.userId!}
-        // page={query.page}
-        // limit={query.limit}
-        // total={total}
+        page={query.page}
+        limit={query.limit}
+        total={total}
       />
     </FeatureLayout>
   )
