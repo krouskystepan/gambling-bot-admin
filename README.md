@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gambling System – Admin Panel
 
-## Getting Started
+This repository is **one part of a larger multi-repository system**.
 
-First, run the development server:
+👉 **Full case study & system documentation:**  
+https://www.krouskystepan.com/projects/discord-gambling-hub
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Repositories
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The project is split into three repositories:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Admin Panel (this repository)**
+  - Web interface for managing data and configuration.
+  - 🔗 https://github.com/krouskystepan/gambling-bot-admin
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Discord Bot**
+  - Uses the shared data and logic to run the gambling system inside Discord.
+  - 🔗 https://github.com/krouskystepan/gambling-bot-discord
 
-## Learn More
+- **Shared Package**
+  - Common types, database models, and business logic shared between the admin panel and the bot.
+  - 🔗 https://github.com/krouskystepan/gambling-bot-shared
 
-To learn more about Next.js, take a look at the following resources:
+## Community
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This project has a public Discord server where users can explore the system,
+try the bot features, and follow development updates.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+👉 **Discord server:**  
+https://discord.gg/Y2mMQN5QVE
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+All architecture decisions, data flow, and detailed explanations are documented
+in the case study linked above.

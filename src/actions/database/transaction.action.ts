@@ -1,23 +1,23 @@
 'use server'
 
-import { connectToDatabase } from '@/lib/utils'
-import Transaction from '@/models/Transaction'
-import { getServerSession, Session } from 'next-auth'
-import { getDiscordGuildMembers } from '../discord/member.action'
-import { FilterQuery } from 'mongoose'
-import { TTransactionDiscord, ITransactionCounts } from '@/types/types'
-import { authOptions } from '@/lib/authOptions'
 import { TTransaction } from 'gambling-bot-shared'
+import { Session, getServerSession } from 'next-auth'
 
-function escapeRegExp(string: string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-}
+import { authOptions } from '@/lib/authOptions'
+import { connectToDatabase } from '@/lib/db'
+import { escapeRegExp } from '@/lib/utils'
+import Transaction from '@/models/Transaction'
+import { ITransactionCounts, TTransactionDiscord } from '@/types/types'
+
+import { getDiscordGuildMembers } from '../discord/member.action'
+
+type TransactionFilter = Record<string, unknown>
 
 export const getTransactions = async (
   guildId: string,
   session: Session,
-  page: number = 1,
-  limit: number = 15,
+  page = 1,
+  limit = 15,
   search?: string,
   adminSearch?: string,
   filterType?: string[],
@@ -31,16 +31,13 @@ export const getTransactions = async (
   gamePnL: number
   cashFlow: number
 }> => {
-  if (!session.accessToken)
+  if (!session.accessToken || page < 1 || limit < 1 || limit > 50) {
     return { transactions: [], total: 0, gamePnL: 0, cashFlow: 0 }
-
-  if (limit < 1 || limit > 50 || page < 1)
-    return { transactions: [], total: 0, gamePnL: 0, cashFlow: 0 }
+  }
 
   await connectToDatabase()
 
-  const query: FilterQuery<TTransaction> = { guildId }
-  const andFilters: FilterQuery<TTransaction>[] = []
+  const andFilters: TransactionFilter[] = []
 
   if (search) {
     const regex = new RegExp(escapeRegExp(search), 'i')
@@ -52,20 +49,26 @@ export const getTransactions = async (
     andFilters.push({ $or: [{ handledBy: regex }, { betId: regex }] })
   }
 
-  if (filterType && filterType.length)
+  if (filterType?.length) {
     andFilters.push({ type: { $in: filterType } })
-  if (filterSource && filterSource.length)
+  }
+
+  if (filterSource?.length) {
     andFilters.push({ source: { $in: filterSource } })
+  }
 
   if (dateFrom && dateTo) {
     const from = new Date(dateFrom)
     from.setHours(0, 0, 0, 0)
+
     const to = new Date(dateTo)
     to.setHours(23, 59, 59, 999)
-    query.createdAt = { $gte: from, $lte: to }
+
+    andFilters.push({ createdAt: { $gte: from, $lte: to } })
   }
 
-  if (andFilters.length > 0) query.$and = andFilters
+  const query: TransactionFilter =
+    andFilters.length > 0 ? { guildId, $and: andFilters } : { guildId }
 
   const total = await Transaction.countDocuments(query)
 
@@ -78,18 +81,15 @@ export const getTransactions = async (
           $sum: {
             $switch: {
               branches: [
-                {
-                  case: { $in: ['$type', ['bet', 'vip']] },
-                  then: '$amount',
-                },
+                { case: { $in: ['$type', ['bet', 'vip']] }, then: '$amount' },
                 {
                   case: { $in: ['$type', ['win', 'bonus', 'refund']] },
-                  then: { $multiply: ['$amount', -1] },
-                },
+                  then: { $multiply: ['$amount', -1] }
+                }
               ],
-              default: 0,
-            },
-          },
+              default: 0
+            }
+          }
         },
         cashFlow: {
           $sum: {
@@ -98,27 +98,28 @@ export const getTransactions = async (
                 { case: { $eq: ['$type', 'deposit'] }, then: '$amount' },
                 {
                   case: { $eq: ['$type', 'withdraw'] },
-                  then: { $multiply: ['$amount', -1] },
-                },
+                  then: { $multiply: ['$amount', -1] }
+                }
               ],
-              default: 0,
-            },
-          },
-        },
-      },
-    },
+              default: 0
+            }
+          }
+        }
+      }
+    }
   ])
 
-  const gamePnL = totalsAgg.length ? totalsAgg[0].gamePnL : 0
-  const cashFlow = totalsAgg.length ? totalsAgg[0].cashFlow : 0
+  const gamePnL = totalsAgg[0]?.gamePnL ?? 0
+  const cashFlow = totalsAgg[0]?.cashFlow ?? 0
 
   let sortObj: Record<string, 1 | -1> = { createdAt: -1 }
+
   if (sort) {
     sortObj = {}
-    sort.split(',').forEach((pair) => {
-      const [field, dir] = pair.split(':')
+    for (const part of sort.split(',')) {
+      const [field, dir] = part.split(':')
       if (field) sortObj[field] = dir === 'asc' ? 1 : -1
-    })
+    }
   }
 
   const transactions = await Transaction.find(query)
@@ -126,8 +127,9 @@ export const getTransactions = async (
     .skip((page - 1) * limit)
     .limit(limit)
 
-  if (!transactions.length)
+  if (!transactions.length) {
     return { transactions: [], total, gamePnL, cashFlow }
+  }
 
   const userIds = Array.from(
     new Set(
@@ -136,7 +138,9 @@ export const getTransactions = async (
   )
 
   const discordMembers = await getDiscordGuildMembers(guildId)
-  if (!discordMembers) return { transactions: [], total: 0, gamePnL, cashFlow }
+  if (!discordMembers) {
+    return { transactions: [], total, gamePnL, cashFlow }
+  }
 
   const discordMap = new Map(
     discordMembers
@@ -146,33 +150,33 @@ export const getTransactions = async (
         {
           username: m.username,
           nickname: m.nickname,
-          avatar: m.avatarUrl || '/default-avatar.jpg',
-        },
+          avatar: m.avatarUrl || '/default-avatar.jpg'
+        }
       ])
   )
 
-  const transactionsWithUser: TTransactionDiscord[] = transactions.map((tx) => {
+  const result: TTransactionDiscord[] = transactions.map((tx) => {
     const user = discordMap.get(tx.userId)
-    const handler = tx.handledBy ? discordMap.get(tx.handledBy) : null
+    const handler = tx.handledBy ? discordMap.get(tx.handledBy) : undefined
 
     return {
       id: tx._id.toString(),
       userId: tx.userId,
-      username: user?.username || 'Unknown',
-      nickname: user?.nickname || null,
-      avatar: user?.avatar || '/default-avatar.jpg',
+      username: user?.username ?? 'Unknown',
+      nickname: user?.nickname ?? null,
+      avatar: user?.avatar ?? '/default-avatar.jpg',
       type: tx.type,
       meta: tx.meta,
       amount: tx.amount,
       source: tx.source,
       createdAt: tx.createdAt,
-      betId: tx.betId || undefined,
-      handledBy: tx.handledBy || undefined,
-      handledByUsername: handler?.username || undefined,
+      betId: tx.betId ?? undefined,
+      handledBy: tx.handledBy ?? undefined,
+      handledByUsername: handler?.username
     }
   })
 
-  return { transactions: transactionsWithUser, total, gamePnL, cashFlow }
+  return { transactions: result, total, gamePnL, cashFlow }
 }
 
 const typeBadgeMap: Record<TTransaction['type'], string> = {
@@ -182,7 +186,7 @@ const typeBadgeMap: Record<TTransaction['type'], string> = {
   win: '',
   refund: '',
   bonus: '',
-  vip: '',
+  vip: ''
 }
 
 const sourceBadgeMap: Record<TTransaction['source'], string> = {
@@ -190,7 +194,7 @@ const sourceBadgeMap: Record<TTransaction['source'], string> = {
   command: '',
   manual: '',
   system: '',
-  web: '',
+  web: ''
 }
 
 export const getTransactionCounts = async (
@@ -210,14 +214,13 @@ export const getTransactionCounts = async (
       ) as Record<TTransaction['type'], number>,
       source: Object.fromEntries(
         Object.keys(sourceBadgeMap).map((s) => [s, 0])
-      ) as Record<TTransaction['source'], number>,
+      ) as Record<TTransaction['source'], number>
     }
   }
 
   await connectToDatabase()
 
-  const query: FilterQuery<TTransaction> = { guildId }
-  const andFilters: FilterQuery<TTransaction>[] = []
+  const andFilters: TransactionFilter[] = []
 
   if (search) {
     const regex = new RegExp(escapeRegExp(search), 'i')
@@ -229,37 +232,41 @@ export const getTransactionCounts = async (
     andFilters.push({ $or: [{ handledBy: regex }, { betId: regex }] })
   }
 
-  if (filterType && filterType.length) {
+  if (filterType?.length) {
     andFilters.push({ type: { $in: filterType } })
   }
 
-  if (filterSource && filterSource.length) {
+  if (filterSource?.length) {
     andFilters.push({ source: { $in: filterSource } })
   }
 
   if (dateFrom && dateTo) {
     const from = new Date(dateFrom)
     from.setHours(0, 0, 0, 0)
+
     const to = new Date(dateTo)
     to.setHours(23, 59, 59, 999)
+
     andFilters.push({ createdAt: { $gte: from, $lte: to } })
   }
 
-  if (andFilters.length > 0) query.$and = andFilters
+  const query: TransactionFilter =
+    andFilters.length > 0 ? { guildId, $and: andFilters } : { guildId }
 
   const typeAgg = await Transaction.aggregate([
     { $match: query },
-    { $group: { _id: '$type', count: { $sum: 1 } } },
+    { $group: { _id: '$type', count: { $sum: 1 } } }
   ])
 
   const sourceAgg = await Transaction.aggregate([
     { $match: query },
-    { $group: { _id: '$source', count: { $sum: 1 } } },
+    { $group: { _id: '$source', count: { $sum: 1 } } }
   ])
 
   const typeCounts = Object.fromEntries(
     Object.keys(typeBadgeMap).map((t) => [t, 0])
   ) as Record<TTransaction['type'], number>
+
   typeAgg.forEach((t) => {
     typeCounts[t._id as TTransaction['type']] = t.count
   })
@@ -267,6 +274,7 @@ export const getTransactionCounts = async (
   const sourceCounts = Object.fromEntries(
     Object.keys(sourceBadgeMap).map((s) => [s, 0])
   ) as Record<TTransaction['source'], number>
+
   sourceAgg.forEach((s) => {
     sourceCounts[s._id as TTransaction['source']] = s.count
   })
@@ -279,27 +287,17 @@ export const deleteTransaction = async (
 ): Promise<{ success: boolean; message?: string }> => {
   const session = await getServerSession(authOptions)
 
-  if (!session || !session.accessToken) {
+  if (!session?.accessToken) {
     return { success: false, message: 'Unauthorized' }
-  }
-
-  if (!transactionId) {
-    return { success: false, message: 'Transaction ID is required' }
   }
 
   await connectToDatabase()
 
-  const query: FilterQuery<typeof Transaction> = { _id: transactionId }
+  const deleted = await Transaction.findOneAndDelete({ _id: transactionId })
 
-  try {
-    const deleted = await Transaction.findOneAndDelete(query)
-    if (!deleted) {
-      return { success: false, message: 'Transaction not found' }
-    }
-
-    return { success: true, message: 'Transaction deleted' }
-  } catch (error) {
-    console.error('Error deleting transaction:', error)
-    return { success: false, message: 'Failed to delete transaction' }
+  if (!deleted) {
+    return { success: false, message: 'Transaction not found' }
   }
+
+  return { success: true, message: 'Transaction deleted' }
 }

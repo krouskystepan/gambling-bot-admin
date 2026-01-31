@@ -1,12 +1,14 @@
 'use server'
 
+import { getServerSession } from 'next-auth'
+
 import { authOptions } from '@/lib/authOptions'
-import { connectToDatabase } from '@/lib/utils'
+import { connectToDatabase } from '@/lib/db'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import { casinoSettingsSchema } from '@/types/schemas'
-import { getServerSession } from 'next-auth'
-import { getUserPermissions } from '../perms'
 import { TCasinoSettingsValues } from '@/types/types'
+
+import { getUserPermissions } from '../perms'
 
 export async function getCasinoSettings(
   guildId: string
@@ -36,8 +38,8 @@ export async function saveCasinoSettings(
     {
       guildId,
       $set: {
-        casinoSettings: parsed,
-      },
+        casinoSettings: parsed
+      }
     },
     { new: true, upsert: true }
   )

@@ -1,4 +1,6 @@
+import { TTransaction, TVipRoom } from 'gambling-bot-shared'
 import z from 'zod'
+
 import {
   bonusFormSchema,
   casinoSettingsSchema,
@@ -6,8 +8,8 @@ import {
   managerRoleFormSchema,
   vipSettingsFormSchema
 } from './schemas'
-import { TTransaction } from 'gambling-bot-shared'
 
+// TODO: Refactor types - use from shared package and extend where needed
 export interface IGuild {
   id: string
   name: string
@@ -35,6 +37,7 @@ export interface IGuildRole {
 
 export type TChannelsFormValues = z.infer<typeof channelsFormSchema>
 export type TCasinoSettingsValues = z.infer<typeof casinoSettingsSchema>
+export type TCasinoSettingsOutput = z.output<typeof casinoSettingsSchema>
 export type TManagerRoleValues = z.infer<typeof managerRoleFormSchema>
 export type TVipSettingsValues = z.infer<typeof vipSettingsFormSchema>
 export type TBonusFormValues = z.infer<typeof bonusFormSchema>
@@ -50,30 +53,30 @@ export type TGuildMemberStatus = {
   netProfit?: number
 }
 
-export type TVipChannels = {
-  ownerId: string
-  guildId: string
-  channelId: string
+export type TVipChannels = Omit<TVipRoom, 'updatedAt' | 'memberIds'> & {
   channelName: string
-  expiresAt: Date
-  createdAt: Date
   username: string
   nickname: string
+  members: {
+    userId: string
+    username: string
+    nickname: string
+    avatar: string
+  }[]
   avatar: string
 }
 
-export interface TTransactionDiscord
-  extends Pick<
-    TTransaction,
-    | 'userId'
-    | 'type'
-    | 'amount'
-    | 'source'
-    | 'createdAt'
-    | 'betId'
-    | 'handledBy'
-    | 'meta'
-  > {
+export interface TTransactionDiscord extends Pick<
+  TTransaction,
+  | 'userId'
+  | 'type'
+  | 'amount'
+  | 'source'
+  | 'createdAt'
+  | 'betId'
+  | 'handledBy'
+  | 'meta'
+> {
   id: string
   username: string
   nickname: string | null
@@ -83,12 +86,12 @@ export interface TTransactionDiscord
   dateTo?: string
 }
 
-export interface ITransactionCounts {
+export type ITransactionCounts = {
   type: Record<TTransaction['type'], number>
   source: Record<TTransaction['source'], number>
 }
 
-export interface TUpdateUrl {
+export type TUpdateUrl = {
   page: number
   limit?: number
   search?: string

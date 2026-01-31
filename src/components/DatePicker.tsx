@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import {
   endOfMonth,
   endOfYear,
@@ -9,18 +8,22 @@ import {
   startOfYear,
   subDays,
   subMonths,
-  subYears,
+  subYears
 } from 'date-fns'
-import { DateRange } from 'react-day-picker'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
-import { cn } from '@/lib/utils'
 import { CalendarIcon } from 'lucide-react'
+import { DateRange } from 'react-day-picker'
+
+import { useState } from 'react'
+
+import { cn } from '@/lib/utils'
+
 import { Button } from './ui/button'
 import { Calendar } from './ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 
 const DatePicker = ({
   onChange,
-  initialRange,
+  initialRange
 }: {
   onChange: (range: { from: Date; to: Date } | undefined) => void
   initialRange?: DateRange
@@ -34,31 +37,31 @@ const DatePicker = ({
 
   const yesterday = {
     from: subDays(today, 1),
-    to: subDays(today, 1),
+    to: subDays(today, 1)
   }
   const last7Days = {
     from: subDays(today, 6),
-    to: today,
+    to: today
   }
   const last30Days = {
     from: subDays(today, 29),
-    to: today,
+    to: today
   }
   const monthToDate = {
     from: startOfMonth(today),
-    to: today,
+    to: today
   }
   const lastMonth = {
     from: startOfMonth(subMonths(today, 1)),
-    to: endOfMonth(subMonths(today, 1)),
+    to: endOfMonth(subMonths(today, 1))
   }
   const yearToDate = {
     from: startOfYear(today),
-    to: today,
+    to: today
   }
   const lastYear = {
     from: startOfYear(subYears(today, 1)),
-    to: endOfYear(subYears(today, 1)),
+    to: endOfYear(subYears(today, 1))
   }
 
   return (
@@ -68,7 +71,7 @@ const DatePicker = ({
           id="date"
           variant="outline"
           className={cn(
-            'h-[38px] w-64 justify-start text-left font-normal',
+            'h-9.5 w-64 justify-start text-left font-normal',
             !date && 'text-muted-foreground'
           )}
         >
@@ -103,7 +106,7 @@ const DatePicker = ({
                   onClick={() => {
                     setDate({
                       from: today,
-                      to: today,
+                      to: today
                     })
                     setMonth(today)
                     onChange({ from: today, to: today })

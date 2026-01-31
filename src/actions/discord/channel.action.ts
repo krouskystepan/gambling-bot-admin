@@ -1,9 +1,10 @@
 'use server'
 
-import { IChannelsCacheEntry, IGuildChannel } from '@/types/types'
-import axios from 'axios'
+import { discordBotRequest } from '@/lib/discordReq'
+import type { IChannelsCacheEntry, IGuildChannel } from '@/types/types'
 
 const guildChannelsCache = new Map<string, IChannelsCacheEntry>()
+const CHANNEL_CACHE_DURATION = 60_000 // 1 min
 
 export const getGuildChannels = async (
   guildId: string
@@ -15,26 +16,21 @@ export const getGuildChannels = async (
     return cached.data
   }
 
-  if (!process.env.DISCORD_BOT_TOKEN) throw new Error('Bot token missing')
-
   try {
-    const { data } = await axios.get<IGuildChannel[]>(
-      `https://discord.com/api/v10/guilds/${guildId}/channels`,
-      {
-        headers: { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}` },
-      }
-    )
+    const channels = await discordBotRequest<IGuildChannel[]>({
+      url: `/guilds/${guildId}/channels`,
+      method: 'GET'
+    })
 
-    const textChannels = data.filter((c) => c.type === 0)
+    const textChannels = channels.filter((c) => c.type === 0)
 
     guildChannelsCache.set(guildId, {
       data: textChannels,
-      expiresAt: now + 60_000, // cache for 1 minute
+      expiresAt: now + CHANNEL_CACHE_DURATION
     })
 
     return textChannels
-  } catch (err) {
-    console.error('Discord API error fetching channels', err)
+  } catch {
     return []
   }
 }

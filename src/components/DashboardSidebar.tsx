@@ -1,15 +1,17 @@
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/authOptions'
 import { Dice5 } from 'lucide-react'
+import { getServerSession } from 'next-auth'
+
 import Link from 'next/link'
-import { getUserGuilds } from '@/actions/discord/guilds.action'
-import GuildRow from './GuildRow'
 import { redirect } from 'next/navigation'
+
+import { getUserGuilds } from '@/actions/discord/guilds.action'
+import { authOptions } from '@/lib/authOptions'
+
+import GuildRow from './GuildRow'
 
 const DashboardSidebar = async () => {
   const session = await getServerSession(authOptions)
 
-  // refresh selhal → redirect na login
   if (!session?.accessToken || session?.error) {
     redirect('/login')
   }
@@ -17,12 +19,12 @@ const DashboardSidebar = async () => {
   const guilds = await getUserGuilds(session)
 
   return (
-    <aside className="relative flex flex-col min-w-16 flex-1 grow-0 min-h-screen bg-black/70 border-r border-yellow-500/10 py-4 gap-4 items-center overflow-y-scroll hide-scrollbar">
+    <aside className="hide-scrollbar relative flex min-h-screen min-w-16 flex-1 grow-0 flex-col items-center gap-4 overflow-y-scroll border-r border-yellow-500/10 bg-black/70 py-4">
       <Link
         href={'/'}
-        className="text-xl font-extrabold text-yellow-400 mb-1 flex items-center justify-center hover:scale-110 transition duration-300"
+        className="mb-1 flex items-center justify-center text-xl font-extrabold text-yellow-400 transition duration-300 hover:scale-110"
       >
-        <Dice5 className="w-8 h-8 text-yellow-400" />
+        <Dice5 className="h-8 w-8 text-yellow-400" />
       </Link>
 
       <div className="flex flex-col gap-2">

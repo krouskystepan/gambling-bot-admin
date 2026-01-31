@@ -1,10 +1,12 @@
 'use server'
 
+import { getServerSession } from 'next-auth'
+
 import { authOptions } from '@/lib/authOptions'
-import { connectToDatabase } from '@/lib/utils'
+import { connectToDatabase } from '@/lib/db'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import { TVipSettingsValues } from '@/types/types'
-import { getServerSession } from 'next-auth'
+
 import { getUserPermissions } from '../perms'
 
 export async function getVipSettings(

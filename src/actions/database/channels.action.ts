@@ -1,10 +1,12 @@
 'use server'
 
+import { getServerSession } from 'next-auth'
+
 import { authOptions } from '@/lib/authOptions'
-import { connectToDatabase } from '@/lib/utils'
+import { connectToDatabase } from '@/lib/db'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import { TChannelsFormValues } from '@/types/types'
-import { getServerSession } from 'next-auth'
+
 import { getUserPermissions } from '../perms'
 
 export async function getChannels(
@@ -18,15 +20,19 @@ export async function getChannels(
   return {
     atm: {
       actions: doc.atmChannelIds?.actions ?? '',
-      logs: doc.atmChannelIds?.logs ?? '',
+      logs: doc.atmChannelIds?.logs ?? ''
     },
     casino: {
-      casinoChannelIds: doc.casinoChannelIds ?? [],
+      casinoChannelIds: doc.casinoChannelIds ?? []
     },
     prediction: {
       actions: doc.predictionChannelIds?.actions ?? '',
-      logs: doc.predictionChannelIds?.logs ?? '',
+      logs: doc.predictionChannelIds?.logs ?? ''
     },
+    raffle: {
+      actions: doc.raffleChannelIds?.actions ?? '',
+      logs: doc.raffleChannelIds?.logs ?? ''
+    }
   }
 }
 
@@ -49,7 +55,9 @@ export async function saveChannels(
         casinoChannelIds: values.casino.casinoChannelIds,
         'predictionChannelIds.actions': values.prediction.actions,
         'predictionChannelIds.logs': values.prediction.logs,
-      },
+        'raffleChannelIds.actions': values.raffle.actions,
+        'raffleChannelIds.logs': values.raffle.logs
+      }
     },
     { new: true, upsert: true }
   )
@@ -57,14 +65,18 @@ export async function saveChannels(
   return {
     atm: {
       actions: updated.atmChannelIds.actions,
-      logs: updated.atmChannelIds.logs,
+      logs: updated.atmChannelIds.logs
     },
     casino: {
-      casinoChannelIds: updated.casinoChannelIds,
+      casinoChannelIds: updated.casinoChannelIds
     },
     prediction: {
       actions: updated.predictionChannelIds.actions,
-      logs: updated.predictionChannelIds.logs,
+      logs: updated.predictionChannelIds.logs
     },
+    raffle: {
+      actions: updated.raffleChannelIds.actions,
+      logs: updated.raffleChannelIds.logs
+    }
   }
 }

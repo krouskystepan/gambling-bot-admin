@@ -1,8 +1,9 @@
 'use client'
 
-import { Save, Loader2 } from 'lucide-react'
-import { Button } from './ui/button'
+import { Loader2, Save } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
+
+import { Button } from './ui/button'
 
 const SaveButton = () => {
   const { formState } = useFormContext()
@@ -11,7 +12,7 @@ const SaveButton = () => {
     <Button
       type="submit"
       variant="save"
-      className="w-fit cursor-pointer flex items-center gap-2"
+      className="flex w-fit cursor-pointer items-center gap-2"
       size="lg"
       disabled={formState.isSubmitting}
     >

@@ -1,9 +1,11 @@
 'use server'
 
-import { authOptions } from '@/lib/authOptions'
-import { connectToDatabase } from '@/lib/utils'
-import GuildConfiguration from '@/models/GuildConfiguration'
 import { getServerSession } from 'next-auth'
+
+import { authOptions } from '@/lib/authOptions'
+import { connectToDatabase } from '@/lib/db'
+import GuildConfiguration from '@/models/GuildConfiguration'
+
 import { getUserPermissions } from '../perms'
 
 export async function getManagerRole(

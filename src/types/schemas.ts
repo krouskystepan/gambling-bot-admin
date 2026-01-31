@@ -18,59 +18,73 @@ export const predictionChannelsFormSchema = z.object({
   logs: z.string().min(1, { message: NO_CHANNEL })
 })
 
+export const raffleChannelsFormSchema = z.object({
+  actions: z.string().min(1, { message: NO_CHANNEL }),
+  logs: z.string().min(1, { message: NO_CHANNEL })
+})
+
 export const channelsFormSchema = z.object({
   atm: atmChannelsFormSchema,
   casino: casinoChannelsFormSchema,
-  prediction: predictionChannelsFormSchema
+  prediction: predictionChannelsFormSchema,
+  raffle: raffleChannelsFormSchema
 })
 
-const numberField = z.coerce.number()
+const num = z.number()
 
 export const casinoSettingsSchema = z.object({
   dice: z.object({
-    winMultiplier: numberField,
-    minBet: numberField,
-    maxBet: numberField
+    winMultiplier: num,
+    minBet: num,
+    maxBet: num
   }),
+
   coinflip: z.object({
-    winMultiplier: numberField,
-    minBet: numberField,
-    maxBet: numberField
+    winMultiplier: num,
+    minBet: num,
+    maxBet: num
   }),
+
   slots: z.object({
-    winMultipliers: z.record(z.string(), numberField),
-    symbolWeights: z.record(z.string(), numberField),
-    minBet: numberField,
-    maxBet: numberField
+    winMultipliers: z.record(z.string(), num),
+    symbolWeights: z.record(z.string(), num),
+    minBet: num,
+    maxBet: num
   }),
+
   lottery: z.object({
-    winMultipliers: z.record(z.string(), numberField),
-    minBet: numberField,
-    maxBet: numberField
+    winMultipliers: z.record(z.string(), num),
+    minBet: num,
+    maxBet: num
   }),
+
   roulette: z.object({
-    winMultipliers: z.record(z.string(), numberField),
-    minBet: numberField,
-    maxBet: numberField
+    winMultipliers: z.record(z.string(), num),
+    minBet: num,
+    maxBet: num
   }),
+
   rps: z.object({
-    casinoCut: numberField,
-    minBet: numberField,
-    maxBet: numberField
+    casinoCut: num,
+    minBet: num,
+    maxBet: num
   }),
+
   goldenJackpot: z.object({
-    winMultiplier: numberField,
-    oneInChance: numberField,
-    minBet: numberField,
-    maxBet: numberField
+    winMultiplier: num,
+    oneInChance: num,
+    minBet: num,
+    maxBet: num
   }),
+
   blackjack: z.object({
-    minBet: numberField,
-    maxBet: numberField
+    minBet: num,
+    maxBet: num
   }),
+
   prediction: z.object({
-    minBet: numberField,
-    maxBet: numberField
+    minBet: num,
+    maxBet: num
   })
 })
 

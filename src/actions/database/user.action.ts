@@ -1,14 +1,19 @@
 'use server'
 
-import GuildConfiguration from '@/models/GuildConfiguration'
-import { revalidatePath } from 'next/cache'
-import User from '@/models/User'
-import { connectToDatabase, formatNumberToReadableString } from '@/lib/utils'
-import { TGuildMemberStatus } from '@/types/types'
+import { TUser } from 'gambling-bot-shared'
 import { Session } from 'next-auth'
+
+import { revalidatePath } from 'next/cache'
+
+import { connectToDatabase } from '@/lib/db'
+import { escapeRegExp, formatNumberToReadableString } from '@/lib/utils'
+import GuildConfiguration from '@/models/GuildConfiguration'
+import Transaction from '@/models/Transaction'
+import User from '@/models/User'
+import { TGuildMemberStatus } from '@/types/types'
+
 import { getDiscordGuildMembers } from '../discord/member.action'
 import { sendEmbed } from '../discord/utils.action'
-import Transaction from '@/models/Transaction'
 
 export async function registerUser(
   userId: string,
@@ -106,7 +111,7 @@ export async function depositBalance(
       type: 'deposit',
       source: 'web',
       handledBy: managerId,
-      createdAt: new Date(),
+      createdAt: new Date()
     })
 
     const guildConfig = await GuildConfiguration.findOne({ guildId })
@@ -159,7 +164,7 @@ export async function withdrawBalance(
       type: 'withdraw',
       source: 'web',
       handledBy: managerId,
-      createdAt: new Date(),
+      createdAt: new Date()
     })
 
     const guildConfig = await GuildConfiguration.findOne({ guildId })
@@ -188,62 +193,112 @@ export async function withdrawBalance(
   }
 }
 
-export async function getUserWithRegistrationStatus(
+export async function getUsers(
   guildId: string,
-  session: Session | null
-): Promise<TGuildMemberStatus[]> {
-  if (!session || !session.accessToken) return []
+  session: Session | null,
+  page = 1,
+  limit = 15,
+  search?: string,
+  sort?: string
+): Promise<{ users: TGuildMemberStatus[]; total: number }> {
+  if (!session?.accessToken || page < 1 || limit < 1 || limit > 50) {
+    return {
+      users: [],
+      total: 0
+    }
+  }
 
   await connectToDatabase()
 
-  const dbUsers = await User.find({ guildId })
+  const dbUsers = (await User.find({ guildId })) as TUser[]
   const dbUsersMap = new Map(dbUsers.map((u) => [u.userId, u]))
 
   const discordMembers = await getDiscordGuildMembers(guildId)
   const discordMembersMap = new Map(discordMembers.map((m) => [m.userId, m]))
 
   const userIds = dbUsers.map((u) => u.userId)
-  const transactions = await Transaction.find({ userId: { $in: userIds } })
+
+  const transactions = await Transaction.find({
+    guildId,
+    userId: { $in: userIds }
+  })
 
   const netProfitMap = new Map<string, number>()
 
   for (const tx of transactions) {
-    const current = netProfitMap.get(tx.userId) || 0
+    const current = netProfitMap.get(tx.userId) ?? 0
 
     switch (tx.type) {
       case 'bet':
         netProfitMap.set(tx.userId, current - tx.amount)
         break
       case 'win':
-        netProfitMap.set(tx.userId, current + tx.amount)
-        break
       case 'bonus':
         netProfitMap.set(tx.userId, current + tx.amount)
         break
-      // normal deposits are ignored here
     }
   }
 
-  const allUserIds = new Set<string>([
-    ...dbUsers.map((u) => u.userId),
-    ...discordMembers.map((m) => m.userId),
-  ])
-
-  return Array.from(allUserIds).map((userId) => {
+  let users: TGuildMemberStatus[] = Array.from(
+    new Set<string>([
+      ...dbUsers.map((u) => u.userId),
+      ...discordMembers.map((m) => m.userId)
+    ])
+  ).map((userId) => {
     const dbUser = dbUsersMap.get(userId)
     const discordMember = discordMembersMap.get(userId)
 
     return {
       userId,
-      username: discordMember?.username || 'Unknown',
-      nickname: discordMember?.nickname || null,
-      avatar: discordMember?.avatarUrl || '/default-avatar.jpg',
-      registered: !!dbUser,
-      registeredAt: dbUser?.createdAt || null,
-      balance: dbUser?.balance || 0,
-      netProfit: netProfitMap.get(userId) || 0,
+      username: discordMember?.username ?? 'Unknown',
+      nickname: discordMember?.nickname ?? null,
+      avatar: discordMember?.avatarUrl ?? '/default-avatar.jpg',
+      registered: Boolean(dbUser),
+      registeredAt: dbUser?.createdAt ?? null,
+      balance: dbUser?.balance ?? 0,
+      netProfit: netProfitMap.get(userId) ?? 0
     }
   })
+
+  if (search) {
+    const regex = new RegExp(escapeRegExp(search), 'i')
+
+    users = users.filter(
+      (u) =>
+        regex.test(u.userId) ||
+        regex.test(u.username) ||
+        (u.nickname !== null && regex.test(u.nickname))
+    )
+  }
+
+  if (sort) {
+    for (const part of sort.split(',').reverse()) {
+      const [field, dir] = part.split(':')
+
+      users.sort((a, b) => {
+        const av = (a as Record<string, unknown>)[field]
+        const bv = (b as Record<string, unknown>)[field]
+
+        if (av == null && bv == null) return 0
+        if (av == null) return 1
+        if (bv == null) return -1
+
+        if (av < bv) return dir === 'asc' ? -1 : 1
+        if (av > bv) return dir === 'asc' ? 1 : -1
+        return 0
+      })
+    }
+  }
+
+  const total = users.length
+
+  const start = (page - 1) * limit
+  const end = start + limit
+
+  return {
+    users: users.slice(start, end),
+    total
+  }
 }
 
 export async function resetBalance(
@@ -260,7 +315,7 @@ export async function resetBalance(
 
     await Transaction.deleteMany({
       userId,
-      guildId,
+      guildId
     })
 
     const guildConfig = await GuildConfiguration.findOne({ guildId })
@@ -306,7 +361,7 @@ export async function bonusBalance(
       type: 'bonus',
       source: 'web',
       handledBy: managerId,
-      createdAt: new Date(),
+      createdAt: new Date()
     })
 
     const guildConfig = await GuildConfiguration.findOne({ guildId })

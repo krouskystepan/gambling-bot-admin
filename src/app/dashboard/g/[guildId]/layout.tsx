@@ -1,3 +1,7 @@
+import { getServerSession } from 'next-auth'
+
+import { redirect } from 'next/navigation'
+
 import { getGuildName } from '@/actions/discord/guilds.action'
 import { isBotInGuild } from '@/actions/discord/utils.action'
 import { getUserPermissions } from '@/actions/perms'
@@ -6,10 +10,8 @@ import BotNotInGuild from '@/components/states/BotNotInGuild'
 import NoPerms from '@/components/states/NoPerms'
 import RateLimited from '@/components/states/RateLimmited'
 import { authOptions } from '@/lib/authOptions'
-import { getServerSession } from 'next-auth'
-import { redirect } from 'next/navigation'
 
-interface GuildConfLayoutProps {
+type GuildConfLayoutProps = {
   children: React.ReactNode
   params: Promise<{ guildId: string }>
 }
@@ -31,10 +33,6 @@ const GuildConfLayout = async ({ children, params }: GuildConfLayoutProps) => {
     session
   )
 
-  if (rateLimited) return <RateLimited />
-
-  if (!isAdmin && !isManager) return <NoPerms />
-
   return (
     <div className="flex h-full">
       <GuildConfigSidebar
@@ -43,8 +41,16 @@ const GuildConfLayout = async ({ children, params }: GuildConfLayoutProps) => {
         isAdmin={isAdmin}
       />
 
-      <main className="flex flex-1 justify-start p-6 overflow-auto">
-        {children}
+      <main className="flex flex-1 justify-start overflow-auto p-6">
+        <>
+          {rateLimited ? (
+            <RateLimited />
+          ) : !isAdmin && !isManager ? (
+            <NoPerms />
+          ) : (
+            children
+          )}
+        </>
       </main>
     </div>
   )

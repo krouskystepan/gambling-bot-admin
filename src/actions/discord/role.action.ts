@@ -1,11 +1,15 @@
 'use server'
 
-import { IGuildRole, IMemberCacheEntry } from '@/types/types'
-import axios from 'axios'
+import { discordBotRequest } from '@/lib/discordReq'
+import type { IGuildRole, IMemberCacheEntry } from '@/types/types'
 
 const memberCache = new Map<string, IMemberCacheEntry>()
+const MEMBER_ROLE_CACHE_DURATION = 60_000 // 1 min
 
-export async function fetchMemberRoles(guildId: string, userId: string) {
+export const fetchMemberRoles = async (
+  guildId: string,
+  userId: string
+): Promise<string[]> => {
   const cacheKey = `${guildId}:${userId}`
   const cached = memberCache.get(cacheKey)
   const now = Date.now()
@@ -14,27 +18,36 @@ export async function fetchMemberRoles(guildId: string, userId: string) {
     return cached.roles
   }
 
-  const { data } = await axios.get<{ roles: string[] }>(
-    `https://discord.com/api/v10/guilds/${guildId}/members/${userId}`,
-    { headers: { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN!}` } }
-  )
+  try {
+    const member = await discordBotRequest<{
+      roles: string[]
+    }>({
+      url: `/guilds/${guildId}/members/${userId}`,
+      method: 'GET'
+    })
 
-  memberCache.set(cacheKey, { roles: data.roles, expiresAt: now + 60_000 })
-  return data.roles
+    memberCache.set(cacheKey, {
+      roles: member.roles,
+      expiresAt: now + MEMBER_ROLE_CACHE_DURATION
+    })
+
+    return member.roles
+  } catch {
+    return []
+  }
 }
 
-export async function getGuildRoles(guildId: string): Promise<IGuildRole[]> {
-  if (!process.env.DISCORD_BOT_TOKEN) throw new Error('Bot token missing')
+export const getGuildRoles = async (guildId: string): Promise<IGuildRole[]> => {
   try {
-    const { data } = await axios.get<IGuildRole[]>(
-      `https://discord.com/api/v10/guilds/${guildId}/roles`,
-      { headers: { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}` } }
-    )
-    return data
+    const roles = await discordBotRequest<IGuildRole[]>({
+      url: `/guilds/${guildId}/roles`,
+      method: 'GET'
+    })
+
+    return roles
       .filter((r) => r.id !== guildId && !r.managed)
       .sort((a, b) => b.position - a.position)
-  } catch (err) {
-    console.error('Discord API error fetching roles', err)
+  } catch {
     return []
   }
 }

@@ -1,17 +1,18 @@
 'use client'
 
-import * as React from 'react'
-import { useEffect } from 'react'
 import { Command as CommandPrimitive } from 'cmdk'
 import { XIcon } from 'lucide-react'
 
-import { cn } from '@/lib/utils'
+import * as React from 'react'
+import { useEffect } from 'react'
+
 import {
   Command,
   CommandGroup,
   CommandItem,
-  CommandList,
+  CommandList
 } from '@/components/ui/command'
+import { cn } from '@/lib/utils'
 
 export interface Option {
   value: string
@@ -110,7 +111,7 @@ function transToGroupOption(options: Option[], groupBy?: string) {
   }
   if (!groupBy) {
     return {
-      '': options,
+      '': options
     }
   }
 
@@ -186,7 +187,7 @@ const MultipleSelector = ({
   triggerSearchOnFocus = false,
   commandProps,
   inputProps,
-  hideClearAllButton = false,
+  hideClearAllButton = false
 }: MultipleSelectorProps) => {
   const inputRef = React.useRef<HTMLInputElement>(null)
   const [open, setOpen] = React.useState(false)
@@ -408,10 +409,10 @@ const MultipleSelector = ({
     >
       <div
         className={cn(
-          'border-input focus-within:border-ring focus-within:ring-ring/50 has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40 has-aria-invalid:border-destructive relative min-h-[38px] rounded-md border text-sm transition-[color,box-shadow] outline-none focus-within:ring-[3px] has-disabled:pointer-events-none has-disabled:cursor-not-allowed has-disabled:opacity-50',
+          'border-input focus-within:border-ring focus-within:ring-ring/50 has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40 has-aria-invalid:border-destructive relative min-h-9.5 rounded-md border text-sm transition-[color,box-shadow] outline-none focus-within:ring-[3px] has-disabled:pointer-events-none has-disabled:cursor-not-allowed has-disabled:opacity-50',
           {
             'p-1': selected.length !== 0,
-            'cursor-text': !disabled && selected.length !== 0,
+            'cursor-text': !disabled && selected.length !== 0
           },
           !hideClearAllButton && 'pe-9',
           className
@@ -482,11 +483,11 @@ const MultipleSelector = ({
                 : placeholder
             }
             className={cn(
-              'placeholder:text-muted-foreground/70 flex-1 bg-transparent outline-hidden disabled:cursor-not-allowed',
+              'placeholder:textforeground/70 flex-1 bg-transparent outline-hidden disabled:cursor-not-allowed',
               {
                 'w-full': hidePlaceholderWhenSelected,
                 'px-3 py-2': selected.length === 0,
-                'ml-1': selected.length !== 0,
+                'ml-1': selected.length !== 0
               },
               inputProps?.className
             )}

@@ -1,11 +1,13 @@
 'use server'
 
-import { authOptions } from '@/lib/authOptions'
-import { connectToDatabase } from '@/lib/utils'
-import GuildConfiguration from '@/models/GuildConfiguration'
 import { getServerSession } from 'next-auth'
-import { getUserPermissions } from '../perms'
+
+import { authOptions } from '@/lib/authOptions'
+import { connectToDatabase } from '@/lib/db'
+import GuildConfiguration from '@/models/GuildConfiguration'
 import { TBonusFormValues } from '@/types/types'
+
+import { getUserPermissions } from '../perms'
 
 export async function getBonusSettings(
   guildId: string
@@ -26,8 +28,8 @@ export async function getBonusSettings(
     resetOnMax: bonus.resetOnMax ?? false,
     milestoneBonus: {
       weekly: bonus.milestoneBonus?.weekly ?? 0,
-      monthly: bonus.milestoneBonus?.monthly ?? 0,
-    },
+      monthly: bonus.milestoneBonus?.monthly ?? 0
+    }
   }
 }
 
@@ -60,7 +62,7 @@ export async function saveBonusSettings(
     resetOnMax: bonus.resetOnMax ?? false,
     milestoneBonus: {
       weekly: bonus.milestoneBonus?.weekly ?? 0,
-      monthly: bonus.milestoneBonus?.monthly ?? 0,
-    },
+      monthly: bonus.milestoneBonus?.monthly ?? 0
+    }
   }
 }
