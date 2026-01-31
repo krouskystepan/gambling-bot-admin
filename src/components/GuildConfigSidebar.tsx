@@ -28,9 +28,9 @@ const LINKS = [
   {
     title: 'Manage',
     links: [
-      { id: 'users', label: 'Users', icon: User },
-      { id: 'vips', label: 'VIPs', icon: Crown },
-      { id: 'predictions', label: 'Predictions', icon: ChartBar }
+      { id: 'users', label: 'Users', icon: User }
+      // { id: 'vips', label: 'VIPs', icon: Crown },
+      // { id: 'predictions', label: 'Predictions', icon: ChartBar }
     ]
   },
   {

@@ -28,6 +28,10 @@ export async function getChannels(
     prediction: {
       actions: doc.predictionChannelIds?.actions ?? '',
       logs: doc.predictionChannelIds?.logs ?? ''
+    },
+    raffle: {
+      actions: doc.raffleChannelIds?.actions ?? '',
+      logs: doc.raffleChannelIds?.logs ?? ''
     }
   }
 }
@@ -50,7 +54,9 @@ export async function saveChannels(
         'atmChannelIds.logs': values.atm.logs,
         casinoChannelIds: values.casino.casinoChannelIds,
         'predictionChannelIds.actions': values.prediction.actions,
-        'predictionChannelIds.logs': values.prediction.logs
+        'predictionChannelIds.logs': values.prediction.logs,
+        'raffleChannelIds.actions': values.raffle.actions,
+        'raffleChannelIds.logs': values.raffle.logs
       }
     },
     { new: true, upsert: true }
@@ -67,6 +73,10 @@ export async function saveChannels(
     prediction: {
       actions: updated.predictionChannelIds.actions,
       logs: updated.predictionChannelIds.logs
+    },
+    raffle: {
+      actions: updated.raffleChannelIds.actions,
+      logs: updated.raffleChannelIds.logs
     }
   }
 }

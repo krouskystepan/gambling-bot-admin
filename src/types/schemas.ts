@@ -18,10 +18,16 @@ export const predictionChannelsFormSchema = z.object({
   logs: z.string().min(1, { message: NO_CHANNEL })
 })
 
+export const raffleChannelsFormSchema = z.object({
+  actions: z.string().min(1, { message: NO_CHANNEL }),
+  logs: z.string().min(1, { message: NO_CHANNEL })
+})
+
 export const channelsFormSchema = z.object({
   atm: atmChannelsFormSchema,
   casino: casinoChannelsFormSchema,
-  prediction: predictionChannelsFormSchema
+  prediction: predictionChannelsFormSchema,
+  raffle: raffleChannelsFormSchema
 })
 
 const num = z.number()

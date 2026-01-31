@@ -172,7 +172,7 @@ export const transactionsColumns = (): ColumnDef<TTransactionDiscord>[] => [
   {
     header: 'Bet ID',
     accessorKey: 'betId',
-    size: 120,
+    size: 140,
     cell: ({ row }) => {
       return (
         <p className="wrap-anywhere">

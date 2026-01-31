@@ -27,14 +27,16 @@ import {
 import {
   atmChannelsFormSchema,
   casinoChannelsFormSchema,
-  predictionChannelsFormSchema
+  predictionChannelsFormSchema,
+  raffleChannelsFormSchema
 } from '@/types/schemas'
 import { IGuildChannel, TChannelsFormValues } from '@/types/types'
 
 const channelsFormSchema = z.object({
   atm: atmChannelsFormSchema,
   casino: casinoChannelsFormSchema,
-  prediction: predictionChannelsFormSchema
+  prediction: predictionChannelsFormSchema,
+  raffle: raffleChannelsFormSchema
 })
 
 type ChannelsFormProps = {
@@ -44,6 +46,7 @@ type ChannelsFormProps = {
     atm: { actions: string; logs: string }
     casino: { casinoChannelIds: string[] }
     prediction: { actions: string; logs: string }
+    raffle: { actions: string; logs: string }
   } | null
 }
 
@@ -65,6 +68,10 @@ const ChannelsSettingsForm = ({
       prediction: {
         actions: savedChannels?.prediction?.actions ?? '',
         logs: savedChannels?.prediction?.logs ?? ''
+      },
+      raffle: {
+        actions: savedChannels?.raffle?.actions ?? '',
+        logs: savedChannels?.raffle?.logs ?? ''
       }
     }
   })
@@ -279,6 +286,75 @@ const ChannelsSettingsForm = ({
                     </Select>
                     <FormDescription>
                       Select channel for Prediction Logs
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </section>
+
+          <section className="flex flex-col gap-4">
+            <h4 className="text-xl font-semibold text-yellow-400">
+              Raffle Channels
+            </h4>
+            <div className="grid w-full grid-cols-2 gap-8">
+              <FormField
+                control={form.control}
+                name="raffle.actions"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <Label>Raffle Actions</Label>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value ?? ''}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="bg-muted border-transparent shadow-none">
+                          <SelectValue placeholder="Select Action Channel" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {guildChannels.map((channel) => (
+                          <SelectItem key={channel.id} value={channel.id}>
+                            {channel.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Select channel for Raffle Actions
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="raffle.logs"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <Label>Raffle Logs</Label>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value ?? ''}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="bg-muted border-transparent shadow-none">
+                          <SelectValue placeholder="Select Logs Channel" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {guildChannels.map((channel) => (
+                          <SelectItem key={channel.id} value={channel.id}>
+                            {channel.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Select channel for Raffle Logs
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
