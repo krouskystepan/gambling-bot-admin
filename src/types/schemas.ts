@@ -85,6 +85,10 @@ export const casinoSettingsSchema = z.object({
   prediction: z.object({
     minBet: num,
     maxBet: num
+  }),
+
+  raffle: z.object({
+    casinoCut: num
   })
 })
 

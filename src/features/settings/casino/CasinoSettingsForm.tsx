@@ -140,6 +140,45 @@ const NestedFields = ({
   )
 }
 
+const RTPWarning = ({ value }: { value: number }) => {
+  if (value >= 100) {
+    return (
+      <span className="flex items-center gap-0.5 text-red-600">
+        <TriangleAlert size={16} /> (≥ 100%)
+      </span>
+    )
+  }
+
+  if (value >= 95) {
+    return (
+      <span className="flex items-center gap-0.5 text-amber-500">
+        <TriangleAlert size={16} /> (≥ 95%)
+      </span>
+    )
+  }
+
+  return null
+}
+
+const SingleRTP = ({ value }: { value: number }) => (
+  <span className="flex items-center gap-1 text-xs text-gray-400">
+    <span className="font-medium ">RTP: </span>
+    {value.toFixed(2)}%<RTPWarning value={value} />
+  </span>
+)
+
+const MultiRTP = ({ rtpMap }: { rtpMap: Record<string, number> }) => (
+  <div className="flex flex-wrap items-center gap-1 text-xs">
+    <span className="font-medium text-gray-400">RTPs:</span>
+    {Object.entries(rtpMap).map(([bet, value], i) => (
+      <span key={bet} className="flex items-center gap-1 text-gray-400">
+        {i > 0 && <span>|</span>}
+        {bet}: {value.toFixed(2)}%<RTPWarning value={value} />
+      </span>
+    ))}
+  </div>
+)
+
 type CasinoSettingsFormProps = {
   guildId: string
   savedSettings: TCasinoSettingsValues
@@ -193,29 +232,9 @@ const CasinoSettingsForm = ({
                 <h4 className="text-xl font-semibold text-yellow-400">
                   {getReadableName(game, readableGameNames)}{' '}
                   {typeof rtp === 'number' ? (
-                    <span className="flex gap-1 text-xs text-gray-400">
-                      {`RTP: ${rtp.toFixed(2)}%`}
-                      {rtp > 95 && (
-                        <span className="flex gap-0.5 text-red-500">
-                          <TriangleAlert size={16} /> (≥ 95%)
-                        </span>
-                      )}
-                    </span>
+                    <SingleRTP value={rtp} />
                   ) : (
-                    <div className="flex flex-wrap gap-1 text-xs text-gray-400">
-                      <span className="font-medium">RTPs:</span>
-                      {Object.entries(rtp).flatMap(([bet, value], i) => [
-                        i > 0 && <span key={`sep-${i}`}>|</span>,
-                        <span key={bet} className="flex gap-1">
-                          {`${bet}: ${value.toFixed(2)}%`}
-                          {value > 95 && (
-                            <span className="flex gap-0.5 text-red-500">
-                              <TriangleAlert size={16} /> (≥ 95%)
-                            </span>
-                          )}
-                        </span>
-                      ])}
-                    </div>
+                    <MultiRTP rtpMap={rtp} />
                   )}
                 </h4>
 
