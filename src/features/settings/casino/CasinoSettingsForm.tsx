@@ -33,7 +33,7 @@ import { getReadableName } from '@/lib/utils'
 import { casinoSettingsSchema } from '@/types/schemas'
 import { TCasinoSettingsOutput, TCasinoSettingsValues } from '@/types/types'
 
-type NestedGameKeys = 'winMultipliers' | 'symbolWeights'
+type NestedGameKeys = 'winMultipliers' | 'symbolWeights' | 'binMultipliers'
 
 const NestedFields = ({
   game,
@@ -41,11 +41,15 @@ const NestedFields = ({
   nestedKeys,
   form
 }: {
-  game: keyof Pick<TCasinoSettingsValues, 'slots' | 'lottery' | 'roulette'>
+  game: keyof Pick<
+    TCasinoSettingsValues,
+    'slots' | 'lottery' | 'roulette' | 'plinko'
+  >
   settings:
     | {
         winMultipliers?: Record<string, number | undefined>
         symbolWeights?: Record<string, number | undefined>
+        binMultipliers?: Record<string, number | undefined>
       }
     | undefined
   nestedKeys: NestedGameKeys[]
@@ -58,6 +62,25 @@ const NestedFields = ({
       {nestedKeys.map((nestedKey) => {
         if (!(nestedKey in settings)) return null
         const nestedObj = settings[nestedKey] as Record<string, number>
+
+        const getInputHeader = ({
+          key,
+          char
+        }: {
+          key: (typeof nestedKeys)[number]
+          char: string
+        }) => {
+          switch (key) {
+            case 'winMultipliers':
+              return `Payout for ${char}`
+            case 'symbolWeights':
+              return `Weight for ${char}`
+            case 'binMultipliers':
+              return `Payout for bin ${char}`
+            default:
+              return 'Header Not Found'
+          }
+        }
 
         return (
           <div
@@ -79,9 +102,7 @@ const NestedFields = ({
                 render={({ field }) => (
                   <FormItem>
                     <Label>
-                      {nestedKey === 'winMultipliers'
-                        ? `Payout for ${symbol}`
-                        : `Weight for ${symbol}`}
+                      {getInputHeader({ key: nestedKey, char: symbol })}
                     </Label>
                     <FormControl>
                       <div className="flex rounded-md shadow-xs">
@@ -324,6 +345,15 @@ const CasinoSettingsForm = ({
                     game="roulette"
                     settings={watchedValues.roulette}
                     nestedKeys={['winMultipliers']}
+                    form={form}
+                  />
+                )}
+
+                {game === 'plinko' && (
+                  <NestedFields
+                    game="plinko"
+                    settings={watchedValues.plinko}
+                    nestedKeys={['binMultipliers']}
                     form={form}
                   />
                 )}

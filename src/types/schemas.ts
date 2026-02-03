@@ -89,6 +89,12 @@ export const casinoSettingsSchema = z.object({
 
   raffle: z.object({
     casinoCut: num
+  }),
+
+  plinko: z.object({
+    binMultipliers: z.record(z.string(), num),
+    minBet: num,
+    maxBet: num
   })
 })
 
