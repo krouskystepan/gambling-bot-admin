@@ -45,6 +45,7 @@ const VipTable = ({
     initialSorting: [],
     initialVisibility: {},
 
+    // TODO ADD PAGE RESET, ETC...
     onSortingChange: (sorting) => {
       debouncedUpdateUrl({
         sort: sorting.map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`).join(',')

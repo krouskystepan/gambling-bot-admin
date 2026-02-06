@@ -54,11 +54,14 @@ const TransactionTable = ({
       columns: transactionsColumns(),
 
       onSortingChange: (sorting) => {
-        const sort = sorting
-          .map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`)
-          .join(',')
+        table.setPageIndex(0)
 
-        debouncedUpdateUrl({ sort })
+        debouncedUpdateUrl({
+          page: 1,
+          sort: sorting
+            .map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`)
+            .join(',')
+        })
       },
 
       onColumnFiltersChange: (filters) => {
@@ -88,7 +91,10 @@ const TransactionTable = ({
           | [string, string]
           | undefined
 
+        table.setPageIndex(0)
+
         debouncedUpdateUrl({
+          page: 1,
           search,
           adminSearch,
           filterType,

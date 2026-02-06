@@ -60,7 +60,10 @@ const UserTable = ({
       initialVisibility: { search: false },
 
       onSortingChange: (sorting) => {
+        table.setPageIndex(0)
+
         debouncedUpdateUrl({
+          page: 1,
           sort: sorting
             .map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`)
             .join(',')
@@ -74,7 +77,13 @@ const UserTable = ({
           (filters.find((f) => f.id === 'search')?.value as
             | string
             | undefined) ?? ''
-        debouncedUpdateUrl({ search })
+
+        table.setPageIndex(0)
+
+        debouncedUpdateUrl({
+          page: 1,
+          search
+        })
       },
 
       onPaginationChange: (pagination) => {
