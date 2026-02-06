@@ -82,8 +82,19 @@ const TransactionTableFilters = ({
     .getColumn('handledByUsername')
     ?.getFilterValue() as string | undefined
 
+  function toLocalDateString(date: Date): string {
+    const y = date.getFullYear()
+    const m = String(date.getMonth() + 1).padStart(2, '0')
+    const d = String(date.getDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
+  }
+
+  function fromLocalDateString(str: string): Date {
+    const [y, m, d] = str.split('-').map(Number)
+    return new Date(y, m - 1, d, 12)
+  }
   const createdAtFilter = table.getColumn('createdAt')?.getFilterValue() as
-    | [Date | undefined, Date | undefined]
+    | [string, string]
     | undefined
 
   return (
@@ -109,13 +120,24 @@ const TransactionTableFilters = ({
         <DatePicker
           initialRange={
             createdAtFilter
-              ? { from: createdAtFilter[0]!, to: createdAtFilter[1]! }
+              ? {
+                  from: fromLocalDateString(createdAtFilter[0]),
+                  to: fromLocalDateString(createdAtFilter[1])
+                }
               : undefined
           }
           onChange={(range) => {
-            table
-              .getColumn('createdAt')
-              ?.setFilterValue(range ? [range.from, range.to] : undefined)
+            const col = table.getColumn('createdAt')
+            if (!col) return
+
+            if (range?.from && range?.to) {
+              col.setFilterValue([
+                toLocalDateString(range.from),
+                toLocalDateString(range.to)
+              ])
+            } else {
+              col.setFilterValue(undefined)
+            }
           }}
         />
 

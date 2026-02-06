@@ -16,6 +16,8 @@ export function useHydrateServerTableFromUrl<T>(
   searchParams: URLSearchParams | null,
   options?: HydrateOptions
 ) {
+  const urlKey = searchParams?.toString() ?? ''
+
   useEffect(() => {
     if (!searchParams) return
 
@@ -25,14 +27,14 @@ export function useHydrateServerTableFromUrl<T>(
 
     table.setPageIndex(pageFromUrl - 1)
     table.setPageSize(limitFromUrl)
-
-    if (sortParam) {
-      table.setSorting(parseSortingFromUrl(sortParam))
-    }
+    table.setSorting(sortParam ? parseSortingFromUrl(sortParam) : [])
 
     if (options?.filters) {
       table.setColumnFilters(options.filters(searchParams))
+    } else {
+      table.setColumnFilters([])
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [urlKey])
 }

@@ -43,6 +43,8 @@ const TransactionTable = ({
   gamePnL,
   cashFlow
 }: TransactionTableProps) => {
+  const isHydratingRef = useRef(false)
+
   const { table, isLoading, setIsLoading } =
     useServerTable<TTransactionDiscord>({
       data: transactions,
@@ -60,6 +62,8 @@ const TransactionTable = ({
       },
 
       onColumnFiltersChange: (filters) => {
+        if (isHydratingRef.current) return
+
         const search =
           (filters.find((f) => f.id === 'username')?.value as
             | string
@@ -73,7 +77,6 @@ const TransactionTable = ({
           (
             filters.find((f) => f.id === 'type')?.value as string[] | undefined
           )?.join(',') ?? ''
-
         const filterSource =
           (
             filters.find((f) => f.id === 'source')?.value as
@@ -117,16 +120,16 @@ const TransactionTable = ({
 
   useHydrateServerTableFromUrl(table, searchParams, {
     filters: (params) => {
+      isHydratingRef.current = true
+
       const search = params.get('search') || ''
       const adminSearch = params.get('adminSearch') || ''
-
       const filterType = params.get('filterType')?.split(',')
       const filterSource = params.get('filterSource')?.split(',')
-
       const dateFrom = params.get('dateFrom') || undefined
       const dateTo = params.get('dateTo') || undefined
 
-      return [
+      const filters = [
         { id: 'username', value: search || undefined },
         { id: 'handledByUsername', value: adminSearch || undefined },
         { id: 'type', value: filterType?.length ? filterType : undefined },
@@ -139,6 +142,12 @@ const TransactionTable = ({
           value: dateFrom && dateTo ? [dateFrom, dateTo] : undefined
         }
       ]
+
+      setTimeout(() => {
+        isHydratingRef.current = false
+      }, 0)
+
+      return filters
     }
   })
 
