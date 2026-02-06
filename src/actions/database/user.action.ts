@@ -230,6 +230,124 @@ export async function withdrawBalance(
   }
 }
 
+export async function resetBalance(
+  userId: string,
+  guildId: string,
+  managerId: string
+) {
+  try {
+    const user = await User.findOne({ userId, guildId })
+    if (!user) return { success: false, message: 'User not registered.' }
+
+    user.balance = 0
+    await user.save()
+
+    await Transaction.deleteMany({
+      userId,
+      guildId
+    })
+
+    const guildConfig = await GuildConfiguration.findOne({ guildId })
+    const logChannelId = guildConfig?.atmChannelIds.logs
+    const actionsChannelId = guildConfig?.atmChannelIds.actions
+    if (logChannelId) {
+      try {
+        await sendEmbed(
+          logChannelId,
+          'ATM - Reset Balance via Web',
+          `Manager <@${managerId}> reset the balance of <@${userId}>.`,
+          0x1abc9c
+        )
+      } catch {
+        return { success: false, message: 'Failed to send log message' }
+      }
+    }
+
+    if (actionsChannelId) {
+      try {
+        await sendEmbed(
+          actionsChannelId,
+          'ATM - Reset Balance via Web',
+          `An administrator has reset <@${userId}>'s balance and cleared transaction history.\n` +
+            `**New Balance:** $0`,
+          0x1abc9c,
+          userId
+        )
+      } catch {
+        return { success: false, message: 'Failed to send action message' }
+      }
+    }
+
+    revalidatePath(`/dashboard/g/${guildId}/users`)
+    return { success: true, message: 'User balance reset.' }
+  } catch (err) {
+    console.error('Error resetting balance:', err)
+    return { success: false, message: 'Server error, please try again.' }
+  }
+}
+
+export async function bonusBalance(
+  userId: string,
+  guildId: string,
+  managerId: string,
+  amount: number
+) {
+  try {
+    const user = await User.findOne({ userId, guildId })
+    if (!user) return { success: false, message: 'User not registered.' }
+
+    user.balance += amount
+    await user.save()
+
+    await Transaction.create({
+      userId,
+      guildId,
+      amount: amount,
+      type: 'bonus',
+      source: 'web',
+      handledBy: managerId,
+      createdAt: new Date()
+    })
+
+    const guildConfig = await GuildConfiguration.findOne({ guildId })
+    const logChannelId = guildConfig?.atmChannelIds.logs
+    if (logChannelId) {
+      try {
+        await sendEmbed(
+          logChannelId,
+          'ATM - Bonus Given via Web',
+          `Manager <@${managerId}> successfully given **$${formatNumberToReadableString(
+            amount
+          )}** bonus to <@${userId}>.\nTheir new balance is now: **$${formatNumberToReadableString(
+            user.balance
+          )}**.`,
+          0x57f287
+        )
+
+        // TODO: edit this
+        // TODO: fix this
+        // await sendEmbed(
+        //   logChannelId,
+        //   'ATM - Bonus Given via Web',
+        //   `Manager <@${managerId}> successfully given **$${formatNumberToReadableString(
+        //     amount
+        //   )}** bonus to <@${userId}>.\nTheir new balance is now: **$${formatNumberToReadableString(
+        //     user.balance
+        //   )}**.`,
+        //   0x57f287
+        // )
+      } catch {
+        return { success: false, message: 'Failed to send log message' }
+      }
+    }
+
+    return { success: true, message: `Bonus given $${amount} to user.` }
+  } catch (err) {
+    console.error('Error giving bonus:', err)
+    return { success: false, message: 'Server error, please try again.' }
+  }
+}
+
 export async function getUsers(
   guildId: string,
   session: Session | null,
@@ -335,123 +453,5 @@ export async function getUsers(
   return {
     users: users.slice(start, end),
     total
-  }
-}
-
-export async function resetBalance(
-  userId: string,
-  guildId: string,
-  managerId: string
-) {
-  try {
-    const user = await User.findOne({ userId, guildId })
-    if (!user) return { success: false, message: 'User not registered.' }
-
-    user.balance = 0
-    await user.save()
-
-    await Transaction.deleteMany({
-      userId,
-      guildId
-    })
-
-    const guildConfig = await GuildConfiguration.findOne({ guildId })
-    const logChannelId = guildConfig?.atmChannelIds.logs
-    const actionsChannelId = guildConfig?.atmChannelIds.actions
-    if (logChannelId) {
-      try {
-        await sendEmbed(
-          logChannelId,
-          'ATM - Reset Balance via Web',
-          `Manager <@${managerId}> reset the balance of <@${userId}>.`,
-          0x1abc9c
-        )
-      } catch {
-        return { success: false, message: 'Failed to send log message' }
-      }
-    }
-
-    if (actionsChannelId) {
-      try {
-        await sendEmbed(
-          actionsChannelId,
-          'ATM - Reset Balance via Web',
-          `An administrator has reset <@${userId}>'s balance and cleared transaction history.\n` +
-            `**New Balance:** $0`,
-          0x1abc9c,
-          userId
-        )
-      } catch {
-        return { success: false, message: 'Failed to send action message' }
-      }
-    }
-
-    revalidatePath('/')
-    return { success: true, message: 'User balance reset.' }
-  } catch (err) {
-    console.error('Error resetting balance:', err)
-    return { success: false, message: 'Server error, please try again.' }
-  }
-}
-
-export async function bonusBalance(
-  userId: string,
-  guildId: string,
-  managerId: string,
-  amount: number
-) {
-  try {
-    const user = await User.findOne({ userId, guildId })
-    if (!user) return { success: false, message: 'User not registered.' }
-
-    user.balance += amount
-    await user.save()
-
-    await Transaction.create({
-      userId,
-      guildId,
-      amount: amount,
-      type: 'bonus',
-      source: 'web',
-      handledBy: managerId,
-      createdAt: new Date()
-    })
-
-    const guildConfig = await GuildConfiguration.findOne({ guildId })
-    const logChannelId = guildConfig?.atmChannelIds.logs
-    if (logChannelId) {
-      try {
-        await sendEmbed(
-          logChannelId,
-          'ATM - Bonus Given via Web',
-          `Manager <@${managerId}> successfully given **$${formatNumberToReadableString(
-            amount
-          )}** bonus to <@${userId}>.\nTheir new balance is now: **$${formatNumberToReadableString(
-            user.balance
-          )}**.`,
-          0x57f287
-        )
-
-        // TODO: edit this
-        // TODO: fix this
-        // await sendEmbed(
-        //   logChannelId,
-        //   'ATM - Bonus Given via Web',
-        //   `Manager <@${managerId}> successfully given **$${formatNumberToReadableString(
-        //     amount
-        //   )}** bonus to <@${userId}>.\nTheir new balance is now: **$${formatNumberToReadableString(
-        //     user.balance
-        //   )}**.`,
-        //   0x57f287
-        // )
-      } catch {
-        return { success: false, message: 'Failed to send log message' }
-      }
-    }
-
-    return { success: true, message: `Bonus given $${amount} to user.` }
-  } catch (err) {
-    console.error('Error giving bonus:', err)
-    return { success: false, message: 'Server error, please try again.' }
   }
 }

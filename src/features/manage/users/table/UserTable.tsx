@@ -53,8 +53,7 @@ const UserTable = ({
         guildId,
         managerId,
         onUserUpdated: () => {
-          const url = new URL(window.location.href)
-          router.replace(url.pathname + url.search, { scroll: false })
+          router.refresh()
         }
       }),
       initialSorting: [{ id: 'balance', desc: true }],
