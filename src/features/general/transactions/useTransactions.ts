@@ -45,7 +45,7 @@ export async function getTransactionsData(
     query.sort
   )
 
-  const transactionCounts = await getTransactionCounts(
+  const rawCounts = await getTransactionCounts(
     guildId,
     session,
     query.filterType,
@@ -56,12 +56,40 @@ export async function getTransactionsData(
     query.dateTo
   )
 
+  const emptyTypeCounts = {
+    deposit: 0,
+    withdraw: 0,
+    bet: 0,
+    vip: 0,
+    win: 0,
+    bonus: 0,
+    refund: 0
+  }
+
+  const emptySourceCounts = {
+    system: 0,
+    admin: 0,
+    user: 0,
+    bot: 0
+  }
+
+  const transactionCounts = {
+    type: {
+      ...emptyTypeCounts,
+      ...(rawCounts?.type ?? {})
+    },
+    source: {
+      ...emptySourceCounts,
+      ...(rawCounts?.source ?? {})
+    }
+  }
+
   return {
     transactions,
     transactionCounts,
     total,
-    gamePnL,
-    cashFlow
+    gamePnL: gamePnL ?? 0,
+    cashFlow: cashFlow ?? 0
   }
 }
 
