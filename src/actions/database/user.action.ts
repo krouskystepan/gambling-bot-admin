@@ -278,7 +278,6 @@ export async function resetBalance(
       }
     }
 
-    revalidatePath(`/dashboard/g/${guildId}/users`)
     return { success: true, message: 'User balance reset.' }
   } catch (err) {
     console.error('Error resetting balance:', err)
