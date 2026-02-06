@@ -8,7 +8,7 @@ import {
   useReactTable
 } from '@tanstack/react-table'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface ServerTableProps<T> {
   data: T[]
@@ -45,6 +45,13 @@ export function useServerTable<T>({
   const [columnVisibility] = useState<VisibilityState>(initialVisibility)
   const [isLoading, setIsLoading] = useState(false)
 
+  useEffect(() => {
+    setPagination({
+      pageIndex: page - 1,
+      pageSize: limit
+    })
+  }, [page, limit])
+
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
@@ -75,6 +82,7 @@ export function useServerTable<T>({
     manualPagination: true,
     manualSorting: true,
     manualFiltering: true,
+    autoResetPageIndex: false,
     getCoreRowModel: getCoreRowModel()
   })
 

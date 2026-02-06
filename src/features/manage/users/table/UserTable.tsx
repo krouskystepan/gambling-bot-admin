@@ -39,8 +39,6 @@ const UserTable = ({
   guildId,
   managerId
 }: UserTableProps) => {
-  const isHydratingRef = useRef(false)
-
   const router = useRouter()
 
   const { table, isLoading, setIsLoading } = useServerTable<TGuildMemberStatus>(
@@ -60,8 +58,6 @@ const UserTable = ({
       initialVisibility: { search: false },
 
       onSortingChange: (sorting) => {
-        table.setPageIndex(0)
-
         debouncedUpdateUrl({
           page: 1,
           sort: sorting
@@ -71,14 +67,10 @@ const UserTable = ({
       },
 
       onColumnFiltersChange: (filters) => {
-        if (isHydratingRef.current) return
-
         const search =
           (filters.find((f) => f.id === 'search')?.value as
             | string
             | undefined) ?? ''
-
-        table.setPageIndex(0)
 
         debouncedUpdateUrl({
           page: 1,
@@ -108,13 +100,7 @@ const UserTable = ({
 
   useHydrateServerTableFromUrl(table, searchParams, {
     filters: (params) => {
-      isHydratingRef.current = true
-
       const search = params.get('search') || ''
-
-      setTimeout(() => {
-        isHydratingRef.current = false
-      }, 0)
 
       return search ? [{ id: 'search', value: search }] : []
     }

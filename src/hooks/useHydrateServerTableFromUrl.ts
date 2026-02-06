@@ -1,6 +1,6 @@
 import { Table } from '@tanstack/react-table'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { parseSortingFromUrl } from '@/lib/utils'
 
@@ -16,10 +16,11 @@ export function useHydrateServerTableFromUrl<T>(
   searchParams: URLSearchParams | null,
   options?: HydrateOptions
 ) {
-  const urlKey = searchParams?.toString() ?? ''
+  const hasHydratedRef = useRef(false)
 
   useEffect(() => {
     if (!searchParams) return
+    if (hasHydratedRef.current) return
 
     const pageFromUrl = Number(searchParams.get('page') || 1)
     const limitFromUrl = Number(searchParams.get('limit') || 10)
@@ -35,6 +36,8 @@ export function useHydrateServerTableFromUrl<T>(
       table.setColumnFilters([])
     }
 
+    hasHydratedRef.current = true
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [urlKey])
+  }, [searchParams])
 }

@@ -43,8 +43,6 @@ const TransactionTable = ({
   gamePnL,
   cashFlow
 }: TransactionTableProps) => {
-  const isHydratingRef = useRef(false)
-
   const { table, isLoading, setIsLoading } =
     useServerTable<TTransactionDiscord>({
       data: transactions,
@@ -54,8 +52,6 @@ const TransactionTable = ({
       columns: transactionsColumns(),
 
       onSortingChange: (sorting) => {
-        table.setPageIndex(0)
-
         debouncedUpdateUrl({
           page: 1,
           sort: sorting
@@ -65,8 +61,6 @@ const TransactionTable = ({
       },
 
       onColumnFiltersChange: (filters) => {
-        if (isHydratingRef.current) return
-
         const search =
           (filters.find((f) => f.id === 'username')?.value as
             | string
@@ -90,8 +84,6 @@ const TransactionTable = ({
         const dateRange = filters.find((f) => f.id === 'createdAt')?.value as
           | [string, string]
           | undefined
-
-        table.setPageIndex(0)
 
         debouncedUpdateUrl({
           page: 1,
@@ -126,8 +118,6 @@ const TransactionTable = ({
 
   useHydrateServerTableFromUrl(table, searchParams, {
     filters: (params) => {
-      isHydratingRef.current = true
-
       const search = params.get('search') || ''
       const adminSearch = params.get('adminSearch') || ''
       const filterType = params.get('filterType')?.split(',')
@@ -148,10 +138,6 @@ const TransactionTable = ({
           value: dateFrom && dateTo ? [dateFrom, dateTo] : undefined
         }
       ]
-
-      setTimeout(() => {
-        isHydratingRef.current = false
-      }, 0)
 
       return filters
     }
