@@ -7,223 +7,35 @@ import {
   readableGameNames,
   readableGameValueNames
 } from 'gambling-bot-shared'
-import { RotateCw, TriangleAlert } from 'lucide-react'
-import {
-  FormProvider,
-  Path,
-  UseFormReturn,
-  useForm,
-  useWatch
-} from 'react-hook-form'
+import { FormProvider, Path, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { saveCasinoSettings } from '@/actions/database/casinoSettings.action'
 import SaveButton from '@/components/SaveButton'
-import { Button } from '@/components/ui/button'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Form } from '@/components/ui/form'
 import { getReadableName } from '@/lib/utils'
 import { casinoSettingsSchema } from '@/types/schemas'
 import { TCasinoSettingsOutput, TCasinoSettingsValues } from '@/types/types'
 
-type NestedGameKeys = 'winMultipliers' | 'symbolWeights' | 'binMultipliers'
+import { GAME_RECORD_FIELDS, GameWithRecords } from './config'
+import { NumberField } from './fields/NumberField'
+import { RecordFields } from './fields/RecordFields'
+import { MultiRTP } from './rtp/MultiRTP'
+import { SingleRTP } from './rtp/SingleRTP'
 
-const NestedFields = ({
-  game,
-  settings,
-  nestedKeys,
-  form
-}: {
-  game: keyof Pick<
-    TCasinoSettingsValues,
-    'slots' | 'lottery' | 'roulette' | 'plinko'
-  >
-  settings:
-    | {
-        winMultipliers?: Record<string, number | undefined>
-        symbolWeights?: Record<string, number | undefined>
-        binMultipliers?: Record<string, number | undefined>
-      }
-    | undefined
-  nestedKeys: NestedGameKeys[]
-  form: UseFormReturn<TCasinoSettingsValues>
-}) => {
-  if (!settings) return null
-
-  return (
-    <div className="grid grid-cols-1 gap-3">
-      {nestedKeys.map((nestedKey) => {
-        if (!(nestedKey in settings)) return null
-        const nestedObj = settings[nestedKey] as Record<string, number>
-
-        const getInputHeader = ({
-          key,
-          char
-        }: {
-          key: (typeof nestedKeys)[number]
-          char: string
-        }) => {
-          switch (key) {
-            case 'winMultipliers':
-              return `Payout for ${char}`
-            case 'symbolWeights':
-              return `Weight for ${char}`
-            case 'binMultipliers':
-              return `Payout for bin ${char}`
-            default:
-              return 'Header Not Found'
-          }
-        }
-
-        return (
-          <div
-            key={nestedKey}
-            className="mt-2 grid gap-3"
-            style={{
-              gridTemplateColumns: `repeat(${
-                Object.keys(nestedObj).length
-              }, minmax(0,1fr))`
-            }}
-          >
-            {Object.entries(nestedObj).map(([symbol]) => (
-              <FormField
-                key={symbol}
-                control={form.control}
-                name={
-                  `${game}.${nestedKey}.${symbol}` as Path<TCasinoSettingsValues>
-                }
-                render={({ field }) => (
-                  <FormItem>
-                    <Label>
-                      {getInputHeader({ key: nestedKey, char: symbol })}
-                    </Label>
-                    <FormControl>
-                      <div className="flex rounded-md shadow-xs">
-                        <Input
-                          className="bg-muted rounded-r-none border-transparent shadow-none"
-                          value={String(field.value ?? '')}
-                          onChange={(e) => {
-                            const cleaned = e.target.value.replace(
-                              /[^0-9.]/g,
-                              ''
-                            )
-                            field.onChange(cleaned)
-                          }}
-                          onBlur={(e) => {
-                            const value = e.target.value
-                            field.onChange(
-                              value === '' ? undefined : Number(value)
-                            )
-                            field.onBlur()
-                          }}
-                          ref={field.ref}
-                        />
-                        <Button
-                          type="reset"
-                          variant="ghost"
-                          className="bg-muted text-destructive/60 hover:text-destructive inline-flex w-9 cursor-pointer items-center justify-center rounded-none rounded-e-md text-sm transition-colors duration-200 outline-none focus:z-10"
-                          onClick={() => {
-                            const defaultGameSettings = defaultCasinoSettings[
-                              game as keyof TCasinoSettingsValues
-                            ] as Record<string, number>
-
-                            const nestedDefault = defaultGameSettings[nestedKey]
-
-                            if (
-                              typeof nestedDefault === 'object' &&
-                              nestedDefault !== null
-                            ) {
-                              const defaultValue = nestedDefault[symbol]
-                              field.onChange(defaultValue)
-                            }
-                          }}
-                        >
-                          <RotateCw size={16} aria-hidden="true" />
-                        </Button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ))}
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
-const RTPWarning = ({ value }: { value: number }) => {
-  if (value >= 100) {
-    return (
-      <span className="flex items-center gap-0.5 text-red-600">
-        <TriangleAlert size={16} /> (≥ 100%)
-      </span>
-    )
-  }
-
-  if (value >= 95) {
-    return (
-      <span className="flex items-center gap-0.5 text-amber-500">
-        <TriangleAlert size={16} /> (≥ 95%)
-      </span>
-    )
-  }
-
-  return null
-}
-
-const SingleRTP = ({ value }: { value: number }) => (
-  <span className="flex items-center gap-1 text-xs text-gray-400">
-    <span className="font-medium ">RTP: </span>
-    {value.toFixed(2)}%<RTPWarning value={value} />
-  </span>
-)
-
-const MultiRTP = ({ rtpMap }: { rtpMap: Record<string, number> }) => (
-  <div className="flex flex-wrap items-center gap-1 text-xs">
-    <span className="font-medium text-gray-400">RTPs:</span>
-    {Object.entries(rtpMap).map(([bet, value], i) => (
-      <span key={bet} className="flex items-center gap-1 text-gray-400">
-        {i > 0 && <span>|</span>}
-        {bet}: {value.toFixed(2)}%<RTPWarning value={value} />
-      </span>
-    ))}
-  </div>
-)
-
-type CasinoSettingsFormProps = {
+type Props = {
   guildId: string
   savedSettings: TCasinoSettingsValues
 }
 
-type FormValues = TCasinoSettingsOutput
-
-const isPrimitive = (v: unknown): v is number | string =>
-  typeof v === 'number' || typeof v === 'string'
-
-const CasinoSettingsForm = ({
-  guildId,
-  savedSettings
-}: CasinoSettingsFormProps) => {
-  const form = useForm<FormValues>({
+export default function CasinoSettingsForm({ guildId, savedSettings }: Props) {
+  const form = useForm<TCasinoSettingsOutput>({
     resolver: zodResolver(casinoSettingsSchema),
     defaultValues: savedSettings,
-    mode: 'onBlur',
-    reValidateMode: 'onBlur'
+    mode: 'onBlur'
   })
 
-  const watchedValues = useWatch<TCasinoSettingsValues>({
-    control: form.control
-  })
+  const watchedValues = useWatch({ control: form.control })
 
   const onSubmit = async (values: TCasinoSettingsValues) => {
     const toastId = toast.loading('Saving...')
@@ -240,16 +52,21 @@ const CasinoSettingsForm = ({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex max-w-7xl w-full flex-col gap-4"
+          className="flex max-w-7xl w-full flex-col gap-6"
         >
-          {Object.entries(watchedValues).map(([game, settings]) => {
+          {(
+            Object.keys(watchedValues) as Array<keyof TCasinoSettingsValues>
+          ).map((game) => {
+            const settings = watchedValues[game]
+            if (!settings) return null
+
             const rtp = calculateRTP(
-              game as keyof TCasinoSettingsValues,
-              settings as TCasinoSettingsValues[keyof TCasinoSettingsValues]
+              game,
+              settings as TCasinoSettingsValues[typeof game]
             )
 
             return (
-              <section key={game} className="flex flex-col gap-3">
+              <section key={game} className="flex flex-col gap-4">
                 <h4 className="text-xl font-semibold text-yellow-400">
                   {getReadableName(game, readableGameNames)}{' '}
                   {typeof rtp === 'number' ? (
@@ -260,103 +77,43 @@ const CasinoSettingsForm = ({
                 </h4>
 
                 <div className="grid grid-cols-4 gap-3">
-                  {Object.entries(settings)
-                    .filter(([, value]) => isPrimitive(value))
-                    .map(([key]) => (
-                      <FormField
-                        key={key}
-                        control={form.control}
+                  {(Object.keys(settings) as Array<keyof typeof settings>)
+                    .filter((key) => typeof settings[key] === 'number')
+                    .map((key) => (
+                      <NumberField
+                        key={String(key)}
+                        form={form}
                         name={`${game}.${key}` as Path<TCasinoSettingsValues>}
-                        render={({ field }) => (
-                          <FormItem>
-                            <Label>
-                              {getReadableName(key, readableGameValueNames)}
-                            </Label>
-                            <FormControl>
-                              <div className="flex rounded-md shadow-xs">
-                                <Input
-                                  className="bg-muted rounded-r-none border-transparent shadow-none"
-                                  type="text"
-                                  value={String(field.value ?? '')}
-                                  onChange={(e) => {
-                                    const cleaned = e.target.value.replace(
-                                      /[^0-9.]/g,
-                                      ''
-                                    )
-                                    field.onChange(cleaned)
-                                  }}
-                                  onBlur={(e) => {
-                                    const value = e.target.value
-                                    field.onChange(
-                                      value === '' ? undefined : Number(value)
-                                    )
-                                    field.onBlur()
-                                  }}
-                                />
-                                <Button
-                                  type="reset"
-                                  variant="ghost"
-                                  className="bg-muted text-destructive/60 hover:text-destructive inline-flex w-9 cursor-pointer items-center justify-center rounded-none rounded-e-md text-sm transition-colors duration-200 outline-none focus:z-10"
-                                  onClick={() => {
-                                    const defaultValue = (
-                                      defaultCasinoSettings[
-                                        game as keyof TCasinoSettingsValues
-                                      ] as Record<
-                                        string,
-                                        number | Record<string, number>
-                                      >
-                                    )[key]
-                                    if (typeof defaultValue === 'number') {
-                                      field.onChange(defaultValue)
-                                    }
-                                  }}
-                                >
-                                  <RotateCw size={16} aria-hidden="true" />
-                                </Button>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
+                        label={getReadableName(
+                          String(key),
+                          readableGameValueNames
                         )}
+                        defaultValue={
+                          defaultCasinoSettings[game][
+                            key as keyof (typeof defaultCasinoSettings)[typeof game]
+                          ] as number
+                        }
                       />
                     ))}
                 </div>
 
-                {game === 'slots' && (
-                  <NestedFields
-                    game="slots"
-                    settings={settings as Record<string, unknown>}
-                    nestedKeys={['winMultipliers', 'symbolWeights']}
-                    form={form}
-                  />
-                )}
-
-                {game === 'lottery' && (
-                  <NestedFields
-                    game="lottery"
-                    settings={watchedValues.lottery}
-                    nestedKeys={['winMultipliers']}
-                    form={form}
-                  />
-                )}
-
-                {game === 'roulette' && (
-                  <NestedFields
-                    game="roulette"
-                    settings={watchedValues.roulette}
-                    nestedKeys={['winMultipliers']}
-                    form={form}
-                  />
-                )}
-
-                {game === 'plinko' && (
-                  <NestedFields
-                    game="plinko"
-                    settings={watchedValues.plinko}
-                    nestedKeys={['binMultipliers']}
-                    form={form}
-                  />
-                )}
+                {(game as keyof typeof GAME_RECORD_FIELDS) in
+                  GAME_RECORD_FIELDS &&
+                  GAME_RECORD_FIELDS[game as GameWithRecords].map(
+                    (recordKey) => (
+                      <RecordFields
+                        key={recordKey}
+                        game={game as GameWithRecords}
+                        recordKey={recordKey}
+                        values={
+                          settings[
+                            recordKey as keyof typeof settings
+                          ] as Record<string, number>
+                        }
+                        form={form}
+                      />
+                    )
+                  )}
               </section>
             )
           })}
@@ -367,5 +124,3 @@ const CasinoSettingsForm = ({
     </FormProvider>
   )
 }
-
-export default CasinoSettingsForm

@@ -26,7 +26,8 @@ export async function sendEmbed(
   channelId: string,
   title: string,
   description: string,
-  color: number
+  color: number,
+  pingUserId?: string
 ): Promise<void> {
   if (!channelId) {
     throw new Error('No channel ID provided')
@@ -35,6 +36,7 @@ export async function sendEmbed(
   try {
     await rest.post(Routes.channelMessages(channelId), {
       body: {
+        content: pingUserId ? `<@${pingUserId}>` : '',
         embeds: [
           {
             title,

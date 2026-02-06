@@ -116,11 +116,13 @@ export async function depositBalance(
 
     const guildConfig = await GuildConfiguration.findOne({ guildId })
     const logChannelId = guildConfig?.atmChannelIds.logs
+    const actionsChannelId = guildConfig?.atmChannelIds.actions
+
     if (logChannelId) {
       try {
         await sendEmbed(
           logChannelId,
-          'ATM - Deposit via Web',
+          'ATM - Deposit Balance via Web',
           `Manager <@${managerId}> successfully added **$${formatNumberToReadableString(
             amount
           )}** to <@${userId}>.\nTheir new balance is now: **$${formatNumberToReadableString(
@@ -130,6 +132,23 @@ export async function depositBalance(
         )
       } catch {
         return { success: false, message: 'Failed to send log message' }
+      }
+    }
+
+    if (actionsChannelId) {
+      try {
+        await sendEmbed(
+          actionsChannelId,
+          'ATM - Deposit Balance via Web',
+          `An administrator has added **$${formatNumberToReadableString(
+            amount
+          )}** to <@${userId}>'s balance.\n` +
+            `**New Balance:** $${formatNumberToReadableString(user.balance)}`,
+          0x57f287,
+          userId
+        )
+      } catch {
+        return { success: false, message: 'Failed to send action message' }
       }
     }
 
@@ -169,11 +188,12 @@ export async function withdrawBalance(
 
     const guildConfig = await GuildConfiguration.findOne({ guildId })
     const logChannelId = guildConfig?.atmChannelIds.logs
+    const actionsChannelId = guildConfig?.atmChannelIds.actions
     if (logChannelId) {
       try {
         await sendEmbed(
           logChannelId,
-          'ATM - Withdraw via Web',
+          'ATM - Withdraw Balance via Web',
           `Manager <@${managerId}> successfully removed **$${formatNumberToReadableString(
             amount
           )}** from <@${userId}>.\nTheir new balance is now: **$${formatNumberToReadableString(
@@ -183,6 +203,23 @@ export async function withdrawBalance(
         )
       } catch {
         return { success: false, message: 'Failed to send log message' }
+      }
+    }
+
+    if (actionsChannelId) {
+      try {
+        await sendEmbed(
+          actionsChannelId,
+          'ATM - Withdraw Balance via Web',
+          `An administrator has removed **$${formatNumberToReadableString(
+            amount
+          )}** from <@${userId}>'s balance.\n` +
+            `**New Balance:** $${formatNumberToReadableString(user.balance)}`,
+          0x57f287,
+          userId
+        )
+      } catch {
+        return { success: false, message: 'Failed to send action message' }
       }
     }
 
@@ -320,6 +357,7 @@ export async function resetBalance(
 
     const guildConfig = await GuildConfiguration.findOne({ guildId })
     const logChannelId = guildConfig?.atmChannelIds.logs
+    const actionsChannelId = guildConfig?.atmChannelIds.actions
     if (logChannelId) {
       try {
         await sendEmbed(
@@ -330,6 +368,21 @@ export async function resetBalance(
         )
       } catch {
         return { success: false, message: 'Failed to send log message' }
+      }
+    }
+
+    if (actionsChannelId) {
+      try {
+        await sendEmbed(
+          actionsChannelId,
+          'ATM - Reset Balance via Web',
+          `An administrator has reset <@${userId}>'s balance and cleared transaction history.\n` +
+            `**New Balance:** $0`,
+          0x1abc9c,
+          userId
+        )
+      } catch {
+        return { success: false, message: 'Failed to send action message' }
       }
     }
 
@@ -378,6 +431,19 @@ export async function bonusBalance(
           )}**.`,
           0x57f287
         )
+
+        // TODO: edit this
+        // TODO: fix this
+        // await sendEmbed(
+        //   logChannelId,
+        //   'ATM - Bonus Given via Web',
+        //   `Manager <@${managerId}> successfully given **$${formatNumberToReadableString(
+        //     amount
+        //   )}** bonus to <@${userId}>.\nTheir new balance is now: **$${formatNumberToReadableString(
+        //     user.balance
+        //   )}**.`,
+        //   0x57f287
+        // )
       } catch {
         return { success: false, message: 'Failed to send log message' }
       }
