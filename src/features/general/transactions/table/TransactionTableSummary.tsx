@@ -58,13 +58,12 @@ const TransactionTableSummary = ({
 }: SummaryPanelProps) => {
   const formatCurrency = (value: number) => {
     const roundedValue = Math.round(value)
-    return roundedValue < 0
-      ? `-$${formatNumberWithSpaces(Math.abs(roundedValue))}`
-      : `$${formatNumberWithSpaces(roundedValue)}`
+    const base = formatNumberWithSpaces(Math.abs(roundedValue))
+    return roundedValue < 0 ? `-$${base}` : `$${base}`
   }
 
   return (
-    <section className="mt-4 flex justify-center gap-8 rounded-md border p-4">
+    <section className="mt-4 flex h-fit flex-wrap justify-center gap-8 rounded-md border p-4">
       <SummaryItem
         label="Cash Flow"
         value={cashFlow}
