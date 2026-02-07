@@ -13,33 +13,32 @@ import {
 import { ITransactionCounts } from '@/types/types'
 
 const getCashFlowFormula = (counts: ITransactionCounts) => {
-  const { deposit, withdraw } = counts.type
-  let formula = ''
+  const deposit = Number(counts.type.deposit ?? 0)
+  const withdraw = Number(counts.type.withdraw ?? 0)
 
-  if (deposit) formula += 'deposit'
-  if (withdraw) formula += formula ? ' - withdraw' : 'withdraw'
+  let formula = ''
+  if (deposit !== 0) formula += 'deposit'
+  if (withdraw !== 0) formula += formula ? ' - withdraw' : 'withdraw'
 
   return formula || 'No active types'
 }
 
 const getPnLFormula = (counts: ITransactionCounts) => {
-  const positiveTypes: (keyof ITransactionCounts['type'])[] = [
+  const positive: (keyof ITransactionCounts['type'])[] = [
     'win',
     'bonus',
     'refund'
   ]
-  const negativeTypes: (keyof ITransactionCounts['type'])[] = ['bet', 'vip']
+  const negative: (keyof ITransactionCounts['type'])[] = ['bet', 'vip']
 
   let formula = ''
 
-  // positive types: + win + bonus + refund
-  positiveTypes.forEach((t) => {
-    if (counts.type[t]) formula += formula ? ` + ${t}` : t
+  positive.forEach((t) => {
+    if (Number(counts.type[t] ?? 0) !== 0) formula += formula ? ` + ${t}` : t
   })
 
-  // negative types: - bet - vip
-  negativeTypes.forEach((t) => {
-    if (counts.type[t]) formula += formula ? ` - ${t}` : t
+  negative.forEach((t) => {
+    if (Number(counts.type[t] ?? 0) !== 0) formula += formula ? ` - ${t}` : t
   })
 
   return formula || 'No active types'
@@ -57,7 +56,7 @@ const TransactionTableSummary = ({
   counts
 }: SummaryPanelProps) => {
   const formatCurrency = (value: number) => {
-    const roundedValue = Math.round(value)
+    const roundedValue = Math.round(Number(value ?? 0))
     const base = formatNumberWithSpaces(Math.abs(roundedValue))
     return roundedValue < 0 ? `-$${base}` : `$${base}`
   }
@@ -66,51 +65,52 @@ const TransactionTableSummary = ({
     <section className="mt-4 flex h-fit flex-wrap justify-center gap-8 rounded-md border p-4">
       <SummaryItem
         label="Cash Flow"
-        value={cashFlow}
+        value={Number(cashFlow ?? 0)}
         formatter={formatCurrency}
         positiveIsGreen
         tooltip={getCashFlowFormula(counts)}
       />
       <SummaryItem
         label="Profit / Loss"
-        value={gamePnL}
+        value={Number(gamePnL ?? 0)}
         formatter={formatCurrency}
         positiveIsGreen
         tooltip={getPnLFormula(counts)}
       />
+
       <SummaryItem
         label="Deposits"
-        value={counts.type.deposit}
+        value={Number(counts.type.deposit ?? 0)}
         formatter={formatNumberToReadableString}
       />
       <SummaryItem
         label="Withdraws"
-        value={counts.type.withdraw}
+        value={Number(counts.type.withdraw ?? 0)}
         formatter={formatNumberToReadableString}
       />
       <SummaryItem
         label="Bets"
-        value={counts.type.bet}
+        value={Number(counts.type.bet ?? 0)}
         formatter={formatNumberToReadableString}
       />
       <SummaryItem
         label="Vips"
-        value={counts.type.vip}
+        value={Number(counts.type.vip ?? 0)}
         formatter={formatNumberToReadableString}
       />
       <SummaryItem
         label="Wins"
-        value={counts.type.win}
+        value={Number(counts.type.win ?? 0)}
         formatter={formatNumberToReadableString}
       />
       <SummaryItem
         label="Bonuses"
-        value={counts.type.bonus}
+        value={Number(counts.type.bonus ?? 0)}
         formatter={formatNumberToReadableString}
       />
       <SummaryItem
         label="Refunds"
-        value={counts.type.refund}
+        value={Number(counts.type.refund ?? 0)}
         formatter={formatNumberToReadableString}
       />
     </section>
@@ -145,7 +145,7 @@ const SummaryItem = ({
       <Label className="inline-flex items-center gap-1 text-sm text-gray-500">
         {label}
         {tooltip ? (
-          <Tooltip>
+          <Tooltip key={tooltip}>
             <TooltipTrigger asChild>
               <CircleQuestionMark
                 size={16}

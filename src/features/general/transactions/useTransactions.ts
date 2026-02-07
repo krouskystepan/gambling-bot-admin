@@ -45,7 +45,7 @@ export async function getTransactionsData(
     query.sort
   )
 
-  const transactionCounts = await getTransactionCounts(
+  const rawCounts = await getTransactionCounts(
     guildId,
     session,
     query.filterType,
@@ -56,12 +56,32 @@ export async function getTransactionsData(
     query.dateTo
   )
 
+  const transactionCounts: ITransactionCounts = {
+    type: {
+      deposit: Number(rawCounts?.type?.deposit ?? 0),
+      withdraw: Number(rawCounts?.type?.withdraw ?? 0),
+      bet: Number(rawCounts?.type?.bet ?? 0),
+      vip: Number(rawCounts?.type?.vip ?? 0),
+      win: Number(rawCounts?.type?.win ?? 0),
+      bonus: Number(rawCounts?.type?.bonus ?? 0),
+      refund: Number(rawCounts?.type?.refund ?? 0)
+    },
+
+    source: {
+      command: Number(rawCounts?.source?.command ?? 0),
+      manual: Number(rawCounts?.source?.manual ?? 0),
+      web: Number(rawCounts?.source?.web ?? 0),
+      system: Number(rawCounts?.source?.system ?? 0),
+      casino: Number(rawCounts?.source?.casino ?? 0)
+    }
+  }
+
   return {
     transactions,
     transactionCounts,
-    total,
-    gamePnL,
-    cashFlow
+    total: Number(total ?? 0),
+    gamePnL: Number(gamePnL ?? 0),
+    cashFlow: Number(cashFlow ?? 0)
   }
 }
 
