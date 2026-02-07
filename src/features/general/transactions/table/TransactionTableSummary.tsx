@@ -1,3 +1,5 @@
+'use client'
+
 import { CircleQuestionMark } from 'lucide-react'
 
 import { Label } from '@/components/ui/label'
