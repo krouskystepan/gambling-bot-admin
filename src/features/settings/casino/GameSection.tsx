@@ -19,31 +19,34 @@ type Props = {
 }
 
 const GameSection = ({ game, form }: Props) => {
+  const numericKeys = (
+    Object.keys(defaultCasinoSettings[game]) as Array<
+      keyof (typeof defaultCasinoSettings)[typeof game]
+    >
+  ).filter((key) => typeof defaultCasinoSettings[game][key] === 'number')
+
+  // Only watch what actually needs watching
   const settings = useWatch({
     control: form.control,
     name: game
   })
 
-  if (!settings) return null
-
   return (
     <>
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-        {(Object.keys(settings) as Array<keyof typeof settings>)
-          .filter((key) => typeof settings[key] === 'number')
-          .map((key) => (
-            <NumberField
-              key={String(key)}
-              form={form}
-              name={`${game}.${key}` as Path<TCasinoSettingsValues>}
-              label={getReadableName(String(key), readableGameValueNames)}
-              defaultValue={
-                defaultCasinoSettings[game][
-                  key as keyof (typeof defaultCasinoSettings)[typeof game]
-                ] as number
-              }
-            />
-          ))}
+        {numericKeys.map((key) => (
+          <NumberField
+            key={String(key)}
+            form={form}
+            name={`${game}.${key}` as Path<TCasinoSettingsValues>}
+            label={getReadableName(String(key), readableGameValueNames)}
+            defaultValue={
+              defaultCasinoSettings[game][
+                key as keyof (typeof defaultCasinoSettings)[typeof game]
+              ] as number
+            }
+          />
+        ))}
       </div>
 
       {game in GAME_RECORD_FIELDS &&
@@ -53,7 +56,7 @@ const GameSection = ({ game, form }: Props) => {
             game={game as GameWithRecords}
             recordKey={recordKey}
             values={
-              settings[recordKey as keyof typeof settings] as Record<
+              settings?.[recordKey as keyof typeof settings] as Record<
                 string,
                 number
               >
