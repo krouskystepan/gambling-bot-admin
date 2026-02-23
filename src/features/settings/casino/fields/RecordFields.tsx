@@ -35,12 +35,7 @@ export function RecordFields<G extends GameWithRecords>({
   const defaultRecord = gameDefaults[recordKey]
 
   return (
-    <div
-      className="grid gap-3 mt-3"
-      style={{
-        gridTemplateColumns: `repeat(${Object.keys(values).length}, minmax(0,1fr))`
-      }}
-    >
+    <div className="grid grid-cols-6 gap-3 mt-3">
       {Object.keys(values).map((key) => (
         <NumberField
           key={key}
