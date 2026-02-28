@@ -25,7 +25,6 @@ const GameSection = ({ game, form }: Props) => {
     >
   ).filter((key) => typeof defaultCasinoSettings[game][key] === 'number')
 
-  // Only watch what actually needs watching
   const settings = useWatch({
     control: form.control,
     name: game
