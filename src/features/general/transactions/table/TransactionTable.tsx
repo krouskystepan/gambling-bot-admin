@@ -1,5 +1,7 @@
 'use client'
 
+import { VisibilityState } from '@tanstack/react-table'
+
 import { useEffect, useRef } from 'react'
 
 import { useSearchParams } from 'next/navigation'
@@ -43,6 +45,10 @@ const TransactionTable = ({
   gamePnL,
   cashFlow
 }: TransactionTableProps) => {
+  const defaultVisibility: VisibilityState = {
+    betId: false
+  }
+
   const { table, isLoading, setIsLoading } =
     useServerTable<TTransactionDiscord>({
       data: transactions,
@@ -101,7 +107,26 @@ const TransactionTable = ({
           page: pagination.pageIndex + 1,
           limit: pagination.pageSize
         })
-      }
+      },
+
+      onColumnVisibilityChange: (visibility) => {
+        const overrides: string[] = []
+
+        Object.entries(visibility).forEach(([key, value]) => {
+          const defaultValue = defaultVisibility[key] ?? true
+
+          if (value !== defaultValue) {
+            overrides.push(value ? `!${key}` : key)
+          }
+        })
+
+        debouncedUpdateUrl({
+          page: 1,
+          view: overrides.length ? overrides.join(',') : undefined
+        })
+      },
+
+      initialVisibility: defaultVisibility
     })
 
   useEffect(() => {
@@ -125,7 +150,7 @@ const TransactionTable = ({
       const dateFrom = params.get('dateFrom') || undefined
       const dateTo = params.get('dateTo') || undefined
 
-      const filters = [
+      return [
         { id: 'username', value: search || undefined },
         { id: 'handledByUsername', value: adminSearch || undefined },
         { id: 'type', value: filterType?.length ? filterType : undefined },
@@ -138,9 +163,8 @@ const TransactionTable = ({
           value: dateFrom && dateTo ? [dateFrom, dateTo] : undefined
         }
       ]
-
-      return filters
-    }
+    },
+    defaultVisibility
   })
 
   return (

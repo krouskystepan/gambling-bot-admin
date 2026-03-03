@@ -171,11 +171,10 @@ const TransactionTableFilters = ({
           }}
         />
 
-        {/* // TODO FIX THIS */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="h-9.5">
-              <Columns3Icon size={16} className="-ms-1 size-4 opacity-60" />{' '}
+              <Columns3Icon size={16} className="-ms-1 size-4 opacity-60" />
               View
             </Button>
           </DropdownMenuTrigger>
