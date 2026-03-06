@@ -1,6 +1,6 @@
 import { Table } from '@tanstack/react-table'
 
-import React, { ChangeEvent, RefObject } from 'react'
+import { ChangeEvent, RefObject } from 'react'
 
 import { Input } from '@/components/ui/input'
 import { TTransactionDiscord } from '@/types/types'
