@@ -196,6 +196,7 @@ const TransactionTableFilters = ({
         </DropdownMenu>
 
         <TransactionExtraButtons
+          table={table}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
         />
