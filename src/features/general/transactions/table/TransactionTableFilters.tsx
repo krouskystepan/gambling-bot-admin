@@ -1,9 +1,7 @@
 import { Table as ReactTable } from '@tanstack/react-table'
-import { Columns3Icon, RefreshCcw } from 'lucide-react'
+import { Columns3Icon } from 'lucide-react'
 
 import { Dispatch, RefObject, SetStateAction } from 'react'
-
-import { useRouter } from 'next/navigation'
 
 import DatePicker from '@/components/DatePicker'
 import { Button } from '@/components/ui/button'
@@ -16,6 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { ITransactionCounts, TTransactionDiscord } from '@/types/types'
 
+import TransactionExtraButtons from './TransactionExtraButtons'
 import TransactionFilter from './TransactionTableFilter'
 import TransactionSearch from './TransactionTableSearch'
 import { sourceBadgeMap, typeBadgeMap } from './transactionBadges'
@@ -35,8 +34,6 @@ const TransactionTableFilters = ({
   userSearchRef: RefObject<HTMLInputElement | null>
   adminSearchRef: RefObject<HTMLInputElement | null>
 }) => {
-  const router = useRouter()
-
   type Option<T = string> = {
     value: string
     label: string
@@ -171,11 +168,10 @@ const TransactionTableFilters = ({
           }}
         />
 
-        {/* // TODO FIX THIS */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="h-9.5">
-              <Columns3Icon size={16} className="-ms-1 size-4 opacity-60" />{' '}
+              <Columns3Icon size={16} className="-ms-1 size-4 opacity-60" />
               View
             </Button>
           </DropdownMenuTrigger>
@@ -199,20 +195,11 @@ const TransactionTableFilters = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Button
-          variant="secondary"
-          onClick={() => {
-            setIsLoading(true)
-            const url = new URL(window.location.href)
-            router.replace(url.pathname + url.search, { scroll: false })
-          }}
-          className="flex h-9.5 items-center justify-between"
-          disabled={isLoading}
-        >
-          <RefreshCcw
-            className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`}
-          />
-        </Button>
+        <TransactionExtraButtons
+          table={table}
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
+        />
       </div>
     </div>
   )

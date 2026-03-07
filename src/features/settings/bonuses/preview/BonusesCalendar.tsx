@@ -1,80 +1,97 @@
-import { formatNumberToReadableString } from '@/lib/utils'
+import { PreviewDay } from 'gambling-bot-shared'
 
-type PreviewDay = {
-  day: number
-  reward: number
-  base: number
-  weekly: number
-  monthly: number
-  isReset: boolean
-}
+import { formatNumberToReadableString } from '@/lib/utils'
 
 type BonusesCalendarProps = {
   preview: PreviewDay[]
 }
 
-const BonusesCalendar = ({ preview }: BonusesCalendarProps) => {
-  const weeks: PreviewDay[][] = []
+const chunkIntoWeeks = (days: PreviewDay[]): PreviewDay[][] => {
+  const result: PreviewDay[][] = []
 
-  for (let i = 0; i < preview.length; i += 7) {
-    weeks.push(preview.slice(i, i + 7))
+  for (let i = 0; i < days.length; i += 7) {
+    result.push(days.slice(i, i + 7))
   }
 
-  return (
-    <div className="bg-black/40 rounded-md w-full p-2 text-white">
-      <h5 className="mb-2 text-lg font-semibold text-yellow-400">
-        Preview (Next {preview.length} Days)
-      </h5>
+  return result
+}
 
-      <div className="hide-scrollbar max-h-180 overflow-y-auto space-y-3">
-        {weeks.map((week, weekIndex) => {
-          const isNewMonth = weekIndex % 4 === 0
+const DayCard = ({ day }: { day: PreviewDay }) => {
+  const { day: dayNumber, reward, base, weekly, monthly, isReset } = day
+
+  return (
+    <div
+      className={[
+        'flex flex-col rounded-md border border-neutral-800 bg-neutral-900/60 p-2 text-xs',
+        'transition-colors',
+        isReset ? 'border-red-700/60 bg-red-950/30' : ''
+      ].join(' ')}
+    >
+      <span className="text-xs tracking-wide text-neutral-500">
+        #{dayNumber}
+      </span>
+
+      <div className="mt-1 space-y-0.5 text-xs">
+        <span className="text-yellow-400">
+          T: {formatNumberToReadableString(reward)}
+        </span>
+
+        <div className="text-neutral-400">
+          B: {formatNumberToReadableString(base)}
+        </div>
+
+        {weekly > 0 && (
+          <div className="text-blue-400">
+            W: {formatNumberToReadableString(weekly)}
+          </div>
+        )}
+
+        {monthly > 0 && (
+          <div className="font-semibold text-green-400">
+            M: {formatNumberToReadableString(monthly)}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+const BonusesCalendar = ({ preview }: BonusesCalendarProps) => {
+  const weeks = chunkIntoWeeks(preview)
+
+  return (
+    <section className="w-full rounded-lg border border-neutral-800 bg-neutral-950/60 p-4 text-white">
+      <header className="mb-4 flex items-center justify-between">
+        <h5 className="text-base font-semibold text-yellow-400">
+          Preview ({preview.length} Days)
+        </h5>
+
+        <div className="flex items-center gap-3 text-xs">
+          <span className="text-yellow-400 font-medium">T = Total</span>
+          <span className="text-neutral-400">B = Base</span>
+          <span className="text-blue-400">W = Weekly</span>
+          <span className="text-green-400">M = Monthly</span>
+        </div>
+      </header>
+
+      <div className="hide-scrollbar max-h-180 space-y-2 overflow-y-auto pr-1">
+        {weeks.map((week, index) => {
+          const showDivider = index !== 0 && index % 4 === 0
 
           return (
-            <div
-              key={weekIndex}
-              className={`grid grid-cols-7 gap-2 ${
-                isNewMonth ? 'pt-2 border-t border-yellow-400/30' : ''
-              }`}
-            >
-              {week.map((p) => (
-                <div
-                  key={p.day}
-                  className={`flex flex-col border border-gray-700 p-2 text-xs ${
-                    p.isReset ? 'bg-red-900/20' : ''
-                  }`}
-                >
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">#{p.day}</span>
-                    <span className="font-semibold">
-                      {formatNumberToReadableString(p.reward)}
-                    </span>
-                  </div>
+            <div key={index} className="space-y-2">
+              {showDivider && <div className="h-px w-full bg-yellow-500/20" />}
 
-                  <div className="mt-1 flex flex-col gap-0.5">
-                    <span className="text-gray-300">
-                      B: {formatNumberToReadableString(p.base)}
-                    </span>
-
-                    {p.weekly > 0 && (
-                      <span className="text-blue-400">
-                        W: {formatNumberToReadableString(p.weekly)}
-                      </span>
-                    )}
-
-                    {p.monthly > 0 && (
-                      <span className="font-bold text-green-400">
-                        M: {formatNumberToReadableString(p.monthly)}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
+              <div className="grid grid-cols-7 gap-1">
+                {week.map((day) => (
+                  <DayCard key={day.day} day={day} />
+                ))}
+              </div>
             </div>
           )
         })}
       </div>
-    </div>
+    </section>
   )
 }
 

@@ -69,8 +69,14 @@ export const transactionsColumns = (): ColumnDef<TTransactionDiscord>[] => [
       const metaFormatters: Record<string, (value: unknown) => string> = {
         action: (value) => `Action: ${value}`,
         durationDays: (value) => `Duration: ${value} days`,
-        adminAction: (value) => `Action: admin ${value}`,
-        bonusStreak: (value) => `Streak: ${value} days`
+        adminAction: (value) => `Admin Action: ${value}`,
+        bonusStreak: (value) => `Streak: ${value} days`,
+        bypassUsed: (value) => `Bypass Used: ${value ? 'Yes' : 'No'}`,
+
+        purchaseId: (value) => `Purchase ID: ${value}`,
+        channelId: (value) => `Channel ID: ${value}`,
+        addedUserId: (value) => `Added User ID: ${value}`,
+        removedUserId: (value) => `Removed User ID: ${value}`
       }
 
       const hasMeta = Object.keys(meta).length > 0
@@ -172,7 +178,7 @@ export const transactionsColumns = (): ColumnDef<TTransactionDiscord>[] => [
   {
     header: 'Bet ID',
     accessorKey: 'betId',
-    size: 140,
+    size: 160,
     cell: ({ row }) => {
       return (
         <p className="wrap-anywhere">
