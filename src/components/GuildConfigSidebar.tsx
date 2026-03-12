@@ -2,7 +2,6 @@
 
 import {
   Award,
-  ChartBar,
   Crown,
   Dices,
   Home,
@@ -12,14 +11,21 @@ import {
   ShieldCheck,
   User
 } from 'lucide-react'
-import { undefined } from 'zod'
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger
+} from '@/components/ui/accordion'
+
 const LINKS = [
   {
     title: 'General',
+    value: 'general',
     links: [
       { id: 'home', label: 'Home', icon: Home },
       { id: 'transactions', label: 'Transactions', icon: Landmark }
@@ -27,6 +33,7 @@ const LINKS = [
   },
   {
     title: 'Manage',
+    value: 'manage',
     links: [
       { id: 'users', label: 'Users', icon: User }
       // { id: 'vips', label: 'VIPs', icon: Crown },
@@ -35,6 +42,7 @@ const LINKS = [
   },
   {
     title: 'Settings',
+    value: 'settings',
     links: [
       { id: 'channel-settings', label: 'Channels', icon: MessagesSquare },
       { id: 'manager-settings', label: 'Manager', icon: ShieldCheck },
@@ -65,36 +73,51 @@ const GuildConfigSidebar = ({
         {guildName}
       </div>
 
-      <aside className="flex flex-1 flex-col gap-4 overflow-y-auto p-3">
-        {LINKS.map((group) => {
-          if (group.title === 'Settings' && !isAdmin) return null
+      <aside className="flex flex-1 flex-col overflow-y-auto p-3">
+        <Accordion
+          type="multiple"
+          className="flex flex-col gap-3"
+          defaultValue={LINKS.map((g) => g.value)}
+        >
+          {LINKS.map((group) => {
+            if (group.title === 'Settings' && !isAdmin) return null
 
-          return (
-            <div key={group.title} className="flex flex-col gap-1">
-              <div className="px-3 py-1 text-xs font-semibold tracking-wider text-gray-400 uppercase">
-                {group.title}
-              </div>
+            return (
+              <AccordionItem
+                key={group.value}
+                value={group.value}
+                className="border-none"
+              >
+                <AccordionTrigger className="px-3 py-1 text-xs font-semibold tracking-wider text-gray-400 uppercase hover:text-gray-200 cursor-pointer">
+                  {group.title}
+                </AccordionTrigger>
 
-              {group.links.map((link) => {
-                const Icon = link.icon as LucideIcon
-                return (
-                  <Link
-                    key={link.id}
-                    href={`/dashboard/g/${guildId}/${link.id}`}
-                    className="relative flex items-center gap-2 overflow-hidden rounded px-5 py-2 text-sm text-gray-200 transition hover:bg-yellow-500/10 hover:text-yellow-400"
-                  >
-                    {activeSectionId === link.id ||
-                    (link.id === 'home' && activeSectionId === undefined) ? (
-                      <div className="absolute left-0 h-full w-0.5 bg-yellow-400" />
-                    ) : null}
-                    {Icon && <Icon size={16} />}
-                    {link.label}
-                  </Link>
-                )
-              })}
-            </div>
-          )
-        })}
+                <AccordionContent className="flex flex-col gap-1 pt-1 pb-0">
+                  {group.links.map((link) => {
+                    const Icon = link.icon as LucideIcon
+
+                    return (
+                      <Link
+                        key={link.id}
+                        href={`/dashboard/g/${guildId}/${link.id}`}
+                        className="relative flex items-center gap-2 overflow-hidden rounded px-5 py-2 text-sm text-gray-200 transition hover:bg-yellow-500/10 hover:text-yellow-400"
+                      >
+                        {activeSectionId === link.id ||
+                        (link.id === 'home' &&
+                          activeSectionId === undefined) ? (
+                          <div className="absolute left-0 h-full w-0.5 bg-yellow-400" />
+                        ) : null}
+
+                        <Icon size={16} />
+                        {link.label}
+                      </Link>
+                    )
+                  })}
+                </AccordionContent>
+              </AccordionItem>
+            )
+          })}
+        </Accordion>
       </aside>
     </section>
   )

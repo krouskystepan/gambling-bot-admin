@@ -216,11 +216,16 @@ const BonuseSettingsForm = ({
                         <Input
                           className="bg-muted border-transparent shadow-none"
                           type="text"
-                          onChange={(e) => {
-                            const value = e.target.value.replace(/[^0-9.]/g, '')
-                            field.onChange(Number(value))
+                          inputMode="decimal"
+                          onChange={(e) => field.onChange(e.target.value)}
+                          onBlur={(e) => {
+                            const parsed = Number(e.target.value)
+                            field.onChange(
+                              Number.isNaN(parsed) ? undefined : parsed
+                            )
                           }}
                           value={field.value}
+                          step={0.1}
                         />
                       </FormControl>
                       <FormMessage />

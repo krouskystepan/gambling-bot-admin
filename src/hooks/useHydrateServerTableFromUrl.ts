@@ -22,7 +22,6 @@ export function useHydrateServerTableFromUrl<T>(
   useEffect(() => {
     if (!searchParams) return
 
-    console.log('hydrating with', searchParams.toString())
     if (hasHydratedRef.current) return
 
     const pageFromUrl = Number(searchParams.get('page') || 1)
