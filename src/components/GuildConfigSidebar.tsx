@@ -88,7 +88,7 @@ const GuildConfigSidebar = ({
                 value={group.value}
                 className="border-none"
               >
-                <AccordionTrigger className="px-3 py-1 text-xs font-semibold tracking-wider text-gray-400 uppercase hover:text-gray-200 cursor-pointer">
+                <AccordionTrigger className="px-3 py-1 text-xs font-semibold tracking-wider text-gray-400 uppercase hover:no-underline hover:text-gray-100 cursor-pointer">
                   {group.title}
                 </AccordionTrigger>
 
