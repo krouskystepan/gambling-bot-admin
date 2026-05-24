@@ -1,9 +1,11 @@
 'use client'
 
-import { calculateRTP, readableGameNames } from 'gambling-bot-shared'
+import {
+  calculateRTP,
+  getReadableName,
+  readableGameNames
+} from 'gambling-bot-shared'
 import { UseFormReturn, useWatch } from 'react-hook-form'
-
-import { getReadableName } from '@/lib/utils'
 import { TCasinoSettingsOutput, TCasinoSettingsValues } from '@/types/types'
 
 import { MultiRTP, SingleRTP } from './RTP'

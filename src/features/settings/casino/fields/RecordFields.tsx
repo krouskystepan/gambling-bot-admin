@@ -1,16 +1,20 @@
 'use client'
 
-import { defaultCasinoSettings } from 'gambling-bot-shared'
+import {
+  GAME_RECORD_FIELDS,
+  defaultCasinoSettings,
+  type GameWithRecords,
+  type RecordKey
+} from 'gambling-bot-shared'
 import { Path, UseFormReturn } from 'react-hook-form'
 
 import { TCasinoSettingsValues } from '@/types/types'
 
-import { GameWithRecords, RecordKey } from '../config'
 import { NumberField } from './NumberField'
 
 type Props<G extends GameWithRecords> = {
   game: G
-  recordKey: (typeof import('../config').GAME_RECORD_FIELDS)[G][number]
+  recordKey: (typeof GAME_RECORD_FIELDS)[G][number]
   values: Record<string, number>
   form: UseFormReturn<TCasinoSettingsValues>
 }

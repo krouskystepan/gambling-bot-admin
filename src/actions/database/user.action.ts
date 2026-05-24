@@ -6,7 +6,9 @@ import { Session } from 'next-auth'
 import { revalidatePath } from 'next/cache'
 
 import { connectToDatabase } from '@/lib/db'
-import { escapeRegExp, formatNumberToReadableString } from '@/lib/utils'
+import { formatNumberToReadableString } from 'gambling-bot-shared'
+
+import { escapeRegExp } from '@/lib/utils'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'
 import User from '@/models/User'

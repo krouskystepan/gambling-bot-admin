@@ -1,13 +1,13 @@
 import {
   TCasinoSettings,
   calculateRTP,
+  getReadableName,
   readableGameNames
 } from 'gambling-bot-shared'
 import { getServerSession } from 'next-auth'
 
 import { getCasinoSettings } from '@/actions/database/casinoSettings.action'
 import { authOptions } from '@/lib/authOptions'
-import { getReadableName } from '@/lib/utils'
 
 const RTPBadge = ({ value }: { value: number }) => {
   return (

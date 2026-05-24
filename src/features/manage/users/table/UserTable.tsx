@@ -15,7 +15,7 @@ import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
 import { useHydrateServerTableFromUrl } from '@/hooks/useHydrateServerTableFromUrl'
 import { useServerTable } from '@/hooks/useServerTable'
 import { useUpdateUrl } from '@/hooks/useUpdateUrl'
-import { formatNumberToReadableString } from '@/lib/utils'
+import { formatNumberToReadableString } from 'gambling-bot-shared'
 import { TGuildMemberStatus } from '@/types/types'
 
 import UserTableFooter from './UserTableFooter'

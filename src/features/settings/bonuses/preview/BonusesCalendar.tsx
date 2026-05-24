@@ -1,6 +1,6 @@
 import { PreviewDay } from 'gambling-bot-shared'
 
-import { formatNumberToReadableString } from '@/lib/utils'
+import { formatNumberToReadableString } from 'gambling-bot-shared'
 
 type BonusesCalendarProps = {
   preview: PreviewDay[]

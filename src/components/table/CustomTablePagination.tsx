@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { formatNumberWithSpaces } from '@/lib/utils'
+import { formatNumberWithSpaces } from 'gambling-bot-shared'
 
 type TablePaginationProps<T> = {
   table: Table<T>

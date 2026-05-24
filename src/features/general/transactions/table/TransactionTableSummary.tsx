@@ -9,7 +9,7 @@ import {
 import {
   formatNumberToReadableString,
   formatNumberWithSpaces
-} from '@/lib/utils'
+} from 'gambling-bot-shared'
 import { ITransactionCounts } from '@/types/types'
 
 const getCashFlowFormula = (counts: ITransactionCounts) => {

@@ -48,7 +48,9 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import { cn, formatNumberToReadableString } from '@/lib/utils'
+import { formatNumberToReadableString } from 'gambling-bot-shared'
+
+import { cn } from '@/lib/utils'
 import { TGuildMemberStatus } from '@/types/types'
 
 const multiColumnFilter = (

@@ -10,7 +10,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import { formatNumberToReadableString } from '@/lib/utils'
+import { formatNumberToReadableString } from 'gambling-bot-shared'
 import { TTransactionDiscord } from '@/types/types'
 
 import { sourceBadgeMap, typeBadgeMap } from './transactionBadges'

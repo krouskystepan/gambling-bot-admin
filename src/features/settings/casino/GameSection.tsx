@@ -1,15 +1,15 @@
 'use client'
 
 import {
+  GAME_RECORD_FIELDS,
   defaultCasinoSettings,
-  readableGameValueNames
+  getReadableName,
+  readableGameValueNames,
+  type GameWithRecords
 } from 'gambling-bot-shared'
 import { Path, UseFormReturn, useWatch } from 'react-hook-form'
 
-import { getReadableName } from '@/lib/utils'
 import { TCasinoSettingsOutput, TCasinoSettingsValues } from '@/types/types'
-
-import { GAME_RECORD_FIELDS, GameWithRecords } from './config'
 import { NumberField } from './fields/NumberField'
 import { RecordFields } from './fields/RecordFields'
 

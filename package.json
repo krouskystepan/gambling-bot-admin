@@ -33,7 +33,7 @@
     "date-fns": "^4.1.0",
     "discord-api-types": "^0.38.42",
     "framer-motion": "^12.38.0",
-    "gambling-bot-shared": "^0.1.37",
+    "gambling-bot-shared": "^0.1.39",
     "lucide-react": "^0.577.0",
     "mongodb": "^7.1.0",
     "mongoose": "^9.3.1",
