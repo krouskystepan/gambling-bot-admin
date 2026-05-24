@@ -1,6 +1,10 @@
 'use server'
 
-import { TTransaction } from 'gambling-bot-shared'
+import {
+  TRANSACTION_SOURCES,
+  TRANSACTION_TYPES,
+  TTransaction
+} from 'gambling-bot-shared'
 import { Session, getServerSession } from 'next-auth'
 
 import { authOptions } from '@/lib/authOptions'
@@ -179,24 +183,6 @@ export const getTransactions = async (
   return { transactions: result, total, gamePnL, cashFlow }
 }
 
-const typeBadgeMap: Record<TTransaction['type'], string> = {
-  deposit: '',
-  withdraw: '',
-  bet: '',
-  win: '',
-  refund: '',
-  bonus: '',
-  vip: ''
-}
-
-const sourceBadgeMap: Record<TTransaction['source'], string> = {
-  casino: '',
-  command: '',
-  manual: '',
-  system: '',
-  web: ''
-}
-
 export const getTransactionCounts = async (
   guildId: string,
   session: Session,
@@ -210,10 +196,10 @@ export const getTransactionCounts = async (
   if (!session.accessToken) {
     return {
       type: Object.fromEntries(
-        Object.keys(typeBadgeMap).map((t) => [t, 0])
+        TRANSACTION_TYPES.map((t) => [t, 0])
       ) as Record<TTransaction['type'], number>,
       source: Object.fromEntries(
-        Object.keys(sourceBadgeMap).map((s) => [s, 0])
+        TRANSACTION_SOURCES.map((s) => [s, 0])
       ) as Record<TTransaction['source'], number>
     }
   }
@@ -264,7 +250,7 @@ export const getTransactionCounts = async (
   ])
 
   const typeCounts = Object.fromEntries(
-    Object.keys(typeBadgeMap).map((t) => [t, 0])
+    TRANSACTION_TYPES.map((t) => [t, 0])
   ) as Record<TTransaction['type'], number>
 
   typeAgg.forEach((t) => {
@@ -272,7 +258,7 @@ export const getTransactionCounts = async (
   })
 
   const sourceCounts = Object.fromEntries(
-    Object.keys(sourceBadgeMap).map((s) => [s, 0])
+    TRANSACTION_SOURCES.map((s) => [s, 0])
   ) as Record<TTransaction['source'], number>
 
   sourceAgg.forEach((s) => {

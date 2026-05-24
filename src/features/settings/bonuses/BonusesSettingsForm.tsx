@@ -25,11 +25,16 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
+import {
+  PREVIEW_DAYS,
+  generateBonusPreview,
+  type BonusSettings
+} from 'gambling-bot-shared'
+
 import { bonusFormSchema } from '@/types/schemas'
 import { TBonusFormValues } from '@/types/types'
 
 import BonusesCalendar from './preview/BonusesCalendar'
-import { PREVIEW_DAYS, generateBonusPreview } from './preview/bonusPreview'
 
 type BonusesSettigsProps = {
   guildId: string
@@ -77,30 +82,30 @@ const BonuseSettingsForm = ({
   const weeklyMilestone = Number(milestoneWeekly)
   const monthlyMilestone = Number(milestoneMonthly)
 
-  const preview = useMemo(
-    () =>
-      generateBonusPreview({
-        base,
-        increment: inc,
-        multiplier: mult,
-        max,
-        weeklyMilestone,
-        monthlyMilestone,
-        rewardMode,
-        resetOnMax,
-        days: PREVIEW_DAYS
-      }),
-    [
-      base,
-      inc,
-      mult,
-      max,
-      weeklyMilestone,
-      monthlyMilestone,
-      rewardMode,
-      resetOnMax
-    ]
-  )
+  const preview = useMemo(() => {
+    const settings: BonusSettings = {
+      rewardMode: rewardMode as BonusSettings['rewardMode'],
+      baseReward: base,
+      streakIncrement: inc,
+      streakMultiplier: mult,
+      maxReward: max,
+      resetOnMax,
+      milestoneBonus: {
+        weekly: weeklyMilestone,
+        monthly: monthlyMilestone
+      }
+    }
+    return generateBonusPreview(settings, PREVIEW_DAYS)
+  }, [
+    base,
+    inc,
+    mult,
+    max,
+    weeklyMilestone,
+    monthlyMilestone,
+    rewardMode,
+    resetOnMax
+  ])
 
   return (
     <div className="w-full max-w-7xl grid grid-cols-2 gap-4">
