@@ -1,4 +1,5 @@
 import { Table } from '@tanstack/react-table'
+import { formatNumberWithSpaces } from 'gambling-bot-shared'
 import {
   ChevronFirstIcon,
   ChevronLastIcon,
@@ -20,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { formatNumberWithSpaces } from 'gambling-bot-shared'
 
 type TablePaginationProps<T> = {
   table: Table<T>
@@ -45,7 +45,7 @@ const CustomTablePagination = <T,>({
           <SelectTrigger className="w-fit whitespace-nowrap">
             <SelectValue placeholder="Select number of results" />
           </SelectTrigger>
-          <SelectContent className="[&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2">
+          <SelectContent className="[&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:inset-e-2">
             {[5, 10, 25, 50].map((pageSize) => (
               <SelectItem key={pageSize} value={pageSize.toString()}>
                 {pageSize}
