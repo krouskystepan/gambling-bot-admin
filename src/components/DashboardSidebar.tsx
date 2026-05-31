@@ -1,38 +1,15 @@
 import { Dice5 } from 'lucide-react'
-import { getServerSession } from 'next-auth'
-
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
 
-import { getUserGuilds } from '@/actions/discord/guilds.action'
-import { authOptions } from '@/lib/authOptions'
+import type { IGuild } from '@/types/types'
 
 import GuildRow from './GuildRow'
-import RateLimited from './states/RateLimmited'
 
-const DashboardSidebar = async () => {
-  const session = await getServerSession(authOptions)
+type DashboardSidebarProps = {
+  guilds: IGuild[]
+}
 
-  if (!session?.accessToken || session?.error) {
-    redirect('/login')
-  }
-
-  let guilds: Awaited<ReturnType<typeof getUserGuilds>> = []
-
-  try {
-    guilds = await getUserGuilds(session)
-  } catch (err) {
-    if (err instanceof Error && err.message === 'DiscordRateLimited') {
-      return (
-        <aside className="hide-scrollbar relative flex min-h-screen min-w-16 flex-1 grow-0 flex-col items-center justify-center border-r border-yellow-500/10 bg-black/70 px-2 py-4">
-          <RateLimited />
-        </aside>
-      )
-    }
-
-    throw err
-  }
-
+const DashboardSidebar = ({ guilds }: DashboardSidebarProps) => {
   return (
     <aside className="hide-scrollbar relative flex min-h-screen min-w-16 flex-1 grow-0 flex-col items-center gap-4 overflow-y-scroll border-r border-yellow-500/10 bg-black/70 py-4">
       <Link

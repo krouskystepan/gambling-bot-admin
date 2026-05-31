@@ -57,6 +57,7 @@ type GuildConfigSidebarProps = {
   guildId: string
   guildName: string
   isAdmin: boolean
+  isManager: boolean
 }
 
 const GuildConfigSidebar = ({

@@ -9,7 +9,12 @@ import Link from 'next/link'
 
 import { Button } from './ui/button'
 
-const LoginBox = ({ session }: { session: Session | null }) => {
+type LoginBoxProps = {
+  session: Session | null
+  callbackUrl?: string
+}
+
+const LoginBox = ({ session, callbackUrl = '/dashboard' }: LoginBoxProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -35,12 +40,12 @@ const LoginBox = ({ session }: { session: Session | null }) => {
 
           {session ? (
             <div className="flex flex-col items-center gap-4">
-              <ContinueToDiscordButton />
+              <ContinueToDiscordButton callbackUrl={callbackUrl} />
               <LogoutButton />
             </div>
           ) : (
             <div className="flex w-full justify-center">
-              <LoginButton />
+              <LoginButton callbackUrl={callbackUrl} />
             </div>
           )}
         </div>
@@ -49,10 +54,10 @@ const LoginBox = ({ session }: { session: Session | null }) => {
   )
 }
 
-const LoginButton = () => {
+const LoginButton = ({ callbackUrl }: { callbackUrl: string }) => {
   return (
     <Button
-      onClick={() => signIn('discord', { callbackUrl: '/dashboard' })}
+      onClick={() => signIn('discord', { callbackUrl })}
       className="h-12 w-full cursor-pointer rounded-xl bg-linear-to-r from-blue-600 to-blue-700 px-4 py-3 font-semibold text-white shadow-lg transition duration-300 hover:scale-[1.03] active:scale-[0.99]"
     >
       🎮 Login with Discord
@@ -72,7 +77,11 @@ const LogoutButton = () => {
   )
 }
 
-const ContinueToDiscordButton = () => {
+const ContinueToDiscordButton = ({
+  callbackUrl
+}: {
+  callbackUrl: string
+}) => {
   return (
     <Button
       variant={'link'}
@@ -82,7 +91,7 @@ const ContinueToDiscordButton = () => {
     >
       <Link
         className="inline-flex items-center justify-center gap-2"
-        href="/dashboard"
+        href={callbackUrl}
       >
         <Dice5 className="h-5 w-5" /> Continue to Dashboard
       </Link>
