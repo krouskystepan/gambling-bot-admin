@@ -190,7 +190,7 @@ const ChannelsSettingsForm = ({
                         return { label: channel?.name ?? id, value: id }
                       })}
                       defaultOptions={guildChannels.map((channel) => ({
-                        label: channel.name,
+                        label: channel.name ?? channel.id,
                         value: channel.id
                       }))}
                       onChange={(options) =>
@@ -202,14 +202,16 @@ const ChannelsSettingsForm = ({
 
                         if (!term) {
                           return guildChannels.map((c) => ({
-                            label: c.name,
+                            label: c.name ?? c.id,
                             value: c.id
                           }))
                         }
 
                         const filtered = guildChannels
-                          .filter((c) => c.name.toLowerCase().includes(term))
-                          .map((c) => ({ label: c.name, value: c.id }))
+                          .filter((c) =>
+                            (c.name ?? '').toLowerCase().includes(term)
+                          )
+                          .map((c) => ({ label: c.name ?? c.id, value: c.id }))
 
                         return filtered
                       }}

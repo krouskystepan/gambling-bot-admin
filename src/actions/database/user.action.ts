@@ -334,7 +334,7 @@ export async function bonusBalance(
     const user = await User.findOne({ userId, guildId })
     if (!user) return { success: false, message: 'User not registered.' }
 
-    user.balance += amount
+    user.bonusBalance = (user.bonusBalance ?? 0) + amount
     await user.save()
 
     await Transaction.create({
@@ -349,6 +349,10 @@ export async function bonusBalance(
 
     const guildConfig = await GuildConfiguration.findOne({ guildId })
     const logChannelId = guildConfig?.atmChannelIds.logs
+    const actionsChannelId = guildConfig?.atmChannelIds.actions
+    const bonusBalance = user.bonusBalance ?? 0
+    const totalBalance = user.balance + bonusBalance
+
     if (logChannelId) {
       try {
         await sendEmbed(
@@ -356,26 +360,31 @@ export async function bonusBalance(
           'ATM - Bonus Given via Web',
           `Manager <@${managerId}> successfully given **$${formatNumberToReadableString(
             amount
-          )}** bonus to <@${userId}>.\nTheir new balance is now: **$${formatNumberToReadableString(
-            user.balance
-          )}**.`,
+          )}** bonus to <@${userId}>.\n` +
+            `Bonus balance: **$${formatNumberToReadableString(bonusBalance)}**\n` +
+            `Total balance: **$${formatNumberToReadableString(totalBalance)}**`,
           0x57f287
         )
-
-        // TODO: edit this
-        // TODO: fix this
-        // await sendEmbed(
-        //   logChannelId,
-        //   'ATM - Bonus Given via Web',
-        //   `Manager <@${managerId}> successfully given **$${formatNumberToReadableString(
-        //     amount
-        //   )}** bonus to <@${userId}>.\nTheir new balance is now: **$${formatNumberToReadableString(
-        //     user.balance
-        //   )}**.`,
-        //   0x57f287
-        // )
       } catch {
         return { success: false, message: 'Failed to send log message' }
+      }
+    }
+
+    if (actionsChannelId) {
+      try {
+        await sendEmbed(
+          actionsChannelId,
+          'ATM - Bonus Given via Web',
+          `An administrator has given **$${formatNumberToReadableString(
+            amount
+          )}** bonus to <@${userId}>.\n` +
+            `**Bonus Balance:** $${formatNumberToReadableString(bonusBalance)}\n` +
+            `**Total Balance:** $${formatNumberToReadableString(totalBalance)}`,
+          0x57f287,
+          userId
+        )
+      } catch {
+        return { success: false, message: 'Failed to send action message' }
       }
     }
 

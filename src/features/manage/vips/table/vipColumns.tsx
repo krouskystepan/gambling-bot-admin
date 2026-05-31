@@ -13,6 +13,13 @@ import { TVipChannels } from '@/types/types'
 
 export const vipColumns = (): ColumnDef<TVipChannels>[] => [
   {
+    id: 'search',
+    header: () => null,
+    cell: () => null,
+    enableSorting: false,
+    enableColumnFilter: true
+  },
+  {
     header: 'Image',
     accessorKey: 'avatar',
     enableSorting: false,
@@ -107,8 +114,6 @@ export const vipColumns = (): ColumnDef<TVipChannels>[] => [
     header: 'Created At',
     accessorKey: 'createdAt',
     size: 100,
-    enableSorting: false,
-    enableColumnFilter: false,
     cell: ({ row }) => {
       const dateString = row.getValue('createdAt') as string | null
       return dateString ? new Date(dateString).toLocaleDateString('cs') : '-'
@@ -118,8 +123,6 @@ export const vipColumns = (): ColumnDef<TVipChannels>[] => [
     header: 'Expires At',
     accessorKey: 'expiresAt',
     size: 100,
-    enableSorting: false,
-    enableColumnFilter: false,
     cell: ({ row }) => {
       const dateString = row.getValue('expiresAt') as string | null
       return dateString ? new Date(dateString).toLocaleDateString('cs') : '-'

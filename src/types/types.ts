@@ -1,3 +1,8 @@
+import {
+  APIChannel,
+  APIRole,
+  RESTAPIPartialCurrentUserGuild
+} from 'discord-api-types/v10'
 import { TTransaction, TVipRoom } from 'gambling-bot-shared'
 import z from 'zod'
 
@@ -9,30 +14,9 @@ import {
   vipSettingsFormSchema
 } from './schemas'
 
-export interface IGuild {
-  id: string
-  name: string
-  icon: string | null
-  owner: boolean
-  permissions: string | number
-}
-
-export interface IGuildChannel {
-  id: string
-  name: string
-  type: number
-}
-
-export interface IGuildRole {
-  id: string
-  name: string
-  color: number
-  hoist: boolean
-  position: number
-  managed: boolean
-  mentionable: boolean
-  permissions: string
-}
+export type IGuild = RESTAPIPartialCurrentUserGuild
+export type IGuildChannel = APIChannel
+export type IGuildRole = APIRole
 
 export type TChannelsFormValues = z.infer<typeof channelsFormSchema>
 export type TCasinoSettingsValues = z.infer<typeof casinoSettingsSchema>
