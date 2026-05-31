@@ -5,15 +5,15 @@ import {
   TRANSACTION_TYPES,
   TTransaction
 } from 'gambling-bot-shared'
-import { Session, getServerSession } from 'next-auth'
+import { Session } from 'next-auth'
 
-import { authOptions } from '@/lib/authOptions'
 import { connectToDatabase } from '@/lib/db'
 import { escapeRegExp } from '@/lib/utils'
 import Transaction from '@/models/Transaction'
 import { ITransactionCounts, TTransactionDiscord } from '@/types/types'
 
 import { getDiscordGuildMembers } from '../discord/member.action'
+import { requireGuildAccess } from '../perms'
 
 type TransactionFilter = Record<string, unknown>
 
@@ -35,7 +35,8 @@ export const getTransactions = async (
   gamePnL: number
   cashFlow: number
 }> => {
-  if (!session.accessToken || page < 1 || limit < 1 || limit > 50) {
+  const access = await requireGuildAccess(guildId)
+  if ('error' in access || page < 1 || limit < 1 || limit > 50) {
     return { transactions: [], total: 0, gamePnL: 0, cashFlow: 0 }
   }
 
@@ -193,7 +194,8 @@ export const getTransactionCounts = async (
   dateFrom?: string,
   dateTo?: string
 ): Promise<ITransactionCounts> => {
-  if (!session.accessToken) {
+  const access = await requireGuildAccess(guildId)
+  if ('error' in access) {
     return {
       type: Object.fromEntries(
         TRANSACTION_TYPES.map((t) => [t, 0])
@@ -269,17 +271,20 @@ export const getTransactionCounts = async (
 }
 
 export const deleteTransaction = async (
-  transactionId: string
+  transactionId: string,
+  guildId: string
 ): Promise<{ success: boolean; message?: string }> => {
-  const session = await getServerSession(authOptions)
-
-  if (!session?.accessToken) {
-    return { success: false, message: 'Unauthorized' }
+  const access = await requireGuildAccess(guildId)
+  if ('error' in access) {
+    return { success: false, message: access.error }
   }
 
   await connectToDatabase()
 
-  const deleted = await Transaction.findOneAndDelete({ _id: transactionId })
+  const deleted = await Transaction.findOneAndDelete({
+    _id: transactionId,
+    guildId
+  })
 
   if (!deleted) {
     return { success: false, message: 'Transaction not found' }

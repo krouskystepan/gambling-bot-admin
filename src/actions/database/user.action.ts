@@ -16,12 +16,19 @@ import { TGuildMemberStatus } from '@/types/types'
 
 import { getDiscordGuildMembers } from '../discord/member.action'
 import { sendEmbed } from '../discord/utils.action'
+import { requireGuildAccess } from '../perms'
 
 export async function registerUser(
   userId: string,
   guildId: string,
-  managerId: string
+  _managerId: string
 ) {
+  const access = await requireGuildAccess(guildId)
+  if ('error' in access) {
+    return { success: false, message: access.error }
+  }
+  const managerId = access.session.userId!
+
   try {
     const existingUser = await User.findOne({ userId, guildId })
     if (existingUser)
@@ -59,8 +66,14 @@ export async function registerUser(
 export async function unregisterUser(
   userId: string,
   guildId: string,
-  managerId: string
+  _managerId: string
 ) {
+  const access = await requireGuildAccess(guildId)
+  if ('error' in access) {
+    return { success: false, message: access.error }
+  }
+  const managerId = access.session.userId!
+
   try {
     const existingUser = await User.findOne({ userId, guildId })
     if (!existingUser)
@@ -96,9 +109,15 @@ export async function unregisterUser(
 export async function depositBalance(
   userId: string,
   guildId: string,
-  managerId: string,
+  _managerId: string,
   amount: number
 ) {
+  const access = await requireGuildAccess(guildId)
+  if ('error' in access) {
+    return { success: false, message: access.error }
+  }
+  const managerId = access.session.userId!
+
   try {
     const user = await User.findOne({ userId, guildId })
     if (!user) return { success: false, message: 'User not registered.' }
@@ -164,9 +183,15 @@ export async function depositBalance(
 export async function withdrawBalance(
   userId: string,
   guildId: string,
-  managerId: string,
+  _managerId: string,
   amount: number
 ) {
+  const access = await requireGuildAccess(guildId)
+  if ('error' in access) {
+    return { success: false, message: access.error }
+  }
+  const managerId = access.session.userId!
+
   try {
     const user = await User.findOne({ userId, guildId })
     if (!user) return { success: false, message: 'User not registered.' }
@@ -235,8 +260,14 @@ export async function withdrawBalance(
 export async function resetBalance(
   userId: string,
   guildId: string,
-  managerId: string
+  _managerId: string
 ) {
+  const access = await requireGuildAccess(guildId)
+  if ('error' in access) {
+    return { success: false, message: access.error }
+  }
+  const managerId = access.session.userId!
+
   try {
     const user = await User.findOne({ userId, guildId })
     if (!user) return { success: false, message: 'User not registered.' }
@@ -290,9 +321,15 @@ export async function resetBalance(
 export async function bonusBalance(
   userId: string,
   guildId: string,
-  managerId: string,
+  _managerId: string,
   amount: number
 ) {
+  const access = await requireGuildAccess(guildId)
+  if ('error' in access) {
+    return { success: false, message: access.error }
+  }
+  const managerId = access.session.userId!
+
   try {
     const user = await User.findOne({ userId, guildId })
     if (!user) return { success: false, message: 'User not registered.' }
@@ -357,7 +394,8 @@ export async function getUsers(
   search?: string,
   sort?: string
 ): Promise<{ users: TGuildMemberStatus[]; total: number }> {
-  if (!session?.accessToken || page < 1 || limit < 1 || limit > 50) {
+  const access = await requireGuildAccess(guildId)
+  if ('error' in access || page < 1 || limit < 1 || limit > 50) {
     return {
       users: [],
       total: 0

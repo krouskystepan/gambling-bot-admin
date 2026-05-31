@@ -7,11 +7,14 @@ import { connectToDatabase } from '@/lib/db'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import { TBonusFormValues } from '@/types/types'
 
-import { getUserPermissions } from '../perms'
+import { getUserPermissions, requireGuildAccess } from '../perms'
 
 export async function getBonusSettings(
   guildId: string
 ): Promise<TBonusFormValues | null> {
+  const access = await requireGuildAccess(guildId, { requireAdmin: true })
+  if ('error' in access) return null
+
   await connectToDatabase()
 
   const doc = await GuildConfiguration.findOne({ guildId })

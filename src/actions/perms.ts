@@ -4,14 +4,26 @@ import { Session } from 'next-auth'
 
 import { hasGuildManageAccess } from '@/lib/discordPermissions'
 import { connectToDatabase } from '@/lib/db'
-import { discordBotRequest } from '@/lib/discordReq'
+import { getSessionOrNull } from '@/lib/requireSession'
 import GuildConfiguration from '@/models/GuildConfiguration'
 
+import { resolveManagerStatus } from './discord/role.action'
 import { fetchUserGuilds } from './discord/guilds.action'
 
 type PermissionsResult = {
   isAdmin: boolean
   isManager: boolean
+  rateLimited?: boolean
+}
+
+export type GuildAccess = {
+  session: Session
+  isAdmin: boolean
+  isManager: boolean
+}
+
+export type GuildAccessError = {
+  error: string
   rateLimited?: boolean
 }
 
@@ -41,12 +53,11 @@ export const getUserPermissions = async (
       return { isAdmin, isManager }
     }
 
-    const member = await discordBotRequest<{ roles: string[] }>({
-      method: 'GET',
-      url: `/guilds/${guildId}/members/${session.userId}`
-    })
-
-    isManager = member.roles.includes(config.managerRoleId.toString())
+    isManager = await resolveManagerStatus(
+      guildId,
+      session.userId,
+      config.managerRoleId.toString()
+    )
   } catch (err) {
     if (err instanceof Error && err.message === 'DiscordRateLimited') {
       return { isAdmin, isManager, rateLimited: true }
@@ -56,4 +67,45 @@ export const getUserPermissions = async (
   }
 
   return { isAdmin, isManager }
+}
+
+export async function requireGuildAccess(
+  guildId: string,
+  options?: { requireAdmin?: boolean }
+): Promise<GuildAccess | GuildAccessError> {
+  const session = await getSessionOrNull()
+  if (!session) {
+    return { error: 'Unauthorized' }
+  }
+
+  const { isAdmin, isManager, rateLimited } = await getUserPermissions(
+    guildId,
+    session
+  )
+
+  if (rateLimited) {
+    return { error: 'Rate limited', rateLimited: true }
+  }
+
+  if (options?.requireAdmin) {
+    if (!isAdmin) {
+      return { error: 'Insufficient permissions' }
+    }
+  } else if (!isAdmin && !isManager) {
+    return { error: 'Insufficient permissions' }
+  }
+
+  return { session, isAdmin, isManager }
+}
+
+export function assertManagerOrAdmin(access: GuildAccess): void {
+  if (!access.isAdmin && !access.isManager) {
+    throw new Error('Insufficient permissions')
+  }
+}
+
+export function assertAdmin(access: GuildAccess): void {
+  if (!access.isAdmin) {
+    throw new Error('Insufficient permissions: Admin only')
+  }
 }

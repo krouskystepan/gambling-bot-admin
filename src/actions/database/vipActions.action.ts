@@ -9,12 +9,14 @@ import { TVipChannels } from '@/types/types'
 
 import { getGuildChannels } from '../discord/channel.action'
 import { getDiscordGuildMembers } from '../discord/member.action'
+import { requireGuildAccess } from '../perms'
 
 export async function getVips(
   guildId: string,
   session: Session
 ): Promise<TVipChannels[]> {
-  if (!session?.accessToken) return []
+  const access = await requireGuildAccess(guildId)
+  if ('error' in access) return []
 
   await connectToDatabase()
 

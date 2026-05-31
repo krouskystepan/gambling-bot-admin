@@ -7,7 +7,7 @@ import { discordApiRequest, discordBotRequest } from '@/lib/discordReq'
 import type { ICacheEntry, IGuild } from '@/types/types'
 
 import { getAllGuildConfigsWithManagers } from '../database/guild.action'
-import { fetchMemberRoles } from './role.action'
+import { resolveManagerStatus } from './role.action'
 
 const guildCache = new Map<string, ICacheEntry<IGuild[]>>()
 const GUILD_CACHE_DURATION = 5 * 60_000 // 5 min
@@ -63,10 +63,13 @@ export const getUserGuilds = async (
       continue
     }
 
-    const roles = await fetchMemberRoles(guild.id, session.userId)
-    const managerRoleId = dbConfig.managerRoleId.toString()
+    const isManager = await resolveManagerStatus(
+      guild.id,
+      session.userId,
+      dbConfig.managerRoleId.toString()
+    )
 
-    if (roles.includes(managerRoleId)) {
+    if (isManager) {
       accessibleGuilds.push(guild)
     }
   }

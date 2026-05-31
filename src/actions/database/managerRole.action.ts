@@ -6,11 +6,14 @@ import { authOptions } from '@/lib/authOptions'
 import { connectToDatabase } from '@/lib/db'
 import GuildConfiguration from '@/models/GuildConfiguration'
 
-import { getUserPermissions } from '../perms'
+import { getUserPermissions, requireGuildAccess } from '../perms'
 
 export async function getManagerRole(
   guildId: string
 ): Promise<{ managerRoleId: string } | null> {
+  const access = await requireGuildAccess(guildId, { requireAdmin: true })
+  if ('error' in access) return null
+
   await connectToDatabase()
   const doc = await GuildConfiguration.findOne({ guildId })
   if (!doc) return null

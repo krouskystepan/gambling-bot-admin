@@ -67,6 +67,10 @@ export async function discordBotRequest<T>(
       if (err.response?.status === 401) {
         throw new Error('Invalid Discord bot token')
       }
+
+      if (err.response?.status === 429) {
+        throw new Error('DiscordRateLimited')
+      }
     }
 
     throw err
