@@ -1,5 +1,7 @@
 'use client'
 
+import { formatNumberToReadableString } from 'gambling-bot-shared'
+
 import { useEffect, useRef } from 'react'
 
 import { useSearchParams } from 'next/dist/client/components/navigation'
@@ -15,7 +17,6 @@ import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
 import { useHydrateServerTableFromUrl } from '@/hooks/useHydrateServerTableFromUrl'
 import { useServerTable } from '@/hooks/useServerTable'
 import { useUpdateUrl } from '@/hooks/useUpdateUrl'
-import { formatNumberToReadableString } from 'gambling-bot-shared'
 import { TGuildMemberStatus } from '@/types/types'
 
 import UserTableFooter from './UserTableFooter'

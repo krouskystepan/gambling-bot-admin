@@ -1,5 +1,6 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { TTransaction } from 'gambling-bot-shared'
+import { formatNumberToReadableString } from 'gambling-bot-shared'
 import { CircleQuestionMark } from 'lucide-react'
 
 import Image from 'next/image'
@@ -10,7 +11,6 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import { formatNumberToReadableString } from 'gambling-bot-shared'
 import { TTransactionDiscord } from '@/types/types'
 
 import { sourceBadgeMap, typeBadgeMap } from './transactionBadges'

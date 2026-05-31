@@ -1,4 +1,5 @@
 import { ColumnDef, Row } from '@tanstack/react-table'
+import { formatNumberToReadableString } from 'gambling-bot-shared'
 import { CircleQuestionMark, EllipsisIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -48,8 +49,6 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import { formatNumberToReadableString } from 'gambling-bot-shared'
-
 import { cn } from '@/lib/utils'
 import { TGuildMemberStatus } from '@/types/types'
 

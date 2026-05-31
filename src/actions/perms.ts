@@ -2,13 +2,13 @@
 
 import { Session } from 'next-auth'
 
-import { hasGuildManageAccess } from '@/lib/discordPermissions'
 import { connectToDatabase } from '@/lib/db'
+import { hasGuildManageAccess } from '@/lib/discordPermissions'
 import { getSessionOrNull } from '@/lib/requireSession'
 import GuildConfiguration from '@/models/GuildConfiguration'
 
-import { resolveManagerStatus } from './discord/role.action'
 import { fetchUserGuilds } from './discord/guilds.action'
+import { resolveManagerStatus } from './discord/role.action'
 
 type PermissionsResult = {
   isAdmin: boolean

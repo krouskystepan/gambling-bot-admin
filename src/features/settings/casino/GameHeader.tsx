@@ -6,6 +6,7 @@ import {
   readableGameNames
 } from 'gambling-bot-shared'
 import { UseFormReturn, useWatch } from 'react-hook-form'
+
 import { TCasinoSettingsOutput, TCasinoSettingsValues } from '@/types/types'
 
 import { MultiRTP, SingleRTP } from './RTP'

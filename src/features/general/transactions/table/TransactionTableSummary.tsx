@@ -1,3 +1,7 @@
+import {
+  formatNumberToReadableString,
+  formatNumberWithSpaces
+} from 'gambling-bot-shared'
 import { CircleQuestionMark } from 'lucide-react'
 
 import { Label } from '@/components/ui/label'
@@ -6,10 +10,6 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import {
-  formatNumberToReadableString,
-  formatNumberWithSpaces
-} from 'gambling-bot-shared'
 import { ITransactionCounts } from '@/types/types'
 
 const getCashFlowFormula = (counts: ITransactionCounts) => {

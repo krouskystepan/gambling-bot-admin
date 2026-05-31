@@ -77,11 +77,7 @@ const LogoutButton = () => {
   )
 }
 
-const ContinueToDiscordButton = ({
-  callbackUrl
-}: {
-  callbackUrl: string
-}) => {
+const ContinueToDiscordButton = ({ callbackUrl }: { callbackUrl: string }) => {
   return (
     <Button
       variant={'link'}

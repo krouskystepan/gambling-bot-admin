@@ -1,8 +1,8 @@
 import { cache } from 'react'
 
 import { getUserGuilds } from '@/actions/discord/guilds.action'
-import type { IGuild } from '@/types/types'
 import { requireSession } from '@/lib/requireSession'
+import type { IGuild } from '@/types/types'
 
 export type UserGuildsResult =
   | { ok: true; guilds: IGuild[] }

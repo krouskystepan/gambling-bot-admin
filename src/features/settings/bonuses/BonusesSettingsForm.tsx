@@ -1,6 +1,11 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import {
+  type BonusSettings,
+  PREVIEW_DAYS,
+  generateBonusPreview
+} from 'gambling-bot-shared'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -25,12 +30,6 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import {
-  PREVIEW_DAYS,
-  generateBonusPreview,
-  type BonusSettings
-} from 'gambling-bot-shared'
-
 import { bonusFormSchema } from '@/types/schemas'
 import { TBonusFormValues } from '@/types/types'
 

@@ -197,9 +197,10 @@ export const getTransactionCounts = async (
   const access = await requireGuildAccess(guildId)
   if ('error' in access) {
     return {
-      type: Object.fromEntries(
-        TRANSACTION_TYPES.map((t) => [t, 0])
-      ) as Record<TTransaction['type'], number>,
+      type: Object.fromEntries(TRANSACTION_TYPES.map((t) => [t, 0])) as Record<
+        TTransaction['type'],
+        number
+      >,
       source: Object.fromEntries(
         TRANSACTION_SOURCES.map((s) => [s, 0])
       ) as Record<TTransaction['source'], number>

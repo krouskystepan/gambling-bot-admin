@@ -1,13 +1,12 @@
 'use server'
 
 import { TUser } from 'gambling-bot-shared'
+import { formatNumberToReadableString } from 'gambling-bot-shared'
 import { Session } from 'next-auth'
 
 import { revalidatePath } from 'next/cache'
 
 import { connectToDatabase } from '@/lib/db'
-import { formatNumberToReadableString } from 'gambling-bot-shared'
-
 import { escapeRegExp } from '@/lib/utils'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'

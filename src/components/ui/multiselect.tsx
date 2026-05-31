@@ -1,5 +1,6 @@
 'use client'
 
+/* eslint-disable react-hooks/set-state-in-effect -- syncs props/search into local state for this multiselect UI */
 import { Command as CommandPrimitive } from 'cmdk'
 import { XIcon } from 'lucide-react'
 
@@ -386,7 +387,7 @@ const MultipleSelector = ({
     }
     // Using default filter in `cmdk`. We don&lsquo;t have to provide it.
     return undefined
-  }, [creatable, commandProps?.filter])
+  }, [creatable, commandProps])
 
   return (
     <Command
@@ -436,7 +437,7 @@ const MultipleSelector = ({
               >
                 {option.label}
                 <button
-                  className="text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute -inset-y-px -end-px flex size-7 items-center justify-center rounded-e-md border border-transparent p-0 outline-hidden transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
+                  className="text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute -inset-y-px -inset-e-px flex size-7 items-center justify-center rounded-e-md border border-transparent p-0 outline-hidden transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       handleUnselect(option)
@@ -499,7 +500,7 @@ const MultipleSelector = ({
               onChange?.(selected.filter((s) => s.fixed))
             }}
             className={cn(
-              'text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute end-0 top-0 flex size-9 items-center justify-center rounded-md border border-transparent transition-[color,box-shadow] outline-none focus-visible:ring-[3px]',
+              'text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute inset-e-0 top-0 flex size-9 items-center justify-center rounded-md border border-transparent transition-[color,box-shadow] outline-none focus-visible:ring-[3px]',
               (hideClearAllButton ||
                 disabled ||
                 selected.length < 1 ||

@@ -3,10 +3,7 @@ import { redirect } from 'next/navigation'
 import BackgroundPattern from '@/components/BackgroundPattern'
 import CornerCircles from '@/components/CornerCircles'
 import LoginBox from '@/components/LoginBox'
-import {
-  getSessionOrNull,
-  safeCallbackUrl
-} from '@/lib/requireSession'
+import { getSessionOrNull, safeCallbackUrl } from '@/lib/requireSession'
 
 type LoginPageProps = {
   searchParams: Promise<{ callbackUrl?: string }>
@@ -25,10 +22,7 @@ const LoginPage = async ({ searchParams }: LoginPageProps) => {
       <CornerCircles />
       <BackgroundPattern />
 
-      <LoginBox
-        session={null}
-        callbackUrl={safeCallbackUrl(callbackUrl)}
-      />
+      <LoginBox session={null} callbackUrl={safeCallbackUrl(callbackUrl)} />
     </section>
   )
 }

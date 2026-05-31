@@ -113,7 +113,7 @@
   }
   html,
   body {
-    @apply min-h-dvh h-full;
+    @apply h-full min-h-dvh;
   }
   body {
     @apply bg-background text-foreground;

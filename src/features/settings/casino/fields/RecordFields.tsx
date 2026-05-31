@@ -2,9 +2,9 @@
 
 import {
   GAME_RECORD_FIELDS,
-  defaultCasinoSettings,
   type GameWithRecords,
-  type RecordKey
+  type RecordKey,
+  defaultCasinoSettings
 } from 'gambling-bot-shared'
 import { Path, UseFormReturn } from 'react-hook-form'
 
