@@ -2,6 +2,7 @@
 
 import { Session } from 'next-auth'
 
+import { hasGuildManageAccess } from '@/lib/discordPermissions'
 import { connectToDatabase } from '@/lib/db'
 import { discordBotRequest } from '@/lib/discordReq'
 import GuildConfiguration from '@/models/GuildConfiguration'
@@ -13,8 +14,6 @@ type PermissionsResult = {
   isManager: boolean
   rateLimited?: boolean
 }
-
-const DISCORD_ADMIN_FLAG = 0x8
 
 export const getUserPermissions = async (
   guildId: string,
@@ -32,8 +31,7 @@ export const getUserPermissions = async (
     const guild = userGuilds.find((g) => g.id === guildId)
 
     if (guild) {
-      const permissions = Number(guild.permissions) || 0
-      isAdmin = (permissions & DISCORD_ADMIN_FLAG) === DISCORD_ADMIN_FLAG
+      isAdmin = hasGuildManageAccess(guild)
     }
 
     await connectToDatabase()
