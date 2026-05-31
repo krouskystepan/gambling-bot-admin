@@ -16,7 +16,7 @@ const StateLayout = ({
   button
 }: StateLayoutProps) => {
   return (
-    <div className="min-h-full flex size-full flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
+    <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center gap-2 text-center">
       {Icon}
 
       <h1 className={`text-4xl font-extrabold ${titleStyle}`}>{titleText}</h1>

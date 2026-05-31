@@ -97,15 +97,3 @@ export async function requireGuildAccess(
 
   return { session, isAdmin, isManager }
 }
-
-export function assertManagerOrAdmin(access: GuildAccess): void {
-  if (!access.isAdmin && !access.isManager) {
-    throw new Error('Insufficient permissions')
-  }
-}
-
-export function assertAdmin(access: GuildAccess): void {
-  if (!access.isAdmin) {
-    throw new Error('Insufficient permissions: Admin only')
-  }
-}

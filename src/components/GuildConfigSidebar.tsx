@@ -35,9 +35,8 @@ const LINKS = [
     title: 'Manage',
     value: 'manage',
     links: [
-      { id: 'users', label: 'Users', icon: User }
-      // VIP route exists at /vips but nav stays hidden until the feature is ready.
-      // { id: 'vips', label: 'VIPs', icon: Crown },
+      { id: 'users', label: 'Users', icon: User },
+      { id: 'vips', label: 'VIPs', icon: Crown }
       // { id: 'predictions', label: 'Predictions', icon: ChartBar }
     ]
   },
