@@ -1,9 +1,16 @@
 import React from 'react'
 
+import { cn } from '@/lib/utils'
+
+import {
+  stateTitleToneClass,
+  type StateTitleTone
+} from './stateTitleStyles'
+
 interface StateLayoutProps {
   Icon: React.ReactNode
   titleText: string
-  titleStyle: string
+  titleTone?: StateTitleTone
   description: string
   button?: React.ReactNode
 }
@@ -11,7 +18,7 @@ interface StateLayoutProps {
 const StateLayout = ({
   Icon,
   titleText,
-  titleStyle,
+  titleTone = 'brand',
   description,
   button
 }: StateLayoutProps) => {
@@ -19,9 +26,16 @@ const StateLayout = ({
     <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center gap-2 text-center">
       {Icon}
 
-      <h1 className={`text-4xl font-extrabold ${titleStyle}`}>{titleText}</h1>
+      <h1
+        className={cn(
+          'text-4xl font-extrabold',
+          stateTitleToneClass[titleTone]
+        )}
+      >
+        {titleText}
+      </h1>
 
-      <p className="max-w-sm text-gray-300">{description}</p>
+      <p className="max-w-sm text-muted-foreground">{description}</p>
 
       {button ? button : null}
     </div>

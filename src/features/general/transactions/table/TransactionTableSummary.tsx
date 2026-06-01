@@ -142,14 +142,14 @@ const SummaryItem = ({
 
   return (
     <div>
-      <Label className="inline-flex items-center gap-1 text-sm text-gray-500">
+      <Label className="inline-flex items-center gap-1 text-sm text-muted-foreground">
         {label}
         {tooltip ? (
           <Tooltip>
             <TooltipTrigger asChild>
               <CircleQuestionMark
                 size={16}
-                className="cursor-pointer text-gray-500"
+                className="cursor-pointer text-muted-foreground"
               />
             </TooltipTrigger>
             <TooltipContent className="flex max-w-sm flex-col">

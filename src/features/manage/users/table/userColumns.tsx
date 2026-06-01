@@ -108,7 +108,7 @@ export const userColumns = ({
       <p>
         {row.getValue('username')}
         <br />
-        <span className="text-xs text-neutral-500">
+        <span className="text-xs text-muted-foreground">
           ({row.original.userId})
         </span>
       </p>
@@ -336,7 +336,7 @@ function RowActions({
               >
                 {labels[action]}
                 <Tooltip>
-                  <TooltipTrigger className="ml-2 text-gray-400 transition hover:text-gray-600">
+                  <TooltipTrigger className="ml-2 text-muted-foreground transition hover:text-foreground">
                     <CircleQuestionMark size={16} />
                   </TooltipTrigger>
                   <TooltipContent>
@@ -357,7 +357,7 @@ function RowActions({
           >
             {row.original.registered ? 'Unregister' : 'Register'}
             <Tooltip>
-              <TooltipTrigger className="ml-2 text-gray-400 transition hover:text-gray-600">
+              <TooltipTrigger className="ml-2 text-muted-foreground transition hover:text-foreground">
                 <CircleQuestionMark size={16} />
               </TooltipTrigger>
               <TooltipContent>

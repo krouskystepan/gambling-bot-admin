@@ -42,7 +42,7 @@ export const transactionsColumns = (): ColumnDef<TTransactionDiscord>[] => [
     cell: ({ row }) => (
       <div>
         {row.getValue('username')} <br />
-        <span className="text-xs text-neutral-500">
+        <span className="text-xs text-muted-foreground">
           ({row.original.userId})
         </span>
       </div>
@@ -87,7 +87,7 @@ export const transactionsColumns = (): ColumnDef<TTransactionDiscord>[] => [
 
           {hasMeta && (
             <Tooltip>
-              <TooltipTrigger className="text-gray-400">
+              <TooltipTrigger className="text-muted-foreground">
                 <CircleQuestionMark size={16} />
               </TooltipTrigger>
               <TooltipContent>
@@ -122,7 +122,7 @@ export const transactionsColumns = (): ColumnDef<TTransactionDiscord>[] => [
       <div className="flex items-center gap-1">
         <span>Source</span>
         <Tooltip>
-          <TooltipTrigger className="text-gray-400">
+          <TooltipTrigger className="text-muted-foreground">
             <CircleQuestionMark size={16} />
           </TooltipTrigger>
           <TooltipContent className="max-w-md space-y-2 p-2 break-normal">
@@ -198,7 +198,7 @@ export const transactionsColumns = (): ColumnDef<TTransactionDiscord>[] => [
           <div>
             {row.getValue('handledByUsername')}
             <br />
-            <span className="text-xs text-neutral-500">
+            <span className="text-xs text-muted-foreground">
               ({row.original.handledBy})
             </span>
           </div>

@@ -21,32 +21,32 @@ const DayCard = ({ day }: { day: PreviewDay }) => {
   return (
     <div
       className={[
-        'flex flex-col rounded-md border border-neutral-800 bg-neutral-900/60 p-2 text-xs',
+        'flex flex-col rounded-md border border-border bg-card/60 p-2 text-xs',
         'transition-colors',
-        isReset ? 'border-red-700/60 bg-red-950/30' : ''
+        isReset ? 'border-destructive/60 bg-destructive/10' : ''
       ].join(' ')}
     >
-      <span className="text-xs tracking-wide text-neutral-500">
+      <span className="text-xs tracking-wide text-muted-foreground">
         #{dayNumber}
       </span>
 
       <div className="mt-1 space-y-0.5 text-xs">
-        <span className="text-yellow-400">
+        <span className="text-primary">
           T: {formatNumberToReadableString(reward)}
         </span>
 
-        <div className="text-neutral-400">
+        <div className="text-muted-foreground">
           B: {formatNumberToReadableString(base)}
         </div>
 
         {weekly > 0 && (
-          <div className="text-blue-400">
+          <div className="text-chart-1">
             W: {formatNumberToReadableString(weekly)}
           </div>
         )}
 
         {monthly > 0 && (
-          <div className="font-semibold text-green-400">
+          <div className="font-semibold text-chart-2">
             M: {formatNumberToReadableString(monthly)}
           </div>
         )}
@@ -59,17 +59,17 @@ const BonusesCalendar = ({ preview }: BonusesCalendarProps) => {
   const weeks = chunkIntoWeeks(preview)
 
   return (
-    <section className="w-full rounded-lg border border-neutral-800 bg-neutral-950/60 p-4 text-white">
+    <section className="w-full rounded-lg border border-border bg-card/60 p-4 text-foreground">
       <header className="mb-4 flex items-center justify-between">
-        <h5 className="text-base font-semibold text-yellow-400">
+        <h5 className="text-base font-semibold text-primary">
           Preview ({preview.length} Days)
         </h5>
 
         <div className="flex items-center gap-3 text-xs">
-          <span className="text-yellow-400 font-medium">T = Total</span>
-          <span className="text-neutral-400">B = Base</span>
-          <span className="text-blue-400">W = Weekly</span>
-          <span className="text-green-400">M = Monthly</span>
+          <span className="font-medium text-primary">T = Total</span>
+          <span className="text-muted-foreground">B = Base</span>
+          <span className="text-chart-1">W = Weekly</span>
+          <span className="text-chart-2">M = Monthly</span>
         </div>
       </header>
 
@@ -79,7 +79,7 @@ const BonusesCalendar = ({ preview }: BonusesCalendarProps) => {
 
           return (
             <div key={index} className="space-y-2">
-              {showDivider && <div className="h-px w-full bg-yellow-500/20" />}
+              {showDivider && <div className="h-px w-full bg-primary/20" />}
 
               <div className="grid grid-cols-7 gap-1">
                 {week.map((day) => (

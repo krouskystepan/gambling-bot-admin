@@ -67,7 +67,7 @@ const ManagerSettingsForm = ({
                 <Label>Manager Role</Label>
                 <FormControl>
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger className="bg-muted border-transparent shadow-none">
+                    <SelectTrigger variant="muted">
                       <SelectValue placeholder="Select Manager Role" />
                     </SelectTrigger>
                     <SelectContent>

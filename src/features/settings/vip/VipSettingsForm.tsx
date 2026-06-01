@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 
 import { saveVipSettings } from '@/actions/database/vipSettings.action'
 import SaveButton from '@/components/SaveButton'
+import { PageHeader } from '@/components/PageHeader'
 import {
   Form,
   FormControl,
@@ -60,9 +61,7 @@ const VipSettingsForm = ({
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex max-w-4xl w-full flex-col gap-4"
         >
-          <h4 className="text-xl font-semibold text-yellow-400">
-            Roles and Categories
-          </h4>
+          <PageHeader title="Roles and Categories" />
 
           <div className="grid grid-cols-3 gap-4">
             <FormField
@@ -73,7 +72,7 @@ const VipSettingsForm = ({
                   <Label>Owner VIP Role</Label>
                   <FormControl>
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="bg-muted border-transparent shadow-none">
+                        <SelectTrigger variant="muted">
                         <SelectValue placeholder="Select Owner VIP Role" />
                       </SelectTrigger>
                       <SelectContent>
@@ -110,7 +109,7 @@ const VipSettingsForm = ({
                   <Label>Member VIP Role</Label>
                   <FormControl>
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="bg-muted border-transparent shadow-none">
+                        <SelectTrigger variant="muted">
                         <SelectValue placeholder="Select Member VIP Role" />
                       </SelectTrigger>
                       <SelectContent>
@@ -147,7 +146,7 @@ const VipSettingsForm = ({
                   <Label>VIP Category</Label>
                   <FormControl>
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="bg-muted border-transparent shadow-none">
+                        <SelectTrigger variant="muted">
                         <SelectValue placeholder="Select Category" />
                       </SelectTrigger>
                       <SelectContent>
@@ -165,7 +164,7 @@ const VipSettingsForm = ({
             />
           </div>
 
-          <h4 className="text-xl font-semibold text-yellow-400">Prices</h4>
+          <PageHeader title="Prices" />
 
           <div className="grid grid-cols-4 gap-4">
             {(
@@ -185,7 +184,7 @@ const VipSettingsForm = ({
                     <Label>{label}</Label>
                     <FormControl>
                       <Input
-                        className="bg-muted border-transparent shadow-none"
+                        variant="muted"
                         type="text"
                         value={field.value}
                         onChange={(e) =>

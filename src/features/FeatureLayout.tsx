@@ -1,5 +1,7 @@
 import { ReactNode } from 'react'
 
+import { PageHeader } from '@/components/PageHeader'
+
 const FeatureLayout = ({
   title,
   children
@@ -9,7 +11,7 @@ const FeatureLayout = ({
 }) => {
   return (
     <section className="w-full">
-      <h4 className="mb-4 text-3xl font-semibold text-yellow-400">{title}</h4>
+      <PageHeader title={title} size="page" />
 
       {children}
     </section>

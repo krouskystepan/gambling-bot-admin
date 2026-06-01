@@ -7,6 +7,7 @@ import { z } from 'zod'
 
 import { saveChannels } from '@/actions/database/channels.action'
 import SaveButton from '@/components/SaveButton'
+import { PageHeader } from '@/components/PageHeader'
 import {
   Form,
   FormControl,
@@ -95,9 +96,7 @@ const ChannelsSettingsForm = ({
           className="flex w-lg max-w-lg flex-col gap-4"
         >
           <section className="flex flex-col gap-4">
-            <h4 className="text-xl font-semibold text-yellow-400">
-              ATM Channels
-            </h4>
+            <PageHeader title="ATM Channels" />
             <div className="grid w-full grid-cols-2 gap-8">
               <FormField
                 control={form.control}
@@ -110,7 +109,7 @@ const ChannelsSettingsForm = ({
                       value={field.value ?? ''}
                     >
                       <FormControl>
-                        <SelectTrigger className="bg-muted border-transparent shadow-none">
+                        <SelectTrigger variant="muted">
                           <SelectValue placeholder="Select Action Channel" />
                         </SelectTrigger>
                       </FormControl>
@@ -141,7 +140,7 @@ const ChannelsSettingsForm = ({
                       value={field.value ?? ''}
                     >
                       <FormControl>
-                        <SelectTrigger className="bg-muted border-transparent shadow-none">
+                        <SelectTrigger variant="muted">
                           <SelectValue placeholder="Select Logs Channel" />
                         </SelectTrigger>
                       </FormControl>
@@ -164,9 +163,7 @@ const ChannelsSettingsForm = ({
           </section>
 
           <section className="flex w-full flex-col gap-4">
-            <h4 className="text-xl font-semibold text-yellow-400">
-              Casino Channels
-            </h4>
+            <PageHeader title="Casino Channels" />
             <FormField
               control={form.control}
               name="casino.casinoChannelIds"
@@ -175,7 +172,7 @@ const ChannelsSettingsForm = ({
                   <Label>Casino Channels</Label>
                   <FormControl>
                     <MultipleSelector
-                      className="bg-muted border-transparent shadow-none"
+                      variant="muted"
                       commandProps={{
                         label: 'Select channels',
                         shouldFilter: false
@@ -228,9 +225,7 @@ const ChannelsSettingsForm = ({
           </section>
 
           <section className="flex flex-col gap-4">
-            <h4 className="text-xl font-semibold text-yellow-400">
-              Prediction Channels
-            </h4>
+            <PageHeader title="Prediction Channels" />
             <div className="grid w-full grid-cols-2 gap-8">
               <FormField
                 control={form.control}
@@ -243,7 +238,7 @@ const ChannelsSettingsForm = ({
                       value={field.value ?? ''}
                     >
                       <FormControl>
-                        <SelectTrigger className="bg-muted border-transparent shadow-none">
+                        <SelectTrigger variant="muted">
                           <SelectValue placeholder="Select Action Channel" />
                         </SelectTrigger>
                       </FormControl>
@@ -274,7 +269,7 @@ const ChannelsSettingsForm = ({
                       value={field.value ?? ''}
                     >
                       <FormControl>
-                        <SelectTrigger className="bg-muted border-transparent shadow-none">
+                        <SelectTrigger variant="muted">
                           <SelectValue placeholder="Select Logs Channel" />
                         </SelectTrigger>
                       </FormControl>
@@ -297,9 +292,7 @@ const ChannelsSettingsForm = ({
           </section>
 
           <section className="flex flex-col gap-4">
-            <h4 className="text-xl font-semibold text-yellow-400">
-              Raffle Channels
-            </h4>
+            <PageHeader title="Raffle Channels" />
             <div className="grid w-full grid-cols-2 gap-8">
               <FormField
                 control={form.control}
@@ -312,7 +305,7 @@ const ChannelsSettingsForm = ({
                       value={field.value ?? ''}
                     >
                       <FormControl>
-                        <SelectTrigger className="bg-muted border-transparent shadow-none">
+                        <SelectTrigger variant="muted">
                           <SelectValue placeholder="Select Action Channel" />
                         </SelectTrigger>
                       </FormControl>
@@ -343,7 +336,7 @@ const ChannelsSettingsForm = ({
                       value={field.value ?? ''}
                     >
                       <FormControl>
-                        <SelectTrigger className="bg-muted border-transparent shadow-none">
+                        <SelectTrigger variant="muted">
                           <SelectValue placeholder="Select Logs Channel" />
                         </SelectTrigger>
                       </FormControl>

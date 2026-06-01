@@ -13,6 +13,7 @@ import { useMemo } from 'react'
 
 import { saveBonusSettings } from '@/actions/database/bonusSettings.action'
 import SaveButton from '@/components/SaveButton'
+import { PageHeader } from '@/components/PageHeader'
 import {
   Form,
   FormControl,
@@ -114,9 +115,7 @@ const BonuseSettingsForm = ({
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex w-full max-w-2xl flex-col gap-4"
           >
-            <h4 className="text-xl font-semibold text-yellow-400">
-              Bonus Settings
-            </h4>
+            <PageHeader title="Bonus Settings" />
 
             <div className="grid w-full grid-cols-3 gap-4">
               <FormField
@@ -127,7 +126,7 @@ const BonuseSettingsForm = ({
                     <Label>Reward Mode</Label>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
-                        <SelectTrigger className="bg-muted border-transparent shadow-none">
+                        <SelectTrigger variant="muted">
                           <SelectValue placeholder="Select reward mode" />
                         </SelectTrigger>
                       </FormControl>
@@ -149,7 +148,7 @@ const BonuseSettingsForm = ({
                     <Label>Base Reward</Label>
                     <FormControl>
                       <Input
-                        className="bg-muted border-transparent shadow-none"
+                        variant="muted"
                         type="text"
                         onChange={(e) => {
                           const value = e.target.value.replace(/\D/g, '')
@@ -171,7 +170,7 @@ const BonuseSettingsForm = ({
                     <Label>Max Reward</Label>
                     <FormControl>
                       <Input
-                        className="bg-muted border-transparent shadow-none"
+                        variant="muted"
                         type="text"
                         onChange={(e) => {
                           const value = e.target.value.replace(/\D/g, '')
@@ -194,7 +193,7 @@ const BonuseSettingsForm = ({
                       <Label>Streak Increment (Linear)</Label>
                       <FormControl>
                         <Input
-                          className="bg-muted border-transparent shadow-none"
+                          variant="muted"
                           type="text"
                           onChange={(e) => {
                             const value = e.target.value.replace(/\D/g, '')
@@ -218,7 +217,7 @@ const BonuseSettingsForm = ({
                       <Label>Streak Multiplier (Exponential)</Label>
                       <FormControl>
                         <Input
-                          className="bg-muted border-transparent shadow-none"
+                          variant="muted"
                           type="text"
                           inputMode="decimal"
                           onChange={(e) => field.onChange(e.target.value)}
@@ -246,7 +245,7 @@ const BonuseSettingsForm = ({
                     <Label>Weekly Bonus (7d)</Label>
                     <FormControl>
                       <Input
-                        className="bg-muted border-transparent shadow-none"
+                        variant="muted"
                         type="text"
                         onChange={(e) => {
                           const value = e.target.value.replace(/\D/g, '')
@@ -268,7 +267,7 @@ const BonuseSettingsForm = ({
                     <Label>Monthly Bonus (28d)</Label>
                     <FormControl>
                       <Input
-                        className="bg-muted border-transparent shadow-none"
+                        variant="muted"
                         type="text"
                         onChange={(e) => {
                           const value = e.target.value.replace(/\D/g, '')

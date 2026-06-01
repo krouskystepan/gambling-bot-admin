@@ -43,7 +43,7 @@ export const vipColumns = (): ColumnDef<TVipChannels>[] => [
       <p>
         {row.getValue('channelName')}
         <br />
-        <span className="text-xs text-neutral-500 line-clamp-1">
+        <span className="text-xs text-muted-foreground line-clamp-1">
           ({row.original.channelId})
         </span>
       </p>
@@ -57,7 +57,7 @@ export const vipColumns = (): ColumnDef<TVipChannels>[] => [
       <p>
         {row.getValue('username')}
         <br />
-        <span className="text-xs text-neutral-500">
+        <span className="text-xs text-muted-foreground">
           ({row.original.ownerId})
         </span>
       </p>
@@ -81,7 +81,7 @@ export const vipColumns = (): ColumnDef<TVipChannels>[] => [
           <span>{members.length}</span>
           {members.length > 0 ? (
             <Tooltip>
-              <TooltipTrigger className="ml-2 text-gray-400 transition hover:text-gray-600">
+              <TooltipTrigger className="ml-2 text-muted-foreground transition hover:text-foreground">
                 <CircleQuestionMark size={16} />
               </TooltipTrigger>
               <TooltipContent>

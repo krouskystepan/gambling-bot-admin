@@ -31,7 +31,8 @@ export const NumberField = ({ name, label, defaultValue, form }: Props) => (
         <FormControl>
           <div className="flex rounded-md shadow-xs">
             <Input
-              className="bg-muted rounded-r-none border-transparent shadow-none"
+              variant="muted"
+              className="rounded-r-none"
               value={String(field.value ?? '')}
               onChange={(e) => {
                 const cleaned = e.target.value.replace(/[^0-9.]/g, '')
