@@ -19,9 +19,16 @@ type Props = {
   label: string
   defaultValue?: number
   form: UseFormReturn<TCasinoSettingsValues>
+  onValueCommit?: (value: number | undefined) => void
 }
 
-export const NumberField = ({ name, label, defaultValue, form }: Props) => (
+export const NumberField = ({
+  name,
+  label,
+  defaultValue,
+  form,
+  onValueCommit
+}: Props) => (
   <FormField
     control={form.control}
     name={name}
@@ -40,8 +47,10 @@ export const NumberField = ({ name, label, defaultValue, form }: Props) => (
               }}
               onBlur={(e) => {
                 const value = e.target.value
-                field.onChange(value === '' ? undefined : Number(value))
+                const parsed = value === '' ? undefined : Number(value)
+                field.onChange(parsed)
                 field.onBlur()
+                onValueCommit?.(parsed)
               }}
             />
             {defaultValue !== undefined && (
@@ -49,7 +58,10 @@ export const NumberField = ({ name, label, defaultValue, form }: Props) => (
                 type="button"
                 variant="ghost"
                 className="bg-muted text-destructive/60 hover:text-destructive w-9 rounded-none rounded-e-md"
-                onClick={() => field.onChange(defaultValue)}
+                onClick={() => {
+                  field.onChange(defaultValue)
+                  onValueCommit?.(defaultValue)
+                }}
               >
                 <RotateCw size={16} />
               </Button>

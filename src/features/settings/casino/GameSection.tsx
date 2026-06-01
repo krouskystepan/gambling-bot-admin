@@ -12,6 +12,7 @@ import { Path, UseFormReturn, useWatch } from 'react-hook-form'
 import { TCasinoSettingsOutput, TCasinoSettingsValues } from '@/types/types'
 
 import { NumberField } from './fields/NumberField'
+import { PlinkoBinFields } from './fields/PlinkoBinFields'
 import { RecordFields } from './fields/RecordFields'
 
 type Props = {
@@ -50,20 +51,24 @@ const GameSection = ({ game, form }: Props) => {
       </div>
 
       {game in GAME_RECORD_FIELDS &&
-        GAME_RECORD_FIELDS[game as GameWithRecords].map((recordKey) => (
-          <RecordFields
-            key={recordKey}
-            game={game as GameWithRecords}
-            recordKey={recordKey}
-            values={
-              settings?.[recordKey as keyof typeof settings] as Record<
-                string,
-                number
-              >
-            }
-            form={form}
-          />
-        ))}
+        GAME_RECORD_FIELDS[game as GameWithRecords].map((recordKey) =>
+          game === 'plinko' && recordKey === 'binMultipliers' ? (
+            <PlinkoBinFields key={recordKey} form={form} />
+          ) : (
+            <RecordFields
+              key={recordKey}
+              game={game as GameWithRecords}
+              recordKey={recordKey}
+              values={
+                settings?.[recordKey as keyof typeof settings] as Record<
+                  string,
+                  number
+                >
+              }
+              form={form}
+            />
+          )
+        )}
     </>
   )
 }

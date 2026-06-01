@@ -97,7 +97,7 @@ function SelectLabel({
     <SelectPrimitive.Label
       data-slot="select-label"
       className={cn(
-        'text-muted-foreground py-1.5 ps-8 pe-2 text-xs font-medium',
+        'text-muted-foreground py-1.5 pl-8 pr-2 text-xs font-medium',
         className
       )}
       {...props}
@@ -114,12 +114,12 @@ function SelectItem({
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        'focus:bg-accent focus:text-accent-foreground relative flex w-full cursor-default items-center rounded py-1.5 ps-8 pe-2 text-sm outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50',
+        'focus:bg-accent focus:text-accent-foreground relative flex w-full cursor-default items-center rounded py-1.5 pl-8 pr-2 text-sm outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50',
         className
       )}
       {...props}
     >
-      <span className="absolute inset-s-2 flex size-3.5 items-center justify-center">
+      <span className="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
         <SelectPrimitive.ItemIndicator>
           <CheckIcon size={16} />
         </SelectPrimitive.ItemIndicator>

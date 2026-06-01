@@ -1,23 +1,21 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useSearchParams } from 'next/navigation'
+import { useCallback, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { saveCasinoSettings } from '@/actions/database/casinoSettings.action'
 import SaveButton from '@/components/SaveButton'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger
-} from '@/components/ui/accordion'
 import { Form } from '@/components/ui/form'
+import { useUpdateUrl } from '@/hooks/useUpdateUrl'
 import { casinoSettingsSchema } from '@/types/schemas'
 import { TCasinoSettingsOutput, TCasinoSettingsValues } from '@/types/types'
 
-import GameHeader from './GameHeader'
-import GameSection from './GameSection'
+import GameDetailPanel from './GameDetailPanel'
+import GameNavList from './GameNavList'
+import { sortCasinoGamesForNav } from './useGameRtp'
 
 type Props = {
   guildId: string
@@ -25,6 +23,33 @@ type Props = {
 }
 
 export default function CasinoSettingsForm({ guildId, savedSettings }: Props) {
+  const games = useMemo(
+    () =>
+      sortCasinoGamesForNav(
+        Object.keys(savedSettings) as Array<keyof TCasinoSettingsValues>
+      ),
+    [savedSettings]
+  )
+
+  const searchParams = useSearchParams()
+  const updateUrl = useUpdateUrl()
+
+  const resolveGame = useCallback(
+    (param: string | null): keyof TCasinoSettingsValues => {
+      if (param && games.includes(param as keyof TCasinoSettingsValues)) {
+        return param as keyof TCasinoSettingsValues
+      }
+      return games[0]
+    },
+    [games]
+  )
+
+  const selectedGame = resolveGame(searchParams.get('game'))
+
+  const handleSelectGame = (game: keyof TCasinoSettingsValues) => {
+    updateUrl({ game })
+  }
+
   const form = useForm<TCasinoSettingsOutput>({
     resolver: zodResolver(casinoSettingsSchema),
     defaultValues: savedSettings,
@@ -48,24 +73,15 @@ export default function CasinoSettingsForm({ guildId, savedSettings }: Props) {
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex w-full max-w-7xl flex-col gap-3"
         >
-          <Accordion type="multiple" className="rounded-lg border">
-            {(
-              Object.keys(savedSettings) as Array<keyof TCasinoSettingsValues>
-            ).map((game) => (
-              <AccordionItem
-                className="border-b px-4 last:border-b-0"
-                key={game}
-                value={String(game)}
-              >
-                <AccordionTrigger className="group hover:no-underline">
-                  <GameHeader game={game} form={form} />
-                </AccordionTrigger>
-                <AccordionContent>
-                  <GameSection game={game} form={form} />
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+          <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-start">
+            <GameNavList
+              games={games}
+              selectedGame={selectedGame}
+              form={form}
+              onSelectGame={handleSelectGame}
+            />
+            <GameDetailPanel game={selectedGame} form={form} />
+          </div>
 
           <SaveButton />
         </form>

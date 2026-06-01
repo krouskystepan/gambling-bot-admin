@@ -1,15 +1,12 @@
 'use client'
 
-import {
-  calculateRTP,
-  getReadableName,
-  readableGameNames
-} from 'gambling-bot-shared'
-import { UseFormReturn, useWatch } from 'react-hook-form'
+import { getReadableName, readableGameNames } from 'gambling-bot-shared'
+import { UseFormReturn } from 'react-hook-form'
 
 import { TCasinoSettingsOutput, TCasinoSettingsValues } from '@/types/types'
 
 import { MultiRTP, SingleRTP } from './RTP'
+import { useGameRtp } from './useGameRtp'
 
 type Props = {
   game: keyof TCasinoSettingsValues
@@ -17,33 +14,22 @@ type Props = {
 }
 
 const GameHeader = ({ game, form }: Props) => {
-  const settings = useWatch({
-    control: form.control,
-    name: game
-  })
+  const { rtp, hidden, settings } = useGameRtp(game, form)
 
   if (!settings) return null
 
-  const rtp = calculateRTP(game, settings as TCasinoSettingsValues[typeof game])
-
-  const HIDDEN_RTP_GAMES: Array<keyof TCasinoSettingsValues> = [
-    'blackjack',
-    'raffle',
-    'prediction'
-  ]
-
   return (
-    <div className="flex w-full gap-2 items-center justify-start pr-4">
-      <span className="group-hover:underline">
+    <div className="mb-4 flex flex-col gap-1 border-b pb-4 sm:flex-row sm:items-center sm:gap-3">
+      <h2 className="text-lg font-semibold">
         {getReadableName(game, readableGameNames)}
-      </span>
+      </h2>
 
-      {!HIDDEN_RTP_GAMES.includes(game) &&
+      {!hidden &&
         (typeof rtp === 'number' ? (
           <SingleRTP value={rtp} />
-        ) : (
+        ) : rtp ? (
           <MultiRTP rtpMap={rtp} />
-        ))}
+        ) : null)}
     </div>
   )
 }

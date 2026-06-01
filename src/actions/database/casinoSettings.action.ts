@@ -1,5 +1,6 @@
 'use server'
 
+import { normalizePlinkoBinMultipliers } from 'gambling-bot-shared'
 import { getServerSession } from 'next-auth'
 
 import { authOptions } from '@/lib/authOptions'
@@ -10,6 +11,16 @@ import { TCasinoSettingsValues } from '@/types/types'
 
 import { getUserPermissions, requireGuildAccess } from '../perms'
 
+const normalizeCasinoSettings = (
+  settings: TCasinoSettingsValues
+): TCasinoSettingsValues => ({
+  ...settings,
+  plinko: {
+    ...settings.plinko,
+    binMultipliers: normalizePlinkoBinMultipliers(settings.plinko.binMultipliers)
+  }
+})
+
 export async function getCasinoSettings(
   guildId: string
 ): Promise<TCasinoSettingsValues | null> {
@@ -19,9 +30,9 @@ export async function getCasinoSettings(
   await connectToDatabase()
 
   const doc = await GuildConfiguration.findOne({ guildId })
-  if (!doc) return null
+  if (!doc?.casinoSettings) return null
 
-  return doc.casinoSettings ?? null
+  return normalizeCasinoSettings(doc.casinoSettings)
 }
 
 export async function saveCasinoSettings(
