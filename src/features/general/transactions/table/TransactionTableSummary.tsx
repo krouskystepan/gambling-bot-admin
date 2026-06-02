@@ -4,6 +4,7 @@ import {
 } from 'gambling-bot-shared'
 import { CircleQuestionMark } from 'lucide-react'
 
+import { Card, CardContent } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import {
   Tooltip,
@@ -63,7 +64,8 @@ const TransactionTableSummary = ({
   }
 
   return (
-    <section className="mt-4 flex h-fit flex-wrap justify-center gap-8 rounded-md border p-4">
+    <Card className="mt-4 gap-0 py-4">
+      <CardContent className="flex h-fit flex-wrap justify-center gap-8">
       <SummaryItem
         label="Cash Flow"
         value={cashFlow}
@@ -113,7 +115,8 @@ const TransactionTableSummary = ({
         value={counts.type.refund}
         formatter={formatNumberToReadableString}
       />
-    </section>
+      </CardContent>
+    </Card>
   )
 }
 

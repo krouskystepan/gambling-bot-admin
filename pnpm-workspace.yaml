@@ -2,7 +2,7 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
 minimumReleaseAgeExclude:
-  - gambling-bot-shared@0.1.41
+  - gambling-bot-shared
 onlyBuiltDependencies:
   - sharp
   - unrs-resolver

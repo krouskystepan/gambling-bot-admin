@@ -83,15 +83,11 @@ const GameNavItem = ({
       type="button"
       onClick={() => onSelect(game)}
       className={cn(
-        'relative flex w-full items-center justify-between gap-2 overflow-hidden rounded px-4 py-2 text-sm text-sidebar-foreground transition hover:bg-sidebar-accent hover:text-sidebar-primary',
-        isActive && 'bg-sidebar-accent/50 text-sidebar-primary'
+        'flex w-full items-center justify-between gap-2 rounded px-4 py-2 text-sm text-sidebar-foreground transition hover:bg-sidebar-accent hover:text-sidebar-primary',
+        isActive && 'bg-sidebar-accent/50 font-medium text-sidebar-primary'
       )}
     >
-      {isActive ? (
-        <div className="absolute left-0 h-full w-0.5 bg-primary" />
-      ) : null}
-
-      <span className="truncate text-left">{label}</span>
+      <span className="truncate">{label}</span>
       {rtpStatus}
     </button>
   )

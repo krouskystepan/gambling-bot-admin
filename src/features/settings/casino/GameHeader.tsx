@@ -19,8 +19,8 @@ const GameHeader = ({ game, form }: Props) => {
   if (!settings) return null
 
   return (
-    <div className="mb-4 flex flex-col gap-1 border-b pb-4 sm:flex-row sm:items-center sm:gap-3">
-      <h2 className="text-lg font-semibold">
+    <div className="flex w-full flex-wrap items-center gap-x-3 gap-y-1">
+      <h2 className="text-base leading-none font-semibold">
         {getReadableName(game, readableGameNames)}
       </h2>
 

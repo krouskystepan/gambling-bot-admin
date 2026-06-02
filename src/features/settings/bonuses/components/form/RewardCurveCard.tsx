@@ -1,0 +1,206 @@
+'use client'
+
+import { calculateBonusReward } from 'gambling-bot-shared'
+import { TrendingUp } from 'lucide-react'
+import { useMemo } from 'react'
+import { useFormContext, useWatch } from 'react-hook-form'
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils'
+import { TBonusFormValues } from '@/types/types'
+
+const STREAK_HINT_DAY = 5
+
+const RewardCurveCard = () => {
+  const form = useFormContext<TBonusFormValues>()
+  const watched = useWatch({ control: form.control })
+
+  const {
+    rewardMode = 'linear',
+    baseReward = 0,
+    streakIncrement = 0,
+    streakMultiplier = 1,
+    maxReward = 0,
+    resetOnMax = false,
+    milestoneBonus: { weekly: milestoneWeekly = 0, monthly: milestoneMonthly = 0 } = {}
+  } = watched ?? {}
+
+  const streakHint = useMemo(() => {
+    const settings = {
+      rewardMode: rewardMode as 'linear' | 'exponential',
+      baseReward: Number(baseReward),
+      streakIncrement: Number(streakIncrement),
+      streakMultiplier: Number(streakMultiplier),
+      maxReward: Number(maxReward),
+      resetOnMax,
+      milestoneBonus: {
+        weekly: Number(milestoneWeekly),
+        monthly: Number(milestoneMonthly)
+      }
+    }
+    return calculateBonusReward({ streak: STREAK_HINT_DAY, settings }).base
+  }, [
+    rewardMode,
+    baseReward,
+    streakIncrement,
+    streakMultiplier,
+    maxReward,
+    resetOnMax,
+    milestoneWeekly,
+    milestoneMonthly
+  ])
+
+  return (
+    <Card className="gap-4 py-4">
+      <CardHeader className="pb-0">
+        <CardTitle className="flex items-center gap-2">
+          <TrendingUp className="size-4" />
+          Reward curve
+        </CardTitle>
+        <CardDescription>
+          How the daily streak reward grows over time
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4 pt-0">
+        <FormField
+          control={form.control}
+          name="rewardMode"
+          render={({ field }) => (
+            <FormItem>
+              <Label>Mode</Label>
+              <div className="grid grid-cols-2 gap-3">
+                {(
+                  [
+                    {
+                      value: 'linear',
+                      label: 'Linear',
+                      description: 'Fixed amount added each day'
+                    },
+                    {
+                      value: 'exponential',
+                      label: 'Exponential',
+                      description: 'Multiplied each day'
+                    }
+                  ] as const
+                ).map((mode) => (
+                  <button
+                    key={mode.value}
+                    type="button"
+                    onClick={() => field.onChange(mode.value)}
+                    className={cn(
+                      'flex flex-col items-start rounded-lg border p-3 text-left transition-colors',
+                      field.value === mode.value
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border hover:bg-accent/50'
+                    )}
+                  >
+                    <span className="text-sm font-medium">{mode.label}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {mode.description}
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="baseReward"
+          render={({ field }) => (
+            <FormItem>
+              <Label>Base reward (day 1)</Label>
+              <FormControl>
+                <Input
+                  variant="muted"
+                  type="text"
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, '')
+                    field.onChange(Number(value))
+                  }}
+                  value={field.value}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {rewardMode === 'linear' && (
+          <FormField
+            control={form.control}
+            name="streakIncrement"
+            render={({ field }) => (
+              <FormItem>
+                <Label>Streak increment</Label>
+                <FormControl>
+                  <Input
+                    variant="muted"
+                    type="text"
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '')
+                      field.onChange(Number(value))
+                    }}
+                    value={field.value}
+                  />
+                </FormControl>
+                <p className="text-xs text-muted-foreground">
+                  Day {STREAK_HINT_DAY} base ≈ ${streakHint.toLocaleString()}
+                </p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {rewardMode === 'exponential' && (
+          <FormField
+            control={form.control}
+            name="streakMultiplier"
+            render={({ field }) => (
+              <FormItem>
+                <Label>Streak multiplier</Label>
+                <FormControl>
+                  <Input
+                    variant="muted"
+                    type="text"
+                    inputMode="decimal"
+                    onChange={(e) => field.onChange(e.target.value)}
+                    onBlur={(e) => {
+                      const parsed = Number(e.target.value)
+                      field.onChange(Number.isNaN(parsed) ? undefined : parsed)
+                    }}
+                    value={field.value}
+                    step={0.1}
+                  />
+                </FormControl>
+                <p className="text-xs text-muted-foreground">
+                  Day {STREAK_HINT_DAY} base ≈ ${streakHint.toLocaleString()}
+                </p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+export default RewardCurveCard
