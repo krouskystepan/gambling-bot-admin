@@ -47,7 +47,9 @@ const BonuseSettingsForm = ({
 
   const form = useForm<TBonusFormValues>({
     resolver: zodResolver(bonusFormSchema),
-    defaultValues: savedSettings
+    defaultValues: savedSettings,
+    mode: 'onBlur',
+    reValidateMode: 'onBlur'
   })
 
   const onSubmit = async (values: TBonusFormValues) => {

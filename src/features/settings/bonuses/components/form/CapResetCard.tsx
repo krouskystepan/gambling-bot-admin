@@ -1,5 +1,6 @@
 'use client'
 
+import { BONUS_MAX_AMOUNT, parseBonusAmountInput } from 'gambling-bot-shared'
 import { Shield } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 
@@ -51,10 +52,9 @@ const CapResetCard = () => {
                 <Input
                   variant="muted"
                   type="text"
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, '')
-                    field.onChange(Number(value))
-                  }}
+                  inputMode="numeric"
+                  maxLength={String(BONUS_MAX_AMOUNT).length}
+                  onChange={(e) => field.onChange(parseBonusAmountInput(e.target.value))}
                   value={field.value}
                 />
               </FormControl>

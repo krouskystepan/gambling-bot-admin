@@ -1,9 +1,16 @@
 'use client'
 
-import { calculateBonusReward } from 'gambling-bot-shared'
+import {
+  BONUS_MAX_AMOUNT,
+  BONUS_MAX_STREAK_MULTIPLIER,
+  calculateBonusReward,
+  parseBonusAmountInput,
+  parseBonusMultiplierInput
+} from 'gambling-bot-shared'
 import { TrendingUp } from 'lucide-react'
-import { useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
+
+import { useMemo } from 'react'
 
 import {
   Card,
@@ -23,7 +30,7 @@ import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import { TBonusFormValues } from '@/types/types'
 
-const STREAK_HINT_DAY = 5
+const STREAK_HINT_DAY = 7
 
 const RewardCurveCard = () => {
   const form = useFormContext<TBonusFormValues>()
@@ -36,7 +43,10 @@ const RewardCurveCard = () => {
     streakMultiplier = 1,
     maxReward = 0,
     resetOnMax = false,
-    milestoneBonus: { weekly: milestoneWeekly = 0, monthly: milestoneMonthly = 0 } = {}
+    milestoneBonus: {
+      weekly: milestoneWeekly = 0,
+      monthly: milestoneMonthly = 0
+    } = {}
   } = watched ?? {}
 
   const streakHint = useMemo(() => {
@@ -130,13 +140,17 @@ const RewardCurveCard = () => {
                 <Input
                   variant="muted"
                   type="text"
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, '')
-                    field.onChange(Number(value))
-                  }}
+                  inputMode="numeric"
+                  maxLength={String(BONUS_MAX_AMOUNT).length}
+                  onChange={(e) =>
+                    field.onChange(parseBonusAmountInput(e.target.value))
+                  }
                   value={field.value}
                 />
               </FormControl>
+              <p className="text-xs text-muted-foreground">
+                Max {BONUS_MAX_AMOUNT.toLocaleString()}
+              </p>
               <FormMessage />
             </FormItem>
           )}
@@ -153,15 +167,17 @@ const RewardCurveCard = () => {
                   <Input
                     variant="muted"
                     type="text"
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '')
-                      field.onChange(Number(value))
-                    }}
+                    inputMode="numeric"
+                    maxLength={String(BONUS_MAX_AMOUNT).length}
+                    onChange={(e) =>
+                      field.onChange(parseBonusAmountInput(e.target.value))
+                    }
                     value={field.value}
                   />
                 </FormControl>
                 <p className="text-xs text-muted-foreground">
-                  Day {STREAK_HINT_DAY} base ≈ ${streakHint.toLocaleString()}
+                  Day {STREAK_HINT_DAY} base ≈ ${streakHint.toLocaleString()} ·
+                  max {BONUS_MAX_AMOUNT.toLocaleString()}
                 </p>
                 <FormMessage />
               </FormItem>
@@ -181,17 +197,22 @@ const RewardCurveCard = () => {
                     variant="muted"
                     type="text"
                     inputMode="decimal"
-                    onChange={(e) => field.onChange(e.target.value)}
-                    onBlur={(e) => {
-                      const parsed = Number(e.target.value)
-                      field.onChange(Number.isNaN(parsed) ? undefined : parsed)
+                    value={String(field.value ?? '')}
+                    onChange={(e) => {
+                      const cleaned = e.target.value.replace(/[^0-9.]/g, '')
+                      field.onChange(cleaned)
                     }}
-                    value={field.value}
+                    onBlur={(e) => {
+                      const parsed = parseBonusMultiplierInput(e.target.value)
+                      field.onChange(parsed ?? 1)
+                      field.onBlur()
+                    }}
                     step={0.1}
                   />
                 </FormControl>
                 <p className="text-xs text-muted-foreground">
-                  Day {STREAK_HINT_DAY} base ≈ ${streakHint.toLocaleString()}
+                  Day {STREAK_HINT_DAY} base ≈ ${streakHint.toLocaleString()} ·
+                  max ×{BONUS_MAX_STREAK_MULTIPLIER}
                 </p>
                 <FormMessage />
               </FormItem>

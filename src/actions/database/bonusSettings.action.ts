@@ -1,5 +1,7 @@
 'use server'
 
+import { normalizeBonusSettings } from 'gambling-bot-shared'
+import { bonusFormSchema } from 'gambling-bot-shared/schemas'
 import { getServerSession } from 'next-auth'
 
 import { authOptions } from '@/lib/authOptions'
@@ -8,6 +10,27 @@ import GuildConfiguration from '@/models/GuildConfiguration'
 import { TBonusFormValues } from '@/types/types'
 
 import { getUserPermissions, requireGuildAccess } from '../perms'
+
+const toFormValues = (bonus: Record<string, unknown>): TBonusFormValues => {
+  const normalized = normalizeBonusSettings({
+    rewardMode: (bonus.rewardMode ?? 'linear') as TBonusFormValues['rewardMode'],
+    baseReward: Number(bonus.baseReward ?? 0),
+    streakIncrement: Number(bonus.streakIncrement ?? 0),
+    streakMultiplier: Number(bonus.streakMultiplier ?? 1),
+    maxReward: Number(bonus.maxReward ?? 0),
+    resetOnMax: Boolean(bonus.resetOnMax ?? false),
+    milestoneBonus: {
+      weekly: Number(
+        (bonus.milestoneBonus as { weekly?: number } | undefined)?.weekly ?? 0
+      ),
+      monthly: Number(
+        (bonus.milestoneBonus as { monthly?: number } | undefined)?.monthly ?? 0
+      )
+    }
+  })
+
+  return bonusFormSchema.parse(normalized)
+}
 
 export async function getBonusSettings(
   guildId: string
@@ -20,20 +43,7 @@ export async function getBonusSettings(
   const doc = await GuildConfiguration.findOne({ guildId })
   if (!doc) return null
 
-  const bonus = doc.bonusSettings ?? {}
-
-  return {
-    rewardMode: bonus.rewardMode ?? 'linear',
-    baseReward: bonus.baseReward ?? 0,
-    streakIncrement: bonus.streakIncrement ?? 0,
-    streakMultiplier: bonus.streakMultiplier ?? 1,
-    maxReward: bonus.maxReward ?? 0,
-    resetOnMax: bonus.resetOnMax ?? false,
-    milestoneBonus: {
-      weekly: bonus.milestoneBonus?.weekly ?? 0,
-      monthly: bonus.milestoneBonus?.monthly ?? 0
-    }
-  }
+  return toFormValues((doc.bonusSettings ?? {}) as Record<string, unknown>)
 }
 
 export async function saveBonusSettings(
@@ -44,28 +54,17 @@ export async function saveBonusSettings(
   const { isAdmin } = await getUserPermissions(guildId, session)
   if (!isAdmin) throw new Error('Insufficient permissions: Admin only')
 
+  const parsed = bonusFormSchema.parse(normalizeBonusSettings(values))
+
   await connectToDatabase()
 
   const updatedDoc = await GuildConfiguration.findOneAndUpdate(
     { guildId },
-    { $set: { bonusSettings: values } },
+    { $set: { bonusSettings: parsed } },
     { new: true, upsert: true }
   )
 
   if (!updatedDoc) return null
 
-  const bonus = updatedDoc.bonusSettings ?? {}
-
-  return {
-    rewardMode: bonus.rewardMode ?? 'linear',
-    baseReward: bonus.baseReward ?? 0,
-    streakIncrement: bonus.streakIncrement ?? 0,
-    streakMultiplier: bonus.streakMultiplier ?? 1,
-    maxReward: bonus.maxReward ?? 0,
-    resetOnMax: bonus.resetOnMax ?? false,
-    milestoneBonus: {
-      weekly: bonus.milestoneBonus?.weekly ?? 0,
-      monthly: bonus.milestoneBonus?.monthly ?? 0
-    }
-  }
+  return toFormValues((updatedDoc.bonusSettings ?? {}) as Record<string, unknown>)
 }
