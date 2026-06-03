@@ -9,7 +9,8 @@ import { useSearchParams } from 'next/navigation'
 import {
   CustomTableBody,
   CustomTableHeader,
-  CustomTablePagination
+  CustomTablePagination,
+  ServerTablePageLayout
 } from '@/components/table'
 import { Table } from '@/components/ui/table'
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
@@ -25,8 +26,6 @@ import { transactionsColumns } from './transactionColumns'
 interface TransactionTableProps {
   transactions: TTransactionDiscord[]
   transactionCounts: ITransactionCounts
-  guildId: string
-  managerId: string
   page: number
   limit: number
   total: number
@@ -37,8 +36,6 @@ interface TransactionTableProps {
 const TransactionTable = ({
   transactions,
   transactionCounts,
-  // guildId,
-  // managerId,
   page,
   limit,
   total,
@@ -168,31 +165,31 @@ const TransactionTable = ({
   })
 
   return (
-    <div className="w-7xl space-y-4">
-      <TransactionTableFilters
-        table={table}
-        counts={transactionCounts}
-        isLoading={isLoading}
-        setIsLoading={setIsLoading}
-        userSearchRef={userSearchRef}
-        adminSearchRef={adminSearchRef}
-      />
-
-      <div className="overflow-hidden rounded-md border">
-        <Table className="w-full table-auto">
-          <CustomTableHeader table={table} />
-          <CustomTableBody table={table} isLoading={isLoading} />
-        </Table>
-      </div>
-
-      <TransactionTableSummary
-        cashFlow={cashFlow}
-        gamePnL={gamePnL}
-        counts={transactionCounts}
-      />
-
-      <CustomTablePagination table={table} total={total} />
-    </div>
+    <ServerTablePageLayout
+      toolbar={
+        <TransactionTableFilters
+          table={table}
+          counts={transactionCounts}
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
+          userSearchRef={userSearchRef}
+          adminSearchRef={adminSearchRef}
+        />
+      }
+      summary={
+        <TransactionTableSummary
+          cashFlow={cashFlow}
+          gamePnL={gamePnL}
+          counts={transactionCounts}
+        />
+      }
+      pagination={<CustomTablePagination table={table} total={total} />}
+    >
+      <Table className="w-full table-auto">
+        <CustomTableHeader table={table} />
+        <CustomTableBody table={table} isLoading={isLoading} />
+      </Table>
+    </ServerTablePageLayout>
   )
 }
 

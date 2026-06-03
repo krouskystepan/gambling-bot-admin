@@ -95,8 +95,8 @@ const TransactionTableFilters = ({
     | undefined
 
   return (
-    <div className="flex justify-between gap-2">
-      <div className="flex min-w-0 flex-1 gap-2">
+    <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex min-w-0 flex-1 flex-wrap gap-2">
         <TransactionSearch
           table={table}
           inputRef={userSearchRef}
@@ -113,7 +113,7 @@ const TransactionTableFilters = ({
           initialValue={adminInputFilter}
         />
       </div>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <DatePicker
           initialRange={
             createdAtFilter

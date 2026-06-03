@@ -7,7 +7,14 @@ import { z } from 'zod'
 
 import { saveChannels } from '@/actions/database/channels.action'
 import FormActionsFooter from '@/components/FormActionsFooter'
-import { PageHeader } from '@/components/PageHeader'
+import SettingsFormLayout from '@/components/form/SettingsFormLayout'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -92,277 +99,311 @@ const ChannelsSettingsForm = ({
   return (
     <FormProvider {...form}>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="flex w-lg max-w-lg flex-col gap-4"
-        >
-          <section className="flex flex-col gap-4">
-            <PageHeader title="ATM Channels" />
-            <div className="grid w-full grid-cols-2 gap-8">
-              <FormField
-                control={form.control}
-                name="atm.actions"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <Label>ATM Actions</Label>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value ?? ''}
-                    >
-                      <FormControl>
-                        <SelectTrigger variant="muted">
-                          <SelectValue placeholder="Select Action Channel" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {guildChannels.map((channel) => (
-                          <SelectItem key={channel.id} value={channel.id}>
-                            {channel.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      Select channel for ATM Actions
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <SettingsFormLayout
+            actions={
+              <FormActionsFooter
+                label="Save channel settings"
+                hint="Applies to ATM, casino, prediction, and raffle"
               />
+            }
+          >
+            <Card className="gap-4 py-4">
+              <CardHeader className="pb-0">
+                <CardTitle>ATM channels</CardTitle>
+                <CardDescription>
+                  Action and log channels for ATM activity
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-0">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="atm.actions"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label>ATM Actions</Label>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value ?? ''}
+                        >
+                          <FormControl>
+                            <SelectTrigger variant="muted">
+                              <SelectValue placeholder="Select Action Channel" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {guildChannels.map((channel) => (
+                              <SelectItem key={channel.id} value={channel.id}>
+                                {channel.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          Select channel for ATM Actions
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <FormField
-                control={form.control}
-                name="atm.logs"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <Label>ATM Logs</Label>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value ?? ''}
-                    >
+                  <FormField
+                    control={form.control}
+                    name="atm.logs"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label>ATM Logs</Label>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value ?? ''}
+                        >
+                          <FormControl>
+                            <SelectTrigger variant="muted">
+                              <SelectValue placeholder="Select Logs Channel" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {guildChannels.map((channel) => (
+                              <SelectItem key={channel.id} value={channel.id}>
+                                {channel.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          Select channel for ATM Logs
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="gap-4 py-4">
+              <CardHeader className="pb-0">
+                <CardTitle>Casino channels</CardTitle>
+                <CardDescription>
+                  Channels where casino games can be played
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-0">
+                <FormField
+                  control={form.control}
+                  name="casino.casinoChannelIds"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Label>Casino Channels</Label>
                       <FormControl>
-                        <SelectTrigger variant="muted">
-                          <SelectValue placeholder="Select Logs Channel" />
-                        </SelectTrigger>
+                        <MultipleSelector
+                          variant="muted"
+                          commandProps={{
+                            label: 'Select channels',
+                            shouldFilter: false
+                          }}
+                          placeholder="Select Casino Channels"
+                          hidePlaceholderWhenSelected
+                          emptyIndicator={
+                            <p className="text-center text-sm">
+                              No results found
+                            </p>
+                          }
+                          value={(field.value ?? []).map((id: string) => {
+                            const channel = guildChannels.find(
+                              (c) => c.id === id
+                            )
+                            return { label: channel?.name ?? id, value: id }
+                          })}
+                          defaultOptions={guildChannels.map((channel) => ({
+                            label: channel.name ?? channel.id,
+                            value: channel.id
+                          }))}
+                          onChange={(options) =>
+                            field.onChange(options.map((opt) => opt.value))
+                          }
+                          selectFirstItem={false}
+                          onSearchSync={(search) => {
+                            const term = search.toLowerCase().trim()
+
+                            if (!term) {
+                              return guildChannels.map((c) => ({
+                                label: c.name ?? c.id,
+                                value: c.id
+                              }))
+                            }
+
+                            return guildChannels
+                              .filter((c) =>
+                                (c.name ?? '').toLowerCase().includes(term)
+                              )
+                              .map((c) => ({
+                                label: c.name ?? c.id,
+                                value: c.id
+                              }))
+                          }}
+                          key={guildChannels.length}
+                        />
                       </FormControl>
-                      <SelectContent>
-                        {guildChannels.map((channel) => (
-                          <SelectItem key={channel.id} value={channel.id}>
-                            {channel.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      Select channel for ATM Logs
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </section>
+                      <FormDescription>
+                        Select channel(s) for Casino Channels
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
 
-          <section className="flex w-full flex-col gap-4">
-            <PageHeader title="Casino Channels" />
-            <FormField
-              control={form.control}
-              name="casino.casinoChannelIds"
-              render={({ field }) => (
-                <FormItem>
-                  <Label>Casino Channels</Label>
-                  <FormControl>
-                    <MultipleSelector
-                      variant="muted"
-                      commandProps={{
-                        label: 'Select channels',
-                        shouldFilter: false
-                      }}
-                      placeholder="Select Casino Channels"
-                      hidePlaceholderWhenSelected
-                      emptyIndicator={
-                        <p className="text-center text-sm">No results found</p>
-                      }
-                      value={(field.value ?? []).map((id: string) => {
-                        const channel = guildChannels.find((c) => c.id === id)
-                        return { label: channel?.name ?? id, value: id }
-                      })}
-                      defaultOptions={guildChannels.map((channel) => ({
-                        label: channel.name ?? channel.id,
-                        value: channel.id
-                      }))}
-                      onChange={(options) =>
-                        field.onChange(options.map((opt) => opt.value))
-                      }
-                      selectFirstItem={false}
-                      onSearchSync={(search) => {
-                        const term = search.toLowerCase().trim()
+            <Card className="gap-4 py-4">
+              <CardHeader className="pb-0">
+                <CardTitle>Prediction channels</CardTitle>
+                <CardDescription>
+                  Action and log channels for predictions
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-0">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="prediction.actions"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label>Prediction Actions</Label>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value ?? ''}
+                        >
+                          <FormControl>
+                            <SelectTrigger variant="muted">
+                              <SelectValue placeholder="Select Action Channel" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {guildChannels.map((channel) => (
+                              <SelectItem key={channel.id} value={channel.id}>
+                                {channel.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          Select channel for Prediction Actions
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                        if (!term) {
-                          return guildChannels.map((c) => ({
-                            label: c.name ?? c.id,
-                            value: c.id
-                          }))
-                        }
+                  <FormField
+                    control={form.control}
+                    name="prediction.logs"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label>Prediction Logs</Label>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value ?? ''}
+                        >
+                          <FormControl>
+                            <SelectTrigger variant="muted">
+                              <SelectValue placeholder="Select Logs Channel" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {guildChannels.map((channel) => (
+                              <SelectItem key={channel.id} value={channel.id}>
+                                {channel.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          Select channel for Prediction Logs
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
 
-                        const filtered = guildChannels
-                          .filter((c) =>
-                            (c.name ?? '').toLowerCase().includes(term)
-                          )
-                          .map((c) => ({ label: c.name ?? c.id, value: c.id }))
+            <Card className="gap-4 py-4">
+              <CardHeader className="pb-0">
+                <CardTitle>Raffle channels</CardTitle>
+                <CardDescription>
+                  Action and log channels for raffles
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-0">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="raffle.actions"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label>Raffle Actions</Label>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value ?? ''}
+                        >
+                          <FormControl>
+                            <SelectTrigger variant="muted">
+                              <SelectValue placeholder="Select Action Channel" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {guildChannels.map((channel) => (
+                              <SelectItem key={channel.id} value={channel.id}>
+                                {channel.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          Select channel for Raffle Actions
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                        return filtered
-                      }}
-                      key={guildChannels.length}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Select channel(s) for Casino Channels
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </section>
-
-          <section className="flex flex-col gap-4">
-            <PageHeader title="Prediction Channels" />
-            <div className="grid w-full grid-cols-2 gap-8">
-              <FormField
-                control={form.control}
-                name="prediction.actions"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <Label>Prediction Actions</Label>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value ?? ''}
-                    >
-                      <FormControl>
-                        <SelectTrigger variant="muted">
-                          <SelectValue placeholder="Select Action Channel" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {guildChannels.map((channel) => (
-                          <SelectItem key={channel.id} value={channel.id}>
-                            {channel.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      Select channel for Prediction Actions
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="prediction.logs"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <Label>Prediction Logs</Label>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value ?? ''}
-                    >
-                      <FormControl>
-                        <SelectTrigger variant="muted">
-                          <SelectValue placeholder="Select Logs Channel" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {guildChannels.map((channel) => (
-                          <SelectItem key={channel.id} value={channel.id}>
-                            {channel.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      Select channel for Prediction Logs
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </section>
-
-          <section className="flex flex-col gap-4">
-            <PageHeader title="Raffle Channels" />
-            <div className="grid w-full grid-cols-2 gap-8">
-              <FormField
-                control={form.control}
-                name="raffle.actions"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <Label>Raffle Actions</Label>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value ?? ''}
-                    >
-                      <FormControl>
-                        <SelectTrigger variant="muted">
-                          <SelectValue placeholder="Select Action Channel" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {guildChannels.map((channel) => (
-                          <SelectItem key={channel.id} value={channel.id}>
-                            {channel.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      Select channel for Raffle Actions
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="raffle.logs"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <Label>Raffle Logs</Label>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value ?? ''}
-                    >
-                      <FormControl>
-                        <SelectTrigger variant="muted">
-                          <SelectValue placeholder="Select Logs Channel" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {guildChannels.map((channel) => (
-                          <SelectItem key={channel.id} value={channel.id}>
-                            {channel.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      Select channel for Raffle Logs
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </section>
-
-          <FormActionsFooter
-            label="Save channel settings"
-            hint="Applies to ATM, casino, prediction, and raffle"
-          />
+                  <FormField
+                    control={form.control}
+                    name="raffle.logs"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label>Raffle Logs</Label>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value ?? ''}
+                        >
+                          <FormControl>
+                            <SelectTrigger variant="muted">
+                              <SelectValue placeholder="Select Logs Channel" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {guildChannels.map((channel) => (
+                              <SelectItem key={channel.id} value={channel.id}>
+                                {channel.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          Select channel for Raffle Logs
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </SettingsFormLayout>
         </form>
       </Form>
     </FormProvider>

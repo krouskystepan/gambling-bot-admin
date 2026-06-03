@@ -11,6 +11,7 @@ import { toast } from 'sonner'
 
 import { saveBonusSettings } from '@/actions/database/bonusSettings.action'
 import FormActionsFooter from '@/components/FormActionsFooter'
+import SettingsFormLayout from '@/components/form/SettingsFormLayout'
 import { Form } from '@/components/ui/form'
 import { bonusFormSchema } from '@/types/schemas'
 import { TBonusFormInput, TBonusFormValues } from '@/types/types'
@@ -79,26 +80,25 @@ const BonuseSettingsForm = ({
   return (
     <FormProvider {...form}>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="flex w-full max-w-7xl flex-col gap-4"
-        >
-          <div className="grid gap-4 lg:grid-cols-[1fr_1.25fr] lg:items-start">
-            <div className="order-2 flex flex-col gap-3 lg:order-1">
-              <RewardCurveCard />
-              <CapResetCard />
-              <MilestonesCard />
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <SettingsFormLayout
+            actions={<FormActionsFooter label="Save bonus settings" />}
+          >
+            <div className="grid gap-6 lg:grid-cols-[1fr_1.25fr] lg:items-start">
+              <div className="order-2 flex flex-col gap-6 lg:order-1">
+                <RewardCurveCard />
+                <CapResetCard />
+                <MilestonesCard />
+              </div>
+
+              <BonusPreviewPanel
+                className="order-1 lg:order-2"
+                preview={preview}
+                previewDays={previewDays}
+                onPreviewDaysChange={setPreviewDays}
+              />
             </div>
-
-            <BonusPreviewPanel
-              className="order-1 lg:order-2"
-              preview={preview}
-              previewDays={previewDays}
-              onPreviewDaysChange={setPreviewDays}
-            />
-          </div>
-
-          <FormActionsFooter label="Save bonus settings" />
+          </SettingsFormLayout>
         </form>
       </Form>
     </FormProvider>

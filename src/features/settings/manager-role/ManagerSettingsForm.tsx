@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 
 import { saveManagerRole } from '@/actions/database/managerRole.action'
 import FormActionsFooter from '@/components/FormActionsFooter'
+import SettingsFormLayout from '@/components/form/SettingsFormLayout'
 import {
   Card,
   CardContent,
@@ -74,78 +75,81 @@ const ManagerSettingsForm = ({
   return (
     <FormProvider {...form}>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="grid w-full max-w-5xl gap-6 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:items-start"
-        >
-          <Card className="gap-4 py-4">
-            <CardHeader className="pb-0">
-              <CardTitle className="flex items-center gap-2">
-                <ShieldCheck className="size-4" />
-                Manager role
-              </CardTitle>
-              <CardDescription>
-                Choose which Discord role can use manager tools in the admin
-                panel and bot. Members still need that role assigned in your
-                server.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4 pt-0">
-              <FormField
-                control={form.control}
-                name="managerRoleId"
-                render={({ field }) => (
-                  <FormItem>
-                    <Label>Discord role</Label>
-                    <FormControl>
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger variant="muted" className="w-full">
-                          <SelectValue placeholder="Select manager role" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {roles.map((role) => (
-                            <SelectItem key={role.id} value={role.id}>
-                              <div className="flex items-center gap-2">
-                                <span
-                                  className="h-3 w-3 rounded-full"
-                                  style={{
-                                    backgroundColor: roleColorHex(role.color)
-                                  }}
-                                />
-                                <span>{role.name}</span>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormDescription>
-                      Pick a dedicated staff role rather than @everyone or a
-                      broad member role.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <SettingsFormLayout
+            layoutClassName="grid gap-6 lg:grid-cols-2 lg:items-start"
+            actions={<FormActionsFooter label="Save manager role" />}
+          >
+            <Card className="gap-4 py-4">
+              <CardHeader className="pb-0">
+                <CardTitle className="flex items-center gap-2">
+                  <ShieldCheck className="size-4" />
+                  Manager role
+                </CardTitle>
+                <CardDescription>
+                  Choose which Discord role can use manager tools in the admin
+                  panel and bot. Members still need that role assigned in your
+                  server.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-0">
+                <FormField
+                  control={form.control}
+                  name="managerRoleId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Label>Discord role</Label>
+                      <FormControl>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger variant="muted" className="w-full">
+                            <SelectValue placeholder="Select manager role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {roles.map((role) => (
+                              <SelectItem key={role.id} value={role.id}>
+                                <div className="flex items-center gap-2">
+                                  <span
+                                    className="h-3 w-3 rounded-full"
+                                    style={{
+                                      backgroundColor: roleColorHex(role.color)
+                                    }}
+                                  />
+                                  <span>{role.name}</span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormDescription>
+                        Pick a dedicated staff role rather than @everyone or a
+                        broad member role.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              {selectedRole ? (
-                <div className="flex items-center gap-2 rounded-md border border-dashed px-3 py-2 text-sm">
-                  <span
-                    className="h-3 w-3 shrink-0 rounded-full"
-                    style={{
-                      backgroundColor: roleColorHex(selectedRole.color)
-                    }}
-                  />
-                  <span className="text-muted-foreground">Selected:</span>
-                  <span className="font-medium">{selectedRole.name}</span>
-                </div>
-              ) : null}
+                {selectedRole ? (
+                  <div className="flex items-center gap-2 rounded-md border border-dashed px-3 py-2 text-sm">
+                    <span
+                      className="h-3 w-3 shrink-0 rounded-full"
+                      style={{
+                        backgroundColor: roleColorHex(selectedRole.color)
+                      }}
+                    />
+                    <span className="text-muted-foreground">Selected:</span>
+                    <span className="font-medium">{selectedRole.name}</span>
+                  </div>
+                ) : null}
+              </CardContent>
+            </Card>
 
-              <FormActionsFooter label="Save manager role" />
-            </CardContent>
-          </Card>
-
-          <ManagerAccessOverview />
+            <ManagerAccessOverview />
+          </SettingsFormLayout>
         </form>
       </Form>
     </FormProvider>

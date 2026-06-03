@@ -4,13 +4,13 @@ import { formatNumberToReadableString } from 'gambling-bot-shared'
 
 import { useEffect, useRef } from 'react'
 
-import { useSearchParams } from 'next/dist/client/components/navigation'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 import {
   CustomTableBody,
   CustomTableHeader,
-  CustomTablePagination
+  CustomTablePagination,
+  ServerTablePageLayout
 } from '@/components/table'
 import { Table } from '@/components/ui/table'
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
@@ -121,29 +121,28 @@ const UserTable = ({
   const totalProfitStr = `$${formatNumberToReadableString(totalNetProfit)}`
 
   return (
-    <div className="w-5xl space-y-4">
-      <UsersTableFilters
-        table={table}
-        isLoading={isLoading}
-        setIsLoading={setIsLoading}
-        searchRef={searchRef}
-      />
-
-      <div className="overflow-hidden rounded-md border">
-        <Table className="w-full table-auto">
-          <CustomTableHeader table={table} />
-          <CustomTableBody table={table} isLoading={isLoading} />
-          <UserTableFooter
-            totalBalanceStr={totalBalanceStr}
-            totalNetProfit={totalNetProfit}
-            totalProfitStr={totalProfitStr}
-            data={users}
-          />
-        </Table>
-      </div>
-
-      <CustomTablePagination table={table} total={total} />
-    </div>
+    <ServerTablePageLayout
+      toolbar={
+        <UsersTableFilters
+          table={table}
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
+          searchRef={searchRef}
+        />
+      }
+      pagination={<CustomTablePagination table={table} total={total} />}
+    >
+      <Table className="w-full table-auto">
+        <CustomTableHeader table={table} />
+        <CustomTableBody table={table} isLoading={isLoading} />
+        <UserTableFooter
+          totalBalanceStr={totalBalanceStr}
+          totalNetProfit={totalNetProfit}
+          totalProfitStr={totalProfitStr}
+          data={users}
+        />
+      </Table>
+    </ServerTablePageLayout>
   )
 }
 

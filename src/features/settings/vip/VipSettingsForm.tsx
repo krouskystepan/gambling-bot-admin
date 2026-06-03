@@ -6,7 +6,13 @@ import { toast } from 'sonner'
 
 import { saveVipSettings } from '@/actions/database/vipSettings.action'
 import FormActionsFooter from '@/components/FormActionsFooter'
-import { PageHeader } from '@/components/PageHeader'
+import SettingsFormLayout from '@/components/form/SettingsFormLayout'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -31,6 +37,10 @@ type Props = {
   roles: IGuildRole[]
   categories: IGuildChannel[]
   savedSettings: TVipSettingsValues
+}
+
+function roleColorHex(color: number) {
+  return `#${color.toString(16).padStart(6, '0')}`
 }
 
 const VipSettingsForm = ({
@@ -58,151 +68,168 @@ const VipSettingsForm = ({
   return (
     <FormProvider {...form}>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="flex max-w-4xl w-full flex-col gap-4"
-        >
-          <PageHeader title="Roles and Categories" />
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <SettingsFormLayout
+            actions={<FormActionsFooter label="Save VIP settings" />}
+          >
+            <Card className="gap-4 py-4">
+              <CardHeader className="pb-0">
+                <CardTitle>Roles and categories</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-0">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <FormField
+                    control={form.control}
+                    name="roleOwnerId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label>Owner VIP Role</Label>
+                        <FormControl>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger variant="muted">
+                              <SelectValue placeholder="Select Owner VIP Role" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {roles.map((role) => (
+                                <SelectItem key={role.id} value={role.id}>
+                                  <div className="flex items-center gap-2">
+                                    <span
+                                      className="h-3 w-3 rounded-full"
+                                      style={{
+                                        backgroundColor: roleColorHex(
+                                          role.color
+                                        )
+                                      }}
+                                    />
+                                    <span>{role.name}</span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-          <div className="grid grid-cols-3 gap-4">
-            <FormField
-              control={form.control}
-              name="roleOwnerId"
-              render={({ field }) => (
-                <FormItem>
-                  <Label>Owner VIP Role</Label>
-                  <FormControl>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger variant="muted">
-                        <SelectValue placeholder="Select Owner VIP Role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {roles.map((role) => {
-                          const hex = `#${role.color
-                            .toString(16)
-                            .padStart(6, '0')}`
+                  <FormField
+                    control={form.control}
+                    name="roleMemberId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label>Member VIP Role</Label>
+                        <FormControl>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger variant="muted">
+                              <SelectValue placeholder="Select Member VIP Role" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {roles.map((role) => (
+                                <SelectItem key={role.id} value={role.id}>
+                                  <div className="flex items-center gap-2">
+                                    <span
+                                      className="h-3 w-3 rounded-full"
+                                      style={{
+                                        backgroundColor: roleColorHex(
+                                          role.color
+                                        )
+                                      }}
+                                    />
+                                    <span>{role.name}</span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                          return (
-                            <SelectItem key={role.id} value={role.id}>
-                              <div className="flex items-center gap-2">
-                                <span
-                                  className="h-3 w-3 rounded-full"
-                                  style={{ backgroundColor: hex }}
-                                />
-                                <span>{role.name}</span>
-                              </div>
-                            </SelectItem>
-                          )
-                        })}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                  <FormField
+                    control={form.control}
+                    name="categoryId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label>VIP Category</Label>
+                        <FormControl>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger variant="muted">
+                              <SelectValue placeholder="Select Category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {categories.map((cat) => (
+                                <SelectItem key={cat.id} value={cat.id}>
+                                  {cat.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
 
-            <FormField
-              control={form.control}
-              name="roleMemberId"
-              render={({ field }) => (
-                <FormItem>
-                  <Label>Member VIP Role</Label>
-                  <FormControl>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger variant="muted">
-                        <SelectValue placeholder="Select Member VIP Role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {roles.map((role) => {
-                          const hex = `#${role.color
-                            .toString(16)
-                            .padStart(6, '0')}`
-
-                          return (
-                            <SelectItem key={role.id} value={role.id}>
-                              <div className="flex items-center gap-2">
-                                <span
-                                  className="h-3 w-3 rounded-full"
-                                  style={{ backgroundColor: hex }}
-                                />
-                                <span>{role.name}</span>
-                              </div>
-                            </SelectItem>
-                          )
-                        })}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="categoryId"
-              render={({ field }) => (
-                <FormItem>
-                  <Label>VIP Category</Label>
-                  <FormControl>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger variant="muted">
-                        <SelectValue placeholder="Select Category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((cat) => (
-                          <SelectItem key={cat.id} value={cat.id}>
-                            {cat.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <PageHeader title="Prices" />
-
-          <div className="grid grid-cols-4 gap-4">
-            {(
-              [
-                ['pricePerDay', 'Price per Day'],
-                ['pricePerCreate', 'Price per Create'],
-                ['pricePerAdditionalMember', 'Price per Additional Member'],
-                ['maxMembers', 'Max Members']
-              ] as const
-            ).map(([name, label]) => (
-              <FormField
-                key={name}
-                control={form.control}
-                name={name}
-                render={({ field }) => (
-                  <FormItem>
-                    <Label>{label}</Label>
-                    <FormControl>
-                      <Input
-                        variant="muted"
-                        type="text"
-                        value={field.value}
-                        onChange={(e) =>
-                          field.onChange(
-                            Number(e.target.value.replace(/\D/g, ''))
-                          )
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ))}
-          </div>
-
-          <FormActionsFooter label="Save VIP settings" />
+            <Card className="gap-4 py-4">
+              <CardHeader className="pb-0">
+                <CardTitle>Prices</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-0">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  {(
+                    [
+                      ['pricePerDay', 'Price per Day'],
+                      ['pricePerCreate', 'Price per Create'],
+                      [
+                        'pricePerAdditionalMember',
+                        'Price per Additional Member'
+                      ],
+                      ['maxMembers', 'Max Members']
+                    ] as const
+                  ).map(([name, label]) => (
+                    <FormField
+                      key={name}
+                      control={form.control}
+                      name={name}
+                      render={({ field }) => (
+                        <FormItem>
+                          <Label>{label}</Label>
+                          <FormControl>
+                            <Input
+                              variant="muted"
+                              type="text"
+                              value={field.value}
+                              onChange={(e) =>
+                                field.onChange(
+                                  Number(e.target.value.replace(/\D/g, ''))
+                                )
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </SettingsFormLayout>
         </form>
       </Form>
     </FormProvider>

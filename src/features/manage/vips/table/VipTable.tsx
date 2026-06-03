@@ -7,7 +7,8 @@ import { useSearchParams } from 'next/navigation'
 import {
   CustomTableBody,
   CustomTableHeader,
-  CustomTablePagination
+  CustomTablePagination,
+  ServerTablePageLayout
 } from '@/components/table'
 import { Table } from '@/components/ui/table'
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
@@ -81,23 +82,22 @@ const VipTable = ({ vips, page, limit, total }: VipTableProps) => {
   })
 
   return (
-    <div className="w-5xl space-y-4">
-      <VipsTableFilters
-        table={table}
-        isLoading={isLoading}
-        setIsLoading={setIsLoading}
-        searchRef={searchRef}
-      />
-
-      <div className="overflow-hidden rounded-md border">
-        <Table className="w-full table-auto">
-          <CustomTableHeader table={table} />
-          <CustomTableBody table={table} isLoading={isLoading} />
-        </Table>
-      </div>
-
-      <CustomTablePagination table={table} total={total} />
-    </div>
+    <ServerTablePageLayout
+      toolbar={
+        <VipsTableFilters
+          table={table}
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
+          searchRef={searchRef}
+        />
+      }
+      pagination={<CustomTablePagination table={table} total={total} />}
+    >
+      <Table className="w-full table-auto">
+        <CustomTableHeader table={table} />
+        <CustomTableBody table={table} isLoading={isLoading} />
+      </Table>
+    </ServerTablePageLayout>
   )
 }
 

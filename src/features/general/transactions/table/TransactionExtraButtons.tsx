@@ -50,12 +50,12 @@ const TransactionExtraButtons = ({
         <TooltipTrigger asChild>
           <Button
             variant="secondary"
+            size="icon"
             onClick={() => {
               setIsLoading(true)
               const url = new URL(window.location.href)
               router.replace(url.pathname + url.search, { scroll: false })
             }}
-            className="flex h-9.5 items-center justify-between"
             disabled={isLoading}
           >
             <RefreshCcw

@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 
 import { saveCasinoSettings } from '@/actions/database/casinoSettings.action'
 import FormActionsFooter from '@/components/FormActionsFooter'
+import SettingsFormLayout from '@/components/form/SettingsFormLayout'
 import { Form } from '@/components/ui/form'
 import { useUpdateUrl } from '@/hooks/useUpdateUrl'
 import { casinoSettingsSchema } from '@/types/schemas'
@@ -70,24 +71,25 @@ export default function CasinoSettingsForm({ guildId, savedSettings }: Props) {
   return (
     <FormProvider {...form}>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="flex w-full max-w-7xl flex-col gap-3"
-        >
-          <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-start">
-            <GameNavList
-              games={games}
-              selectedGame={selectedGame}
-              form={form}
-              onSelectGame={handleSelectGame}
-            />
-            <GameDetailPanel game={selectedGame} form={form} />
-          </div>
-
-          <FormActionsFooter
-            label="Save casino settings"
-            hint="Saves RTP and limits for all games"
-          />
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <SettingsFormLayout
+            actions={
+              <FormActionsFooter
+                label="Save casino settings"
+                hint="Saves RTP and limits for all games"
+              />
+            }
+          >
+            <div className="flex w-full flex-col gap-6 lg:flex-row lg:items-start">
+              <GameNavList
+                games={games}
+                selectedGame={selectedGame}
+                form={form}
+                onSelectGame={handleSelectGame}
+              />
+              <GameDetailPanel game={selectedGame} form={form} />
+            </div>
+          </SettingsFormLayout>
         </form>
       </Form>
     </FormProvider>

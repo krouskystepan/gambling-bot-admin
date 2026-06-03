@@ -39,8 +39,6 @@ const TransactionsPage = async ({
       <TransactionTable
         transactions={transactions}
         transactionCounts={transactionCounts}
-        guildId={guildId}
-        managerId={session.userId!}
         page={query.page}
         limit={query.limit}
         total={total}

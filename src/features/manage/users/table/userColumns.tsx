@@ -140,11 +140,11 @@ export const userColumns = ({
 
       let netClass = ''
       if (netProfit > 0) {
-        netClass = 'text-green-500'
+        netClass = 'text-green-600'
       } else if (netProfit < 0) {
-        netClass = 'text-red-500'
+        netClass = 'text-red-600'
       } else {
-        netClass = 'text-white'
+        netClass = 'text-foreground'
       }
 
       return (

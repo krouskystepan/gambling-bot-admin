@@ -119,9 +119,9 @@ const OverviewSourceChart = ({ data }: OverviewSourceChartProps) => {
             <PieChart>
               <ChartTooltip
                 offset={16}
-                content={(props) => (
-                  <OverviewSourceTooltip {...props} totalVolume={totalVolume} />
-                )}
+                content={
+                  <OverviewSourceTooltip totalVolume={totalVolume} />
+                }
               />
               <Pie
                 data={data}
