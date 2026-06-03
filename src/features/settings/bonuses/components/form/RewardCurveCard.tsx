@@ -28,12 +28,12 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
-import { TBonusFormValues } from '@/types/types'
+import { TBonusFormInput } from '@/types/types'
 
 const STREAK_HINT_DAY = 7
 
 const RewardCurveCard = () => {
-  const form = useFormContext<TBonusFormValues>()
+  const form = useFormContext<TBonusFormInput>()
   const watched = useWatch({ control: form.control })
 
   const {

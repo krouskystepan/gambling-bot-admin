@@ -1,18 +1,16 @@
 'use client'
 
-import { UseFormReturn } from 'react-hook-form'
-
 import { Card, CardContent } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
-import { TCasinoSettingsOutput, TCasinoSettingsValues } from '@/types/types'
+import { TCasinoSettingsForm, TCasinoSettingsValues } from '@/types/types'
 
 import GameNavItem from './GameNavItem'
 
 type Props = {
   games: Array<keyof TCasinoSettingsValues>
   selectedGame: keyof TCasinoSettingsValues
-  form: UseFormReturn<TCasinoSettingsOutput>
+  form: TCasinoSettingsForm
   onSelectGame: (game: keyof TCasinoSettingsValues) => void
 }
 

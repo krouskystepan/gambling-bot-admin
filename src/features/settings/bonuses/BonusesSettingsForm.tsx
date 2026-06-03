@@ -10,10 +10,10 @@ import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { saveBonusSettings } from '@/actions/database/bonusSettings.action'
-import SaveButton from '@/components/SaveButton'
+import FormActionsFooter from '@/components/FormActionsFooter'
 import { Form } from '@/components/ui/form'
 import { bonusFormSchema } from '@/types/schemas'
-import { TBonusFormValues } from '@/types/types'
+import { TBonusFormInput, TBonusFormValues } from '@/types/types'
 
 import { DEFAULT_PREVIEW_DAYS } from './bonusPreviewConstants'
 import BonusPreviewPanel from './components/BonusPreviewPanel'
@@ -26,7 +26,7 @@ type BonusesSettigsProps = {
   savedSettings: TBonusFormValues
 }
 
-const toBonusSettings = (watched: ReturnType<typeof useWatch<TBonusFormValues>>): BonusSettings => ({
+const toBonusSettings = (watched: ReturnType<typeof useWatch<TBonusFormInput>>): BonusSettings => ({
   rewardMode: (watched.rewardMode ?? 'linear') as BonusSettings['rewardMode'],
   baseReward: Number(watched.baseReward ?? 0),
   streakIncrement: Number(watched.streakIncrement ?? 0),
@@ -45,7 +45,7 @@ const BonuseSettingsForm = ({
 }: BonusesSettigsProps) => {
   const [previewDays, setPreviewDays] = useState(DEFAULT_PREVIEW_DAYS)
 
-  const form = useForm<TBonusFormValues>({
+  const form = useForm<TBonusFormInput, unknown, TBonusFormValues>({
     resolver: zodResolver(bonusFormSchema),
     defaultValues: savedSettings,
     mode: 'onBlur',
@@ -56,6 +56,7 @@ const BonuseSettingsForm = ({
     const toastId = toast.loading('Saving bonus settings...')
     try {
       await saveBonusSettings(guildId, values)
+      form.reset(values)
       toast.success('Bonus settings saved!', { id: toastId })
     } catch (err) {
       console.error(err)
@@ -87,7 +88,6 @@ const BonuseSettingsForm = ({
               <RewardCurveCard />
               <CapResetCard />
               <MilestonesCard />
-              <SaveButton />
             </div>
 
             <BonusPreviewPanel
@@ -97,6 +97,8 @@ const BonuseSettingsForm = ({
               onPreviewDaysChange={setPreviewDays}
             />
           </div>
+
+          <FormActionsFooter label="Save bonus settings" />
         </form>
       </Form>
     </FormProvider>

@@ -5,7 +5,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { saveVipSettings } from '@/actions/database/vipSettings.action'
-import SaveButton from '@/components/SaveButton'
+import FormActionsFooter from '@/components/FormActionsFooter'
 import { PageHeader } from '@/components/PageHeader'
 import {
   Form,
@@ -48,6 +48,7 @@ const VipSettingsForm = ({
     const toastId = toast.loading('Saving VIP settings...')
     try {
       await saveVipSettings(guildId, values)
+      form.reset(values)
       toast.success('VIP settings saved!', { id: toastId })
     } catch {
       toast.error('Failed to save VIP settings', { id: toastId })
@@ -201,7 +202,7 @@ const VipSettingsForm = ({
             ))}
           </div>
 
-          <SaveButton />
+          <FormActionsFooter label="Save VIP settings" />
         </form>
       </Form>
     </FormProvider>

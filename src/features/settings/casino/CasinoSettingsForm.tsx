@@ -7,11 +7,11 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { saveCasinoSettings } from '@/actions/database/casinoSettings.action'
-import SaveButton from '@/components/SaveButton'
+import FormActionsFooter from '@/components/FormActionsFooter'
 import { Form } from '@/components/ui/form'
 import { useUpdateUrl } from '@/hooks/useUpdateUrl'
 import { casinoSettingsSchema } from '@/types/schemas'
-import { TCasinoSettingsOutput, TCasinoSettingsValues } from '@/types/types'
+import { TCasinoSettingsInput, TCasinoSettingsValues } from '@/types/types'
 
 import GameDetailPanel from './GameDetailPanel'
 import GameNavList from './GameNavList'
@@ -50,7 +50,7 @@ export default function CasinoSettingsForm({ guildId, savedSettings }: Props) {
     updateUrl({ game })
   }
 
-  const form = useForm<TCasinoSettingsOutput>({
+  const form = useForm<TCasinoSettingsInput, unknown, TCasinoSettingsValues>({
     resolver: zodResolver(casinoSettingsSchema),
     defaultValues: savedSettings,
     mode: 'onBlur'
@@ -60,6 +60,7 @@ export default function CasinoSettingsForm({ guildId, savedSettings }: Props) {
     const toastId = toast.loading('Saving...')
     try {
       await saveCasinoSettings(guildId, values)
+      form.reset(values)
       toast.success('Casino settings saved!', { id: toastId })
     } catch {
       toast.error('Failed to save casino settings', { id: toastId })
@@ -83,7 +84,10 @@ export default function CasinoSettingsForm({ guildId, savedSettings }: Props) {
             <GameDetailPanel game={selectedGame} form={form} />
           </div>
 
-          <SaveButton />
+          <FormActionsFooter
+            label="Save casino settings"
+            hint="Saves RTP and limits for all games"
+          />
         </form>
       </Form>
     </FormProvider>

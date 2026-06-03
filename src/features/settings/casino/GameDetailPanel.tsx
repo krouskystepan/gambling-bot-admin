@@ -1,19 +1,17 @@
 'use client'
 
-import { UseFormReturn } from 'react-hook-form'
-
 import {
   Card,
   CardContent
 } from '@/components/ui/card'
-import { TCasinoSettingsOutput, TCasinoSettingsValues } from '@/types/types'
+import { TCasinoSettingsForm, TCasinoSettingsValues } from '@/types/types'
 
 import GameHeader from './GameHeader'
 import GameSection from './GameSection'
 
 type Props = {
   game: keyof TCasinoSettingsValues
-  form: UseFormReturn<TCasinoSettingsOutput>
+  form: TCasinoSettingsForm
 }
 
 const GameDetailPanel = ({ game, form }: Props) => (

@@ -6,3 +6,5 @@ minimumReleaseAgeExclude:
 onlyBuiltDependencies:
   - sharp
   - unrs-resolver
+overrides:
+  gambling-bot-shared: link:../gambling-bot-shared

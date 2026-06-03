@@ -1,14 +1,14 @@
 'use client'
 
 import { calculateRTP } from 'gambling-bot-shared'
-import { UseFormReturn, useWatch } from 'react-hook-form'
+import { useWatch } from 'react-hook-form'
 
 import {
   getRtpStatus,
   hasRtpWarning,
   isRtpOutOfRange
 } from '@/lib/rtpWarnings'
-import { TCasinoSettingsOutput, TCasinoSettingsValues } from '@/types/types'
+import { TCasinoSettingsForm, TCasinoSettingsValues } from '@/types/types'
 
 export { getRtpStatus, hasRtpWarning, isRtpOutOfRange }
 export type { RtpStatus } from '@/lib/rtpWarnings'
@@ -30,7 +30,7 @@ export const sortCasinoGamesForNav = (
 
 export const useGameRtp = (
   game: keyof TCasinoSettingsValues,
-  form: UseFormReturn<TCasinoSettingsOutput>
+  form: TCasinoSettingsForm
 ) => {
   const settings = useWatch({
     control: form.control,

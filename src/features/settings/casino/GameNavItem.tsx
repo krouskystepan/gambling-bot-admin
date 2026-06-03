@@ -2,16 +2,15 @@
 
 import { getReadableName, readableGameNames } from 'gambling-bot-shared'
 import { CheckCircle2, TriangleAlert } from 'lucide-react'
-import { UseFormReturn } from 'react-hook-form'
 
 import { cn } from '@/lib/utils'
-import { TCasinoSettingsOutput, TCasinoSettingsValues } from '@/types/types'
+import { TCasinoSettingsForm, TCasinoSettingsValues } from '@/types/types'
 
 import { useGameRtp } from './useGameRtp'
 
 type Props = {
   game: keyof TCasinoSettingsValues
-  form: UseFormReturn<TCasinoSettingsOutput>
+  form: TCasinoSettingsForm
   isActive: boolean
   onSelect: (game: keyof TCasinoSettingsValues) => void
   variant?: 'list' | 'tile'

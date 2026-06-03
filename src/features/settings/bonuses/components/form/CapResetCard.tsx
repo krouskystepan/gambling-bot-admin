@@ -25,10 +25,10 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import { TBonusFormValues } from '@/types/types'
+import { TBonusFormInput } from '@/types/types'
 
 const CapResetCard = () => {
-  const form = useFormContext<TBonusFormValues>()
+  const form = useFormContext<TBonusFormInput>()
 
   return (
     <Card className="gap-4 py-4">

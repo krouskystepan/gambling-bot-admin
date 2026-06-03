@@ -7,9 +7,9 @@ import {
   getReadableName,
   readableGameValueNames
 } from 'gambling-bot-shared'
-import { Path, UseFormReturn, useWatch } from 'react-hook-form'
+import { Path, useWatch } from 'react-hook-form'
 
-import { TCasinoSettingsOutput, TCasinoSettingsValues } from '@/types/types'
+import { TCasinoSettingsForm, TCasinoSettingsInput, TCasinoSettingsValues } from '@/types/types'
 
 import { NumberField } from './fields/NumberField'
 import { PlinkoBinFields } from './fields/PlinkoBinFields'
@@ -17,7 +17,7 @@ import { RecordFields } from './fields/RecordFields'
 
 type Props = {
   game: keyof TCasinoSettingsValues
-  form: UseFormReturn<TCasinoSettingsOutput>
+  form: TCasinoSettingsForm
 }
 
 const GameSection = ({ game, form }: Props) => {
@@ -39,7 +39,7 @@ const GameSection = ({ game, form }: Props) => {
           <NumberField
             key={String(key)}
             form={form}
-            name={`${game}.${key}` as Path<TCasinoSettingsValues>}
+            name={`${game}.${key}` as Path<TCasinoSettingsInput>}
             label={getReadableName(String(key), readableGameValueNames)}
             defaultValue={
               defaultCasinoSettings[game][

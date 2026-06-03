@@ -5,14 +5,14 @@ import {
   defaultCasinoSettings,
   getPlinkoMirrorBin
 } from 'gambling-bot-shared'
-import { Path, UseFormReturn } from 'react-hook-form'
+import { Path } from 'react-hook-form'
 
-import { TCasinoSettingsValues } from '@/types/types'
+import { TCasinoSettingsForm, TCasinoSettingsInput } from '@/types/types'
 
 import { NumberField } from './NumberField'
 
 type Props = {
-  form: UseFormReturn<TCasinoSettingsValues>
+  form: TCasinoSettingsForm
 }
 
 const BIN_LABELS: Record<(typeof PLINKO_EDITABLE_BINS)[number], string> = {
@@ -34,7 +34,7 @@ export function PlinkoBinFields({ form }: Props) {
 
     const mirror = getPlinkoMirrorBin(bin)
     form.setValue(
-      `plinko.binMultipliers.${mirror}` as Path<TCasinoSettingsValues>,
+      `plinko.binMultipliers.${mirror}` as Path<TCasinoSettingsInput>,
       value,
       { shouldDirty: true, shouldValidate: true }
     )
@@ -46,7 +46,7 @@ export function PlinkoBinFields({ form }: Props) {
         <NumberField
           key={bin}
           form={form}
-          name={`plinko.binMultipliers.${bin}` as Path<TCasinoSettingsValues>}
+          name={`plinko.binMultipliers.${bin}` as Path<TCasinoSettingsInput>}
           label={BIN_LABELS[bin]}
           defaultValue={defaults[String(bin)]}
           onValueCommit={(value) => syncMirrorBins(bin, value)}

@@ -21,7 +21,6 @@ const buttonVariants = cva(
         ghost:
           'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
         link: 'text-primary underline-offset-4 hover:underline',
-        save: 'bg-green-600 text-white shadow-xs hover:bg-green-700 focus-visible:ring-green-500/20 dark:bg-green-500 dark:hover:bg-green-600 dark:focus-visible:ring-green-400/40',
         discord:
           'bg-[#5865F2] text-white shadow-xs hover:bg-[#4752C4] focus-visible:ring-[#5865F2]/40'
       },

@@ -1,16 +1,15 @@
 'use client'
 
 import { getReadableName, readableGameNames } from 'gambling-bot-shared'
-import { UseFormReturn } from 'react-hook-form'
 
-import { TCasinoSettingsOutput, TCasinoSettingsValues } from '@/types/types'
+import { TCasinoSettingsForm, TCasinoSettingsValues } from '@/types/types'
 
 import { MultiRTP, SingleRTP } from './RTP'
 import { useGameRtp } from './useGameRtp'
 
 type Props = {
   game: keyof TCasinoSettingsValues
-  form: UseFormReturn<TCasinoSettingsOutput>
+  form: TCasinoSettingsForm
 }
 
 const GameHeader = ({ game, form }: Props) => {

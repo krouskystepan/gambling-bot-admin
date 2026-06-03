@@ -19,10 +19,10 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { TBonusFormValues } from '@/types/types'
+import { TBonusFormInput } from '@/types/types'
 
 const MilestonesCard = () => {
-  const form = useFormContext<TBonusFormValues>()
+  const form = useFormContext<TBonusFormInput>()
 
   return (
     <Card className="gap-4 py-4">

@@ -1,7 +1,7 @@
 'use client'
 
 import { RotateCw } from 'lucide-react'
-import { Path, UseFormReturn } from 'react-hook-form'
+import { Path } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -12,13 +12,13 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { TCasinoSettingsValues } from '@/types/types'
+import { TCasinoSettingsForm, TCasinoSettingsInput } from '@/types/types'
 
 type Props = {
-  name: Path<TCasinoSettingsValues>
+  name: Path<TCasinoSettingsInput>
   label: string
   defaultValue?: number
-  form: UseFormReturn<TCasinoSettingsValues>
+  form: TCasinoSettingsForm
   onValueCommit?: (value: number | undefined) => void
 }
 

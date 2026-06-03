@@ -4,6 +4,7 @@ import {
   RESTAPIPartialCurrentUserGuild
 } from 'discord-api-types/v10'
 import { TTransaction, TVipRoom } from 'gambling-bot-shared'
+import { UseFormReturn } from 'react-hook-form'
 import z from 'zod'
 
 import {
@@ -19,11 +20,17 @@ export type IGuildChannel = APIChannel
 export type IGuildRole = APIRole
 
 export type TChannelsFormValues = z.infer<typeof channelsFormSchema>
-export type TCasinoSettingsValues = z.infer<typeof casinoSettingsSchema>
-export type TCasinoSettingsOutput = z.output<typeof casinoSettingsSchema>
+export type TCasinoSettingsInput = z.input<typeof casinoSettingsSchema>
+export type TCasinoSettingsValues = z.output<typeof casinoSettingsSchema>
+export type TCasinoSettingsForm = UseFormReturn<
+  TCasinoSettingsInput,
+  unknown,
+  TCasinoSettingsValues
+>
 export type TManagerRoleValues = z.infer<typeof managerRoleFormSchema>
 export type TVipSettingsValues = z.infer<typeof vipSettingsFormSchema>
-export type TBonusFormValues = z.infer<typeof bonusFormSchema>
+export type TBonusFormInput = z.input<typeof bonusFormSchema>
+export type TBonusFormValues = z.output<typeof bonusFormSchema>
 
 export type TGuildMemberStatus = {
   userId: string

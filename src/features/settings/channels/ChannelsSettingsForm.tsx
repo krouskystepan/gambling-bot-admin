@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { saveChannels } from '@/actions/database/channels.action'
-import SaveButton from '@/components/SaveButton'
+import FormActionsFooter from '@/components/FormActionsFooter'
 import { PageHeader } from '@/components/PageHeader'
 import {
   Form,
@@ -82,6 +82,7 @@ const ChannelsSettingsForm = ({
 
     try {
       await saveChannels(guildId, values)
+      form.reset(values)
       toast.success('Channels saved!', { id: toastId })
     } catch {
       toast.error('Failed to save channels', { id: toastId })
@@ -358,7 +359,10 @@ const ChannelsSettingsForm = ({
             </div>
           </section>
 
-          <SaveButton />
+          <FormActionsFooter
+            label="Save channel settings"
+            hint="Applies to ATM, casino, prediction, and raffle"
+          />
         </form>
       </Form>
     </FormProvider>
