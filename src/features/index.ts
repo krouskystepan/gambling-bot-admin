@@ -1,5 +1,5 @@
 // General
-export { default as HomePage } from './general/home/HomePage'
+export { default as OverviewPage } from './general/overview/OverviewPage'
 export { default as TransactionsPage } from './general/transactions/TransactionsPage'
 
 // Manage

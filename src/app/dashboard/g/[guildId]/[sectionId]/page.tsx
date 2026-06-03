@@ -34,7 +34,7 @@ const SectionPage = async ({ params, searchParams }: SectionPageProps) => {
 
   if (!canAccessSection(sectionId as SectionId, { isAdmin, isManager })) {
     redirect(
-      isAdmin || isManager ? `/dashboard/g/${guildId}/home` : '/dashboard'
+      isAdmin || isManager ? `/dashboard/g/${guildId}/overview` : '/dashboard'
     )
   }
 

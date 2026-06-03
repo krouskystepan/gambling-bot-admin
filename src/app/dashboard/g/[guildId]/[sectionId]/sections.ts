@@ -2,7 +2,7 @@ import {
   BonusesSettingsPage,
   CasinoSettingsPage,
   ChannelSettingsPage,
-  HomePage,
+  OverviewPage,
   ManagerSettingsPage,
   TransactionsPage,
   UsersPage,
@@ -12,7 +12,7 @@ import {
 
 export const sections = {
   // General
-  home: HomePage,
+  overview: OverviewPage,
   transactions: TransactionsPage,
 
   // Manage

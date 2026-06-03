@@ -3,7 +3,15 @@
 import { calculateRTP } from 'gambling-bot-shared'
 import { UseFormReturn, useWatch } from 'react-hook-form'
 
+import {
+  getRtpStatus,
+  hasRtpWarning,
+  isRtpOutOfRange
+} from '@/lib/rtpWarnings'
 import { TCasinoSettingsOutput, TCasinoSettingsValues } from '@/types/types'
+
+export { getRtpStatus, hasRtpWarning, isRtpOutOfRange }
+export type { RtpStatus } from '@/lib/rtpWarnings'
 
 export const HIDDEN_RTP_GAMES: Array<keyof TCasinoSettingsValues> = [
   'blackjack',
@@ -18,30 +26,6 @@ export const sortCasinoGamesForNav = (
   const withoutRtp = HIDDEN_RTP_GAMES.filter((game) => games.includes(game))
 
   return [...withRtp, ...withoutRtp]
-}
-
-export const isRtpOutOfRange = (value: number) => value >= 100 || value <= 90
-
-export const hasRtpWarning = (
-  rtp: number | Record<string, number> | null | undefined
-): boolean => {
-  if (rtp == null) return false
-  if (typeof rtp === 'number') return isRtpOutOfRange(rtp)
-  return Object.values(rtp).some(isRtpOutOfRange)
-}
-
-export type RtpStatus = 'hidden' | 'ok' | 'high' | 'low'
-
-export const getRtpStatus = (
-  rtp: number | Record<string, number> | null | undefined,
-  hidden: boolean
-): RtpStatus => {
-  if (hidden || rtp == null) return 'hidden'
-
-  const values = typeof rtp === 'number' ? [rtp] : Object.values(rtp)
-  if (values.some((value) => value >= 100)) return 'high'
-  if (values.some((value) => value <= 90)) return 'low'
-  return 'ok'
 }
 
 export const useGameRtp = (

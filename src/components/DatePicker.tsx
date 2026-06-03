@@ -15,6 +15,7 @@ import { DateRange } from 'react-day-picker'
 
 import { useState } from 'react'
 
+import { getWholeTimeRange } from '@/lib/datePresets'
 import { cn } from '@/lib/utils'
 
 import { Button } from './ui/button'
@@ -54,6 +55,10 @@ const DatePicker = ({
     from: safe(startOfYear(subYears(today, 1))),
     to: safe(endOfYear(subYears(today, 1)))
   }
+  const wholeTime = {
+    from: safe(getWholeTimeRange().from),
+    to: today
+  }
 
   function apply(range: { from: Date; to: Date }) {
     setMonth(range.to)
@@ -89,7 +94,7 @@ const DatePicker = ({
       <PopoverContent className="w-auto p-0" align="center">
         <div className="flex max-sm:flex-col">
           <div className="py-4 sm:w-32 sm:border-r">
-            <div className="flex flex-col px-2 gap-1">
+            <div className="flex flex-col gap-1 px-2">
               <Button
                 variant="ghost"
                 size="sm"
@@ -141,6 +146,9 @@ const DatePicker = ({
               </Button>
               <Button variant="ghost" size="sm" onClick={() => apply(lastYear)}>
                 Last year
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => apply(wholeTime)}>
+                All time
               </Button>
             </div>
           </div>

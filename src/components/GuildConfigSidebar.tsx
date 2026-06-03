@@ -4,7 +4,7 @@ import {
   Award,
   Crown,
   Dices,
-  Home,
+  LayoutDashboard,
   Landmark,
   LucideIcon,
   MessagesSquare,
@@ -28,7 +28,7 @@ const LINKS = [
     title: 'General',
     value: 'general',
     links: [
-      { id: 'home', label: 'Home', icon: Home },
+      { id: 'overview', label: 'Overview', icon: LayoutDashboard },
       { id: 'transactions', label: 'Transactions', icon: Landmark }
     ]
   },
@@ -99,7 +99,7 @@ const GuildConfigSidebar = ({
                     const Icon = link.icon as LucideIcon
                     const isActive =
                       activeSectionId === link.id ||
-                      (link.id === 'home' && activeSectionId === undefined)
+                      (link.id === 'overview' && activeSectionId === undefined)
 
                     return (
                       <Link

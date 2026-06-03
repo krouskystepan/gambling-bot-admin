@@ -8,6 +8,7 @@ import {
 import { Session } from 'next-auth'
 
 import { connectToDatabase } from '@/lib/db'
+import { cashFlowSum, gamePnLSum } from '@/lib/transactionTotals'
 import { escapeRegExp } from '@/lib/utils'
 import Transaction from '@/models/Transaction'
 import { ITransactionCounts, TTransactionDiscord } from '@/types/types'
@@ -82,34 +83,8 @@ export const getTransactions = async (
     {
       $group: {
         _id: null,
-        gamePnL: {
-          $sum: {
-            $switch: {
-              branches: [
-                { case: { $in: ['$type', ['bet', 'vip']] }, then: '$amount' },
-                {
-                  case: { $in: ['$type', ['win', 'bonus', 'refund']] },
-                  then: { $multiply: ['$amount', -1] }
-                }
-              ],
-              default: 0
-            }
-          }
-        },
-        cashFlow: {
-          $sum: {
-            $switch: {
-              branches: [
-                { case: { $eq: ['$type', 'deposit'] }, then: '$amount' },
-                {
-                  case: { $eq: ['$type', 'withdraw'] },
-                  then: { $multiply: ['$amount', -1] }
-                }
-              ],
-              default: 0
-            }
-          }
-        }
+        gamePnL: gamePnLSum,
+        cashFlow: cashFlowSum
       }
     }
   ])

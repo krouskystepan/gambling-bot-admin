@@ -14,7 +14,7 @@ const PublicGuildPage = async ({ params }: PublicGuildPageProps) => {
     notFound()
   }
 
-  redirect(safeCallbackUrl(`/dashboard/g/${guildId}/home`))
+  redirect(safeCallbackUrl(`/dashboard/g/${guildId}/overview`))
 }
 
 export default PublicGuildPage
