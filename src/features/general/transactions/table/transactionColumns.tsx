@@ -125,7 +125,7 @@ export const transactionsColumns = (): ColumnDef<TTransactionDiscord>[] => [
           <TooltipTrigger className="text-muted-foreground">
             <CircleQuestionMark size={16} />
           </TooltipTrigger>
-          <TooltipContent className="max-w-md space-y-2 p-2 break-normal">
+          <TooltipContent className="max-w-md">
             <p>Source: Indicates who or what initiated the transaction.</p>
             <ul className="mb-0 list-disc space-y-1 pl-5">
               <li>

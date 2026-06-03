@@ -32,7 +32,9 @@ export async function getCasinoSettings(
   const doc = await GuildConfiguration.findOne({ guildId })
   if (!doc?.casinoSettings) return null
 
-  return normalizeCasinoSettings(doc.casinoSettings)
+  return normalizeCasinoSettings(
+    casinoSettingsSchema.parse(doc.casinoSettings)
+  )
 }
 
 export async function saveCasinoSettings(
