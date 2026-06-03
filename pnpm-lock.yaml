@@ -4,9 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  gambling-bot-shared: link:../gambling-bot-shared
-
 importers:
 
   .:
@@ -69,8 +66,8 @@ importers:
         specifier: ^12.40.0
         version: 12.40.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       gambling-bot-shared:
-        specifier: link:../gambling-bot-shared
-        version: link:../gambling-bot-shared
+        specifier: ^0.1.46
+        version: 0.1.46(mongoose@9.6.3)
       lucide-react:
         specifier: ^1.17.0
         version: 1.17.0(react@19.2.6)
@@ -2293,6 +2290,11 @@ packages:
 
   functions-have-names@1.2.3:
     resolution: {integrity: sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==}
+
+  gambling-bot-shared@0.1.46:
+    resolution: {integrity: sha512-ctbHu1RAkbbs8T/B1SvemXkpmK/uD2ER9diwjMVPPJHBKRiJqcU22eetNlEO5qG3SDv98QFMRDK2rgENtri//w==}
+    peerDependencies:
+      mongoose: ^9.0.0
 
   generator-function@2.0.1:
     resolution: {integrity: sha512-SFdFmIJi+ybC0vjlHN0ZGVGHc3lgE0DxPAT0djjVg+kjOnSqclqmj0KQ7ykTOLP6YxoqOvuAODGdcHJn+43q3g==}
@@ -5714,6 +5716,11 @@ snapshots:
       is-callable: 1.2.7
 
   functions-have-names@1.2.3: {}
+
+  gambling-bot-shared@0.1.46(mongoose@9.6.3):
+    dependencies:
+      mongoose: 9.6.3
+      zod: 4.4.3
 
   generator-function@2.0.1: {}
 
