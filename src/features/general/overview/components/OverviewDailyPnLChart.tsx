@@ -11,18 +11,18 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import {
+  type ChartConfig,
   ChartContainer,
-  ChartTooltip,
-  type ChartConfig
+  ChartTooltip
 } from '@/components/ui/chart'
 import { cn } from '@/lib/utils'
 
-import type { OverviewDailyPoint } from '../period'
 import {
   formatChartAxisCurrency,
   formatOverviewCount,
   formatOverviewCurrency
 } from '../overviewFormatters'
+import type { OverviewDailyPoint } from '../period'
 
 const chartConfig = {
   gamePnL: {
@@ -118,7 +118,10 @@ const OverviewDailyPnLChart = ({ data }: OverviewDailyPnLChartProps) => {
         <CardDescription>House profit or loss per day</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="aspect-auto h-[280px] w-full">
+        <ChartContainer
+          config={chartConfig}
+          className="aspect-auto h-[280px] w-full"
+        >
           <AreaChart
             data={chartData}
             margin={{ left: 4, right: 8, top: 8, bottom: 0 }}

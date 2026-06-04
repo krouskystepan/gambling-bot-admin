@@ -9,7 +9,11 @@ import {
 } from 'gambling-bot-shared'
 import { Path, useWatch } from 'react-hook-form'
 
-import { TCasinoSettingsForm, TCasinoSettingsInput, TCasinoSettingsValues } from '@/types/types'
+import {
+  TCasinoSettingsForm,
+  TCasinoSettingsInput,
+  TCasinoSettingsValues
+} from '@/types/types'
 
 import { NumberField } from './fields/NumberField'
 import { PlinkoBinFields } from './fields/PlinkoBinFields'

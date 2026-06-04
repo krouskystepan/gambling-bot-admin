@@ -147,7 +147,11 @@ const DatePicker = ({
               <Button variant="ghost" size="sm" onClick={() => apply(lastYear)}>
                 Last year
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => apply(wholeTime)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => apply(wholeTime)}
+              >
                 All time
               </Button>
             </div>

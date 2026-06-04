@@ -2,9 +2,8 @@ import { Dice5 } from 'lucide-react'
 
 import Link from 'next/link'
 
-import type { IGuild } from '@/types/types'
-
 import { ThemeToggle } from '@/components/ThemeToggle'
+import type { IGuild } from '@/types/types'
 
 import GuildRow from './GuildRow'
 

@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ShieldCheck } from 'lucide-react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { saveManagerRole } from '@/actions/database/managerRole.action'
@@ -58,7 +58,10 @@ const ManagerSettingsForm = ({
     }
   })
 
-  const selectedRoleId = form.watch('managerRoleId')
+  const selectedRoleId = useWatch({
+    control: form.control,
+    name: 'managerRoleId'
+  })
   const selectedRole = roles.find((role) => role.id === selectedRoleId)
 
   const onSubmit = async (values: TManagerRoleValues) => {

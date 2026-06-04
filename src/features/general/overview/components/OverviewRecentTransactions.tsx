@@ -1,5 +1,6 @@
-import { formatNumberToReadableString, TTransaction } from 'gambling-bot-shared'
 import { format } from 'date-fns'
+import { TTransaction, formatNumberToReadableString } from 'gambling-bot-shared'
+
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -37,7 +38,9 @@ const OverviewRecentTransactions = ({
       <CardHeader className="flex flex-row items-start justify-between gap-4">
         <div>
           <CardTitle>Recent transactions</CardTitle>
-          <CardDescription>Latest activity in the selected period</CardDescription>
+          <CardDescription>
+            Latest activity in the selected period
+          </CardDescription>
         </div>
         <Link
           href={transactionsHref}

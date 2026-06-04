@@ -2,10 +2,7 @@ import React from 'react'
 
 import { cn } from '@/lib/utils'
 
-import {
-  stateTitleToneClass,
-  type StateTitleTone
-} from './stateTitleStyles'
+import { type StateTitleTone, stateTitleToneClass } from './stateTitleStyles'
 
 interface StateLayoutProps {
   Icon: React.ReactNode

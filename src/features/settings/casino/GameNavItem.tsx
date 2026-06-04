@@ -16,7 +16,11 @@ type Props = {
   variant?: 'list' | 'tile'
 }
 
-const GameNavRtpStatus = ({ status }: { status: ReturnType<typeof useGameRtp>['status'] }) => {
+const GameNavRtpStatus = ({
+  status
+}: {
+  status: ReturnType<typeof useGameRtp>['status']
+}) => {
   if (status === 'hidden') return null
 
   if (status === 'high') {

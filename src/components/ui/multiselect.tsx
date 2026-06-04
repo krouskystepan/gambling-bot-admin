@@ -14,8 +14,8 @@ import {
   CommandList
 } from '@/components/ui/command'
 import {
-  fieldControlVariants,
-  type FieldControlVariant
+  type FieldControlVariant,
+  fieldControlVariants
 } from '@/components/ui/field-styles'
 import { cn } from '@/lib/utils'
 

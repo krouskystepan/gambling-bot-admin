@@ -1,17 +1,22 @@
 'use server'
 
 import {
-  calculateRTP,
-  defaultCasinoSettings,
-  getReadableName,
-  readableGameNames,
   TGuildConfiguration,
   TRANSACTION_SOURCES,
   TRANSACTION_TYPES,
-  TTransaction
+  TTransaction,
+  calculateRTP,
+  defaultCasinoSettings,
+  getReadableName,
+  readableGameNames
 } from 'gambling-bot-shared'
 import { Session } from 'next-auth'
 
+import {
+  OverviewDailyPoint,
+  OverviewDateRange,
+  fillDailySeries
+} from '@/features/general/overview/period'
 import { connectToDatabase } from '@/lib/db'
 import { getRtpStatus } from '@/lib/rtpWarnings'
 import {
@@ -25,16 +30,10 @@ import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'
 import User from '@/models/User'
 import VipRoom from '@/models/VipRoom'
-import {
-  fillDailySeries,
-  OverviewDailyPoint,
-  OverviewDateRange
-} from '@/features/general/overview/period'
 import { TTransactionDiscord } from '@/types/types'
 
 import { getDiscordGuildMembers } from '../discord/member.action'
 import { requireGuildAccess } from '../perms'
-
 import { getTransactions } from './transaction.action'
 
 const HIDDEN_RTP_GAMES = new Set(['blackjack', 'prediction', 'raffle'])
@@ -192,9 +191,7 @@ async function enrichTopUsers(
       .filter((m) => userIds.includes(m.userId))
       .map((m) => [m.userId, m])
   )
-  const balanceMap = new Map(
-    dbUsers.map((u) => [u.userId, u.balance ?? 0])
-  )
+  const balanceMap = new Map(dbUsers.map((u) => [u.userId, u.balance ?? 0]))
   const netProfitMap = new Map(
     netProfitLeaders.map((u) => [u.userId, u.netProfit])
   )
@@ -217,18 +214,10 @@ async function enrichTopUsers(
 
   return {
     topByBalance: balanceLeaders.map((u) =>
-      toOverviewUser(
-        u.userId,
-        u.balance,
-        netProfitMap.get(u.userId) ?? 0
-      )
+      toOverviewUser(u.userId, u.balance, netProfitMap.get(u.userId) ?? 0)
     ),
     topByNetProfit: netProfitLeaders.map((u) =>
-      toOverviewUser(
-        u.userId,
-        balanceMap.get(u.userId) ?? 0,
-        u.netProfit
-      )
+      toOverviewUser(u.userId, balanceMap.get(u.userId) ?? 0, u.netProfit)
     )
   }
 }

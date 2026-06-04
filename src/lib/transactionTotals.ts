@@ -41,7 +41,10 @@ export const netProfitSum = {
   $sum: {
     $switch: {
       branches: [
-        { case: { $eq: ['$type', 'bet'] }, then: { $multiply: ['$amount', -1] } },
+        {
+          case: { $eq: ['$type', 'bet'] },
+          then: { $multiply: ['$amount', -1] }
+        },
         {
           case: { $in: ['$type', ['win', 'bonus']] },
           then: '$amount'

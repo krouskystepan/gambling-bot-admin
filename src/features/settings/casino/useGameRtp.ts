@@ -3,11 +3,7 @@
 import { calculateRTP } from 'gambling-bot-shared'
 import { useWatch } from 'react-hook-form'
 
-import {
-  getRtpStatus,
-  hasRtpWarning,
-  isRtpOutOfRange
-} from '@/lib/rtpWarnings'
+import { getRtpStatus, hasRtpWarning, isRtpOutOfRange } from '@/lib/rtpWarnings'
 import { TCasinoSettingsForm, TCasinoSettingsValues } from '@/types/types'
 
 export { getRtpStatus, hasRtpWarning, isRtpOutOfRange }

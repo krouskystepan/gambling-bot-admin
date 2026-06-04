@@ -6,12 +6,12 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint . --fix",
     "format:check": "prettier --check .",
     "format:fix": "prettier --write .",
-    "code:check": "pnpm lint:check && pnpm format:check",
-    "code:fix": "pnpm lint:fix && pnpm format:fix"
+    "lint:check": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "type:check": "tsc --noEmit",
+    "check": "pnpm lint:check && pnpm format:check && pnpm type:check"
   },
   "dependencies": {
     "@discordjs/rest": "^2.6.1",

@@ -1,8 +1,5 @@
 import KpiStrip from '@/components/KpiStrip'
-import {
-  formatOverviewCount,
-  formatOverviewCurrency
-} from '@/lib/overviewFormatters'
+import { formatOverviewCurrency } from '@/lib/overviewFormatters'
 
 type OverviewKpiGridProps = {
   cashFlow: number

@@ -31,32 +31,34 @@ export type OverviewDateRange = {
   dateTo: string
 }
 
-const PRESET_LABELS: { label: string; match: () => OverviewDateRange }[] =
-  [
-    { label: 'All time', match: () => boundsToStrings(wholeTimeBounds()) },
-    {
-      label: 'Year to date (1 Jan – today)',
-      match: () => boundsToStrings(getYearToDateBounds())
-    },
-    {
-      label: 'Month to date (1st – today)',
-      match: () => boundsToStrings(getMonthToDateBounds())
-    },
-    {
-      label: 'Last month',
-      match: () => boundsToStrings(getLastMonthBounds())
-    },
-    {
-      label: 'Last year (1 Jan – 31 Dec)',
-      match: () => boundsToStrings(getLastYearBounds())
-    },
-    {
-      label: 'Last 7 days',
-      match: () => boundsToStrings(getLast7DaysBounds())
-    }
-  ]
+const PRESET_LABELS: { label: string; match: () => OverviewDateRange }[] = [
+  { label: 'All time', match: () => boundsToStrings(wholeTimeBounds()) },
+  {
+    label: 'Year to date (1 Jan – today)',
+    match: () => boundsToStrings(getYearToDateBounds())
+  },
+  {
+    label: 'Month to date (1st – today)',
+    match: () => boundsToStrings(getMonthToDateBounds())
+  },
+  {
+    label: 'Last month',
+    match: () => boundsToStrings(getLastMonthBounds())
+  },
+  {
+    label: 'Last year (1 Jan – 31 Dec)',
+    match: () => boundsToStrings(getLastYearBounds())
+  },
+  {
+    label: 'Last 7 days',
+    match: () => boundsToStrings(getLast7DaysBounds())
+  }
+]
 
-function boundsToStrings(bounds: { start: Date; end: Date }): OverviewDateRange {
+function boundsToStrings(bounds: {
+  start: Date
+  end: Date
+}): OverviewDateRange {
   return {
     dateFrom: format(bounds.start, 'yyyy-MM-dd'),
     dateTo: format(bounds.end, 'yyyy-MM-dd')
@@ -114,7 +116,10 @@ export function resolveOverviewDateRange(searchParams?: {
   return boundsToStrings(getYearToDateBounds())
 }
 
-export function getOverviewRangeLabel(dateFrom: string, dateTo: string): string {
+export function getOverviewRangeLabel(
+  dateFrom: string,
+  dateTo: string
+): string {
   for (const preset of PRESET_LABELS) {
     const bounds = preset.match()
     if (bounds.dateFrom === dateFrom && bounds.dateTo === dateTo) {

@@ -48,7 +48,9 @@ const MilestonesCard = () => {
                   type="text"
                   inputMode="numeric"
                   maxLength={String(BONUS_MAX_AMOUNT).length}
-                  onChange={(e) => field.onChange(parseBonusAmountInput(e.target.value))}
+                  onChange={(e) =>
+                    field.onChange(parseBonusAmountInput(e.target.value))
+                  }
                   value={field.value}
                 />
               </FormControl>
@@ -69,7 +71,9 @@ const MilestonesCard = () => {
                   type="text"
                   inputMode="numeric"
                   maxLength={String(BONUS_MAX_AMOUNT).length}
-                  onChange={(e) => field.onChange(parseBonusAmountInput(e.target.value))}
+                  onChange={(e) =>
+                    field.onChange(parseBonusAmountInput(e.target.value))
+                  }
                   value={field.value}
                 />
               </FormControl>

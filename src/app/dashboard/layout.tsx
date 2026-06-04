@@ -1,8 +1,7 @@
-import { Toaster } from '@/components/ui/sonner'
-
 import DashboardFullPageState from '@/components/DashboardFullPageState'
 import DashboardSidebar from '@/components/DashboardSidebar'
 import RateLimited from '@/components/states/RateLimmited'
+import { Toaster } from '@/components/ui/sonner'
 import { loadUserGuildsResult } from '@/lib/userGuilds'
 
 const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {

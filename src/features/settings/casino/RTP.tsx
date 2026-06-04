@@ -4,8 +4,7 @@ const RTPWarning = ({ value }: { value: number }) => {
   if (value >= 100) {
     return (
       <span className="inline-flex items-center gap-1 text-sm text-destructive">
-        <TriangleAlert size={14} className="shrink-0" />
-        ≥ 100%
+        <TriangleAlert size={14} className="shrink-0" />≥ 100%
       </span>
     )
   }
@@ -13,8 +12,7 @@ const RTPWarning = ({ value }: { value: number }) => {
   if (value <= 90) {
     return (
       <span className="inline-flex items-center gap-1 text-sm text-brand">
-        <TriangleAlert size={14} className="shrink-0" />
-        ≤ 90%
+        <TriangleAlert size={14} className="shrink-0" />≤ 90%
       </span>
     )
   }

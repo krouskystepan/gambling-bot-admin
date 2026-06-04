@@ -1,13 +1,11 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  type BonusSettings,
-  generateBonusPreview
-} from 'gambling-bot-shared'
-import { useMemo, useState } from 'react'
+import { type BonusSettings, generateBonusPreview } from 'gambling-bot-shared'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
+
+import { useMemo, useState } from 'react'
 
 import { saveBonusSettings } from '@/actions/database/bonusSettings.action'
 import FormActionsFooter from '@/components/FormActionsFooter'
@@ -27,7 +25,9 @@ type BonusesSettigsProps = {
   savedSettings: TBonusFormValues
 }
 
-const toBonusSettings = (watched: ReturnType<typeof useWatch<TBonusFormInput>>): BonusSettings => ({
+const toBonusSettings = (
+  watched: ReturnType<typeof useWatch<TBonusFormInput>>
+): BonusSettings => ({
   rewardMode: (watched.rewardMode ?? 'linear') as BonusSettings['rewardMode'],
   baseReward: Number(watched.baseReward ?? 0),
   streakIncrement: Number(watched.streakIncrement ?? 0),
@@ -67,10 +67,7 @@ const BonuseSettingsForm = ({
 
   const watched = useWatch({ control: form.control })
 
-  const settings = useMemo(
-    () => toBonusSettings(watched ?? {}),
-    [watched]
-  )
+  const settings = useMemo(() => toBonusSettings(watched ?? {}), [watched])
 
   const preview = useMemo(
     () => generateBonusPreview(settings, previewDays),

@@ -2,7 +2,6 @@
 
 import { type PreviewDay } from 'gambling-bot-shared'
 import { formatNumberToReadableString } from 'gambling-bot-shared'
-import { useEffect, useRef, useState } from 'react'
 import {
   Area,
   AreaChart,
@@ -12,6 +11,8 @@ import {
   XAxis,
   YAxis
 } from 'recharts'
+
+import { useEffect, useRef, useState } from 'react'
 
 const CHART_HEIGHT = 280
 const MILESTONE_DAYS = [7, 14, 21, 28]

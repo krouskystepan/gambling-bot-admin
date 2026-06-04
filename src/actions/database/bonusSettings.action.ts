@@ -13,7 +13,8 @@ import { getUserPermissions, requireGuildAccess } from '../perms'
 
 const toFormValues = (bonus: Record<string, unknown>): TBonusFormValues => {
   const normalized = normalizeBonusSettings({
-    rewardMode: (bonus.rewardMode ?? 'linear') as TBonusFormValues['rewardMode'],
+    rewardMode: (bonus.rewardMode ??
+      'linear') as TBonusFormValues['rewardMode'],
     baseReward: Number(bonus.baseReward ?? 0),
     streakIncrement: Number(bonus.streakIncrement ?? 0),
     streakMultiplier: Number(bonus.streakMultiplier ?? 1),
@@ -66,5 +67,7 @@ export async function saveBonusSettings(
 
   if (!updatedDoc) return null
 
-  return toFormValues((updatedDoc.bonusSettings ?? {}) as Record<string, unknown>)
+  return toFormValues(
+    (updatedDoc.bonusSettings ?? {}) as Record<string, unknown>
+  )
 }

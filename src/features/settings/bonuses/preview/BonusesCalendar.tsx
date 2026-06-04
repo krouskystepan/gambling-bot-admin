@@ -4,10 +4,7 @@ import { PreviewDay } from 'gambling-bot-shared'
 import { formatNumberToReadableString } from 'gambling-bot-shared'
 import { Tooltip as TooltipPrimitive } from 'radix-ui'
 
-import {
-  Card,
-  CardContent
-} from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import {
   TooltipContent,
   TooltipProvider,
@@ -121,7 +118,10 @@ const DayCell = ({ day }: { day: PreviewDay }) => {
   )
 }
 
-const BonusesCalendar = ({ preview, compact = false }: BonusesCalendarProps) => {
+const BonusesCalendar = ({
+  preview,
+  compact = false
+}: BonusesCalendarProps) => {
   const weeks = chunkIntoWeeks(preview)
 
   return (
@@ -139,9 +139,7 @@ const BonusesCalendar = ({ preview, compact = false }: BonusesCalendarProps) => 
 
               return (
                 <div key={index} className="space-y-2">
-                  {showDivider && (
-                    <div className="h-px w-full bg-border/60" />
-                  )}
+                  {showDivider && <div className="h-px w-full bg-border/60" />}
 
                   <div className="grid grid-cols-7 gap-1.5">
                     {week.map((day) => (

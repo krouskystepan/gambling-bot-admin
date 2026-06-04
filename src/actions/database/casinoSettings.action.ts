@@ -17,7 +17,9 @@ const normalizeCasinoSettings = (
   ...settings,
   plinko: {
     ...settings.plinko,
-    binMultipliers: normalizePlinkoBinMultipliers(settings.plinko.binMultipliers)
+    binMultipliers: normalizePlinkoBinMultipliers(
+      settings.plinko.binMultipliers
+    )
   }
 })
 
@@ -32,9 +34,7 @@ export async function getCasinoSettings(
   const doc = await GuildConfiguration.findOne({ guildId })
   if (!doc?.casinoSettings) return null
 
-  return normalizeCasinoSettings(
-    casinoSettingsSchema.parse(doc.casinoSettings)
-  )
+  return normalizeCasinoSettings(casinoSettingsSchema.parse(doc.casinoSettings))
 }
 
 export async function saveCasinoSettings(

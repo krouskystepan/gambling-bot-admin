@@ -32,9 +32,7 @@ const FormActionsFooter = ({
           hint ? 'sm:justify-between' : 'sm:justify-end'
         )}
       >
-        {hint ? (
-          <p className="text-sm text-muted-foreground">{hint}</p>
-        ) : null}
+        {hint ? <p className="text-sm text-muted-foreground">{hint}</p> : null}
         <div className="flex justify-end gap-2">
           {showDiscardButton ? (
             <Button

@@ -7,12 +7,7 @@ import { toast } from 'sonner'
 import { saveVipSettings } from '@/actions/database/vipSettings.action'
 import FormActionsFooter from '@/components/FormActionsFooter'
 import SettingsFormLayout from '@/components/form/SettingsFormLayout'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Form,
   FormControl,

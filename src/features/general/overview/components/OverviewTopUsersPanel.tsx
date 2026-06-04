@@ -1,7 +1,9 @@
 import { formatNumberToReadableString } from 'gambling-bot-shared'
+
 import Image from 'next/image'
 import Link from 'next/link'
 
+import type { OverviewTopUser } from '@/actions/database/overview.action'
 import {
   Card,
   CardContent,
@@ -9,7 +11,6 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
-import type { OverviewTopUser } from '@/actions/database/overview.action'
 
 type OverviewTopUsersPanelProps = {
   guildId: string
@@ -87,7 +88,9 @@ const OverviewTopUsersPanel = ({
   <Card>
     <CardHeader>
       <CardTitle>Top users</CardTitle>
-      <CardDescription>Balance and net profit leaders in period</CardDescription>
+      <CardDescription>
+        Balance and net profit leaders in period
+      </CardDescription>
     </CardHeader>
     <CardContent className="flex flex-wrap gap-8">
       <UserList

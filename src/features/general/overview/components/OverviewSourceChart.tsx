@@ -11,11 +11,11 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import {
+  type ChartConfig,
   ChartContainer,
   ChartLegend,
   ChartLegendContent,
-  ChartTooltip,
-  type ChartConfig
+  ChartTooltip
 } from '@/components/ui/chart'
 
 import { formatOverviewCurrency } from '../overviewFormatters'
@@ -83,7 +83,9 @@ const OverviewSourceTooltip = ({
         </div>
         <div className="flex items-center justify-between gap-4 text-muted-foreground">
           <span>Share of total</span>
-          <span className="font-mono tabular-nums text-foreground">{share}%</span>
+          <span className="font-mono tabular-nums text-foreground">
+            {share}%
+          </span>
         </div>
       </div>
     </div>
@@ -108,7 +110,9 @@ const OverviewSourceChart = ({ data }: OverviewSourceChartProps) => {
     <Card>
       <CardHeader>
         <CardTitle>Volume by source</CardTitle>
-        <CardDescription>Absolute transaction amounts in period</CardDescription>
+        <CardDescription>
+          Absolute transaction amounts in period
+        </CardDescription>
       </CardHeader>
       <CardContent className="min-h-[280px]">
         {hasData ? (
@@ -119,9 +123,7 @@ const OverviewSourceChart = ({ data }: OverviewSourceChartProps) => {
             <PieChart>
               <ChartTooltip
                 offset={16}
-                content={
-                  <OverviewSourceTooltip totalVolume={totalVolume} />
-                }
+                content={<OverviewSourceTooltip totalVolume={totalVolume} />}
               />
               <Pie
                 data={data}
@@ -131,10 +133,7 @@ const OverviewSourceChart = ({ data }: OverviewSourceChartProps) => {
                 strokeWidth={2}
               >
                 {data.map((row) => (
-                  <Cell
-                    key={row.source}
-                    fill={SOURCE_COLORS[row.source]}
-                  />
+                  <Cell key={row.source} fill={SOURCE_COLORS[row.source]} />
                 ))}
               </Pie>
               <ChartLegend content={<ChartLegendContent nameKey="source" />} />

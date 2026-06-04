@@ -1,4 +1,5 @@
 import { CheckCircle2, TriangleAlert, XCircle } from 'lucide-react'
+
 import Link from 'next/link'
 
 import type { SetupHealthCheck } from '@/actions/database/overview.action'

@@ -1,10 +1,12 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useSearchParams } from 'next/navigation'
-import { useCallback, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+
+import { useCallback, useMemo } from 'react'
+
+import { useSearchParams } from 'next/navigation'
 
 import { saveCasinoSettings } from '@/actions/database/casinoSettings.action'
 import FormActionsFooter from '@/components/FormActionsFooter'

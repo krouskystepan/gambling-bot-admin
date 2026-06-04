@@ -18,7 +18,10 @@ const LoginPage = async ({ searchParams }: LoginPageProps) => {
 
   return (
     <LandingShell>
-      <LandingAuthCard session={null} callbackUrl={safeCallbackUrl(callbackUrl)} />
+      <LandingAuthCard
+        session={null}
+        callbackUrl={safeCallbackUrl(callbackUrl)}
+      />
     </LandingShell>
   )
 }

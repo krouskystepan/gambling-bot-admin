@@ -48,8 +48,8 @@ const LandingAuthCard = ({
             </h1>
 
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Manage your Discord casino server — balances, games, VIP rooms, and
-              settings from one dashboard.
+              Manage your Discord casino server — balances, games, VIP rooms,
+              and settings from one dashboard.
             </p>
           </div>
 

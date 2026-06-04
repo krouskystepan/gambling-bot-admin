@@ -4,8 +4,8 @@ import {
   Award,
   Crown,
   Dices,
-  LayoutDashboard,
   Landmark,
+  LayoutDashboard,
   LucideIcon,
   MessagesSquare,
   ShieldCheck,
@@ -107,7 +107,8 @@ const GuildConfigSidebar = ({
                         href={`/dashboard/g/${guildId}/${link.id}`}
                         className={cn(
                           'relative flex items-center gap-2 overflow-hidden rounded px-5 py-2 text-sm text-sidebar-foreground transition hover:bg-sidebar-accent hover:text-sidebar-primary',
-                          isActive && 'bg-sidebar-accent/50 text-sidebar-primary'
+                          isActive &&
+                            'bg-sidebar-accent/50 text-sidebar-primary'
                         )}
                       >
                         {isActive ? (

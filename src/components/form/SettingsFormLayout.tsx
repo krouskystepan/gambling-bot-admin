@@ -15,11 +15,7 @@ const SettingsFormLayout = ({
 }: SettingsFormLayoutProps) => {
   return (
     <div className="flex w-full flex-col space-y-6">
-      <div
-        className={cn(
-          layoutClassName ?? 'flex flex-col space-y-6'
-        )}
-      >
+      <div className={cn(layoutClassName ?? 'flex flex-col space-y-6')}>
         {children}
       </div>
       {actions}

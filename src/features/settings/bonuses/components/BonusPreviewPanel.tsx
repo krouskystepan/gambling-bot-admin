@@ -1,6 +1,7 @@
 'use client'
 
 import { type PreviewDay } from 'gambling-bot-shared'
+
 import dynamic from 'next/dynamic'
 
 import { Button } from '@/components/ui/button'

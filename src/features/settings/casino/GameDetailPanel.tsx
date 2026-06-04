@@ -1,9 +1,6 @@
 'use client'
 
-import {
-  Card,
-  CardContent
-} from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { TCasinoSettingsForm, TCasinoSettingsValues } from '@/types/types'
 
 import GameHeader from './GameHeader'
