@@ -4,6 +4,7 @@ export {
   casinoChannelsFormSchema,
   casinoSettingsSchema,
   channelsFormSchema,
+  globalSettingsFormSchema,
   managerRoleFormSchema,
   predictionChannelsFormSchema,
   raffleChannelsFormSchema,

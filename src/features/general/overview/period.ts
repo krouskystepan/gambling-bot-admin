@@ -1,16 +1,5 @@
-import {
-  eachDayOfInterval,
-  endOfDay,
-  endOfMonth,
-  endOfYear,
-  format,
-  startOfDay,
-  startOfMonth,
-  startOfYear,
-  subDays,
-  subMonths,
-  subYears
-} from 'date-fns'
+import { resolveGuildTimezone } from 'gambling-bot-shared'
+import { DateTime } from 'luxon'
 
 import { getWholeTimeRange } from '@/lib/datePresets'
 
@@ -31,96 +20,130 @@ export type OverviewDateRange = {
   dateTo: string
 }
 
-const PRESET_LABELS: { label: string; match: () => OverviewDateRange }[] = [
-  { label: 'All time', match: () => boundsToStrings(wholeTimeBounds()) },
+const toRangeStrings = (start: DateTime, end: DateTime): OverviewDateRange => ({
+  dateFrom: start.toFormat('yyyy-MM-dd'),
+  dateTo: end.toFormat('yyyy-MM-dd')
+})
+
+const zoneNow = (timezone?: string | null) =>
+  DateTime.now().setZone(resolveGuildTimezone(timezone))
+
+function wholeTimeBounds(timezone?: string | null) {
+  const { from, to } = getWholeTimeRange()
+  return {
+    start: DateTime.fromJSDate(from, { zone: resolveGuildTimezone(timezone) }),
+    end: DateTime.fromJSDate(to, { zone: resolveGuildTimezone(timezone) })
+  }
+}
+
+function getYearToDateBounds(timezone?: string | null) {
+  const today = zoneNow(timezone)
+  return {
+    start: today.startOf('year'),
+    end: today.endOf('day')
+  }
+}
+
+function getMonthToDateBounds(timezone?: string | null) {
+  const today = zoneNow(timezone)
+  return {
+    start: today.startOf('month'),
+    end: today.endOf('day')
+  }
+}
+
+function getLastMonthBounds(timezone?: string | null) {
+  const previousMonth = zoneNow(timezone).minus({ months: 1 })
+  return {
+    start: previousMonth.startOf('month'),
+    end: previousMonth.endOf('month')
+  }
+}
+
+function getLastYearBounds(timezone?: string | null) {
+  const previousYear = zoneNow(timezone).minus({ years: 1 })
+  return {
+    start: previousYear.startOf('year'),
+    end: previousYear.endOf('year')
+  }
+}
+
+function getLast7DaysBounds(timezone?: string | null) {
+  const today = zoneNow(timezone)
+  return {
+    start: today.minus({ days: 6 }).startOf('day'),
+    end: today.endOf('day')
+  }
+}
+
+const buildPresetLabels = (timezone?: string | null) => [
+  {
+    label: 'All time',
+    match: () => {
+      const b = wholeTimeBounds(timezone)
+      return toRangeStrings(b.start, b.end)
+    }
+  },
   {
     label: 'Year to date (1 Jan – today)',
-    match: () => boundsToStrings(getYearToDateBounds())
+    match: () => {
+      const b = getYearToDateBounds(timezone)
+      return toRangeStrings(b.start, b.end)
+    }
   },
   {
     label: 'Month to date (1st – today)',
-    match: () => boundsToStrings(getMonthToDateBounds())
+    match: () => {
+      const b = getMonthToDateBounds(timezone)
+      return toRangeStrings(b.start, b.end)
+    }
   },
   {
     label: 'Last month',
-    match: () => boundsToStrings(getLastMonthBounds())
+    match: () => {
+      const b = getLastMonthBounds(timezone)
+      return toRangeStrings(b.start, b.end)
+    }
   },
   {
     label: 'Last year (1 Jan – 31 Dec)',
-    match: () => boundsToStrings(getLastYearBounds())
+    match: () => {
+      const b = getLastYearBounds(timezone)
+      return toRangeStrings(b.start, b.end)
+    }
   },
   {
     label: 'Last 7 days',
-    match: () => boundsToStrings(getLast7DaysBounds())
+    match: () => {
+      const b = getLast7DaysBounds(timezone)
+      return toRangeStrings(b.start, b.end)
+    }
   }
 ]
 
-function boundsToStrings(bounds: {
-  start: Date
-  end: Date
-}): OverviewDateRange {
-  return {
-    dateFrom: format(bounds.start, 'yyyy-MM-dd'),
-    dateTo: format(bounds.end, 'yyyy-MM-dd')
-  }
-}
-
-function wholeTimeBounds() {
-  const { from, to } = getWholeTimeRange()
-  return { start: from, end: to }
-}
-
-function getYearToDateBounds() {
-  const today = new Date()
-  return { start: startOfDay(startOfYear(today)), end: endOfDay(today) }
-}
-
-function getMonthToDateBounds() {
-  const today = new Date()
-  return { start: startOfDay(startOfMonth(today)), end: endOfDay(today) }
-}
-
-function getLastMonthBounds() {
-  const today = new Date()
-  const previousMonth = subMonths(today, 1)
-  return {
-    start: startOfDay(startOfMonth(previousMonth)),
-    end: endOfDay(endOfMonth(previousMonth))
-  }
-}
-
-function getLastYearBounds() {
-  const today = new Date()
-  const previousYear = subYears(today, 1)
-  return {
-    start: startOfDay(startOfYear(previousYear)),
-    end: endOfDay(endOfYear(previousYear))
-  }
-}
-
-function getLast7DaysBounds() {
-  const today = new Date()
-  return { start: startOfDay(subDays(today, 6)), end: endOfDay(today) }
-}
-
-export function resolveOverviewDateRange(searchParams?: {
-  dateFrom?: string
-  dateTo?: string
-}): OverviewDateRange {
+export function resolveOverviewDateRange(
+  searchParams?: {
+    dateFrom?: string
+    dateTo?: string
+  },
+  timezone?: string | null
+): OverviewDateRange {
   const { dateFrom, dateTo } = searchParams ?? {}
 
   if (dateFrom && dateTo) {
     return { dateFrom, dateTo }
   }
 
-  return boundsToStrings(getYearToDateBounds())
+  const bounds = getYearToDateBounds(timezone)
+  return toRangeStrings(bounds.start, bounds.end)
 }
 
 export function getOverviewRangeLabel(
   dateFrom: string,
-  dateTo: string
+  dateTo: string,
+  timezone?: string | null
 ): string {
-  for (const preset of PRESET_LABELS) {
+  for (const preset of buildPresetLabels(timezone)) {
     const bounds = preset.match()
     if (bounds.dateFrom === dateFrom && bounds.dateTo === dateTo) {
       return preset.label
@@ -138,15 +161,19 @@ export type OverviewDailyPoint = {
 
 export function fillDailySeries(
   range: OverviewDateRange,
-  points: OverviewDailyPoint[]
+  points: OverviewDailyPoint[],
+  timezone?: string | null
 ): OverviewDailyPoint[] {
-  const start = startOfDay(new Date(range.dateFrom))
-  const end = startOfDay(new Date(range.dateTo))
+  const zone = resolveGuildTimezone(timezone)
+  const start = DateTime.fromISO(range.dateFrom, { zone }).startOf('day')
+  const end = DateTime.fromISO(range.dateTo, { zone }).startOf('day')
   const byDate = new Map(points.map((p) => [p.date, p]))
 
-  return eachDayOfInterval({ start, end }).map((day) => {
-    const date = format(day, 'yyyy-MM-dd')
-    return (
+  const days: OverviewDailyPoint[] = []
+  let cursor = start
+  while (cursor <= end) {
+    const date = cursor.toFormat('yyyy-MM-dd')
+    days.push(
       byDate.get(date) ?? {
         date,
         gamePnL: 0,
@@ -154,5 +181,8 @@ export function fillDailySeries(
         txCount: 0
       }
     )
-  })
+    cursor = cursor.plus({ days: 1 })
+  }
+
+  return days
 }

@@ -55,16 +55,4 @@ export const netProfitSum = {
   }
 } as const
 
-export function guildDateRangeMatch(
-  guildId: string,
-  dateFrom: string,
-  dateTo: string
-): { guildId: string; createdAt: { $gte: Date; $lte: Date } } {
-  const from = new Date(dateFrom)
-  from.setHours(0, 0, 0, 0)
-
-  const to = new Date(dateTo)
-  to.setHours(23, 59, 59, 999)
-
-  return { guildId, createdAt: { $gte: from, $lte: to } }
-}
+export { guildDateRangeMatch } from './guildTimezone'

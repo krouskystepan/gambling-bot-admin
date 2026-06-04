@@ -1,6 +1,7 @@
 import type { SectionId } from '@/app/dashboard/g/[guildId]/[sectionId]/sections'
 
 const SETTINGS_SECTION_IDS = new Set<SectionId>([
+  'global-settings',
   'channel-settings',
   'casino-settings',
   'manager-settings',

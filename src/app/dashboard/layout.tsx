@@ -18,7 +18,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex h-full min-h-dvh overflow-hidden bg-background">
       <DashboardSidebar guilds={guildsResult.guilds} />
-      <div className="flex min-h-0 flex-1 flex-col overflow-x-auto">
+      <div className="flex min-h-0 flex-1 flex-col overflow-auto">
         {children}
         <Toaster richColors position="bottom-right" />
       </div>

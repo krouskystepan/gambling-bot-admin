@@ -4,6 +4,7 @@ import {
   Award,
   Crown,
   Dices,
+  Globe,
   Landmark,
   LayoutDashboard,
   LucideIcon,
@@ -45,6 +46,7 @@ const LINKS = [
     title: 'Settings',
     value: 'settings',
     links: [
+      { id: 'global-settings', label: 'Global', icon: Globe },
       { id: 'channel-settings', label: 'Channels', icon: MessagesSquare },
       { id: 'manager-settings', label: 'Manager', icon: ShieldCheck },
       { id: 'vip-settings', label: 'VIP', icon: Crown },

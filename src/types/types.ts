@@ -11,6 +11,7 @@ import {
   bonusFormSchema,
   casinoSettingsSchema,
   channelsFormSchema,
+  globalSettingsFormSchema,
   managerRoleFormSchema,
   vipSettingsFormSchema
 } from './schemas'
@@ -31,6 +32,10 @@ export type TManagerRoleValues = z.infer<typeof managerRoleFormSchema>
 export type TVipSettingsValues = z.infer<typeof vipSettingsFormSchema>
 export type TBonusFormInput = z.input<typeof bonusFormSchema>
 export type TBonusFormValues = z.output<typeof bonusFormSchema>
+export type TGlobalSettingsFormInput = z.input<typeof globalSettingsFormSchema>
+export type TGlobalSettingsFormValues = z.output<
+  typeof globalSettingsFormSchema
+>
 
 export type TGuildMemberStatus = {
   userId: string

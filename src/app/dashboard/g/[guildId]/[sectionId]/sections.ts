@@ -2,6 +2,7 @@ import {
   BonusesSettingsPage,
   CasinoSettingsPage,
   ChannelSettingsPage,
+  GlobalSettingsPage,
   ManagerSettingsPage,
   OverviewPage,
   TransactionsPage,
@@ -20,6 +21,7 @@ export const sections = {
   vips: VipPage,
 
   // Settings
+  'global-settings': GlobalSettingsPage,
   'channel-settings': ChannelSettingsPage,
   'casino-settings': CasinoSettingsPage,
   'manager-settings': ManagerSettingsPage,

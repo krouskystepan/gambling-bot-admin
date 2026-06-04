@@ -8,7 +8,8 @@ import {
   calculateRTP,
   defaultCasinoSettings,
   getReadableName,
-  readableGameNames
+  readableGameNames,
+  resolveGuildTimezone
 } from 'gambling-bot-shared'
 import { Session } from 'next-auth'
 
@@ -17,12 +18,12 @@ import {
   OverviewDateRange,
   fillDailySeries
 } from '@/features/general/overview/period'
+import { guildDateRangeMatch } from '@/lib/guildTimezone'
 import { connectToDatabase } from '@/lib/db'
 import { getRtpStatus } from '@/lib/rtpWarnings'
 import {
   cashFlowSum,
   gamePnLSum,
-  guildDateRangeMatch,
   netProfitSum,
   periodTotalsGroup
 } from '@/lib/transactionTotals'
@@ -222,6 +223,14 @@ async function enrichTopUsers(
   }
 }
 
+export async function getGuildOverviewTimezone(guildId: string): Promise<string> {
+  await connectToDatabase()
+  const doc = await GuildConfiguration.findOne({ guildId })
+    .select('globalSettings.timezone')
+    .lean()
+  return resolveGuildTimezone(doc?.globalSettings?.timezone)
+}
+
 export async function getOverviewData(
   guildId: string,
   session: Session,
@@ -232,7 +241,15 @@ export async function getOverviewData(
 
   await connectToDatabase()
 
-  const dateMatch = guildDateRangeMatch(guildId, range.dateFrom, range.dateTo)
+  const guildConfig = await GuildConfiguration.findOne({ guildId }).lean()
+  const timezone = resolveGuildTimezone(guildConfig?.globalSettings?.timezone)
+
+  const dateMatch = guildDateRangeMatch(
+    guildId,
+    range.dateFrom,
+    range.dateTo,
+    timezone
+  )
 
   const [
     periodTotals,
@@ -245,8 +262,7 @@ export async function getOverviewData(
     vipRoomCount,
     topBalanceUsers,
     topNetProfitAgg,
-    recentResult,
-    guildConfig
+    recentResult
   ] = await Promise.all([
     Transaction.aggregate([{ $match: dateMatch }, periodTotalsGroup]),
     Transaction.aggregate([
@@ -262,7 +278,11 @@ export async function getOverviewData(
       {
         $group: {
           _id: {
-            $dateToString: { format: '%Y-%m-%d', date: '$createdAt' }
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$createdAt',
+              timezone
+            }
           },
           gamePnL: gamePnLSum,
           cashFlow: cashFlowSum,
@@ -323,8 +343,7 @@ export async function getOverviewData(
       undefined,
       range.dateFrom,
       range.dateTo
-    ),
-    GuildConfiguration.findOne({ guildId }).lean()
+    )
   ])
 
   const totals = periodTotals[0]
@@ -376,7 +395,7 @@ export async function getOverviewData(
     txCount,
     typeCounts,
     sourceCounts,
-    dailySeries: fillDailySeries(range, dailyPoints),
+    dailySeries: fillDailySeries(range, dailyPoints, timezone),
     sourceAmounts,
     registeredUsers,
     totalLiability: liabilityAgg[0]?.total ?? 0,

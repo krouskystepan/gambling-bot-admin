@@ -1,6 +1,9 @@
 import { getServerSession } from 'next-auth'
 
-import { getOverviewData } from '@/actions/database/overview.action'
+import {
+  getGuildOverviewTimezone,
+  getOverviewData
+} from '@/actions/database/overview.action'
 import { getUserPermissions } from '@/actions/perms'
 import FeatureLayout from '@/features/FeatureLayout'
 import { authOptions } from '@/lib/authOptions'
@@ -27,7 +30,8 @@ const OverviewPage = async ({
   const session = await getServerSession(authOptions)
   if (!session) return null
 
-  const range = resolveOverviewDateRange(searchParams)
+  const timezone = await getGuildOverviewTimezone(guildId)
+  const range = resolveOverviewDateRange(searchParams, timezone)
   const data = await getOverviewData(guildId, session, range)
   if (!data) return null
 
