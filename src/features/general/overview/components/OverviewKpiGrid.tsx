@@ -1,7 +1,10 @@
+import type { GlobalSettings } from 'gambling-bot-shared'
+
 import KpiStrip from '@/components/KpiStrip'
 import { formatOverviewCurrency } from '@/lib/overviewFormatters'
 
 type OverviewKpiGridProps = {
+  globalSettings: GlobalSettings
   cashFlow: number
   gamePnL: number
   txCount: number
@@ -11,6 +14,7 @@ type OverviewKpiGridProps = {
 }
 
 const OverviewKpiGrid = ({
+  globalSettings,
   cashFlow,
   gamePnL,
   txCount,
@@ -18,6 +22,9 @@ const OverviewKpiGrid = ({
   totalLiability,
   vipRoomCount
 }: OverviewKpiGridProps) => {
+  const formatCurrency = (value: number) =>
+    formatOverviewCurrency(value, globalSettings)
+
   return (
     <KpiStrip
       items={[
@@ -25,14 +32,14 @@ const OverviewKpiGrid = ({
           label: 'Cash flow',
           value: cashFlow,
           positiveIsGreen: true,
-          formatter: formatOverviewCurrency,
+          formatter: formatCurrency,
           tooltip: 'Deposits minus withdraws in the selected period'
         },
         {
           label: 'Game P&L',
           value: gamePnL,
           positiveIsGreen: true,
-          formatter: formatOverviewCurrency,
+          formatter: formatCurrency,
           tooltip: 'Bets + VIP minus wins, bonuses, and refunds'
         },
         {
@@ -47,7 +54,7 @@ const OverviewKpiGrid = ({
         {
           label: 'Total liability',
           value: totalLiability,
-          formatter: formatOverviewCurrency,
+          formatter: formatCurrency,
           tooltip: 'Sum of balance, bonus balance, and locked balance'
         },
         {

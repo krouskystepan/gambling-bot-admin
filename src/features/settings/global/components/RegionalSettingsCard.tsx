@@ -39,9 +39,10 @@ const RegionalSettingsCard = () => {
           Regional
         </CardTitle>
         <CardDescription>
-          Timezone is stored for scheduling and reporting. Currency symbol is
-          shown in Discord embeds today; ISO code is for admin reference and
-          future formatting.
+          Timezone is used for scheduling and reporting. Prefix puts the label
+          before the amount ($1.5k); suffix puts it after (1.5kCZK). Add spaces
+          in the label field yourself if you want them (e.g. &quot;$ &quot; or
+          &quot; CZK&quot;).
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4 pt-0 sm:grid-cols-2">
@@ -72,26 +73,6 @@ const RegionalSettingsCard = () => {
 
         <FormField
           control={form.control}
-          name="currencyCode"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Currency code (ISO 4217)</FormLabel>
-              <FormControl>
-                <Input
-                  variant="muted"
-                  maxLength={3}
-                  placeholder="USD"
-                  {...field}
-                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
           name="currencySymbol"
           render={({ field }) => (
             <FormItem>
@@ -104,6 +85,28 @@ const RegionalSettingsCard = () => {
                   {...field}
                 />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="currencyPlacement"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Amount format</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl>
+                  <SelectTrigger variant="muted">
+                    <SelectValue placeholder="Select format" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="prefix">Symbol before amount</SelectItem>
+                  <SelectItem value="suffix">Label after amount</SelectItem>
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

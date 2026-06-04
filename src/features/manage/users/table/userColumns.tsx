@@ -1,5 +1,5 @@
 import { ColumnDef, Row } from '@tanstack/react-table'
-import { formatNumberToReadableString } from 'gambling-bot-shared'
+import type { GlobalSettings } from 'gambling-bot-shared'
 import { CircleQuestionMark, EllipsisIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -49,6 +49,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { formatGuildMoney } from '@/lib/guildMoney'
 import { cn } from '@/lib/utils'
 import { TGuildMemberStatus } from '@/types/types'
 
@@ -66,12 +67,14 @@ const multiColumnFilter = (
 interface UserColumnsDeps {
   guildId: string
   managerId: string
+  globalSettings: GlobalSettings
   onUserUpdated: () => void
 }
 
 export const userColumns = ({
   guildId,
   managerId,
+  globalSettings,
   onUserUpdated
 }: UserColumnsDeps): ColumnDef<TGuildMemberStatus>[] => [
   // Only for filtering purposes
@@ -126,7 +129,7 @@ export const userColumns = ({
     size: 70,
     cell: ({ row }) =>
       row.original.registered
-        ? `${formatNumberToReadableString(row.getValue('balance'))}`
+        ? formatGuildMoney(row.getValue('balance') as number, globalSettings)
         : '-'
   },
   {
@@ -149,7 +152,7 @@ export const userColumns = ({
 
       return (
         <span className={cn('font-medium', netClass)}>
-          ${formatNumberToReadableString(netProfit)}
+          {formatGuildMoney(netProfit, globalSettings)}
         </span>
       )
     }

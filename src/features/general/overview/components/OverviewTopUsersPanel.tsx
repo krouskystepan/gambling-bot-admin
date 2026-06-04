@@ -1,4 +1,4 @@
-import { formatNumberToReadableString } from 'gambling-bot-shared'
+import type { GlobalSettings } from 'gambling-bot-shared'
 
 import Image from 'next/image'
 import Link from 'next/link'
@@ -11,9 +11,11 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
+import { formatGuildMoney } from '@/lib/guildMoney'
 
 type OverviewTopUsersPanelProps = {
   guildId: string
+  globalSettings: GlobalSettings
   topByBalance: OverviewTopUser[]
   topByNetProfit: OverviewTopUser[]
 }
@@ -22,12 +24,14 @@ const UserList = ({
   title,
   users,
   valueKey,
-  guildId
+  guildId,
+  globalSettings
 }: {
   title: string
   users: OverviewTopUser[]
   valueKey: 'balance' | 'netProfit'
   guildId: string
+  globalSettings: GlobalSettings
 }) => (
   <div className="flex-1 min-w-[240px]">
     <h4 className="mb-3 text-sm font-semibold text-muted-foreground">
@@ -71,7 +75,7 @@ const UserList = ({
                     : 'font-semibold tabular-nums'
               }
             >
-              ${formatNumberToReadableString(user[valueKey])}
+              {formatGuildMoney(user[valueKey], globalSettings)}
             </span>
           </li>
         ))}
@@ -82,6 +86,7 @@ const UserList = ({
 
 const OverviewTopUsersPanel = ({
   guildId,
+  globalSettings,
   topByBalance,
   topByNetProfit
 }: OverviewTopUsersPanelProps) => (
@@ -98,12 +103,14 @@ const OverviewTopUsersPanel = ({
         users={topByBalance}
         valueKey="balance"
         guildId={guildId}
+        globalSettings={globalSettings}
       />
       <UserList
         title="Highest net profit"
         users={topByNetProfit}
         valueKey="netProfit"
         guildId={guildId}
+        globalSettings={globalSettings}
       />
     </CardContent>
   </Card>

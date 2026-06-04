@@ -1,7 +1,11 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { type BonusSettings, generateBonusPreview } from 'gambling-bot-shared'
+import {
+  type BonusSettings,
+  type GlobalSettings,
+  generateBonusPreview
+} from 'gambling-bot-shared'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -22,6 +26,7 @@ import RewardCurveCard from './components/form/RewardCurveCard'
 
 type BonusesSettigsProps = {
   guildId: string
+  globalSettings: GlobalSettings
   savedSettings: TBonusFormValues
 }
 
@@ -42,6 +47,7 @@ const toBonusSettings = (
 
 const BonuseSettingsForm = ({
   guildId,
+  globalSettings,
   savedSettings
 }: BonusesSettigsProps) => {
   const [previewDays, setPreviewDays] = useState(DEFAULT_PREVIEW_DAYS)
@@ -83,13 +89,14 @@ const BonuseSettingsForm = ({
           >
             <div className="grid gap-6 lg:grid-cols-[1fr_1.25fr] lg:items-start">
               <div className="order-2 flex flex-col gap-6 lg:order-1">
-                <RewardCurveCard />
+                <RewardCurveCard globalSettings={globalSettings} />
                 <CapResetCard />
                 <MilestonesCard />
               </div>
 
               <BonusPreviewPanel
                 className="order-1 lg:order-2"
+                globalSettings={globalSettings}
                 preview={preview}
                 previewDays={previewDays}
                 onPreviewDaysChange={setPreviewDays}

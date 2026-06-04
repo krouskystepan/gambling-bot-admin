@@ -1,21 +1,21 @@
-import {
-  formatNumberToReadableString,
-  formatNumberWithSpaces
-} from 'gambling-bot-shared'
+import { formatNumberToReadableString } from 'gambling-bot-shared'
+import type { GlobalSettings } from 'gambling-bot-shared'
 
-export const formatOverviewCurrency = (value: number) => {
-  const rounded = Math.round(value)
-  const base = formatNumberWithSpaces(Math.abs(rounded))
-  return rounded < 0 ? `-$${base}` : `$${base}`
-}
+import {
+  formatGuildMoneyCompactSigned,
+  formatGuildMoneyExactSigned
+} from './guildMoney'
+
+export const formatOverviewCurrency = (
+  value: number,
+  globalSettings?: Partial<GlobalSettings> | null
+) => formatGuildMoneyExactSigned(value, globalSettings)
 
 export const formatOverviewCount = (value: number) =>
   formatNumberToReadableString(value)
 
 /** Compact labels for chart axes (avoids spaced thousands wrapping in narrow ticks). */
-export const formatChartAxisCurrency = (value: number) => {
-  const rounded = Math.round(value)
-  if (rounded === 0) return '$0'
-  const compact = formatNumberToReadableString(Math.abs(rounded))
-  return rounded < 0 ? `-$${compact}` : `$${compact}`
-}
+export const formatChartAxisCurrency = (
+  value: number,
+  globalSettings?: Partial<GlobalSettings> | null
+) => formatGuildMoneyCompactSigned(value, globalSettings)

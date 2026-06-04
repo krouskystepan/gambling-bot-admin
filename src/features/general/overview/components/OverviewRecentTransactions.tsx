@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
-import { TTransaction, formatNumberToReadableString } from 'gambling-bot-shared'
+import { TTransaction } from 'gambling-bot-shared'
+import type { GlobalSettings } from 'gambling-bot-shared'
 
 import Image from 'next/image'
 import Link from 'next/link'
@@ -16,10 +17,12 @@ import {
   sourceBadgeMap,
   typeBadgeMap
 } from '@/features/general/transactions/table/transactionBadges'
+import { formatGuildMoney } from '@/lib/guildMoney'
 import { TTransactionDiscord } from '@/types/types'
 
 type OverviewRecentTransactionsProps = {
   guildId: string
+  globalSettings: GlobalSettings
   transactions: TTransactionDiscord[]
   dateFrom: string
   dateTo: string
@@ -27,6 +30,7 @@ type OverviewRecentTransactionsProps = {
 
 const OverviewRecentTransactions = ({
   guildId,
+  globalSettings,
   transactions,
   dateFrom,
   dateTo
@@ -87,7 +91,7 @@ const OverviewRecentTransactions = ({
                     </Badge>
                   </div>
                   <span className="font-semibold tabular-nums">
-                    ${formatNumberToReadableString(tx.amount)}
+                    {formatGuildMoney(tx.amount, globalSettings)}
                   </span>
                 </li>
               )

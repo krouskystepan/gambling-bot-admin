@@ -1,6 +1,7 @@
 'use client'
 
 import { format, parseISO } from 'date-fns'
+import type { GlobalSettings } from 'gambling-bot-shared'
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 
 import {
@@ -33,16 +34,19 @@ const chartConfig = {
 
 type OverviewDailyPnLChartProps = {
   data: OverviewDailyPoint[]
+  globalSettings: GlobalSettings
 }
 
 type ChartPoint = OverviewDailyPoint & { label: string }
 
 const OverviewDailyPnLTooltip = ({
   active,
-  payload
+  payload,
+  globalSettings
 }: {
   active?: boolean
-  payload?: Array<{ value?: number; payload?: ChartPoint }>
+  payload?: ReadonlyArray<{ payload?: ChartPoint; value?: unknown }>
+  globalSettings: GlobalSettings
 }) => {
   if (!active || !payload?.length) return null
 
@@ -79,7 +83,7 @@ const OverviewDailyPnLTooltip = ({
               isProfit ? 'text-green-600' : 'text-red-600'
             )}
           >
-            {formatOverviewCurrency(gamePnL)}
+            {formatOverviewCurrency(gamePnL, globalSettings)}
           </span>
         </div>
         <p className="text-[11px] text-muted-foreground">
@@ -97,7 +101,7 @@ const OverviewDailyPnLTooltip = ({
         <div className="flex items-center justify-between gap-4 text-muted-foreground">
           <span>Cash flow</span>
           <span className="font-mono tabular-nums text-foreground">
-            {formatOverviewCurrency(point.cashFlow)}
+            {formatOverviewCurrency(point.cashFlow, globalSettings)}
           </span>
         </div>
       </div>
@@ -105,7 +109,10 @@ const OverviewDailyPnLTooltip = ({
   )
 }
 
-const OverviewDailyPnLChart = ({ data }: OverviewDailyPnLChartProps) => {
+const OverviewDailyPnLChart = ({
+  data,
+  globalSettings
+}: OverviewDailyPnLChartProps) => {
   const chartData = data.map((point) => ({
     ...point,
     label: format(parseISO(point.date), 'MMM d')
@@ -139,7 +146,9 @@ const OverviewDailyPnLChart = ({ data }: OverviewDailyPnLChartProps) => {
               axisLine={false}
               tickMargin={8}
               width={56}
-              tickFormatter={(value) => formatChartAxisCurrency(Number(value))}
+              tickFormatter={(value) =>
+                formatChartAxisCurrency(Number(value), globalSettings)
+              }
               tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
             />
             <ChartTooltip
@@ -148,7 +157,13 @@ const OverviewDailyPnLChart = ({ data }: OverviewDailyPnLChartProps) => {
                 strokeWidth: 1,
                 strokeDasharray: '4 4'
               }}
-              content={<OverviewDailyPnLTooltip />}
+              content={({ active, payload }) => (
+                <OverviewDailyPnLTooltip
+                  active={active}
+                  payload={payload}
+                  globalSettings={globalSettings}
+                />
+              )}
             />
             <Area
               type="monotone"

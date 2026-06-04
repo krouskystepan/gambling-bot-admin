@@ -1,7 +1,6 @@
 'use client'
 
-import { PreviewDay } from 'gambling-bot-shared'
-import { formatNumberToReadableString } from 'gambling-bot-shared'
+import { type GlobalSettings, type PreviewDay } from 'gambling-bot-shared'
 import { Tooltip as TooltipPrimitive } from 'radix-ui'
 
 import { Card, CardContent } from '@/components/ui/card'
@@ -10,10 +9,12 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { formatGuildMoney } from '@/lib/guildMoney'
 import { cn } from '@/lib/utils'
 
 type BonusesCalendarProps = {
   preview: PreviewDay[]
+  globalSettings: GlobalSettings
   compact?: boolean
 }
 
@@ -43,7 +44,13 @@ const getDayCellStyle = (day: PreviewDay) => {
   return 'border-chart-3/30 bg-chart-3/10 hover:bg-chart-3/20'
 }
 
-const DayCell = ({ day }: { day: PreviewDay }) => {
+const DayCell = ({
+  day,
+  globalSettings
+}: {
+  day: PreviewDay
+  globalSettings: GlobalSettings
+}) => {
   const { day: dayNumber, reward, base, weekly, monthly, isReset } = day
   const isWeekly = dayNumber % 7 === 0 && weekly > 0
   const isMonthly = dayNumber % 28 === 0 && monthly > 0
@@ -63,7 +70,7 @@ const DayCell = ({ day }: { day: PreviewDay }) => {
             {dayNumber}
           </span>
           <span className="w-full truncate text-[11px] font-semibold leading-tight text-foreground">
-            {formatNumberToReadableString(reward)}
+            {formatGuildMoney(reward, globalSettings)}
           </span>
         </button>
       </TooltipTrigger>
@@ -78,18 +85,18 @@ const DayCell = ({ day }: { day: PreviewDay }) => {
           <div className="space-y-0.5 text-muted-foreground">
             <div className="flex items-center gap-1.5">
               <span className="size-2 rounded-[2px] bg-chart-3" />
-              Base: {formatNumberToReadableString(base)}
+              Base: {formatGuildMoney(base, globalSettings)}
             </div>
             {weekly > 0 && (
               <div className="flex items-center gap-1.5">
                 <span className="size-2 rounded-[2px] bg-chart-2" />
-                Weekly: {formatNumberToReadableString(weekly)}
+                Weekly: {formatGuildMoney(weekly, globalSettings)}
               </div>
             )}
             {monthly > 0 && (
               <div className="flex items-center gap-1.5">
                 <span className="size-2 rounded-[2px] bg-chart-4" />
-                Monthly: {formatNumberToReadableString(monthly)}
+                Monthly: {formatGuildMoney(monthly, globalSettings)}
               </div>
             )}
           </div>
@@ -120,6 +127,7 @@ const DayCell = ({ day }: { day: PreviewDay }) => {
 
 const BonusesCalendar = ({
   preview,
+  globalSettings,
   compact = false
 }: BonusesCalendarProps) => {
   const weeks = chunkIntoWeeks(preview)
@@ -143,7 +151,11 @@ const BonusesCalendar = ({
 
                   <div className="grid grid-cols-7 gap-1.5">
                     {week.map((day) => (
-                      <DayCell key={day.day} day={day} />
+                      <DayCell
+                        key={day.day}
+                        day={day}
+                        globalSettings={globalSettings}
+                      />
                     ))}
                   </div>
                 </div>

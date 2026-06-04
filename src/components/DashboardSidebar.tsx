@@ -13,7 +13,7 @@ type DashboardSidebarProps = {
 
 const DashboardSidebar = ({ guilds }: DashboardSidebarProps) => {
   return (
-    <aside className="hide-scrollbar relative flex min-h-screen min-w-16 flex-1 grow-0 flex-col items-center overflow-y-scroll border-r border-sidebar-border bg-sidebar py-4 text-sidebar-foreground">
+    <aside className="hide-scrollbar relative flex h-full min-h-0 w-16 shrink-0 flex-col items-center overflow-y-auto border-r border-sidebar-border bg-sidebar py-4 text-sidebar-foreground">
       <Link
         href="/"
         className="mb-4 flex items-center justify-center rounded-lg p-1.5 text-primary transition hover:bg-sidebar-accent"

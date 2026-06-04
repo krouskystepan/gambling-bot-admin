@@ -1,6 +1,6 @@
 'use client'
 
-import { formatNumberToReadableString } from 'gambling-bot-shared'
+import type { GlobalSettings } from 'gambling-bot-shared'
 
 import { useEffect, useRef } from 'react'
 
@@ -17,6 +17,7 @@ import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
 import { useHydrateServerTableFromUrl } from '@/hooks/useHydrateServerTableFromUrl'
 import { useServerTable } from '@/hooks/useServerTable'
 import { useUpdateUrl } from '@/hooks/useUpdateUrl'
+import { formatGuildMoney } from '@/lib/guildMoney'
 import { TGuildMemberStatus } from '@/types/types'
 
 import UserTableFooter from './UserTableFooter'
@@ -24,6 +25,7 @@ import UsersTableFilters from './UsersTableFilters'
 import { userColumns } from './userColumns'
 
 type UserTableProps = {
+  globalSettings: GlobalSettings
   users: TGuildMemberStatus[]
   page: number
   limit: number
@@ -33,6 +35,7 @@ type UserTableProps = {
 }
 
 const UserTable = ({
+  globalSettings,
   users,
   page,
   limit,
@@ -51,6 +54,7 @@ const UserTable = ({
       columns: userColumns({
         guildId,
         managerId,
+        globalSettings,
         onUserUpdated: () => {
           router.refresh()
         }
@@ -117,8 +121,8 @@ const UserTable = ({
     .filter((u) => u.registered)
     .reduce((acc, u) => acc + (u.netProfit || 0), 0)
 
-  const totalBalanceStr = `$${formatNumberToReadableString(totalBalance)}`
-  const totalProfitStr = `$${formatNumberToReadableString(totalNetProfit)}`
+  const totalBalanceStr = formatGuildMoney(totalBalance, globalSettings)
+  const totalProfitStr = formatGuildMoney(totalNetProfit, globalSettings)
 
   return (
     <ServerTablePageLayout

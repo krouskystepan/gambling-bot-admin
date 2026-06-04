@@ -15,10 +15,13 @@ type GuildConfLayoutProps = {
   params: Promise<{ guildId: string }>
 }
 
+const guildMainClassName =
+  'flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto p-6'
+
 const guildStateMain = (content: React.ReactNode) => (
-  <main className="flex min-h-0 flex-1 flex-col overflow-auto p-6">
-    {content}
-  </main>
+  <div className="flex h-full min-h-0 flex-1 overflow-hidden">
+    <main className={guildMainClassName}>{content}</main>
+  </div>
 )
 
 const GuildConfLayout = async ({ children, params }: GuildConfLayoutProps) => {
@@ -57,7 +60,7 @@ const GuildConfLayout = async ({ children, params }: GuildConfLayoutProps) => {
   }
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-1">
+    <div className="flex h-full min-h-0 w-full flex-1 overflow-hidden">
       <GuildConfigSidebar
         guildId={guildId}
         guildName={guildName}
@@ -65,9 +68,7 @@ const GuildConfLayout = async ({ children, params }: GuildConfLayoutProps) => {
         isManager={isManager}
       />
 
-      <main className="flex min-h-0 flex-1 flex-col overflow-auto p-6">
-        {children}
-      </main>
+      <main className={guildMainClassName}>{children}</main>
     </div>
   )
 }

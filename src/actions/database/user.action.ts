@@ -1,7 +1,11 @@
 'use server'
 
-import { TUser } from 'gambling-bot-shared'
-import { formatNumberToReadableString } from 'gambling-bot-shared'
+import {
+  TUser,
+  formatMoney,
+  normalizeGlobalSettings
+} from 'gambling-bot-shared'
+import type { GlobalSettings } from 'gambling-bot-shared'
 import { Session } from 'next-auth'
 
 import { revalidatePath } from 'next/cache'
@@ -16,6 +20,11 @@ import { TGuildMemberStatus } from '@/types/types'
 import { getDiscordGuildMembers } from '../discord/member.action'
 import { sendEmbed } from '../discord/utils.action'
 import { requireGuildAccess } from '../perms'
+
+const money = (
+  amount: number,
+  globalSettings?: Partial<GlobalSettings> | null
+) => formatMoney(amount, globalSettings)
 
 export async function registerUser(
   userId: string,
@@ -135,6 +144,7 @@ export async function depositBalance(
     })
 
     const guildConfig = await GuildConfiguration.findOne({ guildId })
+    const globalSettings = normalizeGlobalSettings(guildConfig?.globalSettings)
     const logChannelId = guildConfig?.atmChannelIds.logs
     const actionsChannelId = guildConfig?.atmChannelIds.actions
 
@@ -143,10 +153,12 @@ export async function depositBalance(
         await sendEmbed(
           logChannelId,
           'ATM - Deposit Balance via Web',
-          `Manager <@${managerId}> successfully added **$${formatNumberToReadableString(
-            amount
-          )}** to <@${userId}>.\nTheir new balance is now: **$${formatNumberToReadableString(
-            user.balance
+          `Manager <@${managerId}> successfully added **${money(
+            amount,
+            globalSettings
+          )}** to <@${userId}>.\nTheir new balance is now: **${money(
+            user.balance,
+            globalSettings
           )}**.`,
           0x57f287
         )
@@ -160,10 +172,11 @@ export async function depositBalance(
         await sendEmbed(
           actionsChannelId,
           'ATM - Deposit Balance via Web',
-          `An administrator has added **$${formatNumberToReadableString(
-            amount
+          `An administrator has added **${money(
+            amount,
+            globalSettings
           )}** to <@${userId}>'s balance.\n` +
-            `**New Balance:** $${formatNumberToReadableString(user.balance)}`,
+            `**New Balance:** ${money(user.balance, globalSettings)}`,
           0x57f287,
           userId
         )
@@ -172,7 +185,10 @@ export async function depositBalance(
       }
     }
 
-    return { success: true, message: `Deposited $${amount} to user.` }
+    return {
+      success: true,
+      message: `Deposited ${money(amount, globalSettings)} to user.`
+    }
   } catch (err) {
     console.error('Error depositing balance:', err)
     return { success: false, message: 'Server error, please try again.' }
@@ -213,6 +229,7 @@ export async function withdrawBalance(
     })
 
     const guildConfig = await GuildConfiguration.findOne({ guildId })
+    const globalSettings = normalizeGlobalSettings(guildConfig?.globalSettings)
     const logChannelId = guildConfig?.atmChannelIds.logs
     const actionsChannelId = guildConfig?.atmChannelIds.actions
     if (logChannelId) {
@@ -220,10 +237,12 @@ export async function withdrawBalance(
         await sendEmbed(
           logChannelId,
           'ATM - Withdraw Balance via Web',
-          `Manager <@${managerId}> successfully removed **$${formatNumberToReadableString(
-            amount
-          )}** from <@${userId}>.\nTheir new balance is now: **$${formatNumberToReadableString(
-            user.balance
+          `Manager <@${managerId}> successfully removed **${money(
+            amount,
+            globalSettings
+          )}** from <@${userId}>.\nTheir new balance is now: **${money(
+            user.balance,
+            globalSettings
           )}**.`,
           0x57f287
         )
@@ -237,10 +256,11 @@ export async function withdrawBalance(
         await sendEmbed(
           actionsChannelId,
           'ATM - Withdraw Balance via Web',
-          `An administrator has removed **$${formatNumberToReadableString(
-            amount
+          `An administrator has removed **${money(
+            amount,
+            globalSettings
           )}** from <@${userId}>'s balance.\n` +
-            `**New Balance:** $${formatNumberToReadableString(user.balance)}`,
+            `**New Balance:** ${money(user.balance, globalSettings)}`,
           0x57f287,
           userId
         )
@@ -249,7 +269,10 @@ export async function withdrawBalance(
       }
     }
 
-    return { success: true, message: `Withdrew $${amount} from user.` }
+    return {
+      success: true,
+      message: `Withdrew ${money(amount, globalSettings)} from user.`
+    }
   } catch (err) {
     console.error('Error withdrawing balance:', err)
     return { success: false, message: 'Server error, please try again.' }
@@ -280,6 +303,7 @@ export async function resetBalance(
     })
 
     const guildConfig = await GuildConfiguration.findOne({ guildId })
+    const globalSettings = normalizeGlobalSettings(guildConfig?.globalSettings)
     const logChannelId = guildConfig?.atmChannelIds.logs
     const actionsChannelId = guildConfig?.atmChannelIds.actions
     if (logChannelId) {
@@ -301,7 +325,7 @@ export async function resetBalance(
           actionsChannelId,
           'ATM - Reset Balance via Web',
           `An administrator has reset <@${userId}>'s balance and cleared transaction history.\n` +
-            `**New Balance:** $0`,
+            `**New Balance:** ${money(0, globalSettings)}`,
           0x1abc9c,
           userId
         )
@@ -347,21 +371,23 @@ export async function bonusBalance(
     })
 
     const guildConfig = await GuildConfiguration.findOne({ guildId })
+    const globalSettings = normalizeGlobalSettings(guildConfig?.globalSettings)
     const logChannelId = guildConfig?.atmChannelIds.logs
     const actionsChannelId = guildConfig?.atmChannelIds.actions
-    const bonusBalance = user.bonusBalance ?? 0
-    const totalBalance = user.balance + bonusBalance
+    const bonusBalanceAmount = user.bonusBalance ?? 0
+    const totalBalance = user.balance + bonusBalanceAmount
 
     if (logChannelId) {
       try {
         await sendEmbed(
           logChannelId,
           'ATM - Bonus Given via Web',
-          `Manager <@${managerId}> successfully given **$${formatNumberToReadableString(
-            amount
+          `Manager <@${managerId}> successfully given **${money(
+            amount,
+            globalSettings
           )}** bonus to <@${userId}>.\n` +
-            `Bonus balance: **$${formatNumberToReadableString(bonusBalance)}**\n` +
-            `Total balance: **$${formatNumberToReadableString(totalBalance)}**`,
+            `Bonus balance: **${money(bonusBalanceAmount, globalSettings)}**\n` +
+            `Total balance: **${money(totalBalance, globalSettings)}**`,
           0x57f287
         )
       } catch {
@@ -374,11 +400,12 @@ export async function bonusBalance(
         await sendEmbed(
           actionsChannelId,
           'ATM - Bonus Given via Web',
-          `An administrator has given **$${formatNumberToReadableString(
-            amount
+          `An administrator has given **${money(
+            amount,
+            globalSettings
           )}** bonus to <@${userId}>.\n` +
-            `**Bonus Balance:** $${formatNumberToReadableString(bonusBalance)}\n` +
-            `**Total Balance:** $${formatNumberToReadableString(totalBalance)}`,
+            `**Bonus Balance:** ${money(bonusBalanceAmount, globalSettings)}\n` +
+            `**Total Balance:** ${money(totalBalance, globalSettings)}`,
           0x57f287,
           userId
         )
@@ -387,7 +414,10 @@ export async function bonusBalance(
       }
     }
 
-    return { success: true, message: `Bonus given $${amount} to user.` }
+    return {
+      success: true,
+      message: `Bonus given ${money(amount, globalSettings)} to user.`
+    }
   } catch (err) {
     console.error('Error giving bonus:', err)
     return { success: false, message: 'Server error, please try again.' }

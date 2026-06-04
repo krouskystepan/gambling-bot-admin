@@ -10,7 +10,7 @@ type LandingShellProps = {
 
 const LandingShell = ({ children }: LandingShellProps) => {
   return (
-    <div className="relative flex min-h-dvh flex-col bg-background">
+    <div className="relative flex h-dvh min-h-0 flex-col overflow-hidden bg-background">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,var(--brand-muted),transparent_70%)] opacity-60 dark:opacity-40"

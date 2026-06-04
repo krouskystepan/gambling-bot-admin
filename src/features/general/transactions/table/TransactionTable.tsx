@@ -1,6 +1,7 @@
 'use client'
 
 import { VisibilityState } from '@tanstack/react-table'
+import type { GlobalSettings } from 'gambling-bot-shared'
 
 import { useEffect, useRef } from 'react'
 
@@ -24,6 +25,7 @@ import TransactionTableSummary from './TransactionTableSummary'
 import { transactionsColumns } from './transactionColumns'
 
 interface TransactionTableProps {
+  globalSettings: GlobalSettings
   transactions: TTransactionDiscord[]
   transactionCounts: ITransactionCounts
   page: number
@@ -34,6 +36,7 @@ interface TransactionTableProps {
 }
 
 const TransactionTable = ({
+  globalSettings,
   transactions,
   transactionCounts,
   page,
@@ -52,7 +55,7 @@ const TransactionTable = ({
       page,
       limit,
       total,
-      columns: transactionsColumns(),
+      columns: transactionsColumns(globalSettings),
 
       onSortingChange: (sorting) => {
         debouncedUpdateUrl({
@@ -178,6 +181,7 @@ const TransactionTable = ({
       }
       summary={
         <TransactionTableSummary
+          globalSettings={globalSettings}
           cashFlow={cashFlow}
           gamePnL={gamePnL}
           counts={transactionCounts}

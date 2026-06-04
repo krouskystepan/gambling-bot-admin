@@ -48,6 +48,7 @@ const OverviewPage = async ({
         </div>
 
         <OverviewKpiGrid
+          globalSettings={data.globalSettings}
           cashFlow={data.cashFlow}
           gamePnL={data.gamePnL}
           txCount={data.txCount}
@@ -57,12 +58,19 @@ const OverviewPage = async ({
         />
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <OverviewDailyPnLChart data={data.dailySeries} />
-          <OverviewSourceChart data={data.sourceAmounts} />
+          <OverviewDailyPnLChart
+            data={data.dailySeries}
+            globalSettings={data.globalSettings}
+          />
+          <OverviewSourceChart
+            data={data.sourceAmounts}
+            globalSettings={data.globalSettings}
+          />
         </div>
 
         <OverviewRecentTransactions
           guildId={guildId}
+          globalSettings={data.globalSettings}
           transactions={data.recentTransactions}
           dateFrom={range.dateFrom}
           dateTo={range.dateTo}
@@ -70,6 +78,7 @@ const OverviewPage = async ({
 
         <OverviewTopUsersPanel
           guildId={guildId}
+          globalSettings={data.globalSettings}
           topByBalance={data.topByBalance}
           topByNetProfit={data.topByNetProfit}
         />

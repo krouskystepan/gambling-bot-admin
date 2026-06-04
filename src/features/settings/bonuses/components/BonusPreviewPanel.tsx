@@ -1,6 +1,6 @@
 'use client'
 
-import { type PreviewDay } from 'gambling-bot-shared'
+import { type GlobalSettings, type PreviewDay } from 'gambling-bot-shared'
 
 import dynamic from 'next/dynamic'
 
@@ -27,6 +27,7 @@ const BonusRewardChart = dynamic(() => import('./BonusRewardChart'), {
 })
 
 type BonusPreviewPanelProps = {
+  globalSettings: GlobalSettings
   preview: PreviewDay[]
   previewDays: number
   onPreviewDaysChange: (days: number) => void
@@ -34,6 +35,7 @@ type BonusPreviewPanelProps = {
 }
 
 const BonusPreviewPanel = ({
+  globalSettings,
   preview,
   previewDays,
   onPreviewDaysChange,
@@ -71,12 +73,16 @@ const BonusPreviewPanel = ({
       <CardContent className="space-y-4 pt-0">
         <div className="space-y-2">
           <p className="text-sm font-medium">Reward curve</p>
-          <BonusRewardChart preview={preview} />
+          <BonusRewardChart preview={preview} globalSettings={globalSettings} />
         </div>
 
         <div className="space-y-2">
           <p className="text-sm font-medium">All days</p>
-          <BonusesCalendar preview={preview} compact />
+          <BonusesCalendar
+            preview={preview}
+            globalSettings={globalSettings}
+            compact
+          />
         </div>
       </CardContent>
     </Card>

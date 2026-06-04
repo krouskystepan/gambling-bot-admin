@@ -3,6 +3,7 @@
 import {
   BONUS_MAX_AMOUNT,
   BONUS_MAX_STREAK_MULTIPLIER,
+  type GlobalSettings,
   calculateBonusReward,
   parseBonusAmountInput,
   parseBonusMultiplierInput
@@ -27,12 +28,17 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { formatGuildMoney } from '@/lib/guildMoney'
 import { cn } from '@/lib/utils'
 import { TBonusFormInput } from '@/types/types'
 
 const STREAK_HINT_DAY = 7
 
-const RewardCurveCard = () => {
+type RewardCurveCardProps = {
+  globalSettings: GlobalSettings
+}
+
+const RewardCurveCard = ({ globalSettings }: RewardCurveCardProps) => {
   const form = useFormContext<TBonusFormInput>()
   const watched = useWatch({ control: form.control })
 
@@ -176,8 +182,9 @@ const RewardCurveCard = () => {
                   />
                 </FormControl>
                 <p className="text-xs text-muted-foreground">
-                  Day {STREAK_HINT_DAY} base ≈ ${streakHint.toLocaleString()} ·
-                  max {BONUS_MAX_AMOUNT.toLocaleString()}
+                  Day {STREAK_HINT_DAY} base ≈{' '}
+                  {formatGuildMoney(streakHint, globalSettings)} · max{' '}
+                  {BONUS_MAX_AMOUNT.toLocaleString()}
                 </p>
                 <FormMessage />
               </FormItem>
@@ -211,8 +218,9 @@ const RewardCurveCard = () => {
                   />
                 </FormControl>
                 <p className="text-xs text-muted-foreground">
-                  Day {STREAK_HINT_DAY} base ≈ ${streakHint.toLocaleString()} ·
-                  max ×{BONUS_MAX_STREAK_MULTIPLIER}
+                  Day {STREAK_HINT_DAY} base ≈{' '}
+                  {formatGuildMoney(streakHint, globalSettings)} · max ×
+                  {BONUS_MAX_STREAK_MULTIPLIER}
                 </p>
                 <FormMessage />
               </FormItem>

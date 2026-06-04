@@ -1,3 +1,5 @@
+import type { GlobalSettings } from 'gambling-bot-shared'
+
 import { KpiStripMetric } from '@/components/KpiStrip'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -38,16 +40,20 @@ const getPnLFormula = (counts: ITransactionCounts) => {
 }
 
 interface SummaryPanelProps {
+  globalSettings: GlobalSettings
   cashFlow: number
   gamePnL: number
   counts: ITransactionCounts
 }
 
 const TransactionTableSummary = ({
+  globalSettings,
   cashFlow,
   gamePnL,
   counts
 }: SummaryPanelProps) => {
+  const formatCurrency = (value: number) =>
+    formatOverviewCurrency(value, globalSettings)
   const activeTypesNote = 'Only active items are counted.'
 
   const countMetrics = [
@@ -69,14 +75,14 @@ const TransactionTableSummary = ({
               label="Cash flow"
               value={cashFlow}
               positiveIsGreen
-              formatter={formatOverviewCurrency}
+              formatter={formatCurrency}
               tooltip={`${activeTypesNote} ${getCashFlowFormula(counts)}`}
             />
             <KpiStripMetric
               label="Profit / Loss"
               value={gamePnL}
               positiveIsGreen
-              formatter={formatOverviewCurrency}
+              formatter={formatCurrency}
               tooltip={`${activeTypesNote} ${getPnLFormula(counts)}`}
             />
           </div>

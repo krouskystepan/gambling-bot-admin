@@ -1,6 +1,7 @@
 'use server'
 
 import {
+  type GlobalSettings,
   TGuildConfiguration,
   TRANSACTION_SOURCES,
   TRANSACTION_TYPES,
@@ -8,6 +9,7 @@ import {
   calculateRTP,
   defaultCasinoSettings,
   getReadableName,
+  normalizeGlobalSettings,
   readableGameNames,
   resolveGuildTimezone
 } from 'gambling-bot-shared'
@@ -18,8 +20,8 @@ import {
   OverviewDateRange,
   fillDailySeries
 } from '@/features/general/overview/period'
-import { guildDateRangeMatch } from '@/lib/guildTimezone'
 import { connectToDatabase } from '@/lib/db'
+import { guildDateRangeMatch } from '@/lib/guildTimezone'
 import { getRtpStatus } from '@/lib/rtpWarnings'
 import {
   cashFlowSum,
@@ -58,6 +60,7 @@ export type SetupHealthCheck = {
 }
 
 export type OverviewData = {
+  globalSettings: GlobalSettings
   gamePnL: number
   cashFlow: number
   txCount: number
@@ -223,7 +226,9 @@ async function enrichTopUsers(
   }
 }
 
-export async function getGuildOverviewTimezone(guildId: string): Promise<string> {
+export async function getGuildOverviewTimezone(
+  guildId: string
+): Promise<string> {
   await connectToDatabase()
   const doc = await GuildConfiguration.findOne({ guildId })
     .select('globalSettings.timezone')
@@ -390,6 +395,9 @@ export async function getOverviewData(
   )
 
   return {
+    globalSettings: normalizeGlobalSettings(
+      guildConfig?.globalSettings as Partial<GlobalSettings> | undefined
+    ),
     gamePnL,
     cashFlow,
     txCount,

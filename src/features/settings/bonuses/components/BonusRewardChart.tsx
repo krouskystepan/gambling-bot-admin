@@ -1,7 +1,10 @@
 'use client'
 
-import { type PreviewDay } from 'gambling-bot-shared'
-import { formatNumberToReadableString } from 'gambling-bot-shared'
+import {
+  type GlobalSettings,
+  type PreviewDay,
+  formatNumberToReadableString
+} from 'gambling-bot-shared'
 import {
   Area,
   AreaChart,
@@ -13,6 +16,8 @@ import {
 } from 'recharts'
 
 import { useEffect, useRef, useState } from 'react'
+
+import { formatGuildMoney } from '@/lib/guildMoney'
 
 const CHART_HEIGHT = 280
 const MILESTONE_DAYS = [7, 14, 21, 28]
@@ -29,16 +34,17 @@ type ChartPoint = PreviewDay & {
   isMonthly: boolean
 }
 
-const formatAmount = (value: number) =>
-  `$${formatNumberToReadableString(value)}`
-
 const BonusChartTooltip = ({
   active,
-  payload
+  payload,
+  globalSettings
 }: {
   active?: boolean
-  payload?: Array<{ payload?: ChartPoint }>
+  payload?: ReadonlyArray<{ payload?: ChartPoint }>
+  globalSettings: GlobalSettings
 }) => {
+  const formatAmount = (value: number) =>
+    formatGuildMoney(value, globalSettings)
   if (!active || !payload?.length) return null
 
   const point = payload[0]?.payload
@@ -61,7 +67,7 @@ const BonusChartTooltip = ({
   ]
 
   return (
-    <div className="grid max-w-[11rem] gap-2 rounded-lg border border-border/60 bg-background px-3 py-2.5 text-xs shadow-xl sm:max-w-[13rem]">
+    <div className="grid max-w-44 gap-2 rounded-lg border border-border/60 bg-background px-3 py-2.5 text-xs shadow-xl sm:max-w-52">
       <div className="flex flex-wrap items-center gap-1.5">
         <span className="font-semibold">Day {point.day}</span>
         {point.isWeekly ? (
@@ -121,9 +127,13 @@ const BonusChartTooltip = ({
 
 type BonusRewardChartProps = {
   preview: PreviewDay[]
+  globalSettings: GlobalSettings
 }
 
-const BonusRewardChart = ({ preview }: BonusRewardChartProps) => {
+const BonusRewardChart = ({
+  preview,
+  globalSettings
+}: BonusRewardChartProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(0)
 
@@ -193,7 +203,15 @@ const BonusRewardChart = ({ preview }: BonusRewardChartProps) => {
               tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
               width={56}
             />
-            <Tooltip content={<BonusChartTooltip />} />
+            <Tooltip
+              content={({ active, payload }) => (
+                <BonusChartTooltip
+                  active={active}
+                  payload={payload}
+                  globalSettings={globalSettings}
+                />
+              )}
+            />
             {MILESTONE_DAYS.filter((day) => preview.length >= day).map(
               (day) => (
                 <ReferenceLine

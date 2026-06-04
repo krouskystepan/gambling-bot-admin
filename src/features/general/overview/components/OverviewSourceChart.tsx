@@ -1,5 +1,6 @@
 'use client'
 
+import type { GlobalSettings } from 'gambling-bot-shared'
 import { TTransaction } from 'gambling-bot-shared'
 import { Cell, Pie, PieChart } from 'recharts'
 
@@ -40,16 +41,19 @@ const SOURCE_COLORS: Record<TTransaction['source'], string> = {
 
 type OverviewSourceChartProps = {
   data: SourceRow[]
+  globalSettings: GlobalSettings
 }
 
 const OverviewSourceTooltip = ({
   active,
   payload,
-  totalVolume
+  totalVolume,
+  globalSettings
 }: {
   active?: boolean
-  payload?: Array<{ value?: number; payload?: SourceRow }>
+  payload?: ReadonlyArray<{ payload?: SourceRow; value?: unknown }>
   totalVolume: number
+  globalSettings: GlobalSettings
 }) => {
   if (!active || !payload?.length) return null
 
@@ -78,7 +82,7 @@ const OverviewSourceTooltip = ({
         <div className="flex items-center justify-between gap-4">
           <span className="text-muted-foreground">Volume</span>
           <span className="font-mono text-sm font-semibold tabular-nums text-foreground">
-            {formatOverviewCurrency(amount)}
+            {formatOverviewCurrency(amount, globalSettings)}
           </span>
         </div>
         <div className="flex items-center justify-between gap-4 text-muted-foreground">
@@ -92,7 +96,10 @@ const OverviewSourceTooltip = ({
   )
 }
 
-const OverviewSourceChart = ({ data }: OverviewSourceChartProps) => {
+const OverviewSourceChart = ({
+  data,
+  globalSettings
+}: OverviewSourceChartProps) => {
   const chartConfig = Object.fromEntries(
     data.map((row) => [
       row.source,
@@ -123,7 +130,14 @@ const OverviewSourceChart = ({ data }: OverviewSourceChartProps) => {
             <PieChart>
               <ChartTooltip
                 offset={16}
-                content={<OverviewSourceTooltip totalVolume={totalVolume} />}
+                content={({ active, payload }) => (
+                  <OverviewSourceTooltip
+                    active={active}
+                    payload={payload}
+                    totalVolume={totalVolume}
+                    globalSettings={globalSettings}
+                  />
+                )}
               />
               <Pie
                 data={data}

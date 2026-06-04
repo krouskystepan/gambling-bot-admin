@@ -72,7 +72,7 @@ const GuildConfigSidebar = ({
   const activeSectionId = pathname.split('/')[4] || undefined
 
   return (
-    <section className="flex w-60 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
+    <section className="flex h-full min-h-0 w-60 shrink-0 flex-col overflow-hidden border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
       <div className="p-3 text-center text-lg font-bold text-primary">
         {guildName}
       </div>

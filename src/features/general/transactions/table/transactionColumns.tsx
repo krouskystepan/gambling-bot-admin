@@ -1,6 +1,6 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { TTransaction } from 'gambling-bot-shared'
-import { formatNumberToReadableString } from 'gambling-bot-shared'
+import type { GlobalSettings } from 'gambling-bot-shared'
 import { CircleQuestionMark } from 'lucide-react'
 
 import Image from 'next/image'
@@ -11,11 +11,14 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { formatGuildMoney } from '@/lib/guildMoney'
 import { TTransactionDiscord } from '@/types/types'
 
 import { sourceBadgeMap, typeBadgeMap } from './transactionBadges'
 
-export const transactionsColumns = (): ColumnDef<TTransactionDiscord>[] => [
+export const transactionsColumns = (
+  globalSettings: GlobalSettings
+): ColumnDef<TTransactionDiscord>[] => [
   {
     header: 'Avatar',
     accessorKey: 'avatar',
@@ -115,7 +118,7 @@ export const transactionsColumns = (): ColumnDef<TTransactionDiscord>[] => [
     enableHiding: false,
     size: 80,
     cell: ({ row }) =>
-      `$${formatNumberToReadableString(row.getValue('amount'))}`
+      formatGuildMoney(row.getValue('amount') as number, globalSettings)
   },
   {
     header: () => (
