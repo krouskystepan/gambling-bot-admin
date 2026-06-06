@@ -26,6 +26,7 @@ import { userColumns } from './userColumns'
 
 type UserTableProps = {
   globalSettings: GlobalSettings
+  isGuildAdmin: boolean
   users: TGuildMemberStatus[]
   page: number
   limit: number
@@ -36,6 +37,7 @@ type UserTableProps = {
 
 const UserTable = ({
   globalSettings,
+  isGuildAdmin,
   users,
   page,
   limit,
@@ -55,6 +57,7 @@ const UserTable = ({
         guildId,
         managerId,
         globalSettings,
+        isGuildAdmin,
         onUserUpdated: () => {
           router.refresh()
         }

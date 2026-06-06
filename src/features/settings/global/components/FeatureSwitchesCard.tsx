@@ -31,17 +31,20 @@ const ATM_SWITCHES: SwitchRow[] = [
   {
     name: 'disableRegistrations',
     label: 'Disable registrations',
-    description: 'Block /register for new users.'
+    description:
+      'Block /register, /force-register, /force-unregister, and register/unregister in the admin Users table.'
   },
   {
     name: 'disableDeposits',
     label: 'Disable deposits',
-    description: 'Block deposit requests in the ATM channel.'
+    description:
+      'Block /deposit and manual deposits from the admin Users table.'
   },
   {
     name: 'disableWithdrawals',
     label: 'Disable withdrawals',
-    description: 'Block withdrawal requests in the ATM channel.'
+    description:
+      'Block /withdraw and manual withdrawals from the admin Users table.'
   }
 ]
 
@@ -85,7 +88,8 @@ const OTHER_SWITCHES: SwitchRow[] = [
   {
     name: 'disableDailyBonus',
     label: 'Disable daily bonus',
-    description: 'Block /bonus claim and check.'
+    description:
+      'Block /bonus claim and check, and manual bonus grants in the admin Users table.'
   },
   {
     name: 'disableVip',

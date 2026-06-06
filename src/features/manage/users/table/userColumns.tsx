@@ -1,5 +1,6 @@
 import { ColumnDef, Row } from '@tanstack/react-table'
 import type { GlobalSettings } from 'gambling-bot-shared'
+import type { GlobalFeature } from 'gambling-bot-shared'
 import { CircleQuestionMark, EllipsisIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -50,6 +51,10 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import { formatGuildMoney } from '@/lib/guildMoney'
+import {
+  getPanelFeatureBlockMessage,
+  isPanelFeatureBlocking
+} from '@/lib/panelGlobalFeatureGuard'
 import { cn } from '@/lib/utils'
 import { TGuildMemberStatus } from '@/types/types'
 
@@ -68,6 +73,7 @@ interface UserColumnsDeps {
   guildId: string
   managerId: string
   globalSettings: GlobalSettings
+  isGuildAdmin: boolean
   onUserUpdated: () => void
 }
 
@@ -75,6 +81,7 @@ export const userColumns = ({
   guildId,
   managerId,
   globalSettings,
+  isGuildAdmin,
   onUserUpdated
 }: UserColumnsDeps): ColumnDef<TGuildMemberStatus>[] => [
   // Only for filtering purposes
@@ -193,23 +200,75 @@ export const userColumns = ({
         row={row}
         guildId={guildId}
         managerId={managerId}
+        globalSettings={globalSettings}
+        isGuildAdmin={isGuildAdmin}
         onUserUpdated={onUserUpdated}
       />
     )
   }
 ]
 
+const PANEL_BALANCE_ACTION_FEATURES = {
+  deposit: 'deposit',
+  withdraw: 'withdraw',
+  bonus: 'dailyBonus'
+} as const satisfies Record<string, GlobalFeature>
+
 function RowActions({
   row,
   guildId,
   managerId,
+  globalSettings,
+  isGuildAdmin,
   onUserUpdated
 }: {
   row: Row<TGuildMemberStatus>
   guildId: string
   managerId: string
+  globalSettings: GlobalSettings
+  isGuildAdmin: boolean
   onUserUpdated: () => void
 }) {
+  const registrationBlocked = isPanelFeatureBlocking(
+    globalSettings,
+    'registration',
+    isGuildAdmin
+  )
+  const registrationBlockMessage = getPanelFeatureBlockMessage(
+    globalSettings,
+    'registration',
+    isGuildAdmin
+  )
+
+  const isBalanceActionBlocked = (
+    action: keyof typeof PANEL_BALANCE_ACTION_FEATURES | 'reset'
+  ) => {
+    if (action === 'reset') {
+      return isPanelFeatureBlocking(globalSettings, 'maintenance', isGuildAdmin)
+    }
+    return isPanelFeatureBlocking(
+      globalSettings,
+      PANEL_BALANCE_ACTION_FEATURES[action],
+      isGuildAdmin
+    )
+  }
+
+  const balanceActionBlockMessage = (
+    action: keyof typeof PANEL_BALANCE_ACTION_FEATURES | 'reset'
+  ) => {
+    if (action === 'reset') {
+      return getPanelFeatureBlockMessage(
+        globalSettings,
+        'maintenance',
+        isGuildAdmin
+      )
+    }
+    return getPanelFeatureBlockMessage(
+      globalSettings,
+      PANEL_BALANCE_ACTION_FEATURES[action],
+      isGuildAdmin
+    )
+  }
   const [open, setOpen] = useState(false)
 
   const [alertOpen, setAlertOpen] = useState(false)
@@ -311,51 +370,57 @@ function RowActions({
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Balance Actions</DropdownMenuLabel>
 
-          {['deposit', 'withdraw', 'bonus', 'reset'].map((action) => {
-            const labels: Record<string, string> = {
-              deposit: 'Deposit',
-              withdraw: 'Withdraw',
-              bonus: 'Bonus',
-              reset: 'Reset'
-            }
+          {(['deposit', 'withdraw', 'bonus', 'reset'] as const).map(
+            (action) => {
+              const labels: Record<string, string> = {
+                deposit: 'Deposit',
+                withdraw: 'Withdraw',
+                bonus: 'Bonus',
+                reset: 'Reset'
+              }
 
-            const descriptions: Record<string, string> = {
-              deposit: 'Add balance to user account.',
-              withdraw: 'Remove balance from user account.',
-              reset: 'Reset user balance (delete all transactions).',
-              bonus: 'Give a bonus to user account.'
-            }
+              const descriptions: Record<string, string> = {
+                deposit: 'Add balance to user account.',
+                withdraw: 'Remove balance from user account.',
+                reset: 'Reset user balance (delete all transactions).',
+                bonus: 'Give a bonus to user account.'
+              }
 
-            return (
-              <DropdownMenuItem
-                key={action}
-                onClick={() =>
-                  setBalanceModal(
-                    action as 'deposit' | 'withdraw' | 'reset' | 'bonus'
-                  )
-                }
-                disabled={!row.original.registered}
-                className="flex items-center justify-between"
-              >
-                {labels[action]}
-                <Tooltip>
-                  <TooltipTrigger className="ml-2 text-muted-foreground transition hover:text-foreground">
-                    <CircleQuestionMark size={16} />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="mb-1 font-semibold">{labels[action]}</p>
-                    <p className="text-sm">{descriptions[action]}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </DropdownMenuItem>
-            )
-          })}
+              const featureBlocked = isBalanceActionBlocked(action)
+              const blockMessage = balanceActionBlockMessage(action)
+
+              return (
+                <DropdownMenuItem
+                  key={action}
+                  onClick={() => setBalanceModal(action)}
+                  disabled={!row.original.registered || featureBlocked}
+                  className="flex items-center justify-between"
+                >
+                  {labels[action]}
+                  <Tooltip>
+                    <TooltipTrigger className="ml-2 text-muted-foreground transition hover:text-foreground">
+                      <CircleQuestionMark size={16} />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="mb-1 font-semibold">{labels[action]}</p>
+                      <p className="text-sm">
+                        {featureBlocked && blockMessage
+                          ? blockMessage
+                          : descriptions[action]}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </DropdownMenuItem>
+              )
+            }
+          )}
 
           <DropdownMenuSeparator />
 
           <DropdownMenuLabel>Registration</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() => setAlertOpen(true)}
+            disabled={registrationBlocked}
             className="flex items-center justify-between"
           >
             {row.original.registered ? 'Unregister' : 'Register'}
@@ -363,14 +428,16 @@ function RowActions({
               <TooltipTrigger className="ml-2 text-muted-foreground transition hover:text-foreground">
                 <CircleQuestionMark size={16} />
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent className="max-w-xs">
                 <p className="mb-1 font-semibold">
                   {row.original.registered ? 'Unregister' : 'Register'}
                 </p>
                 <p className="text-sm">
-                  {row.original.registered
-                    ? 'Unregister user (will delete from database).'
-                    : 'Register user in the system.'}
+                  {registrationBlocked && registrationBlockMessage
+                    ? registrationBlockMessage
+                    : row.original.registered
+                      ? 'Unregister user (will delete from database).'
+                      : 'Register user in the system.'}
                 </p>
               </TooltipContent>
             </Tooltip>
