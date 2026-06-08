@@ -33,6 +33,7 @@ interface TransactionTableProps {
   total: number
   gamePnL: number
   cashFlow: number
+  hideUserSearch?: boolean
 }
 
 const TransactionTable = ({
@@ -43,7 +44,8 @@ const TransactionTable = ({
   limit,
   total,
   gamePnL,
-  cashFlow
+  cashFlow,
+  hideUserSearch = false
 }: TransactionTableProps) => {
   const defaultVisibility: VisibilityState = {
     betId: false
@@ -55,7 +57,9 @@ const TransactionTable = ({
       page,
       limit,
       total,
-      columns: transactionsColumns(globalSettings),
+      columns: transactionsColumns(globalSettings, {
+        hideUserColumns: hideUserSearch
+      }),
 
       onSortingChange: (sorting) => {
         debouncedUpdateUrl({
@@ -177,6 +181,7 @@ const TransactionTable = ({
           setIsLoading={setIsLoading}
           userSearchRef={userSearchRef}
           adminSearchRef={adminSearchRef}
+          hideUserSearch={hideUserSearch}
         />
       }
       summary={

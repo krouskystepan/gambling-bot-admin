@@ -29,7 +29,8 @@ export const getTransactions = async (
   filterSource?: string[],
   dateFrom?: string,
   dateTo?: string,
-  sort?: string
+  sort?: string,
+  userId?: string
 ): Promise<{
   transactions: TTransactionDiscord[]
   total: number
@@ -45,7 +46,9 @@ export const getTransactions = async (
 
   const andFilters: TransactionFilter[] = []
 
-  if (search) {
+  if (userId) {
+    andFilters.push({ userId })
+  } else if (search) {
     const regex = new RegExp(escapeRegExp(search), 'i')
     andFilters.push({ userId: regex })
   }
@@ -167,7 +170,8 @@ export const getTransactionCounts = async (
   search?: string,
   adminSearch?: string,
   dateFrom?: string,
-  dateTo?: string
+  dateTo?: string,
+  userId?: string
 ): Promise<ITransactionCounts> => {
   const access = await requireGuildAccess(guildId)
   if ('error' in access) {
@@ -186,7 +190,9 @@ export const getTransactionCounts = async (
 
   const andFilters: TransactionFilter[] = []
 
-  if (search) {
+  if (userId) {
+    andFilters.push({ userId })
+  } else if (search) {
     const regex = new RegExp(escapeRegExp(search), 'i')
     andFilters.push({ userId: regex })
   }

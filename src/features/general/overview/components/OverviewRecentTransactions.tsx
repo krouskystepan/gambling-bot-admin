@@ -77,7 +77,12 @@ const OverviewRecentTransactions = ({
                     className="rounded-full"
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">{tx.username}</p>
+                    <Link
+                      href={`/dashboard/g/${guildId}/users/${tx.userId}`}
+                      className="truncate font-medium hover:text-primary hover:underline"
+                    >
+                      {tx.username}
+                    </Link>
                     <p className="text-xs text-muted-foreground">
                       {format(new Date(tx.createdAt), 'MMM d, HH:mm')}
                     </p>

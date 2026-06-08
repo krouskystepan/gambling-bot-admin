@@ -55,7 +55,7 @@ const UserList = ({
             />
             <div className="min-w-0 flex-1">
               <Link
-                href={`/dashboard/g/${guildId}/users?search=${user.userId}`}
+                href={`/dashboard/g/${guildId}/users/${user.userId}`}
                 className="truncate font-medium hover:text-primary hover:underline"
               >
                 {user.username}

@@ -21,19 +21,20 @@ import VipsTableFilters from './VipsTableFilters'
 import { vipColumns } from './vipColumns'
 
 type VipTableProps = {
+  guildId: string
   vips: TVipChannels[]
   page: number
   limit: number
   total: number
 }
 
-const VipTable = ({ vips, page, limit, total }: VipTableProps) => {
+const VipTable = ({ guildId, vips, page, limit, total }: VipTableProps) => {
   const { table, isLoading, setIsLoading } = useServerTable<TVipChannels>({
     data: vips,
     page,
     limit,
     total,
-    columns: vipColumns(),
+    columns: vipColumns(guildId),
     initialSorting: [{ id: 'createdAt', desc: true }],
     initialVisibility: { search: false },
 

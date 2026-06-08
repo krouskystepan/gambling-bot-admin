@@ -16,6 +16,7 @@ export interface TransactionsQuery {
   dateFrom?: string
   dateTo?: string
   sort?: string
+  userId?: string
 }
 
 export interface TransactionsResult {
@@ -42,7 +43,8 @@ export async function getTransactionsData(
     query.filterSource,
     query.dateFrom,
     query.dateTo,
-    query.sort
+    query.sort,
+    query.userId
   )
 
   const transactionCounts = await getTransactionCounts(
@@ -53,7 +55,8 @@ export async function getTransactionsData(
     query.search,
     query.adminSearch,
     query.dateFrom,
-    query.dateTo
+    query.dateTo,
+    query.userId
   )
 
   return {

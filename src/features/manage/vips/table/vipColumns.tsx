@@ -2,6 +2,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { CircleQuestionMark } from 'lucide-react'
 
 import Image from 'next/image'
+import Link from 'next/link'
 
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
@@ -11,7 +12,7 @@ import {
 } from '@/components/ui/tooltip'
 import { TVipChannels } from '@/types/types'
 
-export const vipColumns = (): ColumnDef<TVipChannels>[] => [
+export const vipColumns = (guildId: string): ColumnDef<TVipChannels>[] => [
   {
     id: 'search',
     header: () => null,
@@ -55,7 +56,12 @@ export const vipColumns = (): ColumnDef<TVipChannels>[] => [
     size: 160,
     cell: ({ row }) => (
       <p>
-        {row.getValue('username')}
+        <Link
+          href={`/dashboard/g/${guildId}/users/${row.original.ownerId}`}
+          className="font-medium hover:text-primary hover:underline"
+        >
+          {row.getValue('username')}
+        </Link>
         <br />
         <span className="text-xs text-muted-foreground">
           ({row.original.ownerId})
@@ -86,19 +92,23 @@ export const vipColumns = (): ColumnDef<TVipChannels>[] => [
               </TooltipTrigger>
               <TooltipContent>
                 <ScrollArea className="h-fit p-1">
-                  {members.map((member, index) => (
-                    <p key={index} className="text-sm flex items-center gap-2">
+                  {members.map((member) => (
+                    <Link
+                      key={member.userId}
+                      href={`/dashboard/g/${guildId}/users/${member.userId}`}
+                      className="flex items-center gap-2 text-sm hover:text-primary"
+                    >
                       <Image
                         className="rounded-full"
                         width={20}
                         height={20}
                         alt={member.username}
                         src={member.avatar}
-                      />{' '}
+                      />
                       <span>
                         {member.username} ({member.nickname || 'No nickname'})
                       </span>
-                    </p>
+                    </Link>
                   ))}
                 </ScrollArea>
               </TooltipContent>

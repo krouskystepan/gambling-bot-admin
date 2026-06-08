@@ -16,6 +16,20 @@ export function guildDateRangeMatch(
   return { guildId, createdAt: { $gte: start, $lte: end } }
 }
 
+export function userGuildDateRangeMatch(
+  guildId: string,
+  userId: string,
+  dateFrom: string,
+  dateTo: string,
+  timezone?: string | null
+): {
+  guildId: string
+  userId: string
+  createdAt: { $gte: Date; $lte: Date }
+} {
+  return { ...guildDateRangeMatch(guildId, dateFrom, dateTo, timezone), userId }
+}
+
 export function nowInGuildTimezone(timezone?: string | null): DateTime {
   return DateTime.now().setZone(resolveGuildTimezone(timezone))
 }

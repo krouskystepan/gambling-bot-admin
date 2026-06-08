@@ -25,7 +25,8 @@ const TransactionTableFilters = ({
   isLoading,
   setIsLoading,
   userSearchRef,
-  adminSearchRef
+  adminSearchRef,
+  hideUserSearch = false
 }: {
   table: ReactTable<TTransactionDiscord>
   counts: ITransactionCounts
@@ -33,6 +34,7 @@ const TransactionTableFilters = ({
   setIsLoading: Dispatch<SetStateAction<boolean>>
   userSearchRef: RefObject<HTMLInputElement | null>
   adminSearchRef: RefObject<HTMLInputElement | null>
+  hideUserSearch?: boolean
 }) => {
   type Option<T = string> = {
     value: string
@@ -97,13 +99,15 @@ const TransactionTableFilters = ({
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div className="flex min-w-0 flex-1 flex-wrap gap-2">
-        <TransactionSearch
-          table={table}
-          inputRef={userSearchRef}
-          placeholder="Search by user ID..."
-          inputType="username"
-          initialValue={usernameInputFilter}
-        />
+        {!hideUserSearch ? (
+          <TransactionSearch
+            table={table}
+            inputRef={userSearchRef}
+            placeholder="Search by user ID..."
+            inputType="username"
+            initialValue={usernameInputFilter}
+          />
+        ) : null}
 
         <TransactionSearch
           table={table}

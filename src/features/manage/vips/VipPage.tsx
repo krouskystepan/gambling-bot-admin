@@ -27,6 +27,7 @@ const VipPage = async ({
   return (
     <FeatureLayout title={'VIPs Channels'}>
       <VipTable
+        guildId={guildId}
         vips={vips}
         page={query.page}
         limit={query.limit}
