@@ -74,9 +74,9 @@ const TransactionTableFilters = ({
     sourceOptions
   )
 
-  const usernameInputFilter = table.getColumn('username')?.getFilterValue() as
-    | string
-    | undefined
+  const usernameInputFilter = hideUserSearch
+    ? undefined
+    : (table.getColumn('username')?.getFilterValue() as string | undefined)
   const adminInputFilter = table
     .getColumn('handledByUsername')
     ?.getFilterValue() as string | undefined

@@ -33,8 +33,8 @@ export const transactionsColumns = (
           className="ml-2 rounded-full"
           width={36}
           height={36}
-          alt={row.getValue('username')}
-          src={row.getValue('avatar')}
+          alt={row.original.username}
+          src={row.original.avatar}
         />
       )
     },

@@ -71,10 +71,11 @@ const TransactionTable = ({
       },
 
       onColumnFiltersChange: (filters) => {
-        const search =
-          (filters.find((f) => f.id === 'username')?.value as
-            | string
-            | undefined) ?? ''
+        const search = hideUserSearch
+          ? undefined
+          : ((filters.find((f) => f.id === 'username')?.value as
+              | string
+              | undefined) ?? '')
         const adminSearch =
           (filters.find((f) => f.id === 'handledByUsername')?.value as
             | string
@@ -97,7 +98,7 @@ const TransactionTable = ({
 
         debouncedUpdateUrl({
           page: 1,
-          search,
+          ...(hideUserSearch ? {} : { search }),
           adminSearch,
           filterType,
           filterSource,
@@ -154,8 +155,7 @@ const TransactionTable = ({
       const dateFrom = params.get('dateFrom') || undefined
       const dateTo = params.get('dateTo') || undefined
 
-      return [
-        { id: 'username', value: search || undefined },
+      const filters = [
         { id: 'handledByUsername', value: adminSearch || undefined },
         { id: 'type', value: filterType?.length ? filterType : undefined },
         {
@@ -167,6 +167,12 @@ const TransactionTable = ({
           value: dateFrom && dateTo ? [dateFrom, dateTo] : undefined
         }
       ]
+
+      if (!hideUserSearch) {
+        filters.unshift({ id: 'username', value: search || undefined })
+      }
+
+      return filters
     },
     defaultVisibility
   })

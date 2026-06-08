@@ -9,7 +9,6 @@ import { getUserPermissions } from '@/actions/perms'
 import NotFoundBox from '@/components/states/NotFoundBox'
 import FeatureLayout from '@/features/FeatureLayout'
 import OverviewDailyPnLChart from '@/features/general/overview/components/OverviewDailyPnLChart'
-import OverviewPeriodSelect from '@/features/general/overview/components/OverviewPeriodSelect'
 import OverviewSourceChart from '@/features/general/overview/components/OverviewSourceChart'
 import { resolveOverviewDateRange } from '@/features/general/overview/period'
 import TransactionTable from '@/features/general/transactions/table/TransactionTable'
@@ -81,14 +80,9 @@ const UserProfilePage = async ({
           managerId={session.userId!}
           isGuildAdmin={isAdmin}
           profile={profile}
+          dateFrom={range.dateFrom}
+          dateTo={range.dateTo}
         />
-
-        <div className="flex flex-wrap items-center justify-end gap-4">
-          <OverviewPeriodSelect
-            dateFrom={range.dateFrom}
-            dateTo={range.dateTo}
-          />
-        </div>
 
         <UserProfileKpiStrip
           globalSettings={profile.globalSettings}

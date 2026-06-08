@@ -2,6 +2,7 @@ import Image from 'next/image'
 
 import type { UserProfileData } from '@/actions/database/userProfile.action'
 import { Badge } from '@/components/ui/badge'
+import OverviewPeriodSelect from '@/features/general/overview/components/OverviewPeriodSelect'
 import { TGuildMemberStatus } from '@/types/types'
 
 import UserActionsMenu from './UserActionsMenu'
@@ -11,13 +12,17 @@ type UserProfileHeaderProps = {
   managerId: string
   isGuildAdmin: boolean
   profile: UserProfileData
+  dateFrom: string
+  dateTo: string
 }
 
 const UserProfileHeader = ({
   guildId,
   managerId,
   isGuildAdmin,
-  profile
+  profile,
+  dateFrom,
+  dateTo
 }: UserProfileHeaderProps) => {
   const userForActions: TGuildMemberStatus = {
     userId: profile.userId,
@@ -65,13 +70,16 @@ const UserProfileHeader = ({
         </div>
       </div>
 
-      <UserActionsMenu
-        guildId={guildId}
-        managerId={managerId}
-        user={userForActions}
-        globalSettings={profile.globalSettings}
-        isGuildAdmin={isGuildAdmin}
-      />
+      <div className="flex shrink-0 flex-col items-end gap-2">
+        <OverviewPeriodSelect dateFrom={dateFrom} dateTo={dateTo} />
+        <UserActionsMenu
+          guildId={guildId}
+          managerId={managerId}
+          user={userForActions}
+          globalSettings={profile.globalSettings}
+          isGuildAdmin={isGuildAdmin}
+        />
+      </div>
     </div>
   )
 }
