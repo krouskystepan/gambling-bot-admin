@@ -77,7 +77,7 @@ const LandingAuthCard = ({
                 : 'Use your Discord account to access servers where you have admin or manager permissions.'}
             </p>
 
-            <div className="mt-8">
+            <div className="mt-6">
               {session ? (
                 <div className="flex flex-col gap-3">
                   <Button asChild size="lg" className="w-full">

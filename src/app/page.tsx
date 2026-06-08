@@ -1,11 +1,9 @@
-import { getServerSession } from 'next-auth'
-
 import LandingAuthCard from '@/components/landing/LandingAuthCard'
 import LandingShell from '@/components/landing/LandingShell'
-import { authOptions } from '@/lib/authOptions'
+import { getSessionOrNull } from '@/lib/requireSession'
 
 const Home = async () => {
-  const session = await getServerSession(authOptions)
+  const session = await getSessionOrNull()
 
   return (
     <LandingShell>

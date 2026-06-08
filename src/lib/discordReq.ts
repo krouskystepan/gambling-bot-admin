@@ -7,6 +7,11 @@ export function redirectToLogin(): never {
   redirect('/login')
 }
 
+function redirectToReauth(): never {
+  const callbackUrl = encodeURIComponent('/login')
+  redirect(`/api/auth/clear-session?callbackUrl=${callbackUrl}`)
+}
+
 const DISCORD_API = 'https://discord.com/api/v10'
 
 export async function discordApiRequest<T>(
@@ -31,7 +36,7 @@ export async function discordApiRequest<T>(
   } catch (err) {
     if (axios.isAxiosError(err)) {
       if (err.response?.status === 401) {
-        redirectToLogin()
+        redirectToReauth()
       }
 
       if (err.response?.status === 429) {
