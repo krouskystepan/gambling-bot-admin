@@ -16,7 +16,7 @@
     "lint:check": "eslint .",
     "lint:fix": "eslint . --fix",
     "type:check": "tsc --noEmit",
-    "check": "pnpm lint:check && pnpm format:check && pnpm type:check"
+    "check": "pnpm format:check && pnpm lint:check && pnpm type:check"
   },
   "dependencies": {
     "@discordjs/rest": "^2.6.1",
