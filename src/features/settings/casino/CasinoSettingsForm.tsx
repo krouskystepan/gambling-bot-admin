@@ -18,7 +18,10 @@ import { TCasinoSettingsInput, TCasinoSettingsValues } from '@/types/types'
 
 import GameDetailPanel from './GameDetailPanel'
 import GameNavList from './GameNavList'
-import { sortCasinoGamesForNav } from './useGameRtp'
+import {
+  NON_GAME_CASINO_SECTIONS,
+  sortCasinoGamesForNav
+} from './useGameRtp'
 
 type Props = {
   guildId: string
@@ -26,12 +29,26 @@ type Props = {
 }
 
 export default function CasinoSettingsForm({ guildId, savedSettings }: Props) {
+  const allKeys = Object.keys(savedSettings) as Array<
+    keyof TCasinoSettingsValues
+  >
+
   const games = useMemo(
     () =>
       sortCasinoGamesForNav(
-        Object.keys(savedSettings) as Array<keyof TCasinoSettingsValues>
+        allKeys.filter((key) => !NON_GAME_CASINO_SECTIONS.includes(key))
       ),
     [savedSettings]
+  )
+
+  const announcementSections = useMemo(
+    () => NON_GAME_CASINO_SECTIONS.filter((key) => allKeys.includes(key)),
+    [savedSettings]
+  )
+
+  const navKeys = useMemo(
+    () => [...games, ...announcementSections],
+    [games, announcementSections]
   )
 
   const searchParams = useSearchParams()
@@ -39,12 +56,12 @@ export default function CasinoSettingsForm({ guildId, savedSettings }: Props) {
 
   const resolveGame = useCallback(
     (param: string | null): keyof TCasinoSettingsValues => {
-      if (param && games.includes(param as keyof TCasinoSettingsValues)) {
+      if (param && navKeys.includes(param as keyof TCasinoSettingsValues)) {
         return param as keyof TCasinoSettingsValues
       }
       return games[0]
     },
-    [games]
+    [games, navKeys]
   )
 
   const selectedGame = resolveGame(searchParams.get('game'))
@@ -85,6 +102,14 @@ export default function CasinoSettingsForm({ guildId, savedSettings }: Props) {
             <div className="flex w-full flex-col gap-6 lg:flex-row lg:items-start">
               <GameNavList
                 games={games}
+                sections={
+                  announcementSections.length > 0
+                    ? {
+                        title: 'Announcements',
+                        items: announcementSections
+                      }
+                    : undefined
+                }
                 selectedGame={selectedGame}
                 form={form}
                 onSelectGame={handleSelectGame}

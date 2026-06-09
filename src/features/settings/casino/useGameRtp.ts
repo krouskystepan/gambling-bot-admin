@@ -15,6 +15,15 @@ export const HIDDEN_RTP_GAMES: Array<keyof TCasinoSettingsValues> = [
   'raffle'
 ]
 
+/** Non-game casino config (no RTP); listed after games in the sidebar. */
+export const NON_GAME_CASINO_SECTIONS: Array<keyof TCasinoSettingsValues> = [
+  'winAnnouncements'
+]
+
+const skipsRtp = (game: keyof TCasinoSettingsValues) =>
+  HIDDEN_RTP_GAMES.includes(game) ||
+  NON_GAME_CASINO_SECTIONS.includes(game)
+
 export const sortCasinoGamesForNav = (
   games: Array<keyof TCasinoSettingsValues>
 ): Array<keyof TCasinoSettingsValues> => {
@@ -24,8 +33,15 @@ export const sortCasinoGamesForNav = (
   return [...withRtp, ...withoutRtp]
 }
 
-export const useGameRtp = (
-  game: keyof TCasinoSettingsValues,
+type TRtpGame = Parameters<typeof calculateRTP>[0]
+
+const getGameRtp = <G extends TRtpGame>(
+  game: G,
+  gameSettings: Parameters<typeof calculateRTP>[1]
+) => calculateRTP(game, gameSettings)
+
+export const useGameRtp = <G extends keyof TCasinoSettingsValues>(
+  game: G,
   form: TCasinoSettingsForm
 ) => {
   const settings = useWatch({
@@ -33,10 +49,13 @@ export const useGameRtp = (
     name: game
   })
 
-  const hidden = HIDDEN_RTP_GAMES.includes(game)
+  const hidden = skipsRtp(game)
   const rtp =
     settings && !hidden
-      ? calculateRTP(game, settings as TCasinoSettingsValues[typeof game])
+      ? getGameRtp(
+          game as TRtpGame,
+          settings as Parameters<typeof calculateRTP>[1]
+        )
       : null
 
   return {

@@ -38,6 +38,12 @@ const GameSection = ({ game, form }: Props) => {
 
   return (
     <>
+      {game === 'winAnnouncements' && (
+        <p className="mb-3 text-xs text-muted-foreground">
+          Minimum win multiplier to announce in the configured channel. 0 =
+          disabled.
+        </p>
+      )}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
         {numericKeys.map((key) => (
           <NumberField

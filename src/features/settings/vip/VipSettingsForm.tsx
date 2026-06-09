@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 
 import { saveVipSettings } from '@/actions/database/vipSettings.action'
 import FormActionsFooter from '@/components/FormActionsFooter'
+import OptionalSelect from '@/components/form/OptionalSelect'
 import SettingsFormLayout from '@/components/form/SettingsFormLayout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -17,13 +18,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
+import { SelectItem } from '@/components/ui/select'
 import { vipSettingsFormSchema } from '@/types/schemas'
 import { IGuildChannel, IGuildRole, TVipSettingsValues } from '@/types/types'
 
@@ -80,31 +75,25 @@ const VipSettingsForm = ({
                       <FormItem>
                         <Label>Owner VIP Role</Label>
                         <FormControl>
-                          <Select
+                          <OptionalSelect
                             value={field.value}
                             onValueChange={field.onChange}
+                            placeholder="Select Owner VIP Role"
                           >
-                            <SelectTrigger variant="muted">
-                              <SelectValue placeholder="Select Owner VIP Role" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {roles.map((role) => (
-                                <SelectItem key={role.id} value={role.id}>
-                                  <div className="flex items-center gap-2">
-                                    <span
-                                      className="h-3 w-3 rounded-full"
-                                      style={{
-                                        backgroundColor: roleColorHex(
-                                          role.color
-                                        )
-                                      }}
-                                    />
-                                    <span>{role.name}</span>
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            {roles.map((role) => (
+                              <SelectItem key={role.id} value={role.id}>
+                                <div className="flex items-center gap-2">
+                                  <span
+                                    className="h-3 w-3 rounded-full"
+                                    style={{
+                                      backgroundColor: roleColorHex(role.color)
+                                    }}
+                                  />
+                                  <span>{role.name}</span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </OptionalSelect>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -118,31 +107,25 @@ const VipSettingsForm = ({
                       <FormItem>
                         <Label>Member VIP Role</Label>
                         <FormControl>
-                          <Select
+                          <OptionalSelect
                             value={field.value}
                             onValueChange={field.onChange}
+                            placeholder="Select Member VIP Role"
                           >
-                            <SelectTrigger variant="muted">
-                              <SelectValue placeholder="Select Member VIP Role" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {roles.map((role) => (
-                                <SelectItem key={role.id} value={role.id}>
-                                  <div className="flex items-center gap-2">
-                                    <span
-                                      className="h-3 w-3 rounded-full"
-                                      style={{
-                                        backgroundColor: roleColorHex(
-                                          role.color
-                                        )
-                                      }}
-                                    />
-                                    <span>{role.name}</span>
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            {roles.map((role) => (
+                              <SelectItem key={role.id} value={role.id}>
+                                <div className="flex items-center gap-2">
+                                  <span
+                                    className="h-3 w-3 rounded-full"
+                                    style={{
+                                      backgroundColor: roleColorHex(role.color)
+                                    }}
+                                  />
+                                  <span>{role.name}</span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </OptionalSelect>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -156,21 +139,17 @@ const VipSettingsForm = ({
                       <FormItem>
                         <Label>VIP Category</Label>
                         <FormControl>
-                          <Select
+                          <OptionalSelect
                             value={field.value}
                             onValueChange={field.onChange}
+                            placeholder="Select Category"
                           >
-                            <SelectTrigger variant="muted">
-                              <SelectValue placeholder="Select Category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {categories.map((cat) => (
-                                <SelectItem key={cat.id} value={cat.id}>
-                                  {cat.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            {categories.map((cat) => (
+                              <SelectItem key={cat.id} value={cat.id}>
+                                {cat.name}
+                              </SelectItem>
+                            ))}
+                          </OptionalSelect>
                         </FormControl>
                         <FormMessage />
                       </FormItem>

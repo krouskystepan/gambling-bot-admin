@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 
 import { saveManagerRole } from '@/actions/database/managerRole.action'
 import FormActionsFooter from '@/components/FormActionsFooter'
+import OptionalSelect from '@/components/form/OptionalSelect'
 import SettingsFormLayout from '@/components/form/SettingsFormLayout'
 import {
   Card,
@@ -24,13 +25,7 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
+import { SelectItem } from '@/components/ui/select'
 import { managerRoleFormSchema } from '@/types/schemas'
 import { IGuildRole, TManagerRoleValues } from '@/types/types'
 
@@ -103,29 +98,26 @@ const ManagerSettingsForm = ({
                     <FormItem>
                       <Label>Discord role</Label>
                       <FormControl>
-                        <Select
+                        <OptionalSelect
                           value={field.value}
                           onValueChange={field.onChange}
+                          placeholder="Select manager role"
+                          className="w-full"
                         >
-                          <SelectTrigger variant="muted" className="w-full">
-                            <SelectValue placeholder="Select manager role" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {roles.map((role) => (
-                              <SelectItem key={role.id} value={role.id}>
-                                <div className="flex items-center gap-2">
-                                  <span
-                                    className="h-3 w-3 rounded-full"
-                                    style={{
-                                      backgroundColor: roleColorHex(role.color)
-                                    }}
-                                  />
-                                  <span>{role.name}</span>
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          {roles.map((role) => (
+                            <SelectItem key={role.id} value={role.id}>
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className="h-3 w-3 rounded-full"
+                                  style={{
+                                    backgroundColor: roleColorHex(role.color)
+                                  }}
+                                />
+                                <span>{role.name}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </OptionalSelect>
                       </FormControl>
                       <FormDescription>
                         Pick a dedicated staff role rather than @everyone or a

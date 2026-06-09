@@ -10,6 +10,7 @@ import { useGameRtp } from './useGameRtp'
 
 type Props = {
   game: keyof TCasinoSettingsValues
+  label?: string
   form: TCasinoSettingsForm
   isActive: boolean
   onSelect: (game: keyof TCasinoSettingsValues) => void
@@ -54,13 +55,14 @@ const GameNavRtpStatus = ({
 
 const GameNavItem = ({
   game,
+  label: labelOverride,
   form,
   isActive,
   onSelect,
   variant = 'list'
 }: Props) => {
   const { hidden, status } = useGameRtp(game, form)
-  const label = getReadableName(game, readableGameNames)
+  const label = labelOverride ?? getReadableName(game, readableGameNames)
   const rtpStatus = !hidden ? <GameNavRtpStatus status={status} /> : null
 
   if (variant === 'tile') {
@@ -86,7 +88,7 @@ const GameNavItem = ({
       type="button"
       onClick={() => onSelect(game)}
       className={cn(
-        'flex w-full items-center justify-between gap-2 rounded px-4 py-2 text-sm text-sidebar-foreground transition hover:bg-sidebar-accent hover:text-sidebar-primary',
+        'flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground transition hover:bg-sidebar-accent hover:text-sidebar-primary',
         isActive && 'bg-sidebar-accent/50 font-medium text-sidebar-primary'
       )}
     >

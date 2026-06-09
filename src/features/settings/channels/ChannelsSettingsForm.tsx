@@ -3,10 +3,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { z } from 'zod'
 
 import { saveChannels } from '@/actions/database/channels.action'
 import FormActionsFooter from '@/components/FormActionsFooter'
+import OptionalSelect from '@/components/form/OptionalSelect'
 import SettingsFormLayout from '@/components/form/SettingsFormLayout'
 import {
   Card,
@@ -25,34 +25,16 @@ import {
 } from '@/components/ui/form'
 import { Label } from '@/components/ui/label'
 import MultipleSelector from '@/components/ui/multiselect'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
-import {
-  atmChannelsFormSchema,
-  casinoChannelsFormSchema,
-  predictionChannelsFormSchema,
-  raffleChannelsFormSchema
-} from '@/types/schemas'
+import { SelectItem } from '@/components/ui/select'
+import { channelsFormSchema } from '@/types/schemas'
 import { IGuildChannel, TChannelsFormValues } from '@/types/types'
-
-const channelsFormSchema = z.object({
-  atm: atmChannelsFormSchema,
-  casino: casinoChannelsFormSchema,
-  prediction: predictionChannelsFormSchema,
-  raffle: raffleChannelsFormSchema
-})
 
 type ChannelsFormProps = {
   guildId: string
   guildChannels: IGuildChannel[]
   savedChannels: {
     atm: { actions: string; logs: string }
-    casino: { casinoChannelIds: string[] }
+    casino: { casinoChannelIds: string[]; winAnnouncementsChannelId: string }
     prediction: { actions: string; logs: string }
     raffle: { actions: string; logs: string }
   } | null
@@ -71,7 +53,9 @@ const ChannelsSettingsForm = ({
         logs: savedChannels?.atm?.logs ?? ''
       },
       casino: {
-        casinoChannelIds: savedChannels?.casino?.casinoChannelIds ?? []
+        casinoChannelIds: savedChannels?.casino?.casinoChannelIds ?? [],
+        winAnnouncementsChannelId:
+          savedChannels?.casino?.winAnnouncementsChannelId ?? ''
       },
       prediction: {
         actions: savedChannels?.prediction?.actions ?? '',
@@ -123,23 +107,19 @@ const ChannelsSettingsForm = ({
                     render={({ field }) => (
                       <FormItem>
                         <Label>ATM Actions</Label>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value ?? ''}
-                        >
-                          <FormControl>
-                            <SelectTrigger variant="muted">
-                              <SelectValue placeholder="Select Action Channel" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
+                        <FormControl>
+                          <OptionalSelect
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Select Action Channel"
+                          >
                             {guildChannels.map((channel) => (
                               <SelectItem key={channel.id} value={channel.id}>
                                 {channel.name}
                               </SelectItem>
                             ))}
-                          </SelectContent>
-                        </Select>
+                          </OptionalSelect>
+                        </FormControl>
                         <FormDescription>
                           Select channel for ATM Actions
                         </FormDescription>
@@ -154,23 +134,19 @@ const ChannelsSettingsForm = ({
                     render={({ field }) => (
                       <FormItem>
                         <Label>ATM Logs</Label>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value ?? ''}
-                        >
-                          <FormControl>
-                            <SelectTrigger variant="muted">
-                              <SelectValue placeholder="Select Logs Channel" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
+                        <FormControl>
+                          <OptionalSelect
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Select Logs Channel"
+                          >
                             {guildChannels.map((channel) => (
                               <SelectItem key={channel.id} value={channel.id}>
                                 {channel.name}
                               </SelectItem>
                             ))}
-                          </SelectContent>
-                        </Select>
+                          </OptionalSelect>
+                        </FormControl>
                         <FormDescription>
                           Select channel for ATM Logs
                         </FormDescription>
@@ -247,7 +223,36 @@ const ChannelsSettingsForm = ({
                         />
                       </FormControl>
                       <FormDescription>
-                        Select channel(s) for Casino Channels
+                        Select channel(s) for casino games. Leave empty (None)
+                        to disable.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="casino.winAnnouncementsChannelId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Label>Win announcements channel</Label>
+                      <FormControl>
+                        <OptionalSelect
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          placeholder="None (disabled)"
+                        >
+                          {guildChannels.map((channel) => (
+                            <SelectItem key={channel.id} value={channel.id}>
+                              {channel.name}
+                            </SelectItem>
+                          ))}
+                        </OptionalSelect>
+                      </FormControl>
+                      <FormDescription>
+                        Posts public embeds when players hit configured big wins
+                        in casino games
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -271,23 +276,19 @@ const ChannelsSettingsForm = ({
                     render={({ field }) => (
                       <FormItem>
                         <Label>Prediction Actions</Label>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value ?? ''}
-                        >
-                          <FormControl>
-                            <SelectTrigger variant="muted">
-                              <SelectValue placeholder="Select Action Channel" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
+                        <FormControl>
+                          <OptionalSelect
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Select Action Channel"
+                          >
                             {guildChannels.map((channel) => (
                               <SelectItem key={channel.id} value={channel.id}>
                                 {channel.name}
                               </SelectItem>
                             ))}
-                          </SelectContent>
-                        </Select>
+                          </OptionalSelect>
+                        </FormControl>
                         <FormDescription>
                           Select channel for Prediction Actions
                         </FormDescription>
@@ -302,23 +303,19 @@ const ChannelsSettingsForm = ({
                     render={({ field }) => (
                       <FormItem>
                         <Label>Prediction Logs</Label>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value ?? ''}
-                        >
-                          <FormControl>
-                            <SelectTrigger variant="muted">
-                              <SelectValue placeholder="Select Logs Channel" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
+                        <FormControl>
+                          <OptionalSelect
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Select Logs Channel"
+                          >
                             {guildChannels.map((channel) => (
                               <SelectItem key={channel.id} value={channel.id}>
                                 {channel.name}
                               </SelectItem>
                             ))}
-                          </SelectContent>
-                        </Select>
+                          </OptionalSelect>
+                        </FormControl>
                         <FormDescription>
                           Select channel for Prediction Logs
                         </FormDescription>
@@ -345,23 +342,19 @@ const ChannelsSettingsForm = ({
                     render={({ field }) => (
                       <FormItem>
                         <Label>Raffle Actions</Label>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value ?? ''}
-                        >
-                          <FormControl>
-                            <SelectTrigger variant="muted">
-                              <SelectValue placeholder="Select Action Channel" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
+                        <FormControl>
+                          <OptionalSelect
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Select Action Channel"
+                          >
                             {guildChannels.map((channel) => (
                               <SelectItem key={channel.id} value={channel.id}>
                                 {channel.name}
                               </SelectItem>
                             ))}
-                          </SelectContent>
-                        </Select>
+                          </OptionalSelect>
+                        </FormControl>
                         <FormDescription>
                           Select channel for Raffle Actions
                         </FormDescription>
@@ -376,23 +369,19 @@ const ChannelsSettingsForm = ({
                     render={({ field }) => (
                       <FormItem>
                         <Label>Raffle Logs</Label>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value ?? ''}
-                        >
-                          <FormControl>
-                            <SelectTrigger variant="muted">
-                              <SelectValue placeholder="Select Logs Channel" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
+                        <FormControl>
+                          <OptionalSelect
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Select Logs Channel"
+                          >
                             {guildChannels.map((channel) => (
                               <SelectItem key={channel.id} value={channel.id}>
                                 {channel.name}
                               </SelectItem>
                             ))}
-                          </SelectContent>
-                        </Select>
+                          </OptionalSelect>
+                        </FormControl>
                         <FormDescription>
                           Select channel for Raffle Logs
                         </FormDescription>
