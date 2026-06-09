@@ -21,8 +21,7 @@ export const NON_GAME_CASINO_SECTIONS: Array<keyof TCasinoSettingsValues> = [
 ]
 
 const skipsRtp = (game: keyof TCasinoSettingsValues) =>
-  HIDDEN_RTP_GAMES.includes(game) ||
-  NON_GAME_CASINO_SECTIONS.includes(game)
+  HIDDEN_RTP_GAMES.includes(game) || NON_GAME_CASINO_SECTIONS.includes(game)
 
 export const sortCasinoGamesForNav = (
   games: Array<keyof TCasinoSettingsValues>

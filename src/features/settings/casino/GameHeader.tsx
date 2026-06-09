@@ -21,8 +21,7 @@ const GameHeader = ({ game, form }: Props) => {
 
   if (!settings) return null
 
-  const title =
-    DETAIL_TITLES[game] ?? getReadableName(game, readableGameNames)
+  const title = DETAIL_TITLES[game] ?? getReadableName(game, readableGameNames)
 
   return (
     <div className="flex w-full flex-wrap items-center gap-x-3 gap-y-1">

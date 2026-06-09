@@ -18,10 +18,7 @@ import { TCasinoSettingsInput, TCasinoSettingsValues } from '@/types/types'
 
 import GameDetailPanel from './GameDetailPanel'
 import GameNavList from './GameNavList'
-import {
-  NON_GAME_CASINO_SECTIONS,
-  sortCasinoGamesForNav
-} from './useGameRtp'
+import { NON_GAME_CASINO_SECTIONS, sortCasinoGamesForNav } from './useGameRtp'
 
 type Props = {
   guildId: string
