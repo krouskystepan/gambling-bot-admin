@@ -38,7 +38,7 @@
     "date-fns": "^4.4.0",
     "discord-api-types": "^0.38.48",
     "framer-motion": "^12.40.0",
-    "gambling-bot-shared": "^0.1.51",
+    "gambling-bot-shared": "^0.1.52",
     "lucide-react": "^1.17.0",
     "luxon": "^3.7.2",
     "mongodb": "^7.2.0",
@@ -55,6 +55,11 @@
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.6.0",
     "zod": "^4.4.3"
+  },
+  "dependenciesMeta": {
+    "gambling-bot-shared": {
+      "injected": true
+    }
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
