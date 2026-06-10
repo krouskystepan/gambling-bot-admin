@@ -38,15 +38,13 @@ const OverviewPage = async ({
   const { isAdmin } = await getUserPermissions(guildId, session)
 
   return (
-    <FeatureLayout title="Overview">
+    <FeatureLayout
+      title="Overview"
+      actions={
+        <OverviewPeriodSelect dateFrom={range.dateFrom} dateTo={range.dateTo} />
+      }
+    >
       <div className="space-y-6">
-        <div className="flex flex-wrap items-center justify-end gap-4">
-          <OverviewPeriodSelect
-            dateFrom={range.dateFrom}
-            dateTo={range.dateTo}
-          />
-        </div>
-
         <OverviewKpiGrid
           globalSettings={data.globalSettings}
           cashFlow={data.cashFlow}
