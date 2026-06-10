@@ -168,6 +168,19 @@
   }
 }
 
+[data-slot='chart'],
+[data-slot='chart'] * {
+  -webkit-tap-highlight-color: transparent;
+}
+
+[data-slot='chart']:focus,
+[data-slot='chart']:focus-visible,
+[data-slot='chart'] *:focus,
+[data-slot='chart'] *:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;

@@ -100,7 +100,7 @@ const UserProfilePage = async ({
 
         <div className="grid gap-6 lg:grid-cols-2">
           <OverviewDailyPnLChart
-            data={profile.dailySeries}
+            series={profile.pnlSeries}
             globalSettings={profile.globalSettings}
           />
           <OverviewSourceChart

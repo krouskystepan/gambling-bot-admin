@@ -59,7 +59,7 @@ const OverviewPage = async ({
 
         <div className="grid gap-6 lg:grid-cols-2">
           <OverviewDailyPnLChart
-            data={data.dailySeries}
+            series={data.pnlSeries}
             globalSettings={data.globalSettings}
           />
           <OverviewSourceChart

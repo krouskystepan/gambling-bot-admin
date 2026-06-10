@@ -13,16 +13,15 @@ import { Session } from 'next-auth'
 import {
   OverviewDailyPoint,
   OverviewDateRange,
-  fillDailySeries
+  OverviewPnLSeries,
+  fillDailySeries,
+  fillHourlySeries,
+  resolveOverviewPnLGranularity
 } from '@/features/general/overview/period'
 import { connectToDatabase } from '@/lib/db'
 import { userGuildDateRangeMatch } from '@/lib/guildTimezone'
-import {
-  cashFlowSum,
-  gamePnLSum,
-  netProfitSum,
-  periodTotalsGroup
-} from '@/lib/transactionTotals'
+import { buildPnLTimeGroupStage } from '@/lib/overviewPnLAggregation'
+import { netProfitSum, periodTotalsGroup } from '@/lib/transactionTotals'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'
 import User from '@/models/User'
@@ -66,7 +65,7 @@ export type UserProfileData = {
   cashFlow: number
   txCount: number
   periodNetProfit: number
-  dailySeries: OverviewDailyPoint[]
+  pnlSeries: OverviewPnLSeries
   sourceAmounts: { source: TTransaction['source']; amount: number }[]
   vips: UserProfileVip[]
 }
@@ -134,6 +133,8 @@ export async function getUserProfile(
     timezone
   )
 
+  const pnlGranularity = resolveOverviewPnLGranularity(range, timezone)
+
   const [discordMembers, dbUser, vipRooms] = await Promise.all([
     getDiscordGuildMembers(guildId),
     User.findOne({ guildId, userId }).lean(),
@@ -158,20 +159,7 @@ export async function getUserProfile(
     Transaction.aggregate([{ $match: dateMatch }, periodTotalsGroup]),
     Transaction.aggregate([
       { $match: dateMatch },
-      {
-        $group: {
-          _id: {
-            $dateToString: {
-              format: '%Y-%m-%d',
-              date: '$createdAt',
-              timezone
-            }
-          },
-          gamePnL: gamePnLSum,
-          cashFlow: cashFlowSum,
-          txCount: { $sum: 1 }
-        }
-      },
+      buildPnLTimeGroupStage(timezone, pnlGranularity),
       { $sort: { _id: 1 } }
     ]),
     Transaction.aggregate([
@@ -212,12 +200,20 @@ export async function getUserProfile(
   const periodNetProfit = periodNetProfitAgg[0]?.netProfit ?? 0
   const lifetimeNetProfit = lifetimeNetProfitAgg[0]?.netProfit ?? 0
 
-  const dailyPoints: OverviewDailyPoint[] = dailyAgg.map((row) => ({
+  const pnlPoints: OverviewDailyPoint[] = dailyAgg.map((row) => ({
     date: row._id as string,
     gamePnL: row.gamePnL ?? 0,
     cashFlow: row.cashFlow ?? 0,
     txCount: row.txCount ?? 0
   }))
+
+  const pnlSeries: OverviewPnLSeries = {
+    granularity: pnlGranularity,
+    points:
+      pnlGranularity === 'hour'
+        ? fillHourlySeries(range, pnlPoints, timezone)
+        : fillDailySeries(range, pnlPoints, timezone)
+  }
 
   const sourceAmounts = TRANSACTION_SOURCES.map((source) => {
     const row = sourceAmountAgg.find((r) => r._id === source)
@@ -244,7 +240,7 @@ export async function getUserProfile(
     cashFlow,
     txCount,
     periodNetProfit,
-    dailySeries: fillDailySeries(range, dailyPoints, timezone),
+    pnlSeries,
     sourceAmounts,
     vips
   }

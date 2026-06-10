@@ -159,6 +159,107 @@ export type OverviewDailyPoint = {
   txCount: number
 }
 
+export type OverviewPnLGranularity = 'day' | 'hour'
+
+export type OverviewPnLSeries = {
+  granularity: OverviewPnLGranularity
+  points: OverviewDailyPoint[]
+}
+
+export function getOverviewRangeDayCount(
+  range: OverviewDateRange,
+  timezone?: string | null
+): number {
+  const zone = resolveGuildTimezone(timezone)
+  const start = DateTime.fromISO(range.dateFrom, { zone }).startOf('day')
+  const end = DateTime.fromISO(range.dateTo, { zone }).startOf('day')
+  return Math.floor(end.diff(start, 'days').days) + 1
+}
+
+export function resolveOverviewPnLGranularity(
+  range: OverviewDateRange,
+  timezone?: string | null
+): OverviewPnLGranularity {
+  return getOverviewRangeDayCount(range, timezone) <= 3 ? 'hour' : 'day'
+}
+
+const HOURLY_BUCKET_FORMAT = "yyyy-MM-dd'T'HH:00"
+
+export const SINGLE_DAY_HOUR_AXIS_TICKS = [0, 3, 6, 9, 12, 15, 18, 21] as const
+
+export function parseOverviewBucket(
+  dateKey: string,
+  timezone?: string | null
+): DateTime {
+  return DateTime.fromISO(dateKey, { zone: resolveGuildTimezone(timezone) })
+}
+
+export function uses24HourClock(timezone?: string | null): boolean {
+  const zone = resolveGuildTimezone(timezone)
+  return !zone.startsWith('America/')
+}
+
+export function formatOverviewHourLabel(
+  bucket: DateTime,
+  timezone?: string | null
+): string {
+  if (uses24HourClock(timezone)) {
+    return bucket.toFormat('H:00')
+  }
+
+  return bucket.toFormat('h a').replace(' AM', 'AM').replace(' PM', 'PM')
+}
+
+export function formatOverviewHourAxisTick(
+  dayStart: DateTime,
+  hour: number,
+  timezone?: string | null
+): string {
+  return formatOverviewHourLabel(dayStart.plus({ hours: hour }), timezone)
+}
+
+export function formatOverviewHourTooltip(
+  bucket: DateTime,
+  timezone?: string | null
+): string {
+  if (uses24HourClock(timezone)) {
+    return bucket.toFormat('MMM d, yyyy HH:mm')
+  }
+
+  return bucket
+    .toFormat('MMM d, yyyy h:mm a')
+    .replace(' AM', 'AM')
+    .replace(' PM', 'PM')
+}
+
+export function fillHourlySeries(
+  range: OverviewDateRange,
+  points: OverviewDailyPoint[],
+  timezone?: string | null
+): OverviewDailyPoint[] {
+  const zone = resolveGuildTimezone(timezone)
+  const start = DateTime.fromISO(range.dateFrom, { zone }).startOf('day')
+  const end = DateTime.fromISO(range.dateTo, { zone }).endOf('day')
+  const byDate = new Map(points.map((p) => [p.date, p]))
+
+  const hours: OverviewDailyPoint[] = []
+  let cursor = start
+  while (cursor <= end) {
+    const date = cursor.toFormat(HOURLY_BUCKET_FORMAT)
+    hours.push(
+      byDate.get(date) ?? {
+        date,
+        gamePnL: 0,
+        cashFlow: 0,
+        txCount: 0
+      }
+    )
+    cursor = cursor.plus({ hours: 1 })
+  }
+
+  return hours
+}
+
 export function fillDailySeries(
   range: OverviewDateRange,
   points: OverviewDailyPoint[],

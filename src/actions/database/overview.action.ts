@@ -18,17 +18,16 @@ import { Session } from 'next-auth'
 import {
   OverviewDailyPoint,
   OverviewDateRange,
-  fillDailySeries
+  OverviewPnLSeries,
+  fillDailySeries,
+  fillHourlySeries,
+  resolveOverviewPnLGranularity
 } from '@/features/general/overview/period'
 import { connectToDatabase } from '@/lib/db'
 import { guildDateRangeMatch } from '@/lib/guildTimezone'
+import { buildPnLTimeGroupStage } from '@/lib/overviewPnLAggregation'
 import { getRtpStatus } from '@/lib/rtpWarnings'
-import {
-  cashFlowSum,
-  gamePnLSum,
-  netProfitSum,
-  periodTotalsGroup
-} from '@/lib/transactionTotals'
+import { netProfitSum, periodTotalsGroup } from '@/lib/transactionTotals'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'
 import User from '@/models/User'
@@ -66,7 +65,7 @@ export type OverviewData = {
   txCount: number
   typeCounts: Record<TTransaction['type'], number>
   sourceCounts: Record<TTransaction['source'], number>
-  dailySeries: OverviewDailyPoint[]
+  pnlSeries: OverviewPnLSeries
   sourceAmounts: { source: TTransaction['source']; amount: number }[]
   registeredUsers: number
   totalLiability: number
@@ -256,6 +255,8 @@ export async function getOverviewData(
     timezone
   )
 
+  const pnlGranularity = resolveOverviewPnLGranularity(range, timezone)
+
   const [
     periodTotals,
     typeAgg,
@@ -280,20 +281,7 @@ export async function getOverviewData(
     ]),
     Transaction.aggregate([
       { $match: dateMatch },
-      {
-        $group: {
-          _id: {
-            $dateToString: {
-              format: '%Y-%m-%d',
-              date: '$createdAt',
-              timezone
-            }
-          },
-          gamePnL: gamePnLSum,
-          cashFlow: cashFlowSum,
-          txCount: { $sum: 1 }
-        }
-      },
+      buildPnLTimeGroupStage(timezone, pnlGranularity),
       { $sort: { _id: 1 } }
     ]),
     Transaction.aggregate([
@@ -370,12 +358,20 @@ export async function getOverviewData(
     sourceCounts[row._id as TTransaction['source']] = row.count
   })
 
-  const dailyPoints: OverviewDailyPoint[] = dailyAgg.map((row) => ({
+  const pnlPoints: OverviewDailyPoint[] = dailyAgg.map((row) => ({
     date: row._id as string,
     gamePnL: row.gamePnL ?? 0,
     cashFlow: row.cashFlow ?? 0,
     txCount: row.txCount ?? 0
   }))
+
+  const pnlSeries: OverviewPnLSeries = {
+    granularity: pnlGranularity,
+    points:
+      pnlGranularity === 'hour'
+        ? fillHourlySeries(range, pnlPoints, timezone)
+        : fillDailySeries(range, pnlPoints, timezone)
+  }
 
   const sourceAmounts = TRANSACTION_SOURCES.map((source) => {
     const row = sourceAmountAgg.find((r) => r._id === source)
@@ -403,7 +399,7 @@ export async function getOverviewData(
     txCount,
     typeCounts,
     sourceCounts,
-    dailySeries: fillDailySeries(range, dailyPoints, timezone),
+    pnlSeries,
     sourceAmounts,
     registeredUsers,
     totalLiability: liabilityAgg[0]?.total ?? 0,
