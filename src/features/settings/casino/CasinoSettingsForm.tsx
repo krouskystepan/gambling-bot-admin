@@ -26,21 +26,22 @@ type Props = {
 }
 
 export default function CasinoSettingsForm({ guildId, savedSettings }: Props) {
-  const allKeys = Object.keys(savedSettings) as Array<
-    keyof TCasinoSettingsValues
-  >
+  const allKeys = useMemo(
+    () => Object.keys(savedSettings) as Array<keyof TCasinoSettingsValues>,
+    [savedSettings]
+  )
 
   const games = useMemo(
     () =>
       sortCasinoGamesForNav(
         allKeys.filter((key) => !NON_GAME_CASINO_SECTIONS.includes(key))
       ),
-    [savedSettings]
+    [allKeys]
   )
 
   const announcementSections = useMemo(
     () => NON_GAME_CASINO_SECTIONS.filter((key) => allKeys.includes(key)),
-    [savedSettings]
+    [allKeys]
   )
 
   const navKeys = useMemo(

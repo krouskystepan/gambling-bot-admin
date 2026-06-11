@@ -1,4 +1,5 @@
 import {
+  AtmQueuePage,
   BonusesSettingsPage,
   CasinoSettingsPage,
   ChannelSettingsPage,
@@ -15,6 +16,7 @@ export const sections = {
   // General
   overview: OverviewPage,
   transactions: TransactionsPage,
+  'atm-queue': AtmQueuePage,
 
   // Manage
   users: UsersPage,

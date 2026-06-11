@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 
+import { getAtmRequestCounts } from '@/actions/database/atmRequest.action'
 import { getGuildName } from '@/actions/discord/guilds.action'
 import { isBotInGuild } from '@/actions/discord/utils.action'
 import { getUserPermissions } from '@/actions/perms'
@@ -45,10 +46,10 @@ const GuildConfLayout = async ({ children, params }: GuildConfLayoutProps) => {
     redirect('/dashboard')
   }
 
-  const { isAdmin, isManager, rateLimited } = await getUserPermissions(
-    guildId,
-    session
-  )
+  const [{ isAdmin, isManager, rateLimited }, atmCounts] = await Promise.all([
+    getUserPermissions(guildId, session),
+    getAtmRequestCounts(guildId, session)
+  ])
   const hasAccess = isAdmin || isManager
 
   if (rateLimited) {
@@ -66,6 +67,7 @@ const GuildConfLayout = async ({ children, params }: GuildConfLayoutProps) => {
         guildName={guildName}
         isAdmin={isAdmin}
         isManager={isManager}
+        pendingAtmCount={atmCounts.pending}
       />
 
       <main className={guildMainClassName}>{children}</main>

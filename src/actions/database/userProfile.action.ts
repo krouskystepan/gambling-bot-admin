@@ -3,6 +3,7 @@
 import {
   type GlobalSettings,
   TVipRoom,
+  getEffectiveStreak,
   normalizeGlobalSettings,
   resolveGuildTimezone
 } from 'gambling-bot-shared'
@@ -225,7 +226,11 @@ export async function getUserProfile(
     balance: dbUser?.balance ?? 0,
     bonusBalance: dbUser?.bonusBalance ?? 0,
     lockedBalance: dbUser?.lockedBalance ?? 0,
-    dailyStreak: dbUser?.dailyStreak ?? 0,
+    dailyStreak: getEffectiveStreak(
+      dbUser?.lastDailyClaim ? new Date(dbUser.lastDailyClaim) : null,
+      new Date(),
+      dbUser?.dailyStreak ?? 0
+    ),
     lastDailyClaim: dbUser?.lastDailyClaim ?? null,
     lifetimeNetProfit,
     gamePnL,

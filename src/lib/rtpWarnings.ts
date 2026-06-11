@@ -1,3 +1,12 @@
+const SKIPS_CASINO_RTP_CHECK = new Set([
+  'blackjack',
+  'prediction',
+  'winAnnouncements'
+])
+
+export const skipsCasinoRtpCheck = (game: string) =>
+  SKIPS_CASINO_RTP_CHECK.has(game)
+
 export const isRtpOutOfRange = (value: number) => value >= 100 || value <= 90
 
 export const hasRtpWarning = (

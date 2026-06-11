@@ -267,8 +267,19 @@ export async function withdrawBalance(
     const user = await User.findOne({ userId, guildId })
     if (!user) return { success: false, message: 'User not registered.' }
 
+    const lockedBalance = user.lockedBalance ?? 0
+    const withdrawable = user.balance - lockedBalance
+
     if (user.balance < amount) {
       return { success: false, message: 'User has insufficient balance.' }
+    }
+
+    if (withdrawable < amount) {
+      return {
+        success: false,
+        message:
+          'User does not have enough withdrawable balance (funds may be locked in bets).'
+      }
     }
 
     user.balance -= amount

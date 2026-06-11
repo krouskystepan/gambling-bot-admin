@@ -1,7 +1,13 @@
 'use client'
 
 import { getReadableName, readableGameNames } from 'gambling-bot-shared'
+import { CircleQuestionMark } from 'lucide-react'
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 import { TCasinoSettingsForm, TCasinoSettingsValues } from '@/types/types'
 
 import { MultiRTP, SingleRTP } from './RTP'
@@ -29,7 +35,23 @@ const GameHeader = ({ game, form }: Props) => {
 
       {!hidden &&
         (typeof rtp === 'number' ? (
-          <SingleRTP value={rtp} />
+          <span className="inline-flex items-center gap-1.5">
+            <SingleRTP value={rtp} />
+            {game === 'raffle' ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <CircleQuestionMark
+                    size={16}
+                    className="cursor-pointer text-muted-foreground"
+                  />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  Static RTP assumes a full draw. Single-participant raffles
+                  refund 100%.
+                </TooltipContent>
+              </Tooltip>
+            ) : null}
+          </span>
         ) : rtp ? (
           <MultiRTP rtpMap={rtp} />
         ) : null)}

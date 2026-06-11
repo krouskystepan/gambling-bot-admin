@@ -26,13 +26,14 @@ import {
 import { connectToDatabase } from '@/lib/db'
 import { guildDateRangeMatch } from '@/lib/guildTimezone'
 import { buildPnLTimeGroupStage } from '@/lib/overviewPnLAggregation'
-import { getRtpStatus } from '@/lib/rtpWarnings'
+import { getRtpStatus, skipsCasinoRtpCheck } from '@/lib/rtpWarnings'
 import { netProfitSum, periodTotalsGroup } from '@/lib/transactionTotals'
 import {
   VolumeSlice,
   buildVolumeSlices,
   volumeAmountGroupStage
 } from '@/lib/volumeSlices'
+import AtmRequest from '@/models/AtmRequest'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'
 import User from '@/models/User'
@@ -42,8 +43,6 @@ import { TTransactionDiscord } from '@/types/types'
 import { getDiscordGuildMembers } from '../discord/member.action'
 import { requireGuildAccess } from '../perms'
 import { getTransactions } from './transaction.action'
-
-const HIDDEN_RTP_GAMES = new Set(['blackjack', 'prediction', 'raffle'])
 
 export type OverviewTopUser = {
   userId: string
@@ -83,7 +82,8 @@ export type OverviewData = {
 
 function buildSetupHealth(
   guildId: string,
-  config: TGuildConfiguration | null
+  config: TGuildConfiguration | null,
+  pendingAtmCount = 0
 ): SetupHealthCheck[] {
   const settingsBase = `/dashboard/g/${guildId}`
   const checks: SetupHealthCheck[] = [
@@ -128,6 +128,15 @@ function buildSetupHealth(
       label: 'VIP category',
       ok: Boolean(config?.vipSettings?.categoryId),
       href: `${settingsBase}/vip-settings`
+    },
+    {
+      id: 'atm-pending',
+      label:
+        pendingAtmCount > 0
+          ? `${pendingAtmCount} pending ATM request${pendingAtmCount === 1 ? '' : 's'}`
+          : 'No pending ATM requests',
+      ok: pendingAtmCount === 0,
+      href: `${settingsBase}/atm-queue`
     }
   ]
 
@@ -137,7 +146,7 @@ function buildSetupHealth(
   >
 
   for (const game of games) {
-    if (HIDDEN_RTP_GAMES.has(game)) continue
+    if (skipsCasinoRtpCheck(game)) continue
 
     const settings = casinoSettings[game]
     if (!settings) continue
@@ -273,7 +282,8 @@ export async function getOverviewData(
     vipRoomCount,
     topBalanceUsers,
     topNetProfitAgg,
-    recentResult
+    recentResult,
+    pendingAtmCount
   ] = await Promise.all([
     Transaction.aggregate([{ $match: dateMatch }, periodTotalsGroup]),
     Transaction.aggregate([
@@ -334,7 +344,8 @@ export async function getOverviewData(
       undefined,
       range.dateFrom,
       range.dateTo
-    )
+    ),
+    AtmRequest.countDocuments({ guildId, status: 'pending' })
   ])
 
   const totals = periodTotals[0]
@@ -404,7 +415,8 @@ export async function getOverviewData(
     recentTransactions: recentResult.transactions,
     setupHealth: buildSetupHealth(
       guildId,
-      guildConfig as TGuildConfiguration | null
+      guildConfig as TGuildConfiguration | null,
+      pendingAtmCount
     )
   }
 }

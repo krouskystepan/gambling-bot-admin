@@ -11,8 +11,7 @@ export type { RtpStatus } from '@/lib/rtpWarnings'
 
 export const HIDDEN_RTP_GAMES: Array<keyof TCasinoSettingsValues> = [
   'blackjack',
-  'prediction',
-  'raffle'
+  'prediction'
 ]
 
 /** Non-game casino config (no RTP); listed after games in the sidebar. */

@@ -22,6 +22,28 @@ const rest = new REST({ version: '10' }).setToken(
   process.env.DISCORD_BOT_TOKEN!
 )
 
+export async function editDiscordMessage(
+  channelId: string,
+  messageId: string,
+  content: string
+): Promise<void> {
+  if (!channelId || !messageId) return
+
+  try {
+    await rest.patch(Routes.channelMessage(channelId, messageId), {
+      body: {
+        content,
+        components: []
+      }
+    })
+  } catch (err) {
+    console.error(
+      `Failed to edit message ${messageId} in channel ${channelId}`,
+      err
+    )
+  }
+}
+
 export async function sendEmbed(
   channelId: string,
   title: string,

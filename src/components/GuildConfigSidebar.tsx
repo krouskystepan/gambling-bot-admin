@@ -2,6 +2,7 @@
 
 import {
   Award,
+  Banknote,
   Crown,
   Dices,
   Globe,
@@ -22,6 +23,7 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion'
+import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
 const LINKS = [
@@ -30,7 +32,8 @@ const LINKS = [
     value: 'general',
     links: [
       { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-      { id: 'transactions', label: 'Transactions', icon: Landmark }
+      { id: 'transactions', label: 'Transactions', icon: Landmark },
+      { id: 'atm-queue', label: 'ATM Queue', icon: Banknote }
     ]
   },
   {
@@ -61,12 +64,14 @@ type GuildConfigSidebarProps = {
   guildName: string
   isAdmin: boolean
   isManager: boolean
+  pendingAtmCount?: number
 }
 
 const GuildConfigSidebar = ({
   guildId,
   guildName,
-  isAdmin
+  isAdmin,
+  pendingAtmCount = 0
 }: GuildConfigSidebarProps) => {
   const pathname = usePathname()
   const activeSectionId = pathname.split('/')[4] || undefined
@@ -118,7 +123,12 @@ const GuildConfigSidebar = ({
                         ) : null}
 
                         <Icon size={16} />
-                        {link.label}
+                        <span className="flex-1">{link.label}</span>
+                        {link.id === 'atm-queue' && pendingAtmCount > 0 ? (
+                          <Badge variant="destructive" className="ml-auto">
+                            {pendingAtmCount}
+                          </Badge>
+                        ) : null}
                       </Link>
                     )
                   })}

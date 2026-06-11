@@ -3,7 +3,7 @@ import {
   APIRole,
   RESTAPIPartialCurrentUserGuild
 } from 'discord-api-types/v10'
-import { TTransaction, TVipRoom } from 'gambling-bot-shared'
+import { TAtmRequest, TTransaction, TVipRoom } from 'gambling-bot-shared'
 import { UseFormReturn } from 'react-hook-form'
 import z from 'zod'
 
@@ -79,6 +79,30 @@ export interface TTransactionDiscord extends Pick<
   handledByUsername?: string | null
   dateFrom?: string
   dateTo?: string
+}
+
+export interface TAtmRequestDiscord extends TAtmRequest {
+  id: string
+  username: string
+  nickname: string | null
+  avatar: string
+  handledByUsername?: string | null
+  linkedTransactionId?: string | null
+}
+
+export type IAtmRequestCounts = {
+  pending: number
+  approved: number
+  rejected: number
+  total: number
+  type: {
+    deposit: number
+    withdraw: number
+  }
+  amount: {
+    pendingDeposits: number
+    pendingWithdraws: number
+  }
 }
 
 export type ITransactionCounts = {

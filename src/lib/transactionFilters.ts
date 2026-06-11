@@ -62,7 +62,9 @@ export function buildTransactionMatchFilters({
 
   if (adminSearch) {
     const regex = new RegExp(escapeRegExp(adminSearch), 'i')
-    andFilters.push({ $or: [{ handledBy: regex }, { betId: regex }] })
+    andFilters.push({
+      $or: [{ handledBy: regex }, { betId: regex }, { 'meta.requestId': regex }]
+    })
   }
 
   if (filterType?.length) {

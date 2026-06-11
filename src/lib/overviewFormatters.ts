@@ -47,7 +47,13 @@ function formatWholeCompactSigned(
 export const formatOverviewCurrency = (
   value: number,
   globalSettings?: Partial<GlobalSettings> | null
-) => formatGuildMoneyExactSigned(value, globalSettings)
+) => {
+  if (Math.abs(value) >= 1_000_000) {
+    return formatGuildMoneyCompactSigned(value, globalSettings)
+  }
+
+  return formatGuildMoneyExactSigned(value, globalSettings)
+}
 
 export const formatOverviewCount = (value: number) =>
   formatNumberToReadableString(value)
