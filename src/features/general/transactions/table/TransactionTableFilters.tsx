@@ -1,4 +1,9 @@
 import { Table as ReactTable } from '@tanstack/react-table'
+import {
+  CASINO_GAME_IDS,
+  formatTransactionSourceLabel,
+  formatTransactionTypeLabel
+} from 'gambling-bot-shared'
 import { Columns3Icon } from 'lucide-react'
 
 import { Dispatch, RefObject, SetStateAction } from 'react'
@@ -12,12 +17,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { LEGACY_CASINO_GAME_KEY } from '@/lib/transactionFilters'
 import { ITransactionCounts, TTransactionDiscord } from '@/types/types'
 
 import TransactionExtraButtons from './TransactionExtraButtons'
 import TransactionFilter from './TransactionTableFilter'
 import TransactionSearch from './TransactionTableSearch'
 import { sourceBadgeMap, typeBadgeMap } from './transactionBadges'
+import { getCasinoGameFilterLabel } from './transactionFilterLabels'
 
 const TransactionTableFilters = ({
   table,
@@ -43,17 +50,28 @@ const TransactionTableFilters = ({
   }
 
   function mapToOptions<T extends string>(
-    entries: Record<T, string>
+    entries: Record<T, string>,
+    formatLabel: (key: T) => string
   ): Option<T>[] {
-    return Object.keys(entries).map((key, idx) => ({
+    return (Object.keys(entries) as T[]).map((key, idx) => ({
       value: `${key}-${idx}`,
-      label: key.charAt(0).toUpperCase() + key.slice(1).toLowerCase(),
-      realValue: key as T
+      label: formatLabel(key),
+      realValue: key
     }))
   }
 
-  const typeOptions = mapToOptions(typeBadgeMap)
-  const sourceOptions = mapToOptions(sourceBadgeMap)
+  const typeOptions = mapToOptions(typeBadgeMap, formatTransactionTypeLabel)
+  const sourceOptions = mapToOptions(
+    sourceBadgeMap,
+    formatTransactionSourceLabel
+  )
+  const casinoGameOptions = [...CASINO_GAME_IDS, LEGACY_CASINO_GAME_KEY].map(
+    (game, idx) => ({
+      value: `${game}-${idx}`,
+      label: getCasinoGameFilterLabel(game),
+      realValue: game
+    })
+  )
 
   function getSelectedOptions<T extends string>(
     table: ReactTable<TTransactionDiscord>,
@@ -72,6 +90,14 @@ const TransactionTableFilters = ({
     table,
     'source',
     sourceOptions
+  )
+  const selectedCasinoGameOptions = getSelectedOptions(
+    table,
+    'casinoGame',
+    casinoGameOptions
+  )
+  const casinoSourceSelected = selectedSourceOptions.some(
+    (option) => option.realValue === 'casino'
   )
 
   const usernameInputFilter = hideUserSearch
@@ -169,8 +195,29 @@ const TransactionTableFilters = ({
               ?.setFilterValue(
                 next.length ? next.map((o) => o.realValue) : undefined
               )
+
+            if (!next.some((option) => option.realValue === 'casino')) {
+              table.getColumn('casinoGame')?.setFilterValue(undefined)
+            }
           }}
         />
+
+        {casinoSourceSelected ? (
+          <TransactionFilter
+            title="Game"
+            columnId="casinoGame"
+            options={casinoGameOptions}
+            selected={selectedCasinoGameOptions}
+            counts={counts.casinoGame}
+            onChange={(next) => {
+              table
+                .getColumn('casinoGame')
+                ?.setFilterValue(
+                  next.length ? next.map((o) => o.realValue) : undefined
+                )
+            }}
+          />
+        ) : null}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

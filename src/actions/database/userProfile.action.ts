@@ -2,8 +2,6 @@
 
 import {
   type GlobalSettings,
-  TRANSACTION_SOURCES,
-  TTransaction,
   TVipRoom,
   normalizeGlobalSettings,
   resolveGuildTimezone
@@ -22,6 +20,11 @@ import { connectToDatabase } from '@/lib/db'
 import { userGuildDateRangeMatch } from '@/lib/guildTimezone'
 import { buildPnLTimeGroupStage } from '@/lib/overviewPnLAggregation'
 import { netProfitSum, periodTotalsGroup } from '@/lib/transactionTotals'
+import {
+  VolumeSlice,
+  buildVolumeSlices,
+  volumeAmountGroupStage
+} from '@/lib/volumeSlices'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'
 import User from '@/models/User'
@@ -66,7 +69,7 @@ export type UserProfileData = {
   txCount: number
   periodNetProfit: number
   pnlSeries: OverviewPnLSeries
-  sourceAmounts: { source: TTransaction['source']; amount: number }[]
+  sourceAmounts: VolumeSlice[]
   vips: UserProfileVip[]
 }
 
@@ -162,15 +165,7 @@ export async function getUserProfile(
       buildPnLTimeGroupStage(timezone, pnlGranularity),
       { $sort: { _id: 1 } }
     ]),
-    Transaction.aggregate([
-      { $match: dateMatch },
-      {
-        $group: {
-          _id: '$source',
-          amount: { $sum: { $abs: '$amount' } }
-        }
-      }
-    ]),
+    Transaction.aggregate([{ $match: dateMatch }, volumeAmountGroupStage]),
     Transaction.aggregate([
       {
         $match: {
@@ -215,10 +210,7 @@ export async function getUserProfile(
         : fillDailySeries(range, pnlPoints, timezone)
   }
 
-  const sourceAmounts = TRANSACTION_SOURCES.map((source) => {
-    const row = sourceAmountAgg.find((r) => r._id === source)
-    return { source, amount: row?.amount ?? 0 }
-  }).filter((row) => row.amount > 0)
+  const sourceAmounts = buildVolumeSlices(sourceAmountAgg)
 
   return {
     globalSettings: normalizeGlobalSettings(

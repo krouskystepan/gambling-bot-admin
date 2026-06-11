@@ -28,6 +28,11 @@ import { guildDateRangeMatch } from '@/lib/guildTimezone'
 import { buildPnLTimeGroupStage } from '@/lib/overviewPnLAggregation'
 import { getRtpStatus } from '@/lib/rtpWarnings'
 import { netProfitSum, periodTotalsGroup } from '@/lib/transactionTotals'
+import {
+  VolumeSlice,
+  buildVolumeSlices,
+  volumeAmountGroupStage
+} from '@/lib/volumeSlices'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'
 import User from '@/models/User'
@@ -66,7 +71,7 @@ export type OverviewData = {
   typeCounts: Record<TTransaction['type'], number>
   sourceCounts: Record<TTransaction['source'], number>
   pnlSeries: OverviewPnLSeries
-  sourceAmounts: { source: TTransaction['source']; amount: number }[]
+  sourceAmounts: VolumeSlice[]
   registeredUsers: number
   totalLiability: number
   vipRoomCount: number
@@ -284,15 +289,7 @@ export async function getOverviewData(
       buildPnLTimeGroupStage(timezone, pnlGranularity),
       { $sort: { _id: 1 } }
     ]),
-    Transaction.aggregate([
-      { $match: dateMatch },
-      {
-        $group: {
-          _id: '$source',
-          amount: { $sum: { $abs: '$amount' } }
-        }
-      }
-    ]),
+    Transaction.aggregate([{ $match: dateMatch }, volumeAmountGroupStage]),
     User.countDocuments({ guildId }),
     User.aggregate([
       { $match: { guildId } },
@@ -330,6 +327,7 @@ export async function getOverviewData(
       session,
       1,
       10,
+      undefined,
       undefined,
       undefined,
       undefined,
@@ -373,10 +371,7 @@ export async function getOverviewData(
         : fillDailySeries(range, pnlPoints, timezone)
   }
 
-  const sourceAmounts = TRANSACTION_SOURCES.map((source) => {
-    const row = sourceAmountAgg.find((r) => r._id === source)
-    return { source, amount: row?.amount ?? 0 }
-  }).filter((row) => row.amount > 0)
+  const sourceAmounts = buildVolumeSlices(sourceAmountAgg)
 
   const { topByBalance, topByNetProfit } = await enrichTopUsers(
     guildId,

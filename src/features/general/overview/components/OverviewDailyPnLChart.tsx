@@ -71,24 +71,20 @@ function formatTooltipHeader(
   }
 }
 
-function computeYAxisDomain(
-  values: number[]
-): [number, number] | ['auto', 'auto'] {
-  if (values.length === 0) return ['auto', 'auto']
+function computeYAxisDomain(values: number[]): [number, number] {
+  if (values.length === 0) return [0, 1]
 
   const min = Math.min(...values)
   const max = Math.max(...values)
-  if (min !== max) return ['auto', 'auto']
 
-  const value = min
-  const padding = Math.max(Math.abs(value) * 0.1, 1)
-  let lower = value - padding
-  let upper = value + padding
+  if (min === max) {
+    const padding = Math.max(Math.abs(min) * 0.12, 1)
+    if (min >= 0) return [Math.min(0, min - padding), min + padding]
+    return [min - padding, Math.max(0, min + padding)]
+  }
 
-  if (value > 0) lower = Math.min(lower, 0)
-  if (value < 0) upper = Math.max(upper, 0)
-
-  return [lower, upper]
+  const padding = (max - min) * 0.06
+  return [min - padding, max + padding]
 }
 
 const OverviewDailyPnLTooltip = ({
@@ -205,7 +201,7 @@ const OverviewDailyPnLChart = ({
   const yDomain = computeYAxisDomain(points.map((point) => point.gamePnL))
 
   return (
-    <Card>
+    <Card className="flex h-full min-h-[380px] flex-col">
       <CardHeader>
         <CardTitle>{isHourly ? 'Hourly game P&L' : 'Daily game P&L'}</CardTitle>
         <CardDescription>
@@ -214,14 +210,14 @@ const OverviewDailyPnLChart = ({
             : 'House profit or loss per day'}
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex min-h-0 flex-1 flex-col pb-4">
         <ChartContainer
           config={chartConfig}
-          className="aspect-auto h-[280px] w-full"
+          className="aspect-auto min-h-[220px] w-full flex-1 [&_.recharts-responsive-container]:h-full!"
         >
           <AreaChart
             data={points}
-            margin={{ left: 4, right: 8, top: 8, bottom: 0 }}
+            margin={{ left: 0, right: 8, top: 8, bottom: 4 }}
           >
             <CartesianGrid vertical={false} />
             <XAxis
@@ -263,6 +259,7 @@ const OverviewDailyPnLChart = ({
             <Area
               type="linear"
               dataKey="gamePnL"
+              baseValue={0}
               stroke="var(--color-gamePnL)"
               fill="var(--color-gamePnL)"
               fillOpacity={0.2}

@@ -84,6 +84,7 @@ export interface TTransactionDiscord extends Pick<
 export type ITransactionCounts = {
   type: Record<TTransaction['type'], number>
   source: Record<TTransaction['source'], number>
+  casinoGame: Record<string, number>
 }
 
 export type TUpdateUrl = {
@@ -93,6 +94,7 @@ export type TUpdateUrl = {
   adminSearch?: string
   filterType?: string
   filterSource?: string
+  filterCasinoGame?: string
   sort?: string
 }
 

@@ -220,6 +220,17 @@ export const transactionsColumns = (
       size: 140,
       cell: ({ row }) =>
         new Date(row.getValue('createdAt')).toLocaleString('cs')
+    },
+    {
+      id: 'casinoGame',
+      accessorFn: (row) => {
+        const game = row.meta?.game
+        return typeof game === 'string' ? game : undefined
+      },
+      header: 'Game',
+      enableSorting: false,
+      enableHiding: false,
+      cell: () => null
     }
   ]
 

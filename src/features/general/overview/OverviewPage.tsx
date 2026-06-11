@@ -55,7 +55,7 @@ const OverviewPage = async ({
           vipRoomCount={data.vipRoomCount}
         />
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid min-h-[400px] gap-6 lg:grid-cols-2">
           <OverviewDailyPnLChart
             series={data.pnlSeries}
             globalSettings={data.globalSettings}

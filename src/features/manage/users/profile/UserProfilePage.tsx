@@ -33,6 +33,7 @@ type UserProfilePageProps = {
     adminSearch?: string
     filterType?: string
     filterSource?: string
+    filterCasinoGame?: string
     sort?: string
   }
 }

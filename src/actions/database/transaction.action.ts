@@ -1,6 +1,7 @@
 'use server'
 
 import {
+  CASINO_GAME_IDS,
   TRANSACTION_SOURCES,
   TRANSACTION_TYPES,
   TTransaction
@@ -8,15 +9,17 @@ import {
 import { Session } from 'next-auth'
 
 import { connectToDatabase } from '@/lib/db'
+import {
+  LEGACY_CASINO_GAME_KEY,
+  buildTransactionMatchFilters,
+  buildTransactionQuery
+} from '@/lib/transactionFilters'
 import { cashFlowSum, gamePnLSum } from '@/lib/transactionTotals'
-import { escapeRegExp } from '@/lib/utils'
 import Transaction from '@/models/Transaction'
 import { ITransactionCounts, TTransactionDiscord } from '@/types/types'
 
 import { getDiscordGuildMembers } from '../discord/member.action'
 import { requireGuildAccess } from '../perms'
-
-type TransactionFilter = Record<string, unknown>
 
 export const getTransactions = async (
   guildId: string,
@@ -27,6 +30,7 @@ export const getTransactions = async (
   adminSearch?: string,
   filterType?: string[],
   filterSource?: string[],
+  filterCasinoGame?: string[],
   dateFrom?: string,
   dateTo?: string,
   sort?: string,
@@ -44,40 +48,19 @@ export const getTransactions = async (
 
   await connectToDatabase()
 
-  const andFilters: TransactionFilter[] = []
-
-  if (userId) {
-    andFilters.push({ userId })
-  } else if (search) {
-    const regex = new RegExp(escapeRegExp(search), 'i')
-    andFilters.push({ userId: regex })
-  }
-
-  if (adminSearch) {
-    const regex = new RegExp(escapeRegExp(adminSearch), 'i')
-    andFilters.push({ $or: [{ handledBy: regex }, { betId: regex }] })
-  }
-
-  if (filterType?.length) {
-    andFilters.push({ type: { $in: filterType } })
-  }
-
-  if (filterSource?.length) {
-    andFilters.push({ source: { $in: filterSource } })
-  }
-
-  if (dateFrom && dateTo) {
-    const from = new Date(dateFrom)
-    from.setHours(0, 0, 0, 0)
-
-    const to = new Date(dateTo)
-    to.setHours(23, 59, 59, 999)
-
-    andFilters.push({ createdAt: { $gte: from, $lte: to } })
-  }
-
-  const query: TransactionFilter =
-    andFilters.length > 0 ? { guildId, $and: andFilters } : { guildId }
+  const query = buildTransactionQuery(
+    guildId,
+    buildTransactionMatchFilters({
+      userId,
+      search,
+      adminSearch,
+      filterType,
+      filterSource,
+      filterCasinoGame,
+      dateFrom,
+      dateTo
+    })
+  )
 
   const total = await Transaction.countDocuments(query)
 
@@ -167,6 +150,7 @@ export const getTransactionCounts = async (
   session: Session,
   filterType?: string[],
   filterSource?: string[],
+  filterCasinoGame?: string[],
   search?: string,
   adminSearch?: string,
   dateFrom?: string,
@@ -182,55 +166,47 @@ export const getTransactionCounts = async (
       >,
       source: Object.fromEntries(
         TRANSACTION_SOURCES.map((s) => [s, 0])
-      ) as Record<TTransaction['source'], number>
+      ) as Record<TTransaction['source'], number>,
+      casinoGame: Object.fromEntries(
+        [...CASINO_GAME_IDS, LEGACY_CASINO_GAME_KEY].map((game) => [game, 0])
+      )
     }
   }
 
   await connectToDatabase()
 
-  const andFilters: TransactionFilter[] = []
+  const query = buildTransactionQuery(
+    guildId,
+    buildTransactionMatchFilters({
+      userId,
+      search,
+      adminSearch,
+      filterType,
+      filterSource,
+      filterCasinoGame,
+      dateFrom,
+      dateTo
+    })
+  )
 
-  if (userId) {
-    andFilters.push({ userId })
-  } else if (search) {
-    const regex = new RegExp(escapeRegExp(search), 'i')
-    andFilters.push({ userId: regex })
-  }
-
-  if (adminSearch) {
-    const regex = new RegExp(escapeRegExp(adminSearch), 'i')
-    andFilters.push({ $or: [{ handledBy: regex }, { betId: regex }] })
-  }
-
-  if (filterType?.length) {
-    andFilters.push({ type: { $in: filterType } })
-  }
-
-  if (filterSource?.length) {
-    andFilters.push({ source: { $in: filterSource } })
-  }
-
-  if (dateFrom && dateTo) {
-    const from = new Date(dateFrom)
-    from.setHours(0, 0, 0, 0)
-
-    const to = new Date(dateTo)
-    to.setHours(23, 59, 59, 999)
-
-    andFilters.push({ createdAt: { $gte: from, $lte: to } })
-  }
-
-  const query: TransactionFilter =
-    andFilters.length > 0 ? { guildId, $and: andFilters } : { guildId }
-
-  const typeAgg = await Transaction.aggregate([
-    { $match: query },
-    { $group: { _id: '$type', count: { $sum: 1 } } }
-  ])
-
-  const sourceAgg = await Transaction.aggregate([
-    { $match: query },
-    { $group: { _id: '$source', count: { $sum: 1 } } }
+  const [typeAgg, sourceAgg, casinoGameAgg] = await Promise.all([
+    Transaction.aggregate([
+      { $match: query },
+      { $group: { _id: '$type', count: { $sum: 1 } } }
+    ]),
+    Transaction.aggregate([
+      { $match: query },
+      { $group: { _id: '$source', count: { $sum: 1 } } }
+    ]),
+    Transaction.aggregate([
+      { $match: { ...query, source: 'casino' } },
+      {
+        $group: {
+          _id: { $ifNull: ['$meta.game', LEGACY_CASINO_GAME_KEY] },
+          count: { $sum: 1 }
+        }
+      }
+    ])
   ])
 
   const typeCounts = Object.fromEntries(
@@ -249,7 +225,19 @@ export const getTransactionCounts = async (
     sourceCounts[s._id as TTransaction['source']] = s.count
   })
 
-  return { type: typeCounts, source: sourceCounts }
+  const casinoGameCounts = Object.fromEntries(
+    [...CASINO_GAME_IDS, LEGACY_CASINO_GAME_KEY].map((game) => [game, 0])
+  ) as Record<string, number>
+
+  casinoGameAgg.forEach((row) => {
+    casinoGameCounts[row._id as string] = row.count
+  })
+
+  return {
+    type: typeCounts,
+    source: sourceCounts,
+    casinoGame: casinoGameCounts
+  }
 }
 
 export const deleteTransaction = async (

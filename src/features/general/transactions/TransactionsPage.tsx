@@ -22,6 +22,7 @@ const TransactionsPage = async ({
     adminSearch?: string
     filterType?: string
     filterSource?: string
+    filterCasinoGame?: string
     dateFrom?: string
     dateTo?: string
     sort?: string

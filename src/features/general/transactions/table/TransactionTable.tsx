@@ -48,7 +48,8 @@ const TransactionTable = ({
   hideUserSearch = false
 }: TransactionTableProps) => {
   const defaultVisibility: VisibilityState = {
-    betId: false
+    betId: false,
+    casinoGame: false
   }
 
   const { table, isLoading, setIsLoading } =
@@ -91,6 +92,12 @@ const TransactionTable = ({
               | string[]
               | undefined
           )?.join(',') ?? ''
+        const filterCasinoGame =
+          (
+            filters.find((f) => f.id === 'casinoGame')?.value as
+              | string[]
+              | undefined
+          )?.join(',') ?? ''
 
         const dateRange = filters.find((f) => f.id === 'createdAt')?.value as
           | [string, string]
@@ -102,6 +109,7 @@ const TransactionTable = ({
           adminSearch,
           filterType,
           filterSource,
+          filterCasinoGame,
           dateFrom: dateRange?.[0],
           dateTo: dateRange?.[1]
         })
@@ -152,6 +160,7 @@ const TransactionTable = ({
       const adminSearch = params.get('adminSearch') || ''
       const filterType = params.get('filterType')?.split(',')
       const filterSource = params.get('filterSource')?.split(',')
+      const filterCasinoGame = params.get('filterCasinoGame')?.split(',')
       const dateFrom = params.get('dateFrom') || undefined
       const dateTo = params.get('dateTo') || undefined
 
@@ -161,6 +170,10 @@ const TransactionTable = ({
         {
           id: 'source',
           value: filterSource?.length ? filterSource : undefined
+        },
+        {
+          id: 'casinoGame',
+          value: filterCasinoGame?.length ? filterCasinoGame : undefined
         },
         {
           id: 'createdAt',

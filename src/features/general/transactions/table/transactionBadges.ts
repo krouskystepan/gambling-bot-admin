@@ -17,8 +17,8 @@ const TYPE_BADGE_STYLES: Record<TTransaction['type'], string> = {
 const SOURCE_BADGE_STYLES: Record<TTransaction['source'], string> = {
   casino: 'bg-chart-3 text-white',
   command: 'bg-sky-600 text-white',
-  manual: 'bg-muted text-muted-foreground',
-  system: 'bg-secondary text-secondary-foreground',
+  manual: 'bg-[var(--tag-amber)] text-black',
+  system: 'bg-[var(--tag-violet)] text-white',
   web: 'bg-cyan-600 text-white'
 }
 
