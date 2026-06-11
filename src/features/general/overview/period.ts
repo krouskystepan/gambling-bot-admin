@@ -180,12 +180,19 @@ export function resolveOverviewPnLGranularity(
   range: OverviewDateRange,
   timezone?: string | null
 ): OverviewPnLGranularity {
-  return getOverviewRangeDayCount(range, timezone) <= 3 ? 'hour' : 'day'
+  return getOverviewRangeDayCount(range, timezone) <= 5 ? 'hour' : 'day'
+}
+
+export function getOverviewHourlyDayCount(
+  points: OverviewDailyPoint[]
+): number {
+  return new Set(points.map((point) => point.date.slice(0, 10))).size
 }
 
 const HOURLY_BUCKET_FORMAT = "yyyy-MM-dd'T'HH:00"
 
 export const SINGLE_DAY_HOUR_AXIS_TICKS = [0, 3, 6, 9, 12, 15, 18, 21] as const
+export const MULTI_DAY_HOUR_AXIS_TICKS = [0, 12] as const
 
 export function parseOverviewBucket(
   dateKey: string,
@@ -218,16 +225,88 @@ export function formatOverviewHourAxisTick(
   return formatOverviewHourLabel(dayStart.plus({ hours: hour }), timezone)
 }
 
+export function formatOverviewDayLabel(bucket: DateTime): string {
+  return bucket.toFormat('d. MMMM')
+}
+
+export function formatOverviewDayNumericMonthLabel(bucket: DateTime): string {
+  return bucket.toFormat('d. M')
+}
+
+export function formatOverviewDailyAxisTick(
+  dateKey: string,
+  timezone?: string | null
+): string {
+  return formatOverviewDayLabel(
+    DateTime.fromISO(dateKey, { zone: resolveGuildTimezone(timezone) })
+  )
+}
+
+export function formatOverviewDayTooltip(bucket: DateTime): string {
+  return bucket.toFormat('d. MMMM yyyy')
+}
+
+export function formatOverviewMultiDayHourAxisTick(
+  bucket: DateTime,
+  dayCount: number,
+  timezone?: string | null
+): string {
+  if (dayCount === 5) {
+    return formatOverviewDayLabel(bucket)
+  }
+
+  const time = formatOverviewHourLabel(bucket, timezone)
+
+  if (dayCount === 2) {
+    return `${formatOverviewDayLabel(bucket)} ${time}`
+  }
+
+  return `${formatOverviewDayNumericMonthLabel(bucket)} ${time}`
+}
+
+export function buildSingleDayHourAxisTicks(
+  points: OverviewDailyPoint[],
+  timezone?: string | null
+): string[] {
+  return points
+    .filter((point) =>
+      (SINGLE_DAY_HOUR_AXIS_TICKS as readonly number[]).includes(
+        parseOverviewBucket(point.date, timezone).hour
+      )
+    )
+    .map((point) => point.date)
+}
+
+export function buildMultiDayHourAxisTicks(
+  points: OverviewDailyPoint[],
+  dayCount: number,
+  timezone?: string | null
+): string[] {
+  if (dayCount === 5) {
+    return points
+      .filter((point) => parseOverviewBucket(point.date, timezone).hour === 0)
+      .map((point) => point.date)
+  }
+
+  return points
+    .filter((point) =>
+      (MULTI_DAY_HOUR_AXIS_TICKS as readonly number[]).includes(
+        parseOverviewBucket(point.date, timezone).hour
+      )
+    )
+    .map((point) => point.date)
+}
+
 export function formatOverviewHourTooltip(
   bucket: DateTime,
   timezone?: string | null
 ): string {
   if (uses24HourClock(timezone)) {
-    return bucket.toFormat('MMM d, yyyy HH:mm')
+    return bucket.toFormat('d. MMMM yyyy HH:mm')
   }
 
   return bucket
-    .toFormat('MMM d, yyyy h:mm a')
+    .toFormat('d. MMMM yyyy h:mm a')
     .replace(' AM', 'AM')
     .replace(' PM', 'PM')
 }
