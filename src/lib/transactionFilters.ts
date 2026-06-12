@@ -39,9 +39,7 @@ export function buildTransactionMatchFilters({
   adminSearch,
   filterType,
   filterSource,
-  filterCasinoGame,
-  dateFrom,
-  dateTo
+  filterCasinoGame
 }: {
   userId?: string
   search?: string
@@ -49,8 +47,6 @@ export function buildTransactionMatchFilters({
   filterType?: string[]
   filterSource?: string[]
   filterCasinoGame?: string[]
-  dateFrom?: string
-  dateTo?: string
 }): TransactionFilter[] {
   const andFilters: TransactionFilter[] = []
 
@@ -96,16 +92,6 @@ export function buildTransactionMatchFilters({
       source: 'casino',
       ...buildCasinoGameMetaFilter(filterCasinoGame)
     })
-  }
-
-  if (dateFrom && dateTo) {
-    const from = new Date(dateFrom)
-    from.setHours(0, 0, 0, 0)
-
-    const to = new Date(dateTo)
-    to.setHours(23, 59, 59, 999)
-
-    andFilters.push({ createdAt: { $gte: from, $lte: to } })
   }
 
   return andFilters

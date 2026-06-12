@@ -44,6 +44,7 @@ const TransactionsPage = async ({
   return (
     <FeatureLayout title={'Transactions'}>
       <TransactionTable
+        guildId={guildId}
         globalSettings={globalSettings}
         transactions={transactions}
         transactionCounts={transactionCounts}

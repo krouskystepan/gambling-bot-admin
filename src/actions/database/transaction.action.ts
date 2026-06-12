@@ -9,11 +9,9 @@ import {
 import { Session } from 'next-auth'
 
 import { connectToDatabase } from '@/lib/db'
-import {
-  LEGACY_CASINO_GAME_KEY,
-  buildTransactionMatchFilters,
-  buildTransactionQuery
-} from '@/lib/transactionFilters'
+import { getGuildGlobalSettings } from '@/lib/guildMoney.server'
+import { LEGACY_CASINO_GAME_KEY } from '@/lib/transactionFilters'
+import { buildTransactionMatch } from '@/lib/transactionQuery'
 import { cashFlowSum, gamePnLSum } from '@/lib/transactionTotals'
 import Transaction from '@/models/Transaction'
 import { ITransactionCounts, TTransactionDiscord } from '@/types/types'
@@ -48,9 +46,10 @@ export const getTransactions = async (
 
   await connectToDatabase()
 
-  const query = buildTransactionQuery(
+  const globalSettings = await getGuildGlobalSettings(guildId)
+  const query = buildTransactionMatch(
     guildId,
-    buildTransactionMatchFilters({
+    {
       userId,
       search,
       adminSearch,
@@ -59,7 +58,8 @@ export const getTransactions = async (
       filterCasinoGame,
       dateFrom,
       dateTo
-    })
+    },
+    globalSettings.timezone
   )
 
   const total = await Transaction.countDocuments(query)
@@ -175,9 +175,10 @@ export const getTransactionCounts = async (
 
   await connectToDatabase()
 
-  const query = buildTransactionQuery(
+  const globalSettings = await getGuildGlobalSettings(guildId)
+  const query = buildTransactionMatch(
     guildId,
-    buildTransactionMatchFilters({
+    {
       userId,
       search,
       adminSearch,
@@ -186,7 +187,8 @@ export const getTransactionCounts = async (
       filterCasinoGame,
       dateFrom,
       dateTo
-    })
+    },
+    globalSettings.timezone
   )
 
   const [typeAgg, sourceAgg, casinoGameAgg] = await Promise.all([

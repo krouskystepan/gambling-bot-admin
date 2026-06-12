@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 type ServerTablePageLayoutProps = {
   toolbar: ReactNode
   summary?: ReactNode
-  pagination: ReactNode
+  pagination?: ReactNode
   children: ReactNode
 }
 

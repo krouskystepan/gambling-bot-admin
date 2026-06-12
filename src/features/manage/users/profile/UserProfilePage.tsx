@@ -123,6 +123,7 @@ const UserProfilePage = async ({
             </Link>
           </div>
           <TransactionTable
+            guildId={guildId}
             globalSettings={profile.globalSettings}
             transactions={txData.transactions}
             transactionCounts={txData.transactionCounts}

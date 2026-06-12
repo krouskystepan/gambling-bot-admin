@@ -25,6 +25,7 @@ import TransactionTableSummary from './TransactionTableSummary'
 import { transactionsColumns } from './transactionColumns'
 
 interface TransactionTableProps {
+  guildId: string
   globalSettings: GlobalSettings
   transactions: TTransactionDiscord[]
   transactionCounts: ITransactionCounts
@@ -37,6 +38,7 @@ interface TransactionTableProps {
 }
 
 const TransactionTable = ({
+  guildId,
   globalSettings,
   transactions,
   transactionCounts,
@@ -194,6 +196,7 @@ const TransactionTable = ({
     <ServerTablePageLayout
       toolbar={
         <TransactionTableFilters
+          guildId={guildId}
           table={table}
           counts={transactionCounts}
           isLoading={isLoading}

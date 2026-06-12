@@ -1,5 +1,6 @@
 // General
 export { default as OverviewPage } from './general/overview/OverviewPage'
+export { default as ReportsPage } from './general/reports/ReportsPage'
 export { default as TransactionsPage } from './general/transactions/TransactionsPage'
 export { default as AtmQueuePage } from './general/atm-queue/AtmQueuePage'
 

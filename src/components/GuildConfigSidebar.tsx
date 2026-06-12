@@ -5,6 +5,7 @@ import {
   Banknote,
   Crown,
   Dices,
+  FileBarChart,
   Globe,
   Landmark,
   LayoutDashboard,
@@ -32,6 +33,7 @@ const LINKS = [
     value: 'general',
     links: [
       { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+      { id: 'reports', label: 'Reports', icon: FileBarChart },
       { id: 'transactions', label: 'Transactions', icon: Landmark },
       { id: 'atm-queue', label: 'ATM Queue', icon: Banknote }
     ]

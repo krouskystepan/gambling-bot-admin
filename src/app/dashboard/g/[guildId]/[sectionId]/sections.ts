@@ -6,6 +6,7 @@ import {
   GlobalSettingsPage,
   ManagerSettingsPage,
   OverviewPage,
+  ReportsPage,
   TransactionsPage,
   UsersPage,
   VipPage,
@@ -15,6 +16,7 @@ import {
 export const sections = {
   // General
   overview: OverviewPage,
+  reports: ReportsPage,
   transactions: TransactionsPage,
   'atm-queue': AtmQueuePage,
 

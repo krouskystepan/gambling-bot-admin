@@ -27,6 +27,7 @@ import { sourceBadgeMap, typeBadgeMap } from './transactionBadges'
 import { getCasinoGameFilterLabel } from './transactionFilterLabels'
 
 const TransactionTableFilters = ({
+  guildId,
   table,
   counts,
   isLoading,
@@ -35,6 +36,7 @@ const TransactionTableFilters = ({
   adminSearchRef,
   hideUserSearch = false
 }: {
+  guildId: string
   table: ReactTable<TTransactionDiscord>
   counts: ITransactionCounts
   isLoading: boolean
@@ -247,6 +249,7 @@ const TransactionTableFilters = ({
         </DropdownMenu>
 
         <TransactionExtraButtons
+          guildId={guildId}
           table={table}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
