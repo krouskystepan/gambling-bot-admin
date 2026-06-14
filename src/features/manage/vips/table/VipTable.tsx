@@ -26,15 +26,44 @@ type VipTableProps = {
   page: number
   limit: number
   total: number
+  maxMembers: number
+  vipConfigured: boolean
+  vipFeatureBlocked: boolean
+  vipFeatureBlockMessage: string | null
+  activeVipOwnerIds: string[]
+  members: {
+    userId: string
+    username: string
+    nickname: string | null
+    avatarUrl: string
+  }[]
 }
 
-const VipTable = ({ guildId, vips, page, limit, total }: VipTableProps) => {
+const VipTable = ({
+  guildId,
+  vips,
+  page,
+  limit,
+  total,
+  maxMembers,
+  vipConfigured,
+  vipFeatureBlocked,
+  vipFeatureBlockMessage,
+  activeVipOwnerIds,
+  members
+}: VipTableProps) => {
   const { table, isLoading, setIsLoading } = useServerTable<TVipChannels>({
     data: vips,
     page,
     limit,
     total,
-    columns: vipColumns(guildId),
+    columns: vipColumns(
+      guildId,
+      maxMembers,
+      members,
+      vipFeatureBlocked,
+      vipFeatureBlockMessage
+    ),
     initialSorting: [{ id: 'createdAt', desc: true }],
     initialVisibility: { search: false },
 
@@ -86,10 +115,16 @@ const VipTable = ({ guildId, vips, page, limit, total }: VipTableProps) => {
     <ServerTablePageLayout
       toolbar={
         <VipsTableFilters
+          guildId={guildId}
           table={table}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
           searchRef={searchRef}
+          vipConfigured={vipConfigured}
+          vipFeatureBlocked={vipFeatureBlocked}
+          vipFeatureBlockMessage={vipFeatureBlockMessage}
+          activeVipOwnerIds={activeVipOwnerIds}
+          members={members}
         />
       }
       pagination={<CustomTablePagination table={table} total={total} />}

@@ -6,6 +6,12 @@ import type { IChannelsCacheEntry, IGuildChannel } from '@/types/types'
 const guildChannelsCache = new Map<string, IChannelsCacheEntry>()
 const CHANNEL_CACHE_DURATION = 60_000 // 1 min
 
+export async function invalidateGuildChannelsCache(
+  guildId: string
+): Promise<void> {
+  guildChannelsCache.delete(guildId)
+}
+
 export const getGuildChannels = async (
   guildId: string
 ): Promise<IGuildChannel[]> => {

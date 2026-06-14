@@ -12,7 +12,16 @@ import {
 } from '@/components/ui/tooltip'
 import { TVipChannels } from '@/types/types'
 
-export const vipColumns = (guildId: string): ColumnDef<TVipChannels>[] => [
+import { type GuildMemberOption } from './GuildMemberCombobox'
+import VipActionsMenu from './VipActionsMenu'
+
+export const vipColumns = (
+  guildId: string,
+  maxMembers: number,
+  members: GuildMemberOption[],
+  vipFeatureBlocked: boolean,
+  vipFeatureBlockMessage: string | null
+): ColumnDef<TVipChannels>[] => [
   {
     id: 'search',
     header: () => null,
@@ -83,38 +92,42 @@ export const vipColumns = (guildId: string): ColumnDef<TVipChannels>[] => [
       const members = row.getValue('members') as TVipChannels['members']
 
       return (
-        <span className="flex justify-start items-center">
-          <span>{members.length}</span>
+        <span className="flex items-center justify-start">
           {members.length > 0 ? (
-            <Tooltip>
-              <TooltipTrigger className="ml-2 text-muted-foreground transition hover:text-foreground">
-                <CircleQuestionMark size={16} />
-              </TooltipTrigger>
-              <TooltipContent>
-                <ScrollArea className="h-fit p-1">
-                  {members.map((member) => (
-                    <Link
-                      key={member.userId}
-                      href={`/dashboard/g/${guildId}/users/${member.userId}`}
-                      className="flex items-center gap-2 text-sm hover:text-primary"
-                    >
-                      <Image
-                        className="rounded-full"
-                        width={20}
-                        height={20}
-                        alt={member.username}
-                        src={member.avatar}
-                      />
-                      <span>
-                        {member.username} ({member.nickname || 'No nickname'})
-                      </span>
-                    </Link>
-                  ))}
-                </ScrollArea>
-              </TooltipContent>
-            </Tooltip>
+            <>
+              <span>{members.length}</span>
+              <Tooltip>
+                <TooltipTrigger className="ml-2 text-muted-foreground transition hover:text-foreground">
+                  <CircleQuestionMark size={16} />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <ScrollArea className="h-fit p-1">
+                    {members.map((member) => (
+                      <Link
+                        key={member.userId}
+                        href={`/dashboard/g/${guildId}/users/${member.userId}`}
+                        className="flex items-center gap-2 text-sm hover:text-primary"
+                      >
+                        <Image
+                          className="rounded-full"
+                          width={20}
+                          height={20}
+                          alt={member.username}
+                          src={member.avatar}
+                        />
+                        <span>
+                          {member.username} ({member.nickname || 'No nickname'})
+                        </span>
+                      </Link>
+                    ))}
+                  </ScrollArea>
+                </TooltipContent>
+              </Tooltip>
+            </>
           ) : (
-            <p className="text-sm italic">No members</p>
+            <span className="text-sm italic text-muted-foreground">
+              No members
+            </span>
           )}
         </span>
       )
@@ -137,18 +150,21 @@ export const vipColumns = (guildId: string): ColumnDef<TVipChannels>[] => [
       const dateString = row.getValue('expiresAt') as string | null
       return dateString ? new Date(dateString).toLocaleDateString('cs') : '-'
     }
+  },
+  {
+    id: 'actions',
+    header: 'Actions',
+    size: 60,
+    enableSorting: false,
+    cell: ({ row }) => (
+      <VipActionsMenu
+        guildId={guildId}
+        vip={row.original}
+        maxMembers={maxMembers}
+        members={members}
+        vipFeatureBlocked={vipFeatureBlocked}
+        vipFeatureBlockMessage={vipFeatureBlockMessage}
+      />
+    )
   }
-  // {
-  //   id: 'actions',
-  //   header: 'Actions',
-  //   size: 60,
-  //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  //   cell: ({ row }) => <Menu />
-  //   // <RowActions
-  //   //   row={row}
-  //   //   guildId={guildId}
-  //   //   managerId={managerId}
-  //   //   setData={setData}
-  //   // />
-  // }
 ]

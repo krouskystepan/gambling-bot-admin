@@ -1,5 +1,6 @@
 import { getServerSession } from 'next-auth'
 
+import { getVipPageContext } from '@/actions/database/vipActions.action'
 import FeatureLayout from '@/features/FeatureLayout'
 import { authOptions } from '@/lib/authOptions'
 
@@ -22,7 +23,12 @@ const VipPage = async ({
   if (!session) return null
 
   const query = normalizeVipsSearchParams(searchParams)
-  const { vips, total } = await getVipsData(guildId, session, query)
+  const [{ vips, total }, pageContext] = await Promise.all([
+    getVipsData(guildId, session, query),
+    getVipPageContext(guildId)
+  ])
+
+  if (!pageContext) return null
 
   return (
     <FeatureLayout title={'VIPs Channels'}>
@@ -32,6 +38,12 @@ const VipPage = async ({
         page={query.page}
         limit={query.limit}
         total={total}
+        maxMembers={pageContext.maxMembers}
+        vipConfigured={pageContext.vipConfigured}
+        vipFeatureBlocked={pageContext.vipFeatureBlocked}
+        vipFeatureBlockMessage={pageContext.vipFeatureBlockMessage}
+        activeVipOwnerIds={pageContext.activeVipOwnerIds}
+        members={pageContext.members}
       />
     </FeatureLayout>
   )

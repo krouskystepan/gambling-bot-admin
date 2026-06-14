@@ -4,13 +4,61 @@ import { TVipRoom } from 'gambling-bot-shared'
 import { Session } from 'next-auth'
 
 import { connectToDatabase } from '@/lib/db'
+import { getPanelFeatureBlockMessage } from '@/lib/panelGlobalFeatureGuard'
 import { escapeRegExp } from '@/lib/utils'
+import GuildConfiguration from '@/models/GuildConfiguration'
 import VipRoom from '@/models/VipRoom'
+import { getActiveVipOwnerIds } from '@/services/vip/vip.db'
 import { TVipChannels } from '@/types/types'
 
 import { getGuildChannels } from '../discord/channel.action'
 import { getDiscordGuildMembers } from '../discord/member.action'
 import { requireGuildAccess } from '../perms'
+
+export type VipPageContext = {
+  maxMembers: number
+  vipConfigured: boolean
+  vipFeatureBlocked: boolean
+  vipFeatureBlockMessage: string | null
+  activeVipOwnerIds: string[]
+  members: Awaited<ReturnType<typeof getDiscordGuildMembers>>
+}
+
+export async function getVipPageContext(
+  guildId: string
+): Promise<VipPageContext | null> {
+  const access = await requireGuildAccess(guildId)
+  if ('error' in access) return null
+
+  await connectToDatabase()
+
+  const [guildConfig, activeVipOwnerIds, members] = await Promise.all([
+    GuildConfiguration.findOne({ guildId }).lean(),
+    getActiveVipOwnerIds(guildId),
+    getDiscordGuildMembers(guildId)
+  ])
+
+  const vipSettings = guildConfig?.vipSettings
+  const vipFeatureBlockMessage = getPanelFeatureBlockMessage(
+    guildConfig?.globalSettings,
+    'vip',
+    access.isAdmin
+  )
+
+  return {
+    maxMembers: vipSettings?.maxMembers ?? 0,
+    vipConfigured: Boolean(
+      vipSettings?.categoryId &&
+      vipSettings?.roleOwnerId &&
+      vipSettings?.roleMemberId &&
+      (vipSettings?.pricePerDay ?? 0) > 0
+    ),
+    vipFeatureBlocked: vipFeatureBlockMessage !== null,
+    vipFeatureBlockMessage,
+    activeVipOwnerIds,
+    members
+  }
+}
 
 export async function getVips(
   guildId: string,
@@ -27,7 +75,10 @@ export async function getVips(
 
   await connectToDatabase()
 
-  const docs = await VipRoom.find({ guildId })
+  const docs = await VipRoom.find({
+    guildId,
+    expiresAt: { $gt: new Date() }
+  })
   if (!docs.length) return { vips: [], total: 0 }
 
   const discordMembers = await getDiscordGuildMembers(guildId)
