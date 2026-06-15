@@ -26,6 +26,7 @@ import { atmQueueColumns } from './atmQueueColumns'
 type AtmQueueTableProps = {
   guildId: string
   globalSettings: GlobalSettings
+  isGuildAdmin: boolean
   requests: TAtmRequestDiscord[]
   counts: IAtmRequestCounts
   page: number
@@ -36,6 +37,7 @@ type AtmQueueTableProps = {
 const AtmQueueTable = ({
   guildId,
   globalSettings,
+  isGuildAdmin,
   requests,
   counts,
   page,
@@ -48,7 +50,7 @@ const AtmQueueTable = ({
       page,
       limit,
       total,
-      columns: atmQueueColumns(guildId, globalSettings),
+      columns: atmQueueColumns(guildId, globalSettings, isGuildAdmin),
       initialVisibility: { userId: false },
 
       onSortingChange: (sorting) => {

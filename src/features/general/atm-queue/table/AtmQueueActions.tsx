@@ -1,5 +1,7 @@
 'use client'
 
+import type { GlobalSettings } from 'gambling-bot-shared'
+
 import { useState, useTransition } from 'react'
 
 import { useRouter } from 'next/navigation'
@@ -19,14 +21,30 @@ import {
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
+import {
+  getPanelFeatureBlockMessage,
+  isPanelFeatureBlocking
+} from '@/lib/panelGlobalFeatureGuard'
 import { TAtmRequestDiscord } from '@/types/types'
 
 type AtmQueueActionsProps = {
   guildId: string
   request: TAtmRequestDiscord
+  globalSettings: GlobalSettings
+  isGuildAdmin: boolean
 }
 
-const AtmQueueActions = ({ guildId, request }: AtmQueueActionsProps) => {
+const AtmQueueActions = ({
+  guildId,
+  request,
+  globalSettings,
+  isGuildAdmin
+}: AtmQueueActionsProps) => {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -35,6 +53,18 @@ const AtmQueueActions = ({ guildId, request }: AtmQueueActionsProps) => {
   const [message, setMessage] = useState<string | null>(null)
 
   if (request.status !== 'pending') return null
+
+  const feature = request.type === 'deposit' ? 'deposit' : 'withdraw'
+  const approveBlocked = isPanelFeatureBlocking(
+    globalSettings,
+    feature,
+    isGuildAdmin
+  )
+  const approveBlockMessage = getPanelFeatureBlockMessage(
+    globalSettings,
+    feature,
+    isGuildAdmin
+  )
 
   const openDialog = (nextAction: 'approve' | 'reject') => {
     setAction(nextAction)
@@ -62,14 +92,25 @@ const AtmQueueActions = ({ guildId, request }: AtmQueueActionsProps) => {
   return (
     <>
       <div className="flex gap-2">
-        <Button
-          size="sm"
-          variant="default"
-          disabled={pending}
-          onClick={() => openDialog('approve')}
-        >
-          Approve
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span>
+              <Button
+                size="sm"
+                variant="default"
+                disabled={pending || approveBlocked}
+                onClick={() => openDialog('approve')}
+              >
+                Approve
+              </Button>
+            </span>
+          </TooltipTrigger>
+          {approveBlocked && approveBlockMessage ? (
+            <TooltipContent className="max-w-xs">
+              <p>{approveBlockMessage}</p>
+            </TooltipContent>
+          ) : null}
+        </Tooltip>
         <Button
           size="sm"
           variant="destructive"

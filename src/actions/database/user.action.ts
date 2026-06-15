@@ -1,7 +1,6 @@
 'use server'
 
 import {
-  type GlobalFeature,
   TUser,
   formatMoney,
   normalizeGlobalSettings
@@ -13,10 +12,9 @@ import { revalidatePath } from 'next/cache'
 
 import { connectToDatabase } from '@/lib/db'
 import {
-  PANEL_FEATURE_DISABLED_MESSAGES,
-  getPanelFeatureBlockMessage,
-  isPanelMaintenanceBlocking
-} from '@/lib/panelGlobalFeatureGuard'
+  blockPanelFeatureAction,
+  blockPanelMaintenanceAction
+} from '@/lib/panelFeatureActionGuard.server'
 import { escapeRegExp } from '@/lib/utils'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'
@@ -25,50 +23,12 @@ import { TGuildMemberStatus } from '@/types/types'
 
 import { getDiscordGuildMembers } from '../discord/member.action'
 import { sendEmbed } from '../discord/utils.action'
-import { type GuildAccess, requireGuildAccess } from '../perms'
+import { requireGuildAccess } from '../perms'
 
 const money = (
   amount: number,
   globalSettings?: Partial<GlobalSettings> | null
 ) => formatMoney(amount, globalSettings)
-
-const blockPanelUserAction = async (
-  guildId: string,
-  feature: GlobalFeature,
-  access: GuildAccess
-): Promise<{ success: false; message: string } | null> => {
-  const guildConfig = await GuildConfiguration.findOne({ guildId })
-    .select('globalSettings')
-    .lean()
-  const message = getPanelFeatureBlockMessage(
-    guildConfig?.globalSettings as Partial<GlobalSettings> | undefined,
-    feature,
-    access.isAdmin
-  )
-  if (message) return { success: false, message }
-  return null
-}
-
-const blockPanelMaintenance = async (
-  guildId: string,
-  access: GuildAccess
-): Promise<{ success: false; message: string } | null> => {
-  const guildConfig = await GuildConfiguration.findOne({ guildId })
-    .select('globalSettings')
-    .lean()
-  if (
-    isPanelMaintenanceBlocking(
-      guildConfig?.globalSettings as Partial<GlobalSettings> | undefined,
-      access.isAdmin
-    )
-  ) {
-    return {
-      success: false,
-      message: PANEL_FEATURE_DISABLED_MESSAGES.maintenance
-    }
-  }
-  return null
-}
 
 export async function registerUser(
   userId: string,
@@ -81,7 +41,7 @@ export async function registerUser(
   }
   const managerId = access.session.userId!
 
-  const blocked = await blockPanelUserAction(guildId, 'registration', access)
+  const blocked = await blockPanelFeatureAction(guildId, 'registration', access)
   if (blocked) return blocked
 
   try {
@@ -129,7 +89,7 @@ export async function unregisterUser(
   }
   const managerId = access.session.userId!
 
-  const blocked = await blockPanelUserAction(guildId, 'registration', access)
+  const blocked = await blockPanelFeatureAction(guildId, 'registration', access)
   if (blocked) return blocked
 
   try {
@@ -176,7 +136,7 @@ export async function depositBalance(
   }
   const managerId = access.session.userId!
 
-  const blocked = await blockPanelUserAction(guildId, 'deposit', access)
+  const blocked = await blockPanelFeatureAction(guildId, 'deposit', access)
   if (blocked) return blocked
 
   try {
@@ -260,7 +220,7 @@ export async function withdrawBalance(
   }
   const managerId = access.session.userId!
 
-  const blocked = await blockPanelUserAction(guildId, 'withdraw', access)
+  const blocked = await blockPanelFeatureAction(guildId, 'withdraw', access)
   if (blocked) return blocked
 
   try {
@@ -357,7 +317,7 @@ export async function resetBalance(
   }
   const managerId = access.session.userId!
 
-  const blocked = await blockPanelMaintenance(guildId, access)
+  const blocked = await blockPanelMaintenanceAction(guildId, access)
   if (blocked) return blocked
 
   try {
@@ -423,7 +383,7 @@ export async function bonusBalance(
   }
   const managerId = access.session.userId!
 
-  const blocked = await blockPanelUserAction(guildId, 'dailyBonus', access)
+  const blocked = await blockPanelFeatureAction(guildId, 'dailyBonus', access)
   if (blocked) return blocked
 
   try {

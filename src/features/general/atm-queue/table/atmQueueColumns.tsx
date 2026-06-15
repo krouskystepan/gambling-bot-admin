@@ -13,7 +13,8 @@ import { statusBadgeMap, typeBadgeMap } from './atmQueueBadges'
 
 export const atmQueueColumns = (
   guildId: string,
-  globalSettings: GlobalSettings
+  globalSettings: GlobalSettings,
+  isGuildAdmin: boolean
 ): ColumnDef<TAtmRequestDiscord>[] => [
   {
     id: 'userId',
@@ -163,7 +164,12 @@ export const atmQueueColumns = (
     enableHiding: false,
     size: 160,
     cell: ({ row }) => (
-      <AtmQueueActions guildId={guildId} request={row.original} />
+      <AtmQueueActions
+        guildId={guildId}
+        request={row.original}
+        globalSettings={globalSettings}
+        isGuildAdmin={isGuildAdmin}
+      />
     )
   }
 ]

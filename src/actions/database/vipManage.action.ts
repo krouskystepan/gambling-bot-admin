@@ -1,7 +1,6 @@
 'use server'
 
 import { parseTimeToSeconds } from 'gambling-bot-shared'
-import type { GlobalSettings } from 'gambling-bot-shared'
 
 import { revalidatePath } from 'next/cache'
 
@@ -22,7 +21,7 @@ import {
   VIP_CHANNEL_ACCESS,
   VIP_CHANNEL_READ_ONLY
 } from '@/lib/discord/vipChannelPermissions'
-import { getPanelFeatureBlockMessage } from '@/lib/panelGlobalFeatureGuard'
+import { blockPanelFeatureAction } from '@/lib/panelFeatureActionGuard.server'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'
 import User from '@/models/User'
@@ -39,7 +38,7 @@ import {
   extendVipRoomSchema
 } from '@/types/schemas'
 
-import { type GuildAccess, requireGuildAccess } from '../perms'
+import { requireGuildAccess } from '../perms'
 
 const DISCORD_GREEN = 0x57f287
 const DISCORD_RED = 0xed4245
@@ -84,23 +83,6 @@ function handleActionError(err: unknown): ActionResult {
   return { success: false, message: 'Server error, please try again.' }
 }
 
-async function blockPanelVipAction(
-  guildId: string,
-  access: GuildAccess
-): Promise<ActionResult | null> {
-  await connectToDatabase()
-  const guildConfig = await GuildConfiguration.findOne({ guildId })
-    .select('globalSettings')
-    .lean()
-  const message = getPanelFeatureBlockMessage(
-    guildConfig?.globalSettings as Partial<GlobalSettings> | undefined,
-    'vip',
-    access.isAdmin
-  )
-  if (message) return { success: false, message }
-  return null
-}
-
 async function loadGuildVipContext(guildId: string) {
   await connectToDatabase()
   const guildConfig = await GuildConfiguration.findOne({ guildId }).lean()
@@ -123,7 +105,7 @@ export async function createVipRoom(
     }
   }
 
-  const blocked = await blockPanelVipAction(guildId, access)
+  const blocked = await blockPanelFeatureAction(guildId, 'vip', access)
   if (blocked) return blocked
 
   const parsed = createVipRoomSchema.safeParse({ guildId, ownerId, duration })
@@ -250,7 +232,7 @@ export async function extendVipRoom(
     }
   }
 
-  const blocked = await blockPanelVipAction(guildId, access)
+  const blocked = await blockPanelFeatureAction(guildId, 'vip', access)
   if (blocked) return blocked
 
   const parsed = extendVipRoomSchema.safeParse({ guildId, ownerId, duration })
@@ -331,7 +313,7 @@ export async function removeVipRoom(
     }
   }
 
-  const blocked = await blockPanelVipAction(guildId, access)
+  const blocked = await blockPanelFeatureAction(guildId, 'vip', access)
   if (blocked) return blocked
 
   await connectToDatabase()
@@ -417,7 +399,7 @@ export async function addVipMember(
     }
   }
 
-  const blocked = await blockPanelVipAction(guildId, access)
+  const blocked = await blockPanelFeatureAction(guildId, 'vip', access)
   if (blocked) return blocked
 
   const parsed = addVipMemberSchema.safeParse({

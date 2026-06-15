@@ -21,6 +21,24 @@ export const PANEL_FEATURE_DISABLED_MESSAGES: Record<GlobalFeature, string> = {
   maintenance: 'This server is in maintenance mode.'
 }
 
+/**
+ * Global Settings → panel mutation mapping.
+ * Every write action in the admin dashboard must call
+ * `blockPanelFeatureAction` (server) and mirror the same flag in UI via
+ * `isPanelFeatureBlocking` / `getPanelFeatureBlockMessage`.
+ *
+ * | Panel surface                         | GlobalFeature flag      |
+ * | ------------------------------------- | ----------------------- |
+ * | User register / unregister            | registration            |
+ * | User deposit / ATM approve deposit    | deposit                 |
+ * | User withdraw / ATM approve withdraw  | withdraw                |
+ * | User reset balance                    | maintenance (non-admin) |
+ * | User bonus                            | dailyBonus              |
+ * | VIP create / extend / remove / member | vip                     |
+ * | Predictions create / end / payout …   | predictionManagement  |
+ * | Raffles create / cancel               | raffleManagement        |
+ */
+
 const guildConfigFromSettings = (
   globalSettings: Partial<GlobalSettings> | null | undefined
 ): TGuildConfiguration | null => {

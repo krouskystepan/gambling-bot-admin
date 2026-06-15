@@ -1,5 +1,6 @@
 import { getServerSession } from 'next-auth'
 
+import { getUserPermissions } from '@/actions/perms'
 import FeatureLayout from '@/features/FeatureLayout'
 import { authOptions } from '@/lib/authOptions'
 import { getGuildGlobalSettings } from '@/lib/guildMoney.server'
@@ -28,16 +29,19 @@ const AtmQueuePage = async ({
 
   const query = normalizeAtmQueueSearchParams(searchParams)
 
-  const [{ requests, counts, total }, globalSettings] = await Promise.all([
-    getAtmQueueData(guildId, session, query),
-    getGuildGlobalSettings(guildId)
-  ])
+  const [{ requests, counts, total }, globalSettings, { isAdmin }] =
+    await Promise.all([
+      getAtmQueueData(guildId, session, query),
+      getGuildGlobalSettings(guildId),
+      getUserPermissions(guildId, session)
+    ])
 
   return (
     <FeatureLayout title="ATM Queue">
       <AtmQueueTable
         guildId={guildId}
         globalSettings={globalSettings}
+        isGuildAdmin={isAdmin}
         requests={requests}
         counts={counts}
         page={query.page}

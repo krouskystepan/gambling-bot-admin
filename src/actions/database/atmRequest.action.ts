@@ -9,6 +9,7 @@ import { Session } from 'next-auth'
 
 import { editDiscordMessage, sendEmbed } from '@/actions/discord/utils.action'
 import { connectToDatabase } from '@/lib/db'
+import { blockPanelFeatureAction } from '@/lib/panelFeatureActionGuard.server'
 import AtmRequest from '@/models/AtmRequest'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'
@@ -297,6 +298,10 @@ export const approveAtmRequestAction = async (
   if (!request) {
     return { success: false, message: 'Request is no longer pending.' }
   }
+
+  const feature = request.type === 'deposit' ? 'deposit' : 'withdraw'
+  const blocked = await blockPanelFeatureAction(guildId, feature, access)
+  if (blocked) return blocked
 
   const guildConfig = await GuildConfiguration.findOne({ guildId }).lean()
   const globalSettings = normalizeGlobalSettings(guildConfig?.globalSettings)
