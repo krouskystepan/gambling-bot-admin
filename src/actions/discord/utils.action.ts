@@ -3,7 +3,7 @@
 import { REST } from '@discordjs/rest'
 import { Routes } from 'discord-api-types/v10'
 
-import { discordBotRequest } from '@/lib/discordReq'
+import { discordBotRequest } from '@/lib/discord/discordReq'
 
 export const isBotInGuild = async (guildId: string): Promise<boolean> => {
   try {

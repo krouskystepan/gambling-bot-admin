@@ -2,7 +2,7 @@ import DashboardFullPageState from '@/components/DashboardFullPageState'
 import DashboardSidebar from '@/components/DashboardSidebar'
 import RateLimited from '@/components/states/RateLimmited'
 import { Toaster } from '@/components/ui/sonner'
-import { loadUserGuildsResult } from '@/lib/userGuilds'
+import { loadUserGuildsResult } from '@/lib/guild/userGuilds'
 
 const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   const guildsResult = await loadUserGuildsResult()

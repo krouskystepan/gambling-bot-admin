@@ -17,7 +17,7 @@ import {
 
 import { useEffect, useRef, useState } from 'react'
 
-import { formatGuildMoney } from '@/lib/guildMoney'
+import { formatGuildMoney } from '@/lib/guild/guildMoney'
 
 const CHART_HEIGHT = 280
 const MILESTONE_DAYS = [7, 14, 21, 28]

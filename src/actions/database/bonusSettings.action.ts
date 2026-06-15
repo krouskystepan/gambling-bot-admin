@@ -4,7 +4,7 @@ import { normalizeBonusSettings } from 'gambling-bot-shared'
 import { bonusFormSchema } from 'gambling-bot-shared/schemas'
 import { getServerSession } from 'next-auth'
 
-import { authOptions } from '@/lib/authOptions'
+import { authOptions } from '@/lib/auth/authOptions'
 import { connectToDatabase } from '@/lib/db'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import { TBonusFormValues } from '@/types/types'

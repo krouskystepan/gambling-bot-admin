@@ -3,7 +3,7 @@
 import type { GlobalSettings } from 'gambling-bot-shared'
 
 import type { SourcePnLRow } from '@/actions/database/report.action'
-import { buildReportExportUrl } from '@/lib/exportUrls'
+import { buildReportExportUrl } from '@/lib/export/exportUrls'
 
 import ReportTable from '../table/ReportTable'
 import { sourcePnLColumns } from '../table/reportColumns'

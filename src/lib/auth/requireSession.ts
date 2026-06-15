@@ -3,8 +3,8 @@ import type { Session } from 'next-auth'
 
 import { redirect } from 'next/navigation'
 
-import { authOptions } from '@/lib/authOptions'
-import { getAuthToken, isValidAuthToken } from '@/lib/authToken'
+import { authOptions } from '@/lib/auth/authOptions'
+import { getAuthToken, isValidAuthToken } from '@/lib/auth/authToken'
 
 function isValidSession(session: Session | null): session is Session {
   return Boolean(session?.accessToken && !session.error)

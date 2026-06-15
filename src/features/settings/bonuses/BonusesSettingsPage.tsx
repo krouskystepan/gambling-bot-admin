@@ -1,6 +1,6 @@
 import { getBonusSettings } from '@/actions/database/bonusSettings.action'
 import FeatureLayout from '@/features/FeatureLayout'
-import { getGuildGlobalSettings } from '@/lib/guildMoney.server'
+import { getGuildGlobalSettings } from '@/lib/guild/guildMoney.server'
 
 import BonuseSettingsForm from './BonusesSettingsForm'
 

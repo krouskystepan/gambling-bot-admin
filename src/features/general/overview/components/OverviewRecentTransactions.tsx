@@ -17,7 +17,7 @@ import {
   sourceBadgeMap,
   typeBadgeMap
 } from '@/features/general/transactions/table/transactionBadges'
-import { formatGuildMoney } from '@/lib/guildMoney'
+import { formatGuildMoney } from '@/lib/guild/guildMoney'
 import { TTransactionDiscord } from '@/types/types'
 
 type OverviewRecentTransactionsProps = {

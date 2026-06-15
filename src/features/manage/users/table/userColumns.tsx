@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 import { Badge } from '@/components/ui/badge'
 import UserActionsMenu from '@/features/manage/users/profile/UserActionsMenu'
-import { formatGuildMoney } from '@/lib/guildMoney'
+import { formatGuildMoney } from '@/lib/guild/guildMoney'
 import { cn } from '@/lib/utils'
 import { TGuildMemberStatus } from '@/types/types'
 

@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 
-import { getSessionOrNull, safeCallbackUrl } from '@/lib/requireSession'
+import { getSessionOrNull, safeCallbackUrl } from '@/lib/auth/requireSession'
 
 type PublicGuildPageProps = {
   params: Promise<{ guildId: string }>

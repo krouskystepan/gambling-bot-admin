@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import {
   formatOverviewCount,
   formatOverviewCurrency
-} from '@/lib/overviewFormatters'
+} from '@/lib/overview/overviewFormatters'
 import { ITransactionCounts } from '@/types/types'
 
 const getCashFlowFormula = (counts: ITransactionCounts) => {

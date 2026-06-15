@@ -3,7 +3,7 @@
 import { normalizeCasinoSettings } from 'gambling-bot-shared'
 import { getServerSession } from 'next-auth'
 
-import { authOptions } from '@/lib/authOptions'
+import { authOptions } from '@/lib/auth/authOptions'
 import { connectToDatabase } from '@/lib/db'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import { casinoSettingsSchema } from '@/types/schemas'

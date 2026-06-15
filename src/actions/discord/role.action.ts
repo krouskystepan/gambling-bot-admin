@@ -1,6 +1,6 @@
 'use server'
 
-import { discordBotRequest } from '@/lib/discordReq'
+import { discordBotRequest } from '@/lib/discord/discordReq'
 import type { IGuildRole, IMemberCacheEntry } from '@/types/types'
 
 const memberCache = new Map<string, IMemberCacheEntry>()

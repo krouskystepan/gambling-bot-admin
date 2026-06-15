@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth'
 
 import { getVipPageContext } from '@/actions/database/vipActions.action'
 import FeatureLayout from '@/features/FeatureLayout'
-import { authOptions } from '@/lib/authOptions'
+import { authOptions } from '@/lib/auth/authOptions'
 
 import VipTable from './table/VipTable'
 import { getVipsData, normalizeVipsSearchParams } from './useVips'

@@ -8,7 +8,7 @@ import { formatNumberToReadableString } from 'gambling-bot-shared'
 import {
   formatGuildMoneyCompactSigned,
   formatGuildMoneyExactSigned
-} from './guildMoney'
+} from '@/lib/guild/guildMoney'
 
 function formatOneDecimalCompactAmount(amount: number): string {
   const abs = Math.abs(amount)

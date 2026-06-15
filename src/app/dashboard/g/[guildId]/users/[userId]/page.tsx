@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 
 import { getUserPermissions } from '@/actions/perms'
 import UserProfilePage from '@/features/manage/users/profile/UserProfilePage'
-import { requireSession } from '@/lib/requireSession'
+import { requireSession } from '@/lib/auth/requireSession'
 
 type UserProfileRouteProps = {
   params: Promise<{

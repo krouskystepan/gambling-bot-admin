@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-import { getAuthTokenFromRequest, isValidAuthToken } from '@/lib/authToken'
+import { getAuthTokenFromRequest, isValidAuthToken } from '@/lib/auth/authToken'
 
 export async function proxy(request: NextRequest) {
   const token = await getAuthTokenFromRequest(request)

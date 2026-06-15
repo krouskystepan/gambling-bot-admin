@@ -9,7 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import { formatGuildMoney } from '@/lib/guildMoney'
+import { formatGuildMoney } from '@/lib/guild/guildMoney'
 import { cn } from '@/lib/utils'
 
 type BonusesCalendarProps = {

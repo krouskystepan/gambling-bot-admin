@@ -2,4 +2,4 @@ export {
   formatChartAxisCurrency,
   formatOverviewCount,
   formatOverviewCurrency
-} from '@/lib/overviewFormatters'
+} from '@/lib/overview/overviewFormatters'

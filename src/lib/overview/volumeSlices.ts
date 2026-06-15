@@ -6,7 +6,7 @@ import {
   formatTransactionSourceLabel
 } from 'gambling-bot-shared'
 
-import { gamePnLSum } from '@/lib/transactionTotals'
+import { gamePnLSum } from '@/lib/overview/transactionTotals'
 
 export type VolumeSlice = {
   key: string

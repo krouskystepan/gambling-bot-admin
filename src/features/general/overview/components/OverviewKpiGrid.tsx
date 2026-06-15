@@ -1,7 +1,7 @@
 import type { GlobalSettings } from 'gambling-bot-shared'
 
 import KpiStrip from '@/components/KpiStrip'
-import { formatOverviewCurrency } from '@/lib/overviewFormatters'
+import { formatOverviewCurrency } from '@/lib/overview/overviewFormatters'
 
 type OverviewKpiGridProps = {
   globalSettings: GlobalSettings

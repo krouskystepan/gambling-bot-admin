@@ -15,8 +15,11 @@ import {
   ChartContainer,
   ChartTooltip
 } from '@/components/ui/chart'
+import {
+  type VolumeSlice,
+  splitVolumeSlices
+} from '@/lib/overview/volumeSlices'
 import { cn } from '@/lib/utils'
-import { type VolumeSlice, splitVolumeSlices } from '@/lib/volumeSlices'
 
 import { formatOverviewCurrency } from '../overviewFormatters'
 

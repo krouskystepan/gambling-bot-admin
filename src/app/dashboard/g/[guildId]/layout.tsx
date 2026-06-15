@@ -8,8 +8,8 @@ import GuildConfigSidebar from '@/components/GuildConfigSidebar'
 import BotNotInGuild from '@/components/states/BotNotInGuild'
 import NoPerms from '@/components/states/NoPerms'
 import RateLimited from '@/components/states/RateLimmited'
-import { requireSession } from '@/lib/requireSession'
-import { loadUserGuildsResult } from '@/lib/userGuilds'
+import { requireSession } from '@/lib/auth/requireSession'
+import { loadUserGuildsResult } from '@/lib/guild/userGuilds'
 
 type GuildConfLayoutProps = {
   children: React.ReactNode

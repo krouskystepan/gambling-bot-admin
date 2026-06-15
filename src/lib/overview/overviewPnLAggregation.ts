@@ -1,5 +1,5 @@
 import type { OverviewPnLGranularity } from '@/features/general/overview/period'
-import { cashFlowSum, gamePnLSum } from '@/lib/transactionTotals'
+import { cashFlowSum, gamePnLSum } from '@/lib/overview/transactionTotals'
 
 export function buildPnLTimeGroupStage(
   timezone: string,

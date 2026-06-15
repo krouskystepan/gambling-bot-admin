@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 
 import LandingAuthCard from '@/components/landing/LandingAuthCard'
 import LandingShell from '@/components/landing/LandingShell'
-import { getSessionOrNull, safeCallbackUrl } from '@/lib/requireSession'
+import { getSessionOrNull, safeCallbackUrl } from '@/lib/auth/requireSession'
 
 type LoginPageProps = {
   searchParams: Promise<{ callbackUrl?: string }>

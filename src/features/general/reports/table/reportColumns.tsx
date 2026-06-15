@@ -16,7 +16,7 @@ import {
   formatReportPeriodLabel,
   getReportPeriodColumnLabel
 } from '@/features/general/overview/period'
-import { formatGuildMoneyExactSigned } from '@/lib/guildMoney'
+import { formatGuildMoneyExactSigned } from '@/lib/guild/guildMoney'
 
 type ReportMetrics = {
   gamePnL: number

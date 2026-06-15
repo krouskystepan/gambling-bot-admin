@@ -1,6 +1,6 @@
 'use server'
 
-import { parseTimeToSeconds } from 'gambling-bot-shared'
+import { type TVipRoom, parseTimeToSeconds } from 'gambling-bot-shared'
 
 import { revalidatePath } from 'next/cache'
 
@@ -21,17 +21,11 @@ import {
   VIP_CHANNEL_ACCESS,
   VIP_CHANNEL_READ_ONLY
 } from '@/lib/discord/vipChannelPermissions'
-import { blockPanelFeatureAction } from '@/lib/panelFeatureActionGuard.server'
+import { blockPanelFeatureAction } from '@/lib/panel/panelFeatureActionGuard.server'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'
 import User from '@/models/User'
-import {
-  addMemberToVip,
-  createVip,
-  deleteVipByOwnerId,
-  extendVipExpiry,
-  getActiveVipByOwner
-} from '@/services/vip/vip.db'
+import VipRoom from '@/models/VipRoom'
 import {
   addVipMemberSchema,
   createVipRoomSchema,
@@ -91,6 +85,14 @@ async function loadGuildVipContext(guildId: string) {
   return { guildConfig, vipSettings }
 }
 
+async function getActiveVipByOwner(guildId: string, ownerId: string) {
+  return VipRoom.findOne({
+    guildId,
+    ownerId,
+    expiresAt: { $gt: new Date() }
+  }).lean<TVipRoom>()
+}
+
 export async function createVipRoom(
   guildId: string,
   ownerId: string,
@@ -131,7 +133,7 @@ export async function createVipRoom(
     }
   }
 
-  const existingVip = await getActiveVipByOwner({ ownerId, guildId })
+  const existingVip = await getActiveVipByOwner(guildId, ownerId)
   if (existingVip) {
     return {
       success: false,
@@ -162,7 +164,7 @@ export async function createVipRoom(
 
     await setChannelPermissionOverwrite(channelId, ownerId, VIP_CHANNEL_ACCESS)
 
-    await createVip({
+    await VipRoom.create({
       ownerId,
       guildId,
       channelId,
@@ -248,7 +250,7 @@ export async function extendVipRoom(
 
   await connectToDatabase()
 
-  const existingVip = await getActiveVipByOwner({ ownerId, guildId })
+  const existingVip = await getActiveVipByOwner(guildId, ownerId)
   if (!existingVip) {
     return { success: false, message: 'User does not have an active VIP room.' }
   }
@@ -257,11 +259,10 @@ export async function extendVipRoom(
     existingVip.expiresAt.getTime() + durationSeconds * 1000
   )
 
-  const updatedVip = await extendVipExpiry({
-    ownerId,
-    guildId,
-    newExpiry
-  })
+  const updatedVip = await VipRoom.findOneAndUpdate(
+    { ownerId, guildId },
+    { $set: { expiresAt: newExpiry } }
+  )
 
   if (!updatedVip) {
     return { success: false, message: 'User does not have an active VIP room.' }
@@ -319,7 +320,7 @@ export async function removeVipRoom(
   await connectToDatabase()
 
   const { vipSettings } = await loadGuildVipContext(guildId)
-  const existingVip = await getActiveVipByOwner({ ownerId, guildId })
+  const existingVip = await getActiveVipByOwner(guildId, ownerId)
 
   if (!existingVip) {
     return { success: false, message: 'User does not have an active VIP room.' }
@@ -371,7 +372,7 @@ export async function removeVipRoom(
       }
     }
 
-    await deleteVipByOwnerId({ ownerId, guildId })
+    await VipRoom.findOneAndDelete({ ownerId, guildId })
   } catch (err) {
     return handleActionError(err)
   }
@@ -422,7 +423,7 @@ export async function addVipMember(
     return { success: false, message: formatVipSettingsError(guildId) }
   }
 
-  const vipRoom = await getActiveVipByOwner({ ownerId, guildId })
+  const vipRoom = await getActiveVipByOwner(guildId, ownerId)
   if (!vipRoom) {
     return {
       success: false,
@@ -455,7 +456,10 @@ export async function addVipMember(
   }
 
   try {
-    await addMemberToVip({ ownerId, guildId, memberId })
+    await VipRoom.findOneAndUpdate(
+      { ownerId, guildId },
+      { $addToSet: { memberIds: memberId } }
+    )
 
     if (vipSettings?.roleMemberId) {
       await addGuildMemberRole(

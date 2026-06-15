@@ -2,9 +2,9 @@
 
 import { Session } from 'next-auth'
 
+import { getSessionOrNull } from '@/lib/auth/requireSession'
 import { connectToDatabase } from '@/lib/db'
-import { hasGuildManageAccess } from '@/lib/discordPermissions'
-import { getSessionOrNull } from '@/lib/requireSession'
+import { hasGuildManageAccess } from '@/lib/discord/discordPermissions'
 import GuildConfiguration from '@/models/GuildConfiguration'
 
 import { fetchUserGuilds } from './discord/guilds.action'

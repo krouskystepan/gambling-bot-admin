@@ -17,7 +17,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { LEGACY_CASINO_GAME_KEY } from '@/lib/transactionFilters'
+import { LEGACY_CASINO_GAME_KEY } from '@/lib/transactions/transactionFilters'
 import { ITransactionCounts, TTransactionDiscord } from '@/types/types'
 
 import TransactionExtraButtons from './TransactionExtraButtons'

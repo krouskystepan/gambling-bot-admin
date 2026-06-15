@@ -7,8 +7,8 @@ import {
   getStaffTaxPeriodSummary
 } from '@/actions/database/report.action'
 import FeatureLayout from '@/features/FeatureLayout'
-import { authOptions } from '@/lib/authOptions'
-import { getGuildGlobalSettings } from '@/lib/guildMoney.server'
+import { authOptions } from '@/lib/auth/authOptions'
+import { getGuildGlobalSettings } from '@/lib/guild/guildMoney.server'
 
 import { resolveReportsDateRange } from '../overview/period'
 import GuildTaxSummaryTable from './components/GuildTaxSummaryTable'

@@ -1,8 +1,8 @@
 import { getServerSession } from 'next-auth'
 
 import FeatureLayout from '@/features/FeatureLayout'
-import { authOptions } from '@/lib/authOptions'
-import { getGuildGlobalSettings } from '@/lib/guildMoney.server'
+import { authOptions } from '@/lib/auth/authOptions'
+import { getGuildGlobalSettings } from '@/lib/guild/guildMoney.server'
 
 import TransactionTable from './table/TransactionTable'
 import {

@@ -4,11 +4,10 @@ import { TVipRoom } from 'gambling-bot-shared'
 import { Session } from 'next-auth'
 
 import { connectToDatabase } from '@/lib/db'
-import { getPanelFeatureBlockMessage } from '@/lib/panelGlobalFeatureGuard'
+import { getPanelFeatureBlockMessage } from '@/lib/panel/panelGlobalFeatureGuard'
 import { escapeRegExp } from '@/lib/utils'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import VipRoom from '@/models/VipRoom'
-import { getActiveVipOwnerIds } from '@/services/vip/vip.db'
 import { TVipChannels } from '@/types/types'
 
 import { getGuildChannels } from '../discord/channel.action'
@@ -32,11 +31,18 @@ export async function getVipPageContext(
 
   await connectToDatabase()
 
-  const [guildConfig, activeVipOwnerIds, members] = await Promise.all([
+  const [guildConfig, activeVips, members] = await Promise.all([
     GuildConfiguration.findOne({ guildId }).lean(),
-    getActiveVipOwnerIds(guildId),
+    VipRoom.find({
+      guildId,
+      expiresAt: { $gt: new Date() }
+    })
+      .select('ownerId')
+      .lean<{ ownerId: string }[]>(),
     getDiscordGuildMembers(guildId)
   ])
+
+  const activeVipOwnerIds = activeVips.map((vip) => vip.ownerId)
 
   const vipSettings = guildConfig?.vipSettings
   const vipFeatureBlockMessage = getPanelFeatureBlockMessage(

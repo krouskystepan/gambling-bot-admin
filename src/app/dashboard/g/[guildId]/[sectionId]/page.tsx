@@ -2,8 +2,8 @@ import { redirect } from 'next/navigation'
 
 import { getUserPermissions } from '@/actions/perms'
 import NotFoundBox from '@/components/states/NotFoundBox'
-import { canAccessSection } from '@/lib/guildSectionAccess'
-import { requireSession } from '@/lib/requireSession'
+import { requireSession } from '@/lib/auth/requireSession'
+import { canAccessSection } from '@/lib/guild/guildSectionAccess'
 
 import { SectionId, sections } from './sections'
 

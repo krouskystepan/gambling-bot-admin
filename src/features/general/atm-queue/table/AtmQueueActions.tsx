@@ -29,7 +29,7 @@ import {
 import {
   getPanelFeatureBlockMessage,
   isPanelFeatureBlocking
-} from '@/lib/panelGlobalFeatureGuard'
+} from '@/lib/panel/panelGlobalFeatureGuard'
 import { TAtmRequestDiscord } from '@/types/types'
 
 type AtmQueueActionsProps = {

@@ -9,7 +9,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import { buildTransactionExportUrl } from '@/lib/exportUrls'
+import { buildTransactionExportUrl } from '@/lib/export/exportUrls'
 import { TTransactionDiscord } from '@/types/types'
 
 const TransactionExtraButtons = ({

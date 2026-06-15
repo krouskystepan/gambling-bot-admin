@@ -52,7 +52,7 @@ import {
 import {
   getPanelFeatureBlockMessage,
   isPanelFeatureBlocking
-} from '@/lib/panelGlobalFeatureGuard'
+} from '@/lib/panel/panelGlobalFeatureGuard'
 import { TGuildMemberStatus } from '@/types/types'
 
 const PANEL_BALANCE_ACTION_FEATURES = {

@@ -1,6 +1,6 @@
 import LandingAuthCard from '@/components/landing/LandingAuthCard'
 import LandingShell from '@/components/landing/LandingShell'
-import { getSessionOrNull } from '@/lib/requireSession'
+import { getSessionOrNull } from '@/lib/auth/requireSession'
 
 const Home = async () => {
   const session = await getSessionOrNull()

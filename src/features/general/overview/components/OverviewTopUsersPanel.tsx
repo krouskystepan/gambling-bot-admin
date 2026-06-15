@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
-import { formatGuildMoney } from '@/lib/guildMoney'
+import { formatGuildMoney } from '@/lib/guild/guildMoney'
 
 type OverviewTopUsersPanelProps = {
   guildId: string

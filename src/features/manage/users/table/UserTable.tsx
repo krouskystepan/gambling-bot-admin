@@ -17,7 +17,7 @@ import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
 import { useHydrateServerTableFromUrl } from '@/hooks/useHydrateServerTableFromUrl'
 import { useServerTable } from '@/hooks/useServerTable'
 import { useUpdateUrl } from '@/hooks/useUpdateUrl'
-import { formatGuildMoney } from '@/lib/guildMoney'
+import { formatGuildMoney } from '@/lib/guild/guildMoney'
 import { TGuildMemberStatus } from '@/types/types'
 
 import UserTableFooter from './UserTableFooter'

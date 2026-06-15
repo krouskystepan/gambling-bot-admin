@@ -14,7 +14,7 @@ import { connectToDatabase } from '@/lib/db'
 import {
   blockPanelFeatureAction,
   blockPanelMaintenanceAction
-} from '@/lib/panelFeatureActionGuard.server'
+} from '@/lib/panel/panelFeatureActionGuard.server'
 import { escapeRegExp } from '@/lib/utils'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'

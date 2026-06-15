@@ -11,7 +11,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import { formatGuildMoney } from '@/lib/guildMoney'
+import { formatGuildMoney } from '@/lib/guild/guildMoney'
 import { TTransactionDiscord } from '@/types/types'
 
 import { sourceBadgeMap, typeBadgeMap } from './transactionBadges'

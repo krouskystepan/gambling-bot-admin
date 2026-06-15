@@ -16,7 +16,7 @@ import {
   getTransactionsData,
   normalizeTransactionsSearchParams
 } from '@/features/general/transactions/useTransactions'
-import { authOptions } from '@/lib/authOptions'
+import { authOptions } from '@/lib/auth/authOptions'
 
 import UserProfileHeader from './UserProfileHeader'
 import UserProfileKpiStrip from './UserProfileKpiStrip'

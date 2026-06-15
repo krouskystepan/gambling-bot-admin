@@ -2,8 +2,8 @@ import { getServerSession } from 'next-auth'
 
 import { getUserPermissions } from '@/actions/perms'
 import FeatureLayout from '@/features/FeatureLayout'
-import { authOptions } from '@/lib/authOptions'
-import { getGuildGlobalSettings } from '@/lib/guildMoney.server'
+import { authOptions } from '@/lib/auth/authOptions'
+import { getGuildGlobalSettings } from '@/lib/guild/guildMoney.server'
 
 import UserTable from './table/UserTable'
 import { getUsersData, normalizeUsersSearchParams } from './useUsers'

@@ -6,7 +6,7 @@ import {
 } from '@/actions/database/overview.action'
 import { getUserPermissions } from '@/actions/perms'
 import FeatureLayout from '@/features/FeatureLayout'
-import { authOptions } from '@/lib/authOptions'
+import { authOptions } from '@/lib/auth/authOptions'
 
 import OverviewDailyPnLChart from './components/OverviewDailyPnLChart'
 import OverviewKpiGrid from './components/OverviewKpiGrid'

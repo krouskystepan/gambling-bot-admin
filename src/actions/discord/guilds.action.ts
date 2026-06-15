@@ -2,8 +2,8 @@
 
 import { Session } from 'next-auth'
 
-import { hasGuildManageAccess } from '@/lib/discordPermissions'
-import { discordApiRequest, discordBotRequest } from '@/lib/discordReq'
+import { hasGuildManageAccess } from '@/lib/discord/discordPermissions'
+import { discordApiRequest, discordBotRequest } from '@/lib/discord/discordReq'
 import type { ICacheEntry, IGuild } from '@/types/types'
 
 import { getAllGuildConfigsWithManagers } from '../database/guild.action'

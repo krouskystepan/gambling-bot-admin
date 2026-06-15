@@ -9,7 +9,7 @@ import { Session } from 'next-auth'
 
 import { editDiscordMessage, sendEmbed } from '@/actions/discord/utils.action'
 import { connectToDatabase } from '@/lib/db'
-import { blockPanelFeatureAction } from '@/lib/panelFeatureActionGuard.server'
+import { blockPanelFeatureAction } from '@/lib/panel/panelFeatureActionGuard.server'
 import AtmRequest from '@/models/AtmRequest'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'

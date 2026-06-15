@@ -9,7 +9,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import { formatOverviewCount } from '@/lib/overviewFormatters'
+import { formatOverviewCount } from '@/lib/overview/overviewFormatters'
 
 export type KpiStripItem = {
   label: string

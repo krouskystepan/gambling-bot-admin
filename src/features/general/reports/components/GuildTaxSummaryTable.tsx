@@ -7,7 +7,7 @@ import {
   getReportTaxSummaryDescription,
   resolveReportTaxGranularity
 } from '@/features/general/overview/period'
-import { buildReportExportUrl } from '@/lib/exportUrls'
+import { buildReportExportUrl } from '@/lib/export/exportUrls'
 
 import ReportTable from '../table/ReportTable'
 import { guildTaxColumns } from '../table/reportColumns'

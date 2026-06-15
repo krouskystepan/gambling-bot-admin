@@ -1,4 +1,4 @@
-import type { TransactionExportFilters } from '@/lib/transactionExport'
+import type { TransactionExportFilters } from '@/lib/export/transactionExport'
 
 export function parseTransactionExportParams(
   searchParams: URLSearchParams
