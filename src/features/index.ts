@@ -6,6 +6,7 @@ export { default as AtmQueuePage } from './general/atm-queue/AtmQueuePage'
 
 // Manage
 export { default as UsersPage } from './manage/users/UsersPage'
+export { default as RafflesPage } from './manage/raffles/RafflesPage'
 export { default as VipPage } from './manage/vips/VipPage'
 
 // Settings

@@ -3,7 +3,12 @@ import {
   APIRole,
   RESTAPIPartialCurrentUserGuild
 } from 'discord-api-types/v10'
-import { TAtmRequest, TTransaction, TVipRoom } from 'gambling-bot-shared'
+import {
+  TAtmRequest,
+  TRaffle,
+  TTransaction,
+  TVipRoom
+} from 'gambling-bot-shared'
 import { UseFormReturn } from 'react-hook-form'
 import z from 'zod'
 
@@ -59,6 +64,21 @@ export type TVipChannels = Omit<TVipRoom, 'updatedAt' | 'memberIds'> & {
     avatar: string
   }[]
   avatar: string
+}
+
+export type TRaffleRow = TRaffle & {
+  channelName: string
+  creatorUsername: string
+  creatorAvatar: string
+  totalTickets: number
+  totalPot: number
+  intervalLabel: string
+  participantsEnriched: {
+    userId: string
+    tickets: number
+    username: string
+    avatar: string
+  }[]
 }
 
 export interface TTransactionDiscord extends Pick<

@@ -12,6 +12,7 @@ import {
   LucideIcon,
   MessagesSquare,
   ShieldCheck,
+  Ticket,
   User
 } from 'lucide-react'
 
@@ -43,7 +44,8 @@ const LINKS = [
     value: 'manage',
     links: [
       { id: 'users', label: 'Users', icon: User },
-      { id: 'vips', label: 'VIPs', icon: Crown }
+      { id: 'vips', label: 'VIPs', icon: Crown },
+      { id: 'raffles', label: 'Raffles', icon: Ticket }
       // { id: 'predictions', label: 'Predictions', icon: ChartBar }
     ]
   },

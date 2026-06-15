@@ -11,6 +11,7 @@ export {
   managerRoleFormSchema,
   predictionChannelsFormSchema,
   raffleChannelsFormSchema,
+  raffleCreateFormSchema,
   vipSettingsFormSchema
 } from 'gambling-bot-shared/schemas'
 

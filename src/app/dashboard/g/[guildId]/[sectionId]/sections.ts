@@ -6,6 +6,7 @@ import {
   GlobalSettingsPage,
   ManagerSettingsPage,
   OverviewPage,
+  RafflesPage,
   ReportsPage,
   TransactionsPage,
   UsersPage,
@@ -22,6 +23,7 @@ export const sections = {
 
   // Manage
   users: UsersPage,
+  raffles: RafflesPage,
   vips: VipPage,
 
   // Settings

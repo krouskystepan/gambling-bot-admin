@@ -4,23 +4,23 @@ import { ChangeEvent, RefObject } from 'react'
 
 import { TABLE_SEARCH_INPUT_CLASS } from '@/components/table/tableSearchStyles'
 import { Input } from '@/components/ui/input'
-import { TGuildMemberStatus } from '@/types/types'
+import { TRaffleRow } from '@/types/types'
 
-interface UserSearchProps {
-  table: Table<TGuildMemberStatus>
+interface RaffleTableSearchProps {
+  table: Table<TRaffleRow>
   inputRef: RefObject<HTMLInputElement | null>
   columnId: string
   placeholder: string
   initialValue?: string
 }
 
-const UserTableSearch = ({
+const RaffleTableSearch = ({
   table,
   inputRef,
   columnId,
   placeholder,
   initialValue = ''
-}: UserSearchProps) => {
+}: RaffleTableSearchProps) => {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     table.getColumn(columnId)?.setFilterValue(value || undefined)
@@ -37,4 +37,4 @@ const UserTableSearch = ({
   )
 }
 
-export default UserTableSearch
+export default RaffleTableSearch
