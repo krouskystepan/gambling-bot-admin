@@ -23,6 +23,7 @@ import {
   postRaffleMessage
 } from '@/actions/discord/raffleMessage.action'
 import { connectToDatabase } from '@/lib/db'
+import { raffleDb, raffleLifecycle } from '@/lib/games/gameServices'
 import {
   blockPanelFeatureAction,
   blockPanelMaintenanceAction
@@ -34,7 +35,6 @@ import Raffle from '@/models/Raffle'
 import { TRaffleRow } from '@/types/types'
 
 import { requireGuildAccess } from '../perms'
-import { refundRafflePurchase } from './raffleRefund.action'
 
 type ActionResult = { success: boolean; message: string; rateLimited?: boolean }
 
@@ -367,23 +367,17 @@ export async function createRaffle(
     })
 
     try {
-      await Raffle.findOneAndUpdate(
-        { raffleId: messageId, guildId },
-        {
-          $set: {
-            drawId,
-            creatorId: access.session.userId!,
-            channelId: actionsChannelId,
-            ticketPrice,
-            maxTicketsPerUser: parsed.data.maxTickets,
-            nextDrawAt,
-            drawIntervalMs,
-            status: 'active',
-            participants: []
-          }
-        },
-        { upsert: true, returnDocument: 'after' }
-      )
+      await raffleDb.upsertRaffle({
+        drawId,
+        raffleId: messageId,
+        creatorId: access.session.userId!,
+        guildId,
+        channelId: actionsChannelId,
+        ticketPrice,
+        maxTicketsPerUser: parsed.data.maxTickets,
+        nextDrawAt,
+        drawIntervalMs
+      })
     } catch (dbErr) {
       await deleteDiscordMessage(actionsChannelId, messageId)
       throw dbErr
@@ -419,37 +413,19 @@ export async function cancelRaffle(
   try {
     await connectToDatabase()
 
-    const raffle = await Raffle.findOneAndUpdate(
-      { raffleId, guildId, status: { $ne: 'canceled' } },
-      { $set: { status: 'canceled' } },
-      { returnDocument: 'after' }
-    ).lean<TRaffle>()
+    const cancelResult = await raffleLifecycle.cancelRaffle({
+      raffleId,
+      guildId
+    })
 
-    if (!raffle) {
+    if (!cancelResult.ok) {
       return {
         success: false,
         message: 'This raffle was already canceled or does not exist.'
       }
     }
 
-    const refundErrors: string[] = []
-
-    for (const entry of raffle.participants) {
-      const refundAmount = entry.tickets * raffle.ticketPrice
-      if (refundAmount <= 0) continue
-
-      try {
-        await refundRafflePurchase({
-          userId: entry.userId,
-          guildId,
-          amount: refundAmount,
-          raffleId: raffle.drawId
-        })
-      } catch (err) {
-        console.error('Raffle refund failed:', err)
-        refundErrors.push(entry.userId)
-      }
-    }
+    const { raffle, refundErrors } = cancelResult
 
     const guildConfig = await GuildConfiguration.findOne({ guildId }).lean()
     const globalSettings = normalizeGlobalSettings(guildConfig?.globalSettings)

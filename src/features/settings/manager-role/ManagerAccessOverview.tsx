@@ -20,7 +20,9 @@ const PANEL_ALLOWED: PermissionItem[] = [
   { id: 'panel-overview', label: 'Overview KPIs, charts, and top users' },
   { id: 'panel-transactions', label: 'Transaction history' },
   { id: 'panel-users', label: 'Register users and manage balances' },
-  { id: 'panel-vips', label: 'VIP memberships' }
+  { id: 'panel-vips', label: 'VIP memberships' },
+  { id: 'panel-raffles', label: 'Raffle events' },
+  { id: 'panel-predictions', label: 'Prediction events' }
 ]
 
 const PANEL_DENIED: PermissionItem[] = [

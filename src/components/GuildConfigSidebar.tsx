@@ -3,6 +3,7 @@
 import {
   Award,
   Banknote,
+  ChartBar,
   Crown,
   Dices,
   FileBarChart,
@@ -45,8 +46,8 @@ const LINKS = [
     links: [
       { id: 'users', label: 'Users', icon: User },
       { id: 'vips', label: 'VIPs', icon: Crown },
-      { id: 'raffles', label: 'Raffles', icon: Ticket }
-      // { id: 'predictions', label: 'Predictions', icon: ChartBar }
+      { id: 'raffles', label: 'Raffles', icon: Ticket },
+      { id: 'predictions', label: 'Predictions', icon: ChartBar }
     ]
   },
   {

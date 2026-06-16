@@ -5,6 +5,7 @@ import {
 } from 'discord-api-types/v10'
 import {
   TAtmRequest,
+  TPrediction,
   TRaffle,
   TTransaction,
   TVipRoom
@@ -78,6 +79,43 @@ export type TRaffleRow = TRaffle & {
     tickets: number
     username: string
     avatar: string
+  }[]
+}
+
+export type TPredictionRow = TPrediction & {
+  channelName: string
+  creatorUsername: string
+  creatorAvatar: string
+  totalBetAmount: number
+  bettorCount: number
+  choicesEnriched: {
+    choiceName: string
+    odds: number
+    betCount: number
+    totalAmount: number
+  }[]
+}
+
+export type TPredictionDetail = {
+  predictionId: string
+  title: string
+  status: TPrediction['status']
+  autolock?: Date | null
+  totalBetAmount: number
+  bettorCount: number
+  choices: {
+    choiceName: string
+    odds: number
+    betCount: number
+    totalBetAmount: number
+    payoutIfWins: number
+    bets: {
+      userId: string
+      amount: number
+      betId: string
+      username: string
+      avatar: string
+    }[]
   }[]
 }
 
