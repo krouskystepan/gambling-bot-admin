@@ -34,7 +34,8 @@ const TransactionTableFilters = ({
   setIsLoading,
   userSearchRef,
   adminSearchRef,
-  hideUserSearch = false
+  hideUserSearch = false,
+  hideDatePicker = false
 }: {
   guildId: string
   table: ReactTable<TTransactionDiscord>
@@ -44,6 +45,7 @@ const TransactionTableFilters = ({
   userSearchRef: RefObject<HTMLInputElement | null>
   adminSearchRef: RefObject<HTMLInputElement | null>
   hideUserSearch?: boolean
+  hideDatePicker?: boolean
 }) => {
   type Option<T = string> = {
     value: string
@@ -146,29 +148,31 @@ const TransactionTableFilters = ({
         />
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <DatePicker
-          initialRange={
-            createdAtFilter
-              ? {
-                  from: fromLocalDateString(createdAtFilter[0]),
-                  to: fromLocalDateString(createdAtFilter[1])
-                }
-              : undefined
-          }
-          onChange={(range) => {
-            const col = table.getColumn('createdAt')
-            if (!col) return
-
-            if (range?.from && range?.to) {
-              col.setFilterValue([
-                toLocalDateString(range.from),
-                toLocalDateString(range.to)
-              ])
-            } else {
-              col.setFilterValue(undefined)
+        {!hideDatePicker ? (
+          <DatePicker
+            initialRange={
+              createdAtFilter
+                ? {
+                    from: fromLocalDateString(createdAtFilter[0]),
+                    to: fromLocalDateString(createdAtFilter[1])
+                  }
+                : undefined
             }
-          }}
-        />
+            onChange={(range) => {
+              const col = table.getColumn('createdAt')
+              if (!col) return
+
+              if (range?.from && range?.to) {
+                col.setFilterValue([
+                  toLocalDateString(range.from),
+                  toLocalDateString(range.to)
+                ])
+              } else {
+                col.setFilterValue(undefined)
+              }
+            }}
+          />
+        ) : null}
 
         <TransactionFilter
           title="Type"

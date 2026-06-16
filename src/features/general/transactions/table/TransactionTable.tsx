@@ -35,6 +35,7 @@ interface TransactionTableProps {
   gamePnL: number
   cashFlow: number
   hideUserSearch?: boolean
+  hideDatePicker?: boolean
 }
 
 const TransactionTable = ({
@@ -47,7 +48,8 @@ const TransactionTable = ({
   total,
   gamePnL,
   cashFlow,
-  hideUserSearch = false
+  hideUserSearch = false,
+  hideDatePicker = false
 }: TransactionTableProps) => {
   const defaultVisibility: VisibilityState = {
     betId: false,
@@ -204,6 +206,7 @@ const TransactionTable = ({
           userSearchRef={userSearchRef}
           adminSearchRef={adminSearchRef}
           hideUserSearch={hideUserSearch}
+          hideDatePicker={hideDatePicker}
         />
       }
       summary={
