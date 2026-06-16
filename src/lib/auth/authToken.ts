@@ -8,13 +8,13 @@ export function isValidAuthToken(token: JWT | null): boolean {
   return Boolean(token?.accessToken && !token.error)
 }
 
-function usesSecureCookies(protocol?: string): boolean {
-  if (protocol) {
-    return protocol === 'https:'
-  }
-
+/** Keep in sync with next-auth/jwt getToken() default secureCookie logic. */
+function usesSecureCookies(): boolean {
   const nextAuthUrl = process.env.NEXTAUTH_URL ?? ''
-  return nextAuthUrl.startsWith('https://')
+  if (nextAuthUrl.startsWith('https://')) {
+    return true
+  }
+  return Boolean(process.env.VERCEL)
 }
 
 export async function getAuthTokenFromRequest(
@@ -23,7 +23,7 @@ export async function getAuthTokenFromRequest(
   return getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET,
-    secureCookie: usesSecureCookies(request.nextUrl.protocol)
+    secureCookie: usesSecureCookies()
   })
 }
 
