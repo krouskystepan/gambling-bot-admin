@@ -1,10 +1,10 @@
 'use server'
 
+import { resolveGuildTimezone } from 'gambling-bot-shared/guild'
 import {
   TRANSACTION_SOURCES,
-  TTransaction,
-  resolveGuildTimezone
-} from 'gambling-bot-shared'
+  TTransaction
+} from 'gambling-bot-shared/transactions'
 
 import {
   MonthlyTaxPoint,

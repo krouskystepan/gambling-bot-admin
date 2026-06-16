@@ -1,7 +1,5 @@
-import {
-  guildCalendarRangeToUtc,
-  resolveGuildTimezone
-} from 'gambling-bot-shared'
+import { guildCalendarRangeToUtc } from 'gambling-bot-shared/guild'
+import { resolveGuildTimezone } from 'gambling-bot-shared/guild'
 import { DateTime } from 'luxon'
 
 export { resolveGuildTimezone }

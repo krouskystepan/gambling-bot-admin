@@ -1,18 +1,22 @@
 'use server'
 
 import {
-  type GlobalSettings,
-  TGuildConfiguration,
-  TRANSACTION_SOURCES,
-  TRANSACTION_TYPES,
-  TTransaction,
   calculateRTP,
   defaultCasinoSettings,
-  getReadableName,
+  readableGameNames
+} from 'gambling-bot-shared/casino'
+import { getReadableName } from 'gambling-bot-shared/common'
+import {
+  type GlobalSettings,
+  TGuildConfiguration,
   normalizeGlobalSettings,
-  readableGameNames,
   resolveGuildTimezone
-} from 'gambling-bot-shared'
+} from 'gambling-bot-shared/guild'
+import {
+  TRANSACTION_SOURCES,
+  TRANSACTION_TYPES,
+  TTransaction
+} from 'gambling-bot-shared/transactions'
 import { Session } from 'next-auth'
 
 import {

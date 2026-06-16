@@ -1,7 +1,8 @@
 'use server'
 
-import { type GlobalSettings, formatMoney } from 'gambling-bot-shared'
-import { type PredictionPayoutSummary } from 'gambling-bot-shared/services'
+import { formatMoney } from 'gambling-bot-shared/common'
+import { type GlobalSettings } from 'gambling-bot-shared/guild'
+import { type PredictionPayoutSummary } from 'gambling-bot-shared/predictions'
 
 import { discordBotRequest } from '@/lib/discord/discordReq'
 

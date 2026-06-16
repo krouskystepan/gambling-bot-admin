@@ -1,6 +1,6 @@
 'use server'
 
-import { normalizeCasinoSettings } from 'gambling-bot-shared'
+import { normalizeCasinoSettings } from 'gambling-bot-shared/casino'
 import { getServerSession } from 'next-auth'
 
 import { authOptions } from '@/lib/auth/authOptions'

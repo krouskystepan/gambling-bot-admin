@@ -1,5 +1,5 @@
 import { ColumnDef } from '@tanstack/react-table'
-import type { GlobalSettings } from 'gambling-bot-shared'
+import type { GlobalSettings } from 'gambling-bot-shared/guild'
 
 import Image from 'next/image'
 import Link from 'next/link'

@@ -1,4 +1,4 @@
-import { createCasinoBetService } from 'gambling-bot-shared/services'
+import { createCasinoBetService } from 'gambling-bot-shared/casino'
 
 import Transaction from '@/models/Transaction'
 import User from '@/models/User'

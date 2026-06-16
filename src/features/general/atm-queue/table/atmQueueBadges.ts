@@ -1,4 +1,4 @@
-import { TAtmRequest } from 'gambling-bot-shared'
+import { TAtmRequest } from 'gambling-bot-shared/atm'
 
 export const typeBadgeMap: Record<TAtmRequest['type'], string> = {
   deposit: 'bg-green-600',

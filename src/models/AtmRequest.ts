@@ -1,7 +1,7 @@
 'server-only'
 
-import { type TAtmRequest } from 'gambling-bot-shared'
-import { AtmRequestSchema } from 'gambling-bot-shared/server'
+import { type TAtmRequest } from 'gambling-bot-shared/atm'
+import { AtmRequestSchema } from 'gambling-bot-shared/mongoose'
 
 import { getModel } from '@/lib/db'
 

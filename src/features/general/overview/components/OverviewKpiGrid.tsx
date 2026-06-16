@@ -1,4 +1,4 @@
-import type { GlobalSettings } from 'gambling-bot-shared'
+import type { GlobalSettings } from 'gambling-bot-shared/guild'
 
 import KpiStrip from '@/components/KpiStrip'
 import { formatOverviewCurrency } from '@/lib/overview/overviewFormatters'

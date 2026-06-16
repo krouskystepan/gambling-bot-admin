@@ -1,10 +1,8 @@
 'use client'
 
 import { ColumnDef } from '@tanstack/react-table'
-import {
-  type GlobalSettings,
-  formatTransactionSourceLabel
-} from 'gambling-bot-shared'
+import { formatTransactionSourceLabel } from 'gambling-bot-shared/common'
+import { type GlobalSettings } from 'gambling-bot-shared/guild'
 
 import type {
   SourcePnLRow,

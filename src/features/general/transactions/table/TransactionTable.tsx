@@ -1,7 +1,7 @@
 'use client'
 
 import { VisibilityState } from '@tanstack/react-table'
-import type { GlobalSettings } from 'gambling-bot-shared'
+import type { GlobalSettings } from 'gambling-bot-shared/guild'
 
 import { useEffect, useRef } from 'react'
 

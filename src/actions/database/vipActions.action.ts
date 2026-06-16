@@ -1,6 +1,6 @@
 'use server'
 
-import { TVipRoom } from 'gambling-bot-shared'
+import { TVipRoom } from 'gambling-bot-shared/vip'
 import { Session } from 'next-auth'
 
 import { connectToDatabase } from '@/lib/db'

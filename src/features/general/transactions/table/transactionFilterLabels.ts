@@ -1,4 +1,4 @@
-import { formatCasinoGameLabel } from 'gambling-bot-shared'
+import { formatCasinoGameLabel } from 'gambling-bot-shared/common'
 
 import { LEGACY_CASINO_GAME_KEY } from '@/lib/transactions/transactionFilters'
 

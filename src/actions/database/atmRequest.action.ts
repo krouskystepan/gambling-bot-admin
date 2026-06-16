@@ -1,10 +1,8 @@
 'use server'
 
-import {
-  type TAtmRequest,
-  formatMoney,
-  normalizeGlobalSettings
-} from 'gambling-bot-shared'
+import { type TAtmRequest } from 'gambling-bot-shared/atm'
+import { formatMoney } from 'gambling-bot-shared/common'
+import { normalizeGlobalSettings } from 'gambling-bot-shared/guild'
 import { Session } from 'next-auth'
 
 import { editDiscordMessage, sendEmbed } from '@/actions/discord/utils.action'

@@ -1,10 +1,10 @@
 'use client'
 
+import { defaultCasinoSettings } from 'gambling-bot-shared/casino'
 import {
   PLINKO_EDITABLE_BINS,
-  defaultCasinoSettings,
   getPlinkoMirrorBin
-} from 'gambling-bot-shared'
+} from 'gambling-bot-shared/casino'
 import { Path } from 'react-hook-form'
 
 import { TCasinoSettingsForm, TCasinoSettingsInput } from '@/types/types'

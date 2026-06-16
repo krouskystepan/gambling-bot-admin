@@ -1,6 +1,7 @@
 'use client'
 
-import { type GlobalSettings, type PreviewDay } from 'gambling-bot-shared'
+import { type PreviewDay } from 'gambling-bot-shared/bonus'
+import { type GlobalSettings } from 'gambling-bot-shared/guild'
 import { Tooltip as TooltipPrimitive } from 'radix-ui'
 
 import { Card, CardContent } from '@/components/ui/card'

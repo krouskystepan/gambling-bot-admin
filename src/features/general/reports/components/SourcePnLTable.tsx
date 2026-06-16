@@ -1,6 +1,6 @@
 'use client'
 
-import type { GlobalSettings } from 'gambling-bot-shared'
+import type { GlobalSettings } from 'gambling-bot-shared/guild'
 
 import type { SourcePnLRow } from '@/actions/database/report.action'
 import { buildReportExportUrl } from '@/lib/export/exportUrls'

@@ -1,14 +1,13 @@
 'use server'
 
 import {
-  type TRaffle,
-  type TRaffleStatus,
   generateId,
-  normalizeGlobalSettings,
   parseReadableStringToNumber,
   parseTimeToSeconds
-} from 'gambling-bot-shared'
-import { raffleCreateFormSchema } from 'gambling-bot-shared/schemas'
+} from 'gambling-bot-shared/common'
+import { normalizeGlobalSettings } from 'gambling-bot-shared/guild'
+import { type TRaffle, type TRaffleStatus } from 'gambling-bot-shared/raffle'
+import { raffleCreateFormSchema } from 'gambling-bot-shared/raffle'
 import { DateTime } from 'luxon'
 import { Session } from 'next-auth'
 import { z } from 'zod'

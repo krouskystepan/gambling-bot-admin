@@ -1,4 +1,4 @@
-import type { TPrediction } from 'gambling-bot-shared'
+import type { TPrediction } from 'gambling-bot-shared/predictions'
 import type { Session } from 'next-auth'
 
 import { getPredictions } from '@/actions/database/predictionActions.action'

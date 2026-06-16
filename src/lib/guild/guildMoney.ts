@@ -1,8 +1,5 @@
-import {
-  type GlobalSettings,
-  formatMoney,
-  formatMoneyExact
-} from 'gambling-bot-shared'
+import { formatMoney, formatMoneyExact } from 'gambling-bot-shared/common'
+import { type GlobalSettings } from 'gambling-bot-shared/guild'
 
 export function formatGuildMoney(
   amount: number,

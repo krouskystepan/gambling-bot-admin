@@ -1,6 +1,6 @@
 'use client'
 
-import { COMMON_TIMEZONES } from 'gambling-bot-shared'
+import { COMMON_TIMEZONES } from 'gambling-bot-shared/guild'
 import { Globe } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 

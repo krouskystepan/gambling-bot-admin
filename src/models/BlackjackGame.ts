@@ -1,7 +1,7 @@
 'server-only'
 
-import { type TBlackjackGame } from 'gambling-bot-shared'
-import { BlackjackGameSchema } from 'gambling-bot-shared/server'
+import { type TBlackjackGame } from 'gambling-bot-shared/blackjack'
+import { BlackjackGameSchema } from 'gambling-bot-shared/mongoose'
 
 import { getModel } from '@/lib/db'
 

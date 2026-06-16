@@ -1,9 +1,9 @@
+import { formatNumberToReadableString } from 'gambling-bot-shared/common'
 import {
   type GlobalSettings,
   getCurrencyPlacement,
   getCurrencySymbol
-} from 'gambling-bot-shared'
-import { formatNumberToReadableString } from 'gambling-bot-shared'
+} from 'gambling-bot-shared/guild'
 
 import {
   formatGuildMoneyCompactSigned,

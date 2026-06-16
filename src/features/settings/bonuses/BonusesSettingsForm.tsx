@@ -3,9 +3,9 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   type BonusSettings,
-  type GlobalSettings,
   generateBonusPreview
-} from 'gambling-bot-shared'
+} from 'gambling-bot-shared/bonus'
+import { type GlobalSettings } from 'gambling-bot-shared/guild'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 

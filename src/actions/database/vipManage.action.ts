@@ -1,6 +1,7 @@
 'use server'
 
-import { type TVipRoom, parseTimeToSeconds } from 'gambling-bot-shared'
+import { parseTimeToSeconds } from 'gambling-bot-shared/common'
+import { type TVipRoom } from 'gambling-bot-shared/vip'
 
 import { revalidatePath } from 'next/cache'
 

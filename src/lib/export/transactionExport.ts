@@ -1,4 +1,4 @@
-import { resolveGuildTimezone } from 'gambling-bot-shared'
+import { resolveGuildTimezone } from 'gambling-bot-shared/guild'
 import { DateTime } from 'luxon'
 
 import { getDiscordGuildMembers } from '@/actions/discord/member.action'

@@ -1,4 +1,4 @@
-import type { GlobalSettings } from 'gambling-bot-shared'
+import type { GlobalSettings } from 'gambling-bot-shared/guild'
 
 import { KpiStripMetric } from '@/components/KpiStrip'
 import { Card, CardContent } from '@/components/ui/card'

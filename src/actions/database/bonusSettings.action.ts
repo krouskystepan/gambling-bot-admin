@@ -1,7 +1,7 @@
 'use server'
 
-import { normalizeBonusSettings } from 'gambling-bot-shared'
-import { bonusFormSchema } from 'gambling-bot-shared/schemas'
+import { normalizeBonusSettings } from 'gambling-bot-shared/bonus'
+import { bonusFormSchema } from 'gambling-bot-shared/bonus'
 import { getServerSession } from 'next-auth'
 
 import { authOptions } from '@/lib/auth/authOptions'

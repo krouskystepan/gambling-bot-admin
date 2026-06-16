@@ -1,4 +1,4 @@
-import { defaultCasinoSettings } from 'gambling-bot-shared'
+import { defaultCasinoSettings } from 'gambling-bot-shared/casino'
 
 import { getCasinoSettings } from '@/actions/database/casinoSettings.action'
 import FeatureLayout from '@/features/FeatureLayout'

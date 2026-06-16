@@ -1,10 +1,8 @@
 'use client'
 
-import {
-  type GlobalSettings,
-  type PreviewDay,
-  formatNumberToReadableString
-} from 'gambling-bot-shared'
+import { type PreviewDay } from 'gambling-bot-shared/bonus'
+import { formatNumberToReadableString } from 'gambling-bot-shared/common'
+import { type GlobalSettings } from 'gambling-bot-shared/guild'
 import {
   Area,
   AreaChart,

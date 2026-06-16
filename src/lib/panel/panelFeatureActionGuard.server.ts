@@ -1,4 +1,4 @@
-import type { GlobalFeature } from 'gambling-bot-shared'
+import type { GlobalFeature } from 'gambling-bot-shared/guild'
 import 'server-only'
 
 import type { GuildAccess } from '@/actions/perms'

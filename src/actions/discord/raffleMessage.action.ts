@@ -1,6 +1,7 @@
 'use server'
 
-import { type GlobalSettings, formatMoney } from 'gambling-bot-shared'
+import { formatMoney } from 'gambling-bot-shared/common'
+import { type GlobalSettings } from 'gambling-bot-shared/guild'
 
 import { discordBotRequest } from '@/lib/discord/discordReq'
 

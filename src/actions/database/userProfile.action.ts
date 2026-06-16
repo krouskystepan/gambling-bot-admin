@@ -1,12 +1,12 @@
 'use server'
 
+import { getEffectiveStreak } from 'gambling-bot-shared/bonus'
 import {
   type GlobalSettings,
-  TVipRoom,
-  getEffectiveStreak,
   normalizeGlobalSettings,
   resolveGuildTimezone
-} from 'gambling-bot-shared'
+} from 'gambling-bot-shared/guild'
+import { TVipRoom } from 'gambling-bot-shared/vip'
 import { Session } from 'next-auth'
 
 import {

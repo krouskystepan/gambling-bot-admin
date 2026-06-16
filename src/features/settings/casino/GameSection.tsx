@@ -1,12 +1,14 @@
 'use client'
 
 import {
-  GAME_RECORD_FIELDS,
-  type GameWithRecords,
   defaultCasinoSettings,
-  getReadableName,
   readableGameValueNames
-} from 'gambling-bot-shared'
+} from 'gambling-bot-shared/casino'
+import {
+  GAME_RECORD_FIELDS,
+  type GameWithRecords
+} from 'gambling-bot-shared/casino'
+import { getReadableName } from 'gambling-bot-shared/common'
 import { Path, useWatch } from 'react-hook-form'
 
 import {

@@ -3,8 +3,8 @@
 import {
   defaultGlobalSettings,
   normalizeGlobalSettings
-} from 'gambling-bot-shared'
-import { globalSettingsFormSchema } from 'gambling-bot-shared/schemas'
+} from 'gambling-bot-shared/guild'
+import { globalSettingsFormSchema } from 'gambling-bot-shared/guild'
 import { getServerSession } from 'next-auth'
 
 import { authOptions } from '@/lib/auth/authOptions'

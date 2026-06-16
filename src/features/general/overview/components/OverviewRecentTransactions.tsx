@@ -1,6 +1,6 @@
 import { format } from 'date-fns'
-import { TTransaction } from 'gambling-bot-shared'
-import type { GlobalSettings } from 'gambling-bot-shared'
+import type { GlobalSettings } from 'gambling-bot-shared/guild'
+import { TTransaction } from 'gambling-bot-shared/transactions'
 
 import Image from 'next/image'
 import Link from 'next/link'

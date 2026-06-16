@@ -4,7 +4,7 @@ import {
   type TGuildConfiguration,
   isGlobalFeatureDisabled,
   normalizeGlobalSettings
-} from 'gambling-bot-shared'
+} from 'gambling-bot-shared/guild'
 
 export const PANEL_FEATURE_DISABLED_MESSAGES: Record<GlobalFeature, string> = {
   registration: 'New user registration is disabled on this server.',

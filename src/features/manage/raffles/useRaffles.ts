@@ -1,4 +1,4 @@
-import type { TRaffleStatus } from 'gambling-bot-shared'
+import type { TRaffleStatus } from 'gambling-bot-shared/raffle'
 import type { Session } from 'next-auth'
 
 import { getRaffles } from '@/actions/database/raffleActions.action'

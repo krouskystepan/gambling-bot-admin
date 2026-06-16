@@ -1,4 +1,4 @@
-import type { CasinoGameId } from 'gambling-bot-shared'
+import type { CasinoGameId } from 'gambling-bot-shared/casino'
 
 import { escapeRegExp } from '@/lib/utils'
 

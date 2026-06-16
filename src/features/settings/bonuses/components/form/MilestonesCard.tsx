@@ -1,6 +1,9 @@
 'use client'
 
-import { BONUS_MAX_AMOUNT, parseBonusAmountInput } from 'gambling-bot-shared'
+import {
+  BONUS_MAX_AMOUNT,
+  parseBonusAmountInput
+} from 'gambling-bot-shared/bonus'
 import { Gift } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 

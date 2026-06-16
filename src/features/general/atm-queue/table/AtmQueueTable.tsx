@@ -1,6 +1,6 @@
 'use client'
 
-import type { GlobalSettings } from 'gambling-bot-shared'
+import type { GlobalSettings } from 'gambling-bot-shared/guild'
 
 import { useEffect, useRef } from 'react'
 

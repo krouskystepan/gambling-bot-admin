@@ -1,11 +1,11 @@
 'use server'
 
+import { CASINO_GAME_IDS } from 'gambling-bot-shared/casino'
 import {
-  CASINO_GAME_IDS,
   TRANSACTION_SOURCES,
   TRANSACTION_TYPES,
   TTransaction
-} from 'gambling-bot-shared'
+} from 'gambling-bot-shared/transactions'
 import { Session } from 'next-auth'
 
 import { connectToDatabase } from '@/lib/db'

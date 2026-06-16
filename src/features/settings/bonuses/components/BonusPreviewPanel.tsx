@@ -1,6 +1,7 @@
 'use client'
 
-import { type GlobalSettings, type PreviewDay } from 'gambling-bot-shared'
+import { type PreviewDay } from 'gambling-bot-shared/bonus'
+import { type GlobalSettings } from 'gambling-bot-shared/guild'
 
 import dynamic from 'next/dynamic'
 

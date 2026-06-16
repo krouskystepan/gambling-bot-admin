@@ -3,11 +3,11 @@
 import {
   BONUS_MAX_AMOUNT,
   BONUS_MAX_STREAK_MULTIPLIER,
-  type GlobalSettings,
   calculateBonusReward,
-  parseBonusAmountInput,
-  parseBonusMultiplierInput
-} from 'gambling-bot-shared'
+  parseBonusAmountInput
+} from 'gambling-bot-shared/bonus'
+import { parseBonusMultiplierInput } from 'gambling-bot-shared/bonus'
+import { type GlobalSettings } from 'gambling-bot-shared/guild'
 import { TrendingUp } from 'lucide-react'
 import { useFormContext, useWatch } from 'react-hook-form'
 

@@ -1,9 +1,11 @@
 import {
   createPredictionDb,
-  createPredictionLifecycleService,
+  createPredictionLifecycleService
+} from 'gambling-bot-shared/predictions'
+import {
   createRaffleDb,
   createRaffleLifecycleService
-} from 'gambling-bot-shared/services'
+} from 'gambling-bot-shared/raffle'
 
 import { casinoBetService } from '@/lib/casino/casinoBetService'
 import Prediction from '@/models/Prediction'

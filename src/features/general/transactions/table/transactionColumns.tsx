@@ -1,6 +1,6 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { TTransaction } from 'gambling-bot-shared'
-import type { GlobalSettings } from 'gambling-bot-shared'
+import type { GlobalSettings } from 'gambling-bot-shared/guild'
+import { TTransaction } from 'gambling-bot-shared/transactions'
 import { CircleQuestionMark } from 'lucide-react'
 
 import Image from 'next/image'

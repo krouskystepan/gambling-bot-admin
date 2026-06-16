@@ -1,5 +1,5 @@
 import { Table } from '@tanstack/react-table'
-import { formatNumberWithSpaces } from 'gambling-bot-shared'
+import { formatNumberWithSpaces } from 'gambling-bot-shared/common'
 import {
   ChevronFirstIcon,
   ChevronLastIcon,

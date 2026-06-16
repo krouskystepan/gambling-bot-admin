@@ -1,6 +1,6 @@
 'use client'
 
-import type { GlobalSettings } from 'gambling-bot-shared'
+import type { GlobalSettings } from 'gambling-bot-shared/guild'
 import { Cell, Pie, PieChart } from 'recharts'
 
 import {

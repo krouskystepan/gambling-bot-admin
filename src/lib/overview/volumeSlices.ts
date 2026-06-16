@@ -1,10 +1,12 @@
+import { CASINO_GAME_IDS } from 'gambling-bot-shared/casino'
 import {
-  CASINO_GAME_IDS,
-  TRANSACTION_SOURCES,
-  TTransaction,
   formatCasinoGameLabel,
   formatTransactionSourceLabel
-} from 'gambling-bot-shared'
+} from 'gambling-bot-shared/common'
+import {
+  TRANSACTION_SOURCES,
+  TTransaction
+} from 'gambling-bot-shared/transactions'
 
 import { gamePnLSum } from '@/lib/overview/transactionTotals'
 

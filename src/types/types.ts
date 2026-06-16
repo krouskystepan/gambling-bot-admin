@@ -3,13 +3,11 @@ import {
   APIRole,
   RESTAPIPartialCurrentUserGuild
 } from 'discord-api-types/v10'
-import {
-  TAtmRequest,
-  TPrediction,
-  TRaffle,
-  TTransaction,
-  TVipRoom
-} from 'gambling-bot-shared'
+import { TAtmRequest } from 'gambling-bot-shared/atm'
+import { TPrediction } from 'gambling-bot-shared/predictions'
+import { TRaffle } from 'gambling-bot-shared/raffle'
+import { TTransaction } from 'gambling-bot-shared/transactions'
+import { TVipRoom } from 'gambling-bot-shared/vip'
 import { UseFormReturn } from 'react-hook-form'
 import z from 'zod'
 

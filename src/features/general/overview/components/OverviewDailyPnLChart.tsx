@@ -1,7 +1,7 @@
 'use client'
 
-import type { GlobalSettings } from 'gambling-bot-shared'
-import { resolveGuildTimezone } from 'gambling-bot-shared'
+import type { GlobalSettings } from 'gambling-bot-shared/guild'
+import { resolveGuildTimezone } from 'gambling-bot-shared/guild'
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 
 import { useId } from 'react'

@@ -1,7 +1,7 @@
 'server-only'
 
-import { type TRaffle } from 'gambling-bot-shared'
-import { RaffleSchema } from 'gambling-bot-shared/server'
+import { RaffleSchema } from 'gambling-bot-shared/mongoose'
+import { type TRaffle } from 'gambling-bot-shared/raffle'
 
 import { getModel } from '@/lib/db'
 

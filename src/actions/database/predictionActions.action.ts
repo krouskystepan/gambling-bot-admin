@@ -1,14 +1,15 @@
 'use server'
 
-import { type TPrediction, normalizeGlobalSettings } from 'gambling-bot-shared'
+import { normalizeGlobalSettings } from 'gambling-bot-shared/guild'
+import { type TPrediction } from 'gambling-bot-shared/predictions'
 import {
   createPredictionFormSchema,
   payoutPredictionFormSchema
-} from 'gambling-bot-shared/schemas'
+} from 'gambling-bot-shared/predictions'
 import {
   calculatePredictionPayoutSummary,
   getPredictionCheckSummary
-} from 'gambling-bot-shared/services'
+} from 'gambling-bot-shared/predictions'
 import { DateTime } from 'luxon'
 import { Session } from 'next-auth'
 import { z } from 'zod'

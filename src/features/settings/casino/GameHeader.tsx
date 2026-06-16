@@ -1,6 +1,7 @@
 'use client'
 
-import { getReadableName, readableGameNames } from 'gambling-bot-shared'
+import { readableGameNames } from 'gambling-bot-shared/casino'
+import { getReadableName } from 'gambling-bot-shared/common'
 import { CircleQuestionMark } from 'lucide-react'
 
 import {

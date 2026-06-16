@@ -1,6 +1,6 @@
 'use client'
 
-import { calculateRTP } from 'gambling-bot-shared'
+import { calculateRTP } from 'gambling-bot-shared/casino'
 import { useWatch } from 'react-hook-form'
 
 import {

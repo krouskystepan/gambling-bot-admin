@@ -1,7 +1,7 @@
 'server-only'
 
-import { type TUser } from 'gambling-bot-shared'
-import { UserSchema } from 'gambling-bot-shared/server'
+import { UserSchema } from 'gambling-bot-shared/mongoose'
+import { type TUser } from 'gambling-bot-shared/user'
 
 import { getModel } from '@/lib/db'
 

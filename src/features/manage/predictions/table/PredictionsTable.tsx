@@ -1,6 +1,6 @@
 'use client'
 
-import type { TPrediction } from 'gambling-bot-shared'
+import type { TPrediction } from 'gambling-bot-shared/predictions'
 
 import { useEffect, useRef } from 'react'
 

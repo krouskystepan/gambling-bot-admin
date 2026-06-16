@@ -1,11 +1,9 @@
 'use server'
 
-import {
-  TUser,
-  formatMoney,
-  normalizeGlobalSettings
-} from 'gambling-bot-shared'
-import type { GlobalSettings } from 'gambling-bot-shared'
+import { formatMoney } from 'gambling-bot-shared/common'
+import { normalizeGlobalSettings } from 'gambling-bot-shared/guild'
+import type { GlobalSettings } from 'gambling-bot-shared/guild'
+import { TUser } from 'gambling-bot-shared/user'
 import { Session } from 'next-auth'
 
 import { revalidatePath } from 'next/cache'

@@ -1,7 +1,7 @@
 import {
   type GlobalSettings,
   normalizeGlobalSettings
-} from 'gambling-bot-shared'
+} from 'gambling-bot-shared/guild'
 import 'server-only'
 
 import { connectToDatabase } from '@/lib/db'

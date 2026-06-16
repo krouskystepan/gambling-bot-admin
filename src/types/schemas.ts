@@ -1,19 +1,23 @@
-import { parseTimeToSeconds } from 'gambling-bot-shared'
+import { parseTimeToSeconds } from 'gambling-bot-shared/common'
 import { z } from 'zod'
 
+export { atmChannelsFormSchema } from 'gambling-bot-shared/atm'
+export { bonusFormSchema } from 'gambling-bot-shared/bonus'
 export {
-  atmChannelsFormSchema,
-  bonusFormSchema,
   casinoChannelsFormSchema,
-  casinoSettingsSchema,
+  casinoSettingsSchema
+} from 'gambling-bot-shared/casino'
+export {
   channelsFormSchema,
   globalSettingsFormSchema,
-  managerRoleFormSchema,
-  predictionChannelsFormSchema,
+  managerRoleFormSchema
+} from 'gambling-bot-shared/guild'
+export { predictionChannelsFormSchema } from 'gambling-bot-shared/predictions'
+export {
   raffleChannelsFormSchema,
-  raffleCreateFormSchema,
-  vipSettingsFormSchema
-} from 'gambling-bot-shared/schemas'
+  raffleCreateFormSchema
+} from 'gambling-bot-shared/raffle'
+export { vipSettingsFormSchema } from 'gambling-bot-shared/vip'
 
 const VIP_DURATION_REGEX = /^(\d+[dw])+$/i
 

@@ -1,6 +1,6 @@
 'use client'
 
-import type { TRaffleStatus } from 'gambling-bot-shared'
+import type { TRaffleStatus } from 'gambling-bot-shared/raffle'
 
 import { useEffect, useRef } from 'react'
 

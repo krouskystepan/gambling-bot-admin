@@ -1,11 +1,11 @@
 'use client'
 
+import { defaultCasinoSettings } from 'gambling-bot-shared/casino'
 import {
   GAME_RECORD_FIELDS,
   type GameWithRecords,
-  type RecordKey,
-  defaultCasinoSettings
-} from 'gambling-bot-shared'
+  type RecordKey
+} from 'gambling-bot-shared/casino'
 import { Path } from 'react-hook-form'
 
 import { TCasinoSettingsForm, TCasinoSettingsInput } from '@/types/types'

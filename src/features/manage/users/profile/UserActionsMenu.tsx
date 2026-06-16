@@ -1,6 +1,6 @@
 'use client'
 
-import type { GlobalFeature, GlobalSettings } from 'gambling-bot-shared'
+import type { GlobalFeature, GlobalSettings } from 'gambling-bot-shared/guild'
 import { CircleQuestionMark, EllipsisIcon } from 'lucide-react'
 import { toast } from 'sonner'
 

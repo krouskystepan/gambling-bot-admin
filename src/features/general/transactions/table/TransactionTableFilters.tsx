@@ -1,9 +1,9 @@
 import { Table as ReactTable } from '@tanstack/react-table'
+import { CASINO_GAME_IDS } from 'gambling-bot-shared/casino'
 import {
-  CASINO_GAME_IDS,
   formatTransactionSourceLabel,
   formatTransactionTypeLabel
-} from 'gambling-bot-shared'
+} from 'gambling-bot-shared/common'
 import { Columns3Icon } from 'lucide-react'
 
 import { Dispatch, RefObject, SetStateAction } from 'react'

@@ -2,7 +2,7 @@ import {
   TRANSACTION_SOURCES,
   TRANSACTION_TYPES,
   TTransaction
-} from 'gambling-bot-shared'
+} from 'gambling-bot-shared/transactions'
 
 const TYPE_BADGE_STYLES: Record<TTransaction['type'], string> = {
   deposit: 'bg-chart-2 text-white',
