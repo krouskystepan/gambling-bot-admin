@@ -1,6 +1,6 @@
 'use server'
 
-import { discordBotRequest } from '@/lib/discordReq'
+import { discordBotRequest } from '@/lib/discord/discordReq'
 import type { IGuildRole, IMemberCacheEntry } from '@/types/types'
 
 const memberCache = new Map<string, IMemberCacheEntry>()
@@ -32,9 +32,23 @@ export const fetchMemberRoles = async (
     })
 
     return member.roles
-  } catch {
+  } catch (err) {
+    if (err instanceof Error && err.message === 'DiscordRateLimited') {
+      throw err
+    }
     return []
   }
+}
+
+export const resolveManagerStatus = async (
+  guildId: string,
+  userId: string,
+  managerRoleId: string | null | undefined
+): Promise<boolean> => {
+  if (!managerRoleId) return false
+
+  const roles = await fetchMemberRoles(guildId, userId)
+  return roles.includes(managerRoleId.toString())
 }
 
 export const getGuildRoles = async (guildId: string): Promise<IGuildRole[]> => {

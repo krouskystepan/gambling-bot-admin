@@ -1,15 +1,20 @@
 import { getBonusSettings } from '@/actions/database/bonusSettings.action'
 import FeatureLayout from '@/features/FeatureLayout'
+import { getGuildGlobalSettings } from '@/lib/guild/guildMoney.server'
 
 import BonuseSettingsForm from './BonusesSettingsForm'
 
 const BonusesSettingsPage = async ({ guildId }: { guildId: string }) => {
-  const settings = await getBonusSettings(guildId)
+  const [settings, globalSettings] = await Promise.all([
+    getBonusSettings(guildId),
+    getGuildGlobalSettings(guildId)
+  ])
 
   return (
     <FeatureLayout title="Bonus Settings">
       <BonuseSettingsForm
         guildId={guildId}
+        globalSettings={globalSettings}
         savedSettings={
           settings ?? {
             rewardMode: 'linear',

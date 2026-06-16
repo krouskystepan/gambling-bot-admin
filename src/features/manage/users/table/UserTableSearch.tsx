@@ -2,6 +2,7 @@ import { Table } from '@tanstack/react-table'
 
 import { ChangeEvent, RefObject } from 'react'
 
+import { TABLE_SEARCH_INPUT_CLASS } from '@/components/table/tableSearchStyles'
 import { Input } from '@/components/ui/input'
 import { TGuildMemberStatus } from '@/types/types'
 
@@ -31,7 +32,7 @@ const UserTableSearch = ({
       value={initialValue}
       placeholder={placeholder}
       onChange={handleChange}
-      className="h-9.5 max-w-xs"
+      className={TABLE_SEARCH_INPUT_CLASS}
     />
   )
 }

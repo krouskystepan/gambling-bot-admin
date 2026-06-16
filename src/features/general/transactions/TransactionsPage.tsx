@@ -1,7 +1,8 @@
 import { getServerSession } from 'next-auth'
 
 import FeatureLayout from '@/features/FeatureLayout'
-import { authOptions } from '@/lib/authOptions'
+import { authOptions } from '@/lib/auth/authOptions'
+import { getGuildGlobalSettings } from '@/lib/guild/guildMoney.server'
 
 import TransactionTable from './table/TransactionTable'
 import {
@@ -21,6 +22,7 @@ const TransactionsPage = async ({
     adminSearch?: string
     filterType?: string
     filterSource?: string
+    filterCasinoGame?: string
     dateFrom?: string
     dateTo?: string
     sort?: string
@@ -31,16 +33,21 @@ const TransactionsPage = async ({
 
   const query = normalizeTransactionsSearchParams(searchParams)
 
-  const { transactions, transactionCounts, total, gamePnL, cashFlow } =
-    await getTransactionsData(guildId, session, query)
+  const [
+    { transactions, transactionCounts, total, gamePnL, cashFlow },
+    globalSettings
+  ] = await Promise.all([
+    getTransactionsData(guildId, session, query),
+    getGuildGlobalSettings(guildId)
+  ])
 
   return (
     <FeatureLayout title={'Transactions'}>
       <TransactionTable
+        guildId={guildId}
+        globalSettings={globalSettings}
         transactions={transactions}
         transactionCounts={transactionCounts}
-        guildId={guildId}
-        managerId={session.userId!}
         page={query.page}
         limit={query.limit}
         total={total}

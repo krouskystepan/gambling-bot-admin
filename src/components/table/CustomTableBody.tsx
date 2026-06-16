@@ -2,6 +2,7 @@ import { Table, flexRender } from '@tanstack/react-table'
 
 import { Skeleton } from '@/components/ui/skeleton'
 import { TableBody, TableCell, TableRow } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
 
 type TableBodyProps<T> = {
   table: Table<T>
@@ -15,7 +16,10 @@ const CustomTableBody = <T,>({ table, isLoading }: TableBodyProps<T>) => {
         Array.from({
           length: table.getPaginationRowModel().rows.length
         }).map((_, i) => (
-          <TableRow key={i} className="h-16">
+          <TableRow
+            key={i}
+            className={cn('h-16', i % 2 === 1 && 'bg-muted/30')}
+          >
             {table.getHeaderGroups()[0]?.headers.map((header, j) => (
               <TableCell key={j}>
                 <Skeleton
@@ -27,8 +31,11 @@ const CustomTableBody = <T,>({ table, isLoading }: TableBodyProps<T>) => {
           </TableRow>
         ))
       ) : table.getRowModel().rows.length ? (
-        table.getRowModel().rows.map((row) => (
-          <TableRow key={row.id}>
+        table.getRowModel().rows.map((row, index) => (
+          <TableRow
+            key={row.id}
+            className={cn(index % 2 === 1 && 'bg-muted/30')}
+          >
             {row.getVisibleCells().map((cell) => (
               <TableCell key={cell.id}>
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -40,9 +47,9 @@ const CustomTableBody = <T,>({ table, isLoading }: TableBodyProps<T>) => {
         <TableRow>
           <TableCell
             colSpan={table.getHeaderGroups()[0]?.headers.length}
-            className="py-6 text-center"
+            className="py-6 text-center text-sm text-muted-foreground"
           >
-            No results.
+            No results found.
           </TableCell>
         </TableRow>
       )}

@@ -1,3 +1,10 @@
+excludeLinksFromLockfile: true
+
+allowBuilds:
+  sharp: true
+  unrs-resolver: true
+minimumReleaseAgeExclude:
+  - gambling-bot-shared
 onlyBuiltDependencies:
   - sharp
   - unrs-resolver

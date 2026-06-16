@@ -1,7 +1,9 @@
 import { getServerSession } from 'next-auth'
 
+import { getUserPermissions } from '@/actions/perms'
 import FeatureLayout from '@/features/FeatureLayout'
-import { authOptions } from '@/lib/authOptions'
+import { authOptions } from '@/lib/auth/authOptions'
+import { getGuildGlobalSettings } from '@/lib/guild/guildMoney.server'
 
 import UserTable from './table/UserTable'
 import { getUsersData, normalizeUsersSearchParams } from './useUsers'
@@ -23,11 +25,17 @@ const UsersPage = async ({
 
   const query = normalizeUsersSearchParams(searchParams)
 
-  const { users, total } = await getUsersData(guildId, session, query)
+  const [{ users, total }, globalSettings, { isAdmin }] = await Promise.all([
+    getUsersData(guildId, session, query),
+    getGuildGlobalSettings(guildId),
+    getUserPermissions(guildId, session)
+  ])
 
   return (
     <FeatureLayout title={'Users'}>
       <UserTable
+        globalSettings={globalSettings}
+        isGuildAdmin={isAdmin}
         users={users}
         guildId={guildId}
         managerId={session.userId!}

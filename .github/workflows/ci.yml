@@ -1,0 +1,52 @@
+name: Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Checks
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+      DISCORD_CLIENT_ID: ci
+      DISCORD_CLIENT_SECRET: ci
+      DISCORD_BOT_TOKEN: ci
+      NEXTAUTH_SECRET: ci-secret
+      NEXTAUTH_URL: http://localhost:3000
+      MONGO_URI: mongodb://localhost:27017/ci
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Format
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint:check
+
+      - name: Types
+        run: pnpm type:check
+
+      - name: Build
+        run: pnpm build

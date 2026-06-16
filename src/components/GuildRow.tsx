@@ -18,7 +18,7 @@ const GuildRow = ({ guild }: { guild: IGuild }) => {
       className="group flex items-center justify-center overflow-hidden rounded-lg"
     >
       <div
-        className={`absolute -left-1 w-2 rounded-r-sm bg-white opacity-0 transition-all duration-200 ${
+        className={`absolute -left-1 w-2 rounded-r-sm bg-primary opacity-0 transition-all duration-200 ${
           activeGuildId === guild.id
             ? 'h-10 opacity-100'
             : 'h-6 group-hover:opacity-100'
@@ -36,7 +36,7 @@ const GuildRow = ({ guild }: { guild: IGuild }) => {
               width={40}
             />
           ) : (
-            <div className="flex size-10 items-center justify-center bg-gray-600 text-sm text-white">
+            <div className="flex size-10 items-center justify-center bg-muted text-sm text-muted-foreground">
               {guild.name.slice(0, 2).toUpperCase()}
             </div>
           )}

@@ -2,11 +2,12 @@
 
 import { Session } from 'next-auth'
 
-import { discordApiRequest, discordBotRequest } from '@/lib/discordReq'
+import { hasGuildManageAccess } from '@/lib/discord/discordPermissions'
+import { discordApiRequest, discordBotRequest } from '@/lib/discord/discordReq'
 import type { ICacheEntry, IGuild } from '@/types/types'
 
 import { getAllGuildConfigsWithManagers } from '../database/guild.action'
-import { fetchMemberRoles } from './role.action'
+import { resolveManagerStatus } from './role.action'
 
 const guildCache = new Map<string, ICacheEntry<IGuild[]>>()
 const GUILD_CACHE_DURATION = 5 * 60_000 // 5 min
@@ -52,39 +53,23 @@ export const getUserGuilds = async (
   const accessibleGuilds: IGuild[] = []
 
   for (const guild of userGuilds) {
-    let includeGuild = false
-
-    const isAdmin = (Number(guild.permissions) & 0x8) === 0x8
-    if (isAdmin) {
-      includeGuild = true
+    if (hasGuildManageAccess(guild)) {
+      accessibleGuilds.push(guild)
+      continue
     }
 
     const dbConfig = allGuildConfigs.find((c) => c.guildId === guild.id)
-
-    if (dbConfig && !includeGuild) {
-      try {
-        const roles = await fetchMemberRoles(guild.id, session.userId)
-
-        if (roles.includes(dbConfig.managerRoleId)) {
-          includeGuild = true
-        }
-      } catch (err) {
-        if (
-          err instanceof Error &&
-          'response' in err &&
-          (err as { response?: { status?: number } }).response?.status &&
-          [403, 404].includes(
-            (err as { response: { status: number } }).response.status
-          )
-        ) {
-          continue
-        }
-
-        throw err
-      }
+    if (!dbConfig?.managerRoleId) {
+      continue
     }
 
-    if (includeGuild) {
+    const isManager = await resolveManagerStatus(
+      guild.id,
+      session.userId,
+      dbConfig.managerRoleId.toString()
+    )
+
+    if (isManager) {
       accessibleGuilds.push(guild)
     }
   }

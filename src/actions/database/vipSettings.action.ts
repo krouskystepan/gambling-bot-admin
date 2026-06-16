@@ -2,16 +2,19 @@
 
 import { getServerSession } from 'next-auth'
 
-import { authOptions } from '@/lib/authOptions'
+import { authOptions } from '@/lib/auth/authOptions'
 import { connectToDatabase } from '@/lib/db'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import { TVipSettingsValues } from '@/types/types'
 
-import { getUserPermissions } from '../perms'
+import { getUserPermissions, requireGuildAccess } from '../perms'
 
 export async function getVipSettings(
   guildId: string
 ): Promise<TVipSettingsValues | null> {
+  const access = await requireGuildAccess(guildId, { requireAdmin: true })
+  if ('error' in access) return null
+
   await connectToDatabase()
 
   const doc = await GuildConfiguration.findOne({ guildId })

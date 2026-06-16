@@ -6,6 +6,11 @@ import { Dispatch, RefObject, SetStateAction } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 import { TGuildMemberStatus } from '@/types/types'
 
 import UserTableSearch from './UserTableSearch'
@@ -28,7 +33,7 @@ const UserTableFilters = ({
     | undefined
 
   return (
-    <div className="flex justify-between gap-2">
+    <div className="flex flex-wrap items-center justify-between gap-4">
       <UserTableSearch
         table={table}
         inputRef={searchRef}
@@ -37,17 +42,27 @@ const UserTableFilters = ({
         initialValue={searchValue}
       />
 
-      <Button
-        variant="secondary"
-        disabled={isLoading}
-        onClick={() => {
-          setIsLoading(true)
-          const url = new URL(window.location.href)
-          router.replace(url.pathname + url.search, { scroll: false })
-        }}
-      >
-        <RefreshCcw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="secondary"
+            size="icon"
+            disabled={isLoading}
+            onClick={() => {
+              setIsLoading(true)
+              const url = new URL(window.location.href)
+              router.replace(url.pathname + url.search, { scroll: false })
+            }}
+          >
+            <RefreshCcw
+              className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`}
+            />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Refresh data</p>
+        </TooltipContent>
+      </Tooltip>
     </div>
   )
 }

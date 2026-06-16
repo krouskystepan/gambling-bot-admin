@@ -1,4 +1,9 @@
 import { Table as ReactTable } from '@tanstack/react-table'
+import { CASINO_GAME_IDS } from 'gambling-bot-shared/casino'
+import {
+  formatTransactionSourceLabel,
+  formatTransactionTypeLabel
+} from 'gambling-bot-shared/common'
 import { Columns3Icon } from 'lucide-react'
 
 import { Dispatch, RefObject, SetStateAction } from 'react'
@@ -12,27 +17,33 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { LEGACY_CASINO_GAME_KEY } from '@/lib/transactions/transactionFilters'
 import { ITransactionCounts, TTransactionDiscord } from '@/types/types'
 
 import TransactionExtraButtons from './TransactionExtraButtons'
 import TransactionFilter from './TransactionTableFilter'
 import TransactionSearch from './TransactionTableSearch'
 import { sourceBadgeMap, typeBadgeMap } from './transactionBadges'
+import { getCasinoGameFilterLabel } from './transactionFilterLabels'
 
 const TransactionTableFilters = ({
+  guildId,
   table,
   counts,
   isLoading,
   setIsLoading,
   userSearchRef,
-  adminSearchRef
+  adminSearchRef,
+  hideUserSearch = false
 }: {
+  guildId: string
   table: ReactTable<TTransactionDiscord>
   counts: ITransactionCounts
   isLoading: boolean
   setIsLoading: Dispatch<SetStateAction<boolean>>
   userSearchRef: RefObject<HTMLInputElement | null>
   adminSearchRef: RefObject<HTMLInputElement | null>
+  hideUserSearch?: boolean
 }) => {
   type Option<T = string> = {
     value: string
@@ -41,17 +52,28 @@ const TransactionTableFilters = ({
   }
 
   function mapToOptions<T extends string>(
-    entries: Record<T, string>
+    entries: Record<T, string>,
+    formatLabel: (key: T) => string
   ): Option<T>[] {
-    return Object.keys(entries).map((key, idx) => ({
+    return (Object.keys(entries) as T[]).map((key, idx) => ({
       value: `${key}-${idx}`,
-      label: key.charAt(0).toUpperCase() + key.slice(1).toLowerCase(),
-      realValue: key as T
+      label: formatLabel(key),
+      realValue: key
     }))
   }
 
-  const typeOptions = mapToOptions(typeBadgeMap)
-  const sourceOptions = mapToOptions(sourceBadgeMap)
+  const typeOptions = mapToOptions(typeBadgeMap, formatTransactionTypeLabel)
+  const sourceOptions = mapToOptions(
+    sourceBadgeMap,
+    formatTransactionSourceLabel
+  )
+  const casinoGameOptions = [...CASINO_GAME_IDS, LEGACY_CASINO_GAME_KEY].map(
+    (game, idx) => ({
+      value: `${game}-${idx}`,
+      label: getCasinoGameFilterLabel(game),
+      realValue: game
+    })
+  )
 
   function getSelectedOptions<T extends string>(
     table: ReactTable<TTransactionDiscord>,
@@ -71,10 +93,18 @@ const TransactionTableFilters = ({
     'source',
     sourceOptions
   )
+  const selectedCasinoGameOptions = getSelectedOptions(
+    table,
+    'casinoGame',
+    casinoGameOptions
+  )
+  const casinoSourceSelected = selectedSourceOptions.some(
+    (option) => option.realValue === 'casino'
+  )
 
-  const usernameInputFilter = table.getColumn('username')?.getFilterValue() as
-    | string
-    | undefined
+  const usernameInputFilter = hideUserSearch
+    ? undefined
+    : (table.getColumn('username')?.getFilterValue() as string | undefined)
   const adminInputFilter = table
     .getColumn('handledByUsername')
     ?.getFilterValue() as string | undefined
@@ -95,15 +125,17 @@ const TransactionTableFilters = ({
     | undefined
 
   return (
-    <div className="flex justify-between gap-2">
-      <div className="flex min-w-0 flex-1 gap-2">
-        <TransactionSearch
-          table={table}
-          inputRef={userSearchRef}
-          placeholder="Search by user ID..."
-          inputType="username"
-          initialValue={usernameInputFilter}
-        />
+    <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex min-w-0 flex-1 flex-wrap gap-2">
+        {!hideUserSearch ? (
+          <TransactionSearch
+            table={table}
+            inputRef={userSearchRef}
+            placeholder="Search by user ID..."
+            inputType="username"
+            initialValue={usernameInputFilter}
+          />
+        ) : null}
 
         <TransactionSearch
           table={table}
@@ -113,7 +145,7 @@ const TransactionTableFilters = ({
           initialValue={adminInputFilter}
         />
       </div>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <DatePicker
           initialRange={
             createdAtFilter
@@ -165,8 +197,29 @@ const TransactionTableFilters = ({
               ?.setFilterValue(
                 next.length ? next.map((o) => o.realValue) : undefined
               )
+
+            if (!next.some((option) => option.realValue === 'casino')) {
+              table.getColumn('casinoGame')?.setFilterValue(undefined)
+            }
           }}
         />
+
+        {casinoSourceSelected ? (
+          <TransactionFilter
+            title="Game"
+            columnId="casinoGame"
+            options={casinoGameOptions}
+            selected={selectedCasinoGameOptions}
+            counts={counts.casinoGame}
+            onChange={(next) => {
+              table
+                .getColumn('casinoGame')
+                ?.setFilterValue(
+                  next.length ? next.map((o) => o.realValue) : undefined
+                )
+            }}
+          />
+        ) : null}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -196,6 +249,7 @@ const TransactionTableFilters = ({
         </DropdownMenu>
 
         <TransactionExtraButtons
+          guildId={guildId}
           table={table}
           isLoading={isLoading}
           setIsLoading={setIsLoading}

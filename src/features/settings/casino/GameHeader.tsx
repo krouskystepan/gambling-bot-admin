@@ -1,48 +1,61 @@
 'use client'
 
+import { readableGameNames } from 'gambling-bot-shared/casino'
+import { getReadableName } from 'gambling-bot-shared/common'
+import { CircleQuestionMark } from 'lucide-react'
+
 import {
-  calculateRTP,
-  getReadableName,
-  readableGameNames
-} from 'gambling-bot-shared'
-import { UseFormReturn, useWatch } from 'react-hook-form'
-import { TCasinoSettingsOutput, TCasinoSettingsValues } from '@/types/types'
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
+import { TCasinoSettingsForm, TCasinoSettingsValues } from '@/types/types'
 
 import { MultiRTP, SingleRTP } from './RTP'
+import { useGameRtp } from './useGameRtp'
 
 type Props = {
   game: keyof TCasinoSettingsValues
-  form: UseFormReturn<TCasinoSettingsOutput>
+  form: TCasinoSettingsForm
+}
+
+const DETAIL_TITLES: Partial<Record<keyof TCasinoSettingsValues, string>> = {
+  winAnnouncements: 'Big win announcements'
 }
 
 const GameHeader = ({ game, form }: Props) => {
-  const settings = useWatch({
-    control: form.control,
-    name: game
-  })
+  const { rtp, hidden, settings } = useGameRtp(game, form)
 
   if (!settings) return null
 
-  const rtp = calculateRTP(game, settings as TCasinoSettingsValues[typeof game])
-
-  const HIDDEN_RTP_GAMES: Array<keyof TCasinoSettingsValues> = [
-    'blackjack',
-    'raffle',
-    'prediction'
-  ]
+  const title = DETAIL_TITLES[game] ?? getReadableName(game, readableGameNames)
 
   return (
-    <div className="flex w-full gap-2 items-center justify-start pr-4">
-      <span className="group-hover:underline">
-        {getReadableName(game, readableGameNames)}
-      </span>
+    <div className="flex w-full flex-wrap items-center gap-x-3 gap-y-1">
+      <h2 className="text-base leading-none font-semibold">{title}</h2>
 
-      {!HIDDEN_RTP_GAMES.includes(game) &&
+      {!hidden &&
         (typeof rtp === 'number' ? (
-          <SingleRTP value={rtp} />
-        ) : (
+          <span className="inline-flex items-center gap-1.5">
+            <SingleRTP value={rtp} />
+            {game === 'raffle' ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <CircleQuestionMark
+                    size={16}
+                    className="cursor-pointer text-muted-foreground"
+                  />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  Static RTP assumes a full draw. Single-participant raffles
+                  refund 100%.
+                </TooltipContent>
+              </Tooltip>
+            ) : null}
+          </span>
+        ) : rtp ? (
           <MultiRTP rtpMap={rtp} />
-        ))}
+        ) : null)}
     </div>
   )
 }

@@ -2,11 +2,13 @@
 
 import { Session } from 'next-auth'
 
+import { getSessionOrNull } from '@/lib/auth/requireSession'
 import { connectToDatabase } from '@/lib/db'
-import { discordBotRequest } from '@/lib/discordReq'
+import { hasGuildManageAccess } from '@/lib/discord/discordPermissions'
 import GuildConfiguration from '@/models/GuildConfiguration'
 
 import { fetchUserGuilds } from './discord/guilds.action'
+import { resolveManagerStatus } from './discord/role.action'
 
 type PermissionsResult = {
   isAdmin: boolean
@@ -14,7 +16,16 @@ type PermissionsResult = {
   rateLimited?: boolean
 }
 
-const DISCORD_ADMIN_FLAG = 0x8
+export type GuildAccess = {
+  session: Session
+  isAdmin: boolean
+  isManager: boolean
+}
+
+export type GuildAccessError = {
+  error: string
+  rateLimited?: boolean
+}
 
 export const getUserPermissions = async (
   guildId: string,
@@ -32,8 +43,7 @@ export const getUserPermissions = async (
     const guild = userGuilds.find((g) => g.id === guildId)
 
     if (guild) {
-      const permissions = Number(guild.permissions) || 0
-      isAdmin = (permissions & DISCORD_ADMIN_FLAG) === DISCORD_ADMIN_FLAG
+      isAdmin = hasGuildManageAccess(guild)
     }
 
     await connectToDatabase()
@@ -43,12 +53,11 @@ export const getUserPermissions = async (
       return { isAdmin, isManager }
     }
 
-    const member = await discordBotRequest<{ roles: string[] }>({
-      method: 'GET',
-      url: `/guilds/${guildId}/members/${session.userId}`
-    })
-
-    isManager = member.roles.includes(config.managerRoleId.toString())
+    isManager = await resolveManagerStatus(
+      guildId,
+      session.userId,
+      config.managerRoleId.toString()
+    )
   } catch (err) {
     if (err instanceof Error && err.message === 'DiscordRateLimited') {
       return { isAdmin, isManager, rateLimited: true }
@@ -58,4 +67,33 @@ export const getUserPermissions = async (
   }
 
   return { isAdmin, isManager }
+}
+
+export async function requireGuildAccess(
+  guildId: string,
+  options?: { requireAdmin?: boolean }
+): Promise<GuildAccess | GuildAccessError> {
+  const session = await getSessionOrNull()
+  if (!session) {
+    return { error: 'Unauthorized' }
+  }
+
+  const { isAdmin, isManager, rateLimited } = await getUserPermissions(
+    guildId,
+    session
+  )
+
+  if (rateLimited) {
+    return { error: 'Rate limited', rateLimited: true }
+  }
+
+  if (options?.requireAdmin) {
+    if (!isAdmin) {
+      return { error: 'Insufficient permissions' }
+    }
+  } else if (!isAdmin && !isManager) {
+    return { error: 'Insufficient permissions' }
+  }
+
+  return { session, isAdmin, isManager }
 }

@@ -1,7 +1,7 @@
 'server-only'
 
-import { type TPrediction } from 'gambling-bot-shared'
-import { PredictionSchema } from 'gambling-bot-shared/server'
+import { PredictionSchema } from 'gambling-bot-shared/mongoose'
+import { type TPrediction } from 'gambling-bot-shared/predictions'
 
 import { getModel } from '@/lib/db'
 

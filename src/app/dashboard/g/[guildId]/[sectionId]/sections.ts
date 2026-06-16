@@ -1,9 +1,14 @@
 import {
+  AtmQueuePage,
   BonusesSettingsPage,
   CasinoSettingsPage,
   ChannelSettingsPage,
-  HomePage,
+  GlobalSettingsPage,
   ManagerSettingsPage,
+  OverviewPage,
+  PredictionsPage,
+  RafflesPage,
+  ReportsPage,
   TransactionsPage,
   UsersPage,
   VipPage,
@@ -12,14 +17,19 @@ import {
 
 export const sections = {
   // General
-  home: HomePage,
+  overview: OverviewPage,
+  reports: ReportsPage,
   transactions: TransactionsPage,
+  'atm-queue': AtmQueuePage,
 
   // Manage
   users: UsersPage,
+  raffles: RafflesPage,
+  predictions: PredictionsPage,
   vips: VipPage,
 
   // Settings
+  'global-settings': GlobalSettingsPage,
   'channel-settings': ChannelSettingsPage,
   'casino-settings': CasinoSettingsPage,
   'manager-settings': ManagerSettingsPage,

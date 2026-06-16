@@ -1,15 +1,26 @@
 import { ReactNode } from 'react'
 
+import { PageHeader } from '@/components/PageHeader'
+
 const FeatureLayout = ({
   title,
+  actions,
   children
 }: {
   title: string
+  actions?: ReactNode
   children: ReactNode
 }) => {
   return (
     <section className="w-full">
-      <h4 className="mb-4 text-3xl font-semibold text-yellow-400">{title}</h4>
+      {actions ? (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+          <PageHeader title={title} size="page" className="mb-0" />
+          <div className="flex shrink-0 items-center gap-4">{actions}</div>
+        </div>
+      ) : (
+        <PageHeader title={title} size="page" />
+      )}
 
       {children}
     </section>

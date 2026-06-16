@@ -1,6 +1,6 @@
 'use server'
 
-import { discordBotRequest } from '@/lib/discordReq'
+import { discordBotRequest } from '@/lib/discord/discordReq'
 
 type GuildMember = {
   userId: string

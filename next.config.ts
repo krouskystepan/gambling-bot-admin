@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+  transpilePackages: ['gambling-bot-shared'],
   images: {
     remotePatterns: [
       {

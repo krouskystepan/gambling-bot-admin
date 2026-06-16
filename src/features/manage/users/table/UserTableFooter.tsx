@@ -26,10 +26,10 @@ const UserTableFooter = ({
           className={cn(
             'text-left font-medium',
             totalNetProfit > 0
-              ? 'text-green-500'
+              ? 'text-green-600'
               : totalNetProfit < 0
-                ? 'text-red-500'
-                : 'text-white'
+                ? 'text-red-600'
+                : 'text-foreground'
           )}
         >
           {totalProfitStr}

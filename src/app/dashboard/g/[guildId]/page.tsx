@@ -7,7 +7,7 @@ const GuildPage = async ({
 }) => {
   const { guildId } = await params
 
-  return redirect(`/dashboard/g/${guildId}/home`)
+  return redirect(`/dashboard/g/${guildId}/overview`)
 }
 
 export default GuildPage

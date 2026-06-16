@@ -1,13 +1,18 @@
 'use server'
 
-import { TUser } from 'gambling-bot-shared'
+import { formatMoney } from 'gambling-bot-shared/common'
+import { normalizeGlobalSettings } from 'gambling-bot-shared/guild'
+import type { GlobalSettings } from 'gambling-bot-shared/guild'
+import { TUser } from 'gambling-bot-shared/user'
 import { Session } from 'next-auth'
 
 import { revalidatePath } from 'next/cache'
 
 import { connectToDatabase } from '@/lib/db'
-import { formatNumberToReadableString } from 'gambling-bot-shared'
-
+import {
+  blockPanelFeatureAction,
+  blockPanelMaintenanceAction
+} from '@/lib/panel/panelFeatureActionGuard.server'
 import { escapeRegExp } from '@/lib/utils'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'
@@ -16,12 +21,27 @@ import { TGuildMemberStatus } from '@/types/types'
 
 import { getDiscordGuildMembers } from '../discord/member.action'
 import { sendEmbed } from '../discord/utils.action'
+import { requireGuildAccess } from '../perms'
+
+const money = (
+  amount: number,
+  globalSettings?: Partial<GlobalSettings> | null
+) => formatMoney(amount, globalSettings)
 
 export async function registerUser(
   userId: string,
   guildId: string,
-  managerId: string
+  _managerId: string
 ) {
+  const access = await requireGuildAccess(guildId)
+  if ('error' in access) {
+    return { success: false, message: access.error }
+  }
+  const managerId = access.session.userId!
+
+  const blocked = await blockPanelFeatureAction(guildId, 'registration', access)
+  if (blocked) return blocked
+
   try {
     const existingUser = await User.findOne({ userId, guildId })
     if (existingUser)
@@ -59,8 +79,17 @@ export async function registerUser(
 export async function unregisterUser(
   userId: string,
   guildId: string,
-  managerId: string
+  _managerId: string
 ) {
+  const access = await requireGuildAccess(guildId)
+  if ('error' in access) {
+    return { success: false, message: access.error }
+  }
+  const managerId = access.session.userId!
+
+  const blocked = await blockPanelFeatureAction(guildId, 'registration', access)
+  if (blocked) return blocked
+
   try {
     const existingUser = await User.findOne({ userId, guildId })
     if (!existingUser)
@@ -96,9 +125,18 @@ export async function unregisterUser(
 export async function depositBalance(
   userId: string,
   guildId: string,
-  managerId: string,
+  _managerId: string,
   amount: number
 ) {
+  const access = await requireGuildAccess(guildId)
+  if ('error' in access) {
+    return { success: false, message: access.error }
+  }
+  const managerId = access.session.userId!
+
+  const blocked = await blockPanelFeatureAction(guildId, 'deposit', access)
+  if (blocked) return blocked
+
   try {
     const user = await User.findOne({ userId, guildId })
     if (!user) return { success: false, message: 'User not registered.' }
@@ -117,6 +155,7 @@ export async function depositBalance(
     })
 
     const guildConfig = await GuildConfiguration.findOne({ guildId })
+    const globalSettings = normalizeGlobalSettings(guildConfig?.globalSettings)
     const logChannelId = guildConfig?.atmChannelIds.logs
     const actionsChannelId = guildConfig?.atmChannelIds.actions
 
@@ -125,10 +164,12 @@ export async function depositBalance(
         await sendEmbed(
           logChannelId,
           'ATM - Deposit Balance via Web',
-          `Manager <@${managerId}> successfully added **$${formatNumberToReadableString(
-            amount
-          )}** to <@${userId}>.\nTheir new balance is now: **$${formatNumberToReadableString(
-            user.balance
+          `Manager <@${managerId}> successfully added **${money(
+            amount,
+            globalSettings
+          )}** to <@${userId}>.\nTheir new balance is now: **${money(
+            user.balance,
+            globalSettings
           )}**.`,
           0x57f287
         )
@@ -142,10 +183,11 @@ export async function depositBalance(
         await sendEmbed(
           actionsChannelId,
           'ATM - Deposit Balance via Web',
-          `An administrator has added **$${formatNumberToReadableString(
-            amount
+          `An administrator has added **${money(
+            amount,
+            globalSettings
           )}** to <@${userId}>'s balance.\n` +
-            `**New Balance:** $${formatNumberToReadableString(user.balance)}`,
+            `**New Balance:** ${money(user.balance, globalSettings)}`,
           0x57f287,
           userId
         )
@@ -154,7 +196,10 @@ export async function depositBalance(
       }
     }
 
-    return { success: true, message: `Deposited $${amount} to user.` }
+    return {
+      success: true,
+      message: `Deposited ${money(amount, globalSettings)} to user.`
+    }
   } catch (err) {
     console.error('Error depositing balance:', err)
     return { success: false, message: 'Server error, please try again.' }
@@ -164,15 +209,35 @@ export async function depositBalance(
 export async function withdrawBalance(
   userId: string,
   guildId: string,
-  managerId: string,
+  _managerId: string,
   amount: number
 ) {
+  const access = await requireGuildAccess(guildId)
+  if ('error' in access) {
+    return { success: false, message: access.error }
+  }
+  const managerId = access.session.userId!
+
+  const blocked = await blockPanelFeatureAction(guildId, 'withdraw', access)
+  if (blocked) return blocked
+
   try {
     const user = await User.findOne({ userId, guildId })
     if (!user) return { success: false, message: 'User not registered.' }
 
+    const lockedBalance = user.lockedBalance ?? 0
+    const withdrawable = user.balance - lockedBalance
+
     if (user.balance < amount) {
       return { success: false, message: 'User has insufficient balance.' }
+    }
+
+    if (withdrawable < amount) {
+      return {
+        success: false,
+        message:
+          'User does not have enough withdrawable balance (funds may be locked in bets).'
+      }
     }
 
     user.balance -= amount
@@ -189,6 +254,7 @@ export async function withdrawBalance(
     })
 
     const guildConfig = await GuildConfiguration.findOne({ guildId })
+    const globalSettings = normalizeGlobalSettings(guildConfig?.globalSettings)
     const logChannelId = guildConfig?.atmChannelIds.logs
     const actionsChannelId = guildConfig?.atmChannelIds.actions
     if (logChannelId) {
@@ -196,10 +262,12 @@ export async function withdrawBalance(
         await sendEmbed(
           logChannelId,
           'ATM - Withdraw Balance via Web',
-          `Manager <@${managerId}> successfully removed **$${formatNumberToReadableString(
-            amount
-          )}** from <@${userId}>.\nTheir new balance is now: **$${formatNumberToReadableString(
-            user.balance
+          `Manager <@${managerId}> successfully removed **${money(
+            amount,
+            globalSettings
+          )}** from <@${userId}>.\nTheir new balance is now: **${money(
+            user.balance,
+            globalSettings
           )}**.`,
           0x57f287
         )
@@ -213,10 +281,11 @@ export async function withdrawBalance(
         await sendEmbed(
           actionsChannelId,
           'ATM - Withdraw Balance via Web',
-          `An administrator has removed **$${formatNumberToReadableString(
-            amount
+          `An administrator has removed **${money(
+            amount,
+            globalSettings
           )}** from <@${userId}>'s balance.\n` +
-            `**New Balance:** $${formatNumberToReadableString(user.balance)}`,
+            `**New Balance:** ${money(user.balance, globalSettings)}`,
           0x57f287,
           userId
         )
@@ -225,7 +294,10 @@ export async function withdrawBalance(
       }
     }
 
-    return { success: true, message: `Withdrew $${amount} from user.` }
+    return {
+      success: true,
+      message: `Withdrew ${money(amount, globalSettings)} from user.`
+    }
   } catch (err) {
     console.error('Error withdrawing balance:', err)
     return { success: false, message: 'Server error, please try again.' }
@@ -235,8 +307,17 @@ export async function withdrawBalance(
 export async function resetBalance(
   userId: string,
   guildId: string,
-  managerId: string
+  _managerId: string
 ) {
+  const access = await requireGuildAccess(guildId)
+  if ('error' in access) {
+    return { success: false, message: access.error }
+  }
+  const managerId = access.session.userId!
+
+  const blocked = await blockPanelMaintenanceAction(guildId, access)
+  if (blocked) return blocked
+
   try {
     const user = await User.findOne({ userId, guildId })
     if (!user) return { success: false, message: 'User not registered.' }
@@ -250,6 +331,7 @@ export async function resetBalance(
     })
 
     const guildConfig = await GuildConfiguration.findOne({ guildId })
+    const globalSettings = normalizeGlobalSettings(guildConfig?.globalSettings)
     const logChannelId = guildConfig?.atmChannelIds.logs
     const actionsChannelId = guildConfig?.atmChannelIds.actions
     if (logChannelId) {
@@ -271,7 +353,7 @@ export async function resetBalance(
           actionsChannelId,
           'ATM - Reset Balance via Web',
           `An administrator has reset <@${userId}>'s balance and cleared transaction history.\n` +
-            `**New Balance:** $0`,
+            `**New Balance:** ${money(0, globalSettings)}`,
           0x1abc9c,
           userId
         )
@@ -290,14 +372,23 @@ export async function resetBalance(
 export async function bonusBalance(
   userId: string,
   guildId: string,
-  managerId: string,
+  _managerId: string,
   amount: number
 ) {
+  const access = await requireGuildAccess(guildId)
+  if ('error' in access) {
+    return { success: false, message: access.error }
+  }
+  const managerId = access.session.userId!
+
+  const blocked = await blockPanelFeatureAction(guildId, 'dailyBonus', access)
+  if (blocked) return blocked
+
   try {
     const user = await User.findOne({ userId, guildId })
     if (!user) return { success: false, message: 'User not registered.' }
 
-    user.balance += amount
+    user.bonusBalance = (user.bonusBalance ?? 0) + amount
     await user.save()
 
     await Transaction.create({
@@ -311,38 +402,53 @@ export async function bonusBalance(
     })
 
     const guildConfig = await GuildConfiguration.findOne({ guildId })
+    const globalSettings = normalizeGlobalSettings(guildConfig?.globalSettings)
     const logChannelId = guildConfig?.atmChannelIds.logs
+    const actionsChannelId = guildConfig?.atmChannelIds.actions
+    const bonusBalanceAmount = user.bonusBalance ?? 0
+    const totalBalance = user.balance + bonusBalanceAmount
+
     if (logChannelId) {
       try {
         await sendEmbed(
           logChannelId,
           'ATM - Bonus Given via Web',
-          `Manager <@${managerId}> successfully given **$${formatNumberToReadableString(
-            amount
-          )}** bonus to <@${userId}>.\nTheir new balance is now: **$${formatNumberToReadableString(
-            user.balance
-          )}**.`,
+          `Manager <@${managerId}> successfully given **${money(
+            amount,
+            globalSettings
+          )}** bonus to <@${userId}>.\n` +
+            `Bonus balance: **${money(bonusBalanceAmount, globalSettings)}**\n` +
+            `Total balance: **${money(totalBalance, globalSettings)}**`,
           0x57f287
         )
-
-        // TODO: edit this
-        // TODO: fix this
-        // await sendEmbed(
-        //   logChannelId,
-        //   'ATM - Bonus Given via Web',
-        //   `Manager <@${managerId}> successfully given **$${formatNumberToReadableString(
-        //     amount
-        //   )}** bonus to <@${userId}>.\nTheir new balance is now: **$${formatNumberToReadableString(
-        //     user.balance
-        //   )}**.`,
-        //   0x57f287
-        // )
       } catch {
         return { success: false, message: 'Failed to send log message' }
       }
     }
 
-    return { success: true, message: `Bonus given $${amount} to user.` }
+    if (actionsChannelId) {
+      try {
+        await sendEmbed(
+          actionsChannelId,
+          'ATM - Bonus Given via Web',
+          `An administrator has given **${money(
+            amount,
+            globalSettings
+          )}** bonus to <@${userId}>.\n` +
+            `**Bonus Balance:** ${money(bonusBalanceAmount, globalSettings)}\n` +
+            `**Total Balance:** ${money(totalBalance, globalSettings)}`,
+          0x57f287,
+          userId
+        )
+      } catch {
+        return { success: false, message: 'Failed to send action message' }
+      }
+    }
+
+    return {
+      success: true,
+      message: `Bonus given ${money(amount, globalSettings)} to user.`
+    }
   } catch (err) {
     console.error('Error giving bonus:', err)
     return { success: false, message: 'Server error, please try again.' }
@@ -357,7 +463,8 @@ export async function getUsers(
   search?: string,
   sort?: string
 ): Promise<{ users: TGuildMemberStatus[]; total: number }> {
-  if (!session?.accessToken || page < 1 || limit < 1 || limit > 50) {
+  const access = await requireGuildAccess(guildId)
+  if ('error' in access || page < 1 || limit < 1 || limit > 50) {
     return {
       users: [],
       total: 0

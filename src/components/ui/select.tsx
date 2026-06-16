@@ -1,10 +1,12 @@
 'use client'
 
+import { type VariantProps } from 'class-variance-authority'
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
 import { Select as SelectPrimitive } from 'radix-ui'
 
 import * as React from 'react'
 
+import { fieldControlVariants } from '@/components/ui/field-styles'
 import { cn } from '@/lib/utils'
 
 function Select({
@@ -28,13 +30,16 @@ function SelectValue({
 function SelectTrigger({
   className,
   children,
+  variant,
   ...props
-}: React.ComponentProps<typeof SelectPrimitive.Trigger>) {
+}: React.ComponentProps<typeof SelectPrimitive.Trigger> &
+  VariantProps<typeof fieldControlVariants>) {
   return (
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
       className={cn(
-        'border-input text-foreground data-placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive flex h-9 w-full items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&>span]:line-clamp-1',
+        fieldControlVariants({ variant }),
+        'text-foreground data-placeholder:text-muted-foreground flex items-center justify-between gap-2 px-3 py-2 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&>span]:line-clamp-1',
         className
       )}
       {...props}
@@ -92,7 +97,7 @@ function SelectLabel({
     <SelectPrimitive.Label
       data-slot="select-label"
       className={cn(
-        'text-muted-foreground py-1.5 ps-8 pe-2 text-xs font-medium',
+        'text-muted-foreground py-1.5 pl-8 pr-2 text-xs font-medium',
         className
       )}
       {...props}
@@ -109,12 +114,12 @@ function SelectItem({
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        'focus:bg-accent focus:text-accent-foreground relative flex w-full cursor-default items-center rounded py-1.5 ps-8 pe-2 text-sm outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50',
+        'focus:bg-accent focus:text-accent-foreground relative flex w-full cursor-default items-center rounded py-1.5 pl-8 pr-2 text-sm outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50',
         className
       )}
       {...props}
     >
-      <span className="absolute start-2 flex size-3.5 items-center justify-center">
+      <span className="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
         <SelectPrimitive.ItemIndicator>
           <CheckIcon size={16} />
         </SelectPrimitive.ItemIndicator>

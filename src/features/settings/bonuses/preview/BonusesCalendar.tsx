@@ -1,9 +1,22 @@
-import { PreviewDay } from 'gambling-bot-shared'
+'use client'
 
-import { formatNumberToReadableString } from 'gambling-bot-shared'
+import { type PreviewDay } from 'gambling-bot-shared/bonus'
+import { type GlobalSettings } from 'gambling-bot-shared/guild'
+import { Tooltip as TooltipPrimitive } from 'radix-ui'
+
+import { Card, CardContent } from '@/components/ui/card'
+import {
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
+import { formatGuildMoney } from '@/lib/guild/guildMoney'
+import { cn } from '@/lib/utils'
 
 type BonusesCalendarProps = {
   preview: PreviewDay[]
+  globalSettings: GlobalSettings
+  compact?: boolean
 }
 
 const chunkIntoWeeks = (days: PreviewDay[]): PreviewDay[][] => {
@@ -16,82 +29,162 @@ const chunkIntoWeeks = (days: PreviewDay[]): PreviewDay[][] => {
   return result
 }
 
-const DayCard = ({ day }: { day: PreviewDay }) => {
+const getDayCellStyle = (day: PreviewDay) => {
+  const isWeekly = day.day % 7 === 0 && day.weekly > 0
+  const isMonthly = day.day % 28 === 0 && day.monthly > 0
+
+  if (isMonthly) {
+    return 'border-chart-4/50 bg-chart-4/20 hover:bg-chart-4/30'
+  }
+  if (isWeekly) {
+    return 'border-chart-2/50 bg-chart-2/20 hover:bg-chart-2/30'
+  }
+  if (day.isReset) {
+    return 'border-destructive/50 bg-destructive/15 hover:bg-destructive/25'
+  }
+  return 'border-chart-3/30 bg-chart-3/10 hover:bg-chart-3/20'
+}
+
+const DayCell = ({
+  day,
+  globalSettings
+}: {
+  day: PreviewDay
+  globalSettings: GlobalSettings
+}) => {
   const { day: dayNumber, reward, base, weekly, monthly, isReset } = day
+  const isWeekly = dayNumber % 7 === 0 && weekly > 0
+  const isMonthly = dayNumber % 28 === 0 && monthly > 0
 
   return (
-    <div
-      className={[
-        'flex flex-col rounded-md border border-neutral-800 bg-neutral-900/60 p-2 text-xs',
-        'transition-colors',
-        isReset ? 'border-red-700/60 bg-red-950/30' : ''
-      ].join(' ')}
-    >
-      <span className="text-xs tracking-wide text-neutral-500">
-        #{dayNumber}
-      </span>
-
-      <div className="mt-1 space-y-0.5 text-xs">
-        <span className="text-yellow-400">
-          T: {formatNumberToReadableString(reward)}
-        </span>
-
-        <div className="text-neutral-400">
-          B: {formatNumberToReadableString(base)}
+    <TooltipPrimitive.Root>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            'flex aspect-square min-w-0 w-full flex-col items-center justify-center gap-0.5 rounded-md border p-1 text-center',
+            'cursor-default transition-colors',
+            getDayCellStyle(day)
+          )}
+        >
+          <span className="text-[10px] leading-none text-muted-foreground">
+            {dayNumber}
+          </span>
+          <span className="w-full truncate text-[11px] font-semibold leading-tight text-foreground">
+            {formatGuildMoney(reward, globalSettings)}
+          </span>
+        </button>
+      </TooltipTrigger>
+      <TooltipContent
+        side="top"
+        hideArrow
+        sideOffset={4}
+        className="border-border/60 bg-background text-foreground shadow-xl"
+      >
+        <div className="space-y-1.5">
+          <p className="font-medium">Day {dayNumber}</p>
+          <div className="space-y-0.5 text-muted-foreground">
+            <div className="flex items-center gap-1.5">
+              <span className="size-2 rounded-[2px] bg-chart-3" />
+              Base: {formatGuildMoney(base, globalSettings)}
+            </div>
+            {weekly > 0 && (
+              <div className="flex items-center gap-1.5">
+                <span className="size-2 rounded-[2px] bg-chart-2" />
+                Weekly: {formatGuildMoney(weekly, globalSettings)}
+              </div>
+            )}
+            {monthly > 0 && (
+              <div className="flex items-center gap-1.5">
+                <span className="size-2 rounded-[2px] bg-chart-4" />
+                Monthly: {formatGuildMoney(monthly, globalSettings)}
+              </div>
+            )}
+          </div>
+          {(isReset || isWeekly || isMonthly) && (
+            <div className="flex flex-wrap gap-1 border-t border-border/60 pt-1.5">
+              {isReset && (
+                <span className="rounded-full bg-destructive/15 px-1.5 py-0.5 text-[10px] font-medium text-destructive">
+                  Cap reset
+                </span>
+              )}
+              {isWeekly && (
+                <span className="rounded-full bg-chart-2/20 px-1.5 py-0.5 text-[10px] font-medium text-chart-2">
+                  Weekly
+                </span>
+              )}
+              {isMonthly && (
+                <span className="rounded-full bg-chart-4/20 px-1.5 py-0.5 text-[10px] font-medium text-chart-4">
+                  Monthly
+                </span>
+              )}
+            </div>
+          )}
         </div>
-
-        {weekly > 0 && (
-          <div className="text-blue-400">
-            W: {formatNumberToReadableString(weekly)}
-          </div>
-        )}
-
-        {monthly > 0 && (
-          <div className="font-semibold text-green-400">
-            M: {formatNumberToReadableString(monthly)}
-          </div>
-        )}
-      </div>
-    </div>
+      </TooltipContent>
+    </TooltipPrimitive.Root>
   )
 }
 
-const BonusesCalendar = ({ preview }: BonusesCalendarProps) => {
+const BonusesCalendar = ({
+  preview,
+  globalSettings,
+  compact = false
+}: BonusesCalendarProps) => {
   const weeks = chunkIntoWeeks(preview)
 
   return (
-    <section className="w-full rounded-lg border border-neutral-800 bg-neutral-950/60 p-4 text-white">
-      <header className="mb-4 flex items-center justify-between">
-        <h5 className="text-base font-semibold text-yellow-400">
-          Preview ({preview.length} Days)
-        </h5>
+    <Card className="gap-0 border-dashed py-4 shadow-none">
+      <CardContent className="space-y-3 pt-0">
+        <TooltipProvider delayDuration={200}>
+          <div
+            className={cn(
+              'space-y-2',
+              compact && 'max-h-72 overflow-y-auto pr-1'
+            )}
+          >
+            {weeks.map((week, index) => {
+              const showDivider = index !== 0 && index % 4 === 0
 
-        <div className="flex items-center gap-3 text-xs">
-          <span className="text-yellow-400 font-medium">T = Total</span>
-          <span className="text-neutral-400">B = Base</span>
-          <span className="text-blue-400">W = Weekly</span>
-          <span className="text-green-400">M = Monthly</span>
+              return (
+                <div key={index} className="space-y-2">
+                  {showDivider && <div className="h-px w-full bg-border/60" />}
+
+                  <div className="grid grid-cols-7 gap-1.5">
+                    {week.map((day) => (
+                      <DayCell
+                        key={day.day}
+                        day={day}
+                        globalSettings={globalSettings}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </TooltipProvider>
+
+        <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+          <span className="flex items-center gap-1">
+            <span className="size-2 rounded-[2px] bg-chart-3/40" />
+            Base
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="size-2 rounded-[2px] bg-chart-2/40" />
+            Weekly
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="size-2 rounded-[2px] bg-chart-4/40" />
+            Monthly
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="size-2 rounded-full bg-destructive" />
+            Cap reset
+          </span>
         </div>
-      </header>
-
-      <div className="hide-scrollbar max-h-180 space-y-2 overflow-y-auto pr-1">
-        {weeks.map((week, index) => {
-          const showDivider = index !== 0 && index % 4 === 0
-
-          return (
-            <div key={index} className="space-y-2">
-              {showDivider && <div className="h-px w-full bg-yellow-500/20" />}
-
-              <div className="grid grid-cols-7 gap-1">
-                {week.map((day) => (
-                  <DayCard key={day.day} day={day} />
-                ))}
-              </div>
-            </div>
-          )
-        })}
-      </div>
-    </section>
+      </CardContent>
+    </Card>
   )
 }
 

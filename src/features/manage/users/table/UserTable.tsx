@@ -1,21 +1,23 @@
 'use client'
 
+import type { GlobalSettings } from 'gambling-bot-shared/guild'
+
 import { useEffect, useRef } from 'react'
 
-import { useSearchParams } from 'next/dist/client/components/navigation'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 import {
   CustomTableBody,
   CustomTableHeader,
-  CustomTablePagination
+  CustomTablePagination,
+  ServerTablePageLayout
 } from '@/components/table'
 import { Table } from '@/components/ui/table'
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
 import { useHydrateServerTableFromUrl } from '@/hooks/useHydrateServerTableFromUrl'
 import { useServerTable } from '@/hooks/useServerTable'
 import { useUpdateUrl } from '@/hooks/useUpdateUrl'
-import { formatNumberToReadableString } from 'gambling-bot-shared'
+import { formatGuildMoney } from '@/lib/guild/guildMoney'
 import { TGuildMemberStatus } from '@/types/types'
 
 import UserTableFooter from './UserTableFooter'
@@ -23,6 +25,8 @@ import UsersTableFilters from './UsersTableFilters'
 import { userColumns } from './userColumns'
 
 type UserTableProps = {
+  globalSettings: GlobalSettings
+  isGuildAdmin: boolean
   users: TGuildMemberStatus[]
   page: number
   limit: number
@@ -32,6 +36,8 @@ type UserTableProps = {
 }
 
 const UserTable = ({
+  globalSettings,
+  isGuildAdmin,
   users,
   page,
   limit,
@@ -50,6 +56,8 @@ const UserTable = ({
       columns: userColumns({
         guildId,
         managerId,
+        globalSettings,
+        isGuildAdmin,
         onUserUpdated: () => {
           router.refresh()
         }
@@ -116,33 +124,32 @@ const UserTable = ({
     .filter((u) => u.registered)
     .reduce((acc, u) => acc + (u.netProfit || 0), 0)
 
-  const totalBalanceStr = `$${formatNumberToReadableString(totalBalance)}`
-  const totalProfitStr = `$${formatNumberToReadableString(totalNetProfit)}`
+  const totalBalanceStr = formatGuildMoney(totalBalance, globalSettings)
+  const totalProfitStr = formatGuildMoney(totalNetProfit, globalSettings)
 
   return (
-    <div className="w-5xl space-y-4">
-      <UsersTableFilters
-        table={table}
-        isLoading={isLoading}
-        setIsLoading={setIsLoading}
-        searchRef={searchRef}
-      />
-
-      <div className="overflow-hidden rounded-md border">
-        <Table className="w-full table-auto">
-          <CustomTableHeader table={table} />
-          <CustomTableBody table={table} isLoading={isLoading} />
-          <UserTableFooter
-            totalBalanceStr={totalBalanceStr}
-            totalNetProfit={totalNetProfit}
-            totalProfitStr={totalProfitStr}
-            data={users}
-          />
-        </Table>
-      </div>
-
-      <CustomTablePagination table={table} total={total} />
-    </div>
+    <ServerTablePageLayout
+      toolbar={
+        <UsersTableFilters
+          table={table}
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
+          searchRef={searchRef}
+        />
+      }
+      pagination={<CustomTablePagination table={table} total={total} />}
+    >
+      <Table className="w-full table-auto">
+        <CustomTableHeader table={table} />
+        <CustomTableBody table={table} isLoading={isLoading} />
+        <UserTableFooter
+          totalBalanceStr={totalBalanceStr}
+          totalNetProfit={totalNetProfit}
+          totalProfitStr={totalProfitStr}
+          data={users}
+        />
+      </Table>
+    </ServerTablePageLayout>
   )
 }
 

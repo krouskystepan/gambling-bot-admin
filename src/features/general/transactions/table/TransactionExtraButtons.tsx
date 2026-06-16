@@ -1,5 +1,5 @@
 import { Table } from '@tanstack/react-table'
-import { Eraser, RefreshCcw } from 'lucide-react'
+import { Download, Eraser, RefreshCcw } from 'lucide-react'
 
 import { useRouter } from 'next/navigation'
 
@@ -9,13 +9,16 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { buildTransactionExportUrl } from '@/lib/export/exportUrls'
 import { TTransactionDiscord } from '@/types/types'
 
 const TransactionExtraButtons = ({
+  guildId,
   table,
   isLoading,
   setIsLoading
 }: {
+  guildId: string
   table: Table<TTransactionDiscord>
   isLoading: boolean
   setIsLoading: (value: boolean) => void
@@ -28,8 +31,31 @@ const TransactionExtraButtons = ({
     router.replace(`${window.location.pathname}`, { scroll: false })
   }
 
+  const exportHref =
+    typeof window !== 'undefined'
+      ? buildTransactionExportUrl(guildId, window.location.search)
+      : '#'
+
   return (
     <>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            className="flex h-9.5 items-center justify-center"
+            variant="secondary"
+            size="icon"
+            asChild
+          >
+            <a href={exportHref} download>
+              <Download className="h-4 w-4" />
+            </a>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Export CSV</p>
+        </TooltipContent>
+      </Tooltip>
+
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
@@ -50,12 +76,12 @@ const TransactionExtraButtons = ({
         <TooltipTrigger asChild>
           <Button
             variant="secondary"
+            size="icon"
             onClick={() => {
               setIsLoading(true)
               const url = new URL(window.location.href)
               router.replace(url.pathname + url.search, { scroll: false })
             }}
-            className="flex h-9.5 items-center justify-between"
             disabled={isLoading}
           >
             <RefreshCcw

@@ -1,15 +1,11 @@
-import { CircleQuestionMark } from 'lucide-react'
+import type { GlobalSettings } from 'gambling-bot-shared/guild'
 
-import { Label } from '@/components/ui/label'
+import { KpiStripMetric } from '@/components/KpiStrip'
+import { Card, CardContent } from '@/components/ui/card'
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from '@/components/ui/tooltip'
-import {
-  formatNumberToReadableString,
-  formatNumberWithSpaces
-} from 'gambling-bot-shared'
+  formatOverviewCount,
+  formatOverviewCurrency
+} from '@/lib/overview/overviewFormatters'
 import { ITransactionCounts } from '@/types/types'
 
 const getCashFlowFormula = (counts: ITransactionCounts) => {
@@ -32,12 +28,10 @@ const getPnLFormula = (counts: ITransactionCounts) => {
 
   let formula = ''
 
-  // positive types: + win + bonus + refund
   positiveTypes.forEach((t) => {
     if (counts.type[t]) formula += formula ? ` + ${t}` : t
   })
 
-  // negative types: - bet - vip
   negativeTypes.forEach((t) => {
     if (counts.type[t]) formula += formula ? ` - ${t}` : t
   })
@@ -46,123 +40,71 @@ const getPnLFormula = (counts: ITransactionCounts) => {
 }
 
 interface SummaryPanelProps {
+  globalSettings: GlobalSettings
   cashFlow: number
   gamePnL: number
   counts: ITransactionCounts
 }
 
 const TransactionTableSummary = ({
+  globalSettings,
   cashFlow,
   gamePnL,
   counts
 }: SummaryPanelProps) => {
-  const formatCurrency = (value: number) => {
-    const roundedValue = Math.round(value)
-    const base = formatNumberWithSpaces(Math.abs(roundedValue))
-    return roundedValue < 0 ? `-$${base}` : `$${base}`
-  }
+  const formatCurrency = (value: number) =>
+    formatOverviewCurrency(value, globalSettings)
+  const activeTypesNote = 'Only active items are counted.'
+
+  const countMetrics = [
+    { label: 'Deposits', value: counts.type.deposit },
+    { label: 'Withdraws', value: counts.type.withdraw },
+    { label: 'Bets', value: counts.type.bet },
+    { label: 'Vips', value: counts.type.vip },
+    { label: 'Wins', value: counts.type.win },
+    { label: 'Bonuses', value: counts.type.bonus },
+    { label: 'Refunds', value: counts.type.refund }
+  ] as const
 
   return (
-    <section className="mt-4 flex h-fit flex-wrap justify-center gap-8 rounded-md border p-4">
-      <SummaryItem
-        label="Cash Flow"
-        value={cashFlow}
-        formatter={formatCurrency}
-        positiveIsGreen
-        tooltip={getCashFlowFormula(counts)}
-      />
-      <SummaryItem
-        label="Profit / Loss"
-        value={gamePnL}
-        formatter={formatCurrency}
-        positiveIsGreen
-        tooltip={getPnLFormula(counts)}
-      />
-      <SummaryItem
-        label="Deposits"
-        value={counts.type.deposit}
-        formatter={formatNumberToReadableString}
-      />
-      <SummaryItem
-        label="Withdraws"
-        value={counts.type.withdraw}
-        formatter={formatNumberToReadableString}
-      />
-      <SummaryItem
-        label="Bets"
-        value={counts.type.bet}
-        formatter={formatNumberToReadableString}
-      />
-      <SummaryItem
-        label="Vips"
-        value={counts.type.vip}
-        formatter={formatNumberToReadableString}
-      />
-      <SummaryItem
-        label="Wins"
-        value={counts.type.win}
-        formatter={formatNumberToReadableString}
-      />
-      <SummaryItem
-        label="Bonuses"
-        value={counts.type.bonus}
-        formatter={formatNumberToReadableString}
-      />
-      <SummaryItem
-        label="Refunds"
-        value={counts.type.refund}
-        formatter={formatNumberToReadableString}
-      />
-    </section>
-  )
-}
+    <Card className="py-4">
+      <CardContent>
+        <div className="flex w-full flex-col gap-4 lg:flex-row lg:items-stretch lg:gap-6">
+          <div className="grid shrink-0 grid-cols-2 gap-x-6 gap-y-4 lg:flex-2 lg:grid-cols-2">
+            <KpiStripMetric
+              label="Cash flow"
+              value={cashFlow}
+              positiveIsGreen
+              formatter={formatCurrency}
+              tooltip={`${activeTypesNote} ${getCashFlowFormula(counts)}`}
+            />
+            <KpiStripMetric
+              label="Profit / Loss"
+              value={gamePnL}
+              positiveIsGreen
+              formatter={formatCurrency}
+              tooltip={`${activeTypesNote} ${getPnLFormula(counts)}`}
+            />
+          </div>
 
-interface SummaryItemProps {
-  label: string
-  value: number
-  positiveIsGreen?: boolean
-  tooltip?: string
-  formatter?: (value: number) => React.ReactNode
-}
+          <div
+            className="hidden shrink-0 bg-border lg:block lg:w-px"
+            aria-hidden
+          />
 
-const SummaryItem = ({
-  label,
-  value,
-  positiveIsGreen = false,
-  tooltip = undefined,
-  formatter
-}: SummaryItemProps) => {
-  const colorClass = positiveIsGreen
-    ? value >= 0
-      ? 'text-green-600'
-      : 'text-red-600'
-    : 'text-white'
-
-  const displayValue = formatter ? formatter(value) : value
-
-  return (
-    <div>
-      <Label className="inline-flex items-center gap-1 text-sm text-gray-500">
-        {label}
-        {tooltip ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <CircleQuestionMark
-                size={16}
-                className="cursor-pointer text-gray-500"
+          <div className="grid min-w-0 flex-1 grid-cols-2 gap-x-4 gap-y-4 border-t border-border pt-4 sm:grid-cols-4 lg:flex-7 lg:grid-cols-7 lg:border-t-0 lg:pt-0">
+            {countMetrics.map(({ label, value }) => (
+              <KpiStripMetric
+                key={label}
+                label={label}
+                value={value}
+                formatter={formatOverviewCount}
               />
-            </TooltipTrigger>
-            <TooltipContent className="flex max-w-sm flex-col">
-              <span className="font-semibold">
-                Only active items are counted.
-              </span>
-              <span>{tooltip}</span>
-            </TooltipContent>
-          </Tooltip>
-        ) : null}
-      </Label>
-      <div className={`text-lg font-bold ${colorClass}`}>{displayValue}</div>
-    </div>
+            ))}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 

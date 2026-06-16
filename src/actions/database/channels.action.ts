@@ -2,16 +2,19 @@
 
 import { getServerSession } from 'next-auth'
 
-import { authOptions } from '@/lib/authOptions'
+import { authOptions } from '@/lib/auth/authOptions'
 import { connectToDatabase } from '@/lib/db'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import { TChannelsFormValues } from '@/types/types'
 
-import { getUserPermissions } from '../perms'
+import { getUserPermissions, requireGuildAccess } from '../perms'
 
 export async function getChannels(
   guildId: string
 ): Promise<TChannelsFormValues | null> {
+  const access = await requireGuildAccess(guildId, { requireAdmin: true })
+  if ('error' in access) return null
+
   await connectToDatabase()
 
   const doc = await GuildConfiguration.findOne({ guildId })
@@ -23,7 +26,8 @@ export async function getChannels(
       logs: doc.atmChannelIds?.logs ?? ''
     },
     casino: {
-      casinoChannelIds: doc.casinoChannelIds ?? []
+      casinoChannelIds: doc.casinoChannelIds ?? [],
+      winAnnouncementsChannelId: doc.winAnnouncementsChannelId ?? ''
     },
     prediction: {
       actions: doc.predictionChannelIds?.actions ?? '',
@@ -53,6 +57,7 @@ export async function saveChannels(
         'atmChannelIds.actions': values.atm.actions,
         'atmChannelIds.logs': values.atm.logs,
         casinoChannelIds: values.casino.casinoChannelIds,
+        winAnnouncementsChannelId: values.casino.winAnnouncementsChannelId,
         'predictionChannelIds.actions': values.prediction.actions,
         'predictionChannelIds.logs': values.prediction.logs,
         'raffleChannelIds.actions': values.raffle.actions,
@@ -68,7 +73,8 @@ export async function saveChannels(
       logs: updated.atmChannelIds.logs
     },
     casino: {
-      casinoChannelIds: updated.casinoChannelIds
+      casinoChannelIds: updated.casinoChannelIds,
+      winAnnouncementsChannelId: updated.winAnnouncementsChannelId ?? ''
     },
     prediction: {
       actions: updated.predictionChannelIds.actions,

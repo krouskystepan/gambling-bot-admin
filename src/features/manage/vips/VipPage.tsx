@@ -1,33 +1,49 @@
 import { getServerSession } from 'next-auth'
 
-import { getVips } from '@/actions/database/vipActions.action'
+import { getVipPageContext } from '@/actions/database/vipActions.action'
 import FeatureLayout from '@/features/FeatureLayout'
-import { authOptions } from '@/lib/authOptions'
+import { authOptions } from '@/lib/auth/authOptions'
 
 import VipTable from './table/VipTable'
+import { getVipsData, normalizeVipsSearchParams } from './useVips'
 
-const VipPage = async ({ guildId }: { guildId: string }) => {
+const VipPage = async ({
+  guildId,
+  searchParams
+}: {
+  guildId: string
+  searchParams?: {
+    page?: string
+    limit?: string
+    search?: string
+    sort?: string
+  }
+}) => {
   const session = await getServerSession(authOptions)
   if (!session) return null
 
-  const vips = await getVips(guildId, session!)
+  const query = normalizeVipsSearchParams(searchParams)
+  const [{ vips, total }, pageContext] = await Promise.all([
+    getVipsData(guildId, session, query),
+    getVipPageContext(guildId)
+  ])
 
-  const query = {
-    page: 1,
-    limit: 5
-  }
-
-  const total = 5
+  if (!pageContext) return null
 
   return (
     <FeatureLayout title={'VIPs Channels'}>
       <VipTable
-        vips={vips}
         guildId={guildId}
-        managerId={session.userId!}
+        vips={vips}
         page={query.page}
         limit={query.limit}
         total={total}
+        maxMembers={pageContext.maxMembers}
+        vipConfigured={pageContext.vipConfigured}
+        vipFeatureBlocked={pageContext.vipFeatureBlocked}
+        vipFeatureBlockMessage={pageContext.vipFeatureBlockMessage}
+        activeVipOwnerIds={pageContext.activeVipOwnerIds}
+        members={pageContext.members}
       />
     </FeatureLayout>
   )

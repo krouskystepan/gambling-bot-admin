@@ -3,7 +3,7 @@
 import { REST } from '@discordjs/rest'
 import { Routes } from 'discord-api-types/v10'
 
-import { discordBotRequest } from '@/lib/discordReq'
+import { discordBotRequest } from '@/lib/discord/discordReq'
 
 export const isBotInGuild = async (guildId: string): Promise<boolean> => {
   try {
@@ -21,6 +21,28 @@ export const isBotInGuild = async (guildId: string): Promise<boolean> => {
 const rest = new REST({ version: '10' }).setToken(
   process.env.DISCORD_BOT_TOKEN!
 )
+
+export async function editDiscordMessage(
+  channelId: string,
+  messageId: string,
+  content: string
+): Promise<void> {
+  if (!channelId || !messageId) return
+
+  try {
+    await rest.patch(Routes.channelMessage(channelId, messageId), {
+      body: {
+        content,
+        components: []
+      }
+    })
+  } catch (err) {
+    console.error(
+      `Failed to edit message ${messageId} in channel ${channelId}`,
+      err
+    )
+  }
+}
 
 export async function sendEmbed(
   channelId: string,

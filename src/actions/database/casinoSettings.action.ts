@@ -1,24 +1,28 @@
 'use server'
 
+import { normalizeCasinoSettings } from 'gambling-bot-shared/casino'
 import { getServerSession } from 'next-auth'
 
-import { authOptions } from '@/lib/authOptions'
+import { authOptions } from '@/lib/auth/authOptions'
 import { connectToDatabase } from '@/lib/db'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import { casinoSettingsSchema } from '@/types/schemas'
 import { TCasinoSettingsValues } from '@/types/types'
 
-import { getUserPermissions } from '../perms'
+import { getUserPermissions, requireGuildAccess } from '../perms'
 
 export async function getCasinoSettings(
   guildId: string
 ): Promise<TCasinoSettingsValues | null> {
+  const access = await requireGuildAccess(guildId, { requireAdmin: true })
+  if ('error' in access) return null
+
   await connectToDatabase()
 
   const doc = await GuildConfiguration.findOne({ guildId })
-  if (!doc) return null
+  if (!doc?.casinoSettings) return null
 
-  return doc.casinoSettings ?? null
+  return casinoSettingsSchema.parse(normalizeCasinoSettings(doc.casinoSettings))
 }
 
 export async function saveCasinoSettings(

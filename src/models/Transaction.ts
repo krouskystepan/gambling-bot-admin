@@ -1,7 +1,7 @@
 'server-only'
 
-import { type TTransaction } from 'gambling-bot-shared'
-import { TransactionSchema } from 'gambling-bot-shared/server'
+import { TransactionSchema } from 'gambling-bot-shared/mongoose'
+import { type TTransaction } from 'gambling-bot-shared/transactions'
 
 import { getModel } from '@/lib/db'
 

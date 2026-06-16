@@ -13,9 +13,11 @@ export interface TransactionsQuery {
   adminSearch?: string
   filterType?: string[]
   filterSource?: string[]
+  filterCasinoGame?: string[]
   dateFrom?: string
   dateTo?: string
   sort?: string
+  userId?: string
 }
 
 export interface TransactionsResult {
@@ -40,9 +42,11 @@ export async function getTransactionsData(
     query.adminSearch,
     query.filterType,
     query.filterSource,
+    query.filterCasinoGame,
     query.dateFrom,
     query.dateTo,
-    query.sort
+    query.sort,
+    query.userId
   )
 
   const transactionCounts = await getTransactionCounts(
@@ -50,10 +54,12 @@ export async function getTransactionsData(
     session,
     query.filterType,
     query.filterSource,
+    query.filterCasinoGame,
     query.search,
     query.adminSearch,
     query.dateFrom,
-    query.dateTo
+    query.dateTo,
+    query.userId
   )
 
   return {
@@ -72,6 +78,7 @@ type RawSearchParams = {
   adminSearch?: string
   filterType?: string
   filterSource?: string
+  filterCasinoGame?: string
   dateFrom?: string
   dateTo?: string
   sort?: string
@@ -84,6 +91,7 @@ type NormalizedSearchParams = {
   adminSearch?: string
   filterType: string[]
   filterSource: string[]
+  filterCasinoGame: string[]
   dateFrom?: string
   dateTo?: string
   sort?: string
@@ -102,6 +110,8 @@ export function normalizeTransactionsSearchParams(
     adminSearch: searchParams.adminSearch,
     filterType: searchParams.filterType?.split(',').filter(Boolean) ?? [],
     filterSource: searchParams.filterSource?.split(',').filter(Boolean) ?? [],
+    filterCasinoGame:
+      searchParams.filterCasinoGame?.split(',').filter(Boolean) ?? [],
     dateFrom: searchParams.dateFrom,
     dateTo: searchParams.dateTo,
     sort: searchParams.sort

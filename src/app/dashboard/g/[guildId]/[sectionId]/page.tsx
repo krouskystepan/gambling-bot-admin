@@ -1,4 +1,9 @@
+import { redirect } from 'next/navigation'
+
+import { getUserPermissions } from '@/actions/perms'
 import NotFoundBox from '@/components/states/NotFoundBox'
+import { requireSession } from '@/lib/auth/requireSession'
+import { canAccessSection } from '@/lib/guild/guildSectionAccess'
 
 import { SectionId, sections } from './sections'
 
@@ -16,6 +21,22 @@ const SectionPage = async ({ params, searchParams }: SectionPageProps) => {
 
   const Section = sections[sectionId as SectionId]
   if (!Section) return <NotFoundBox />
+
+  const session = await requireSession()
+  const { isAdmin, isManager, rateLimited } = await getUserPermissions(
+    guildId,
+    session
+  )
+
+  if (rateLimited) {
+    return null
+  }
+
+  if (!canAccessSection(sectionId as SectionId, { isAdmin, isManager })) {
+    redirect(
+      isAdmin || isManager ? `/dashboard/g/${guildId}/overview` : '/dashboard'
+    )
+  }
 
   return <Section guildId={guildId} searchParams={resolvedSearchParams} />
 }

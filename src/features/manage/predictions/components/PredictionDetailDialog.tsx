@@ -1,0 +1,133 @@
+'use client'
+
+import Image from 'next/image'
+import Link from 'next/link'
+
+import { Badge } from '@/components/ui/badge'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { formatGuildMoney } from '@/lib/guild/guildMoney'
+import { TPredictionDetail } from '@/types/types'
+
+type PredictionDetailDialogProps = {
+  guildId: string
+  predictionId: string | null
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  detail: TPredictionDetail | null
+  loading: boolean
+  error: string | null
+}
+
+const statusBadgeClass: Record<TPredictionDetail['status'], string> = {
+  active: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400',
+  ended: 'bg-amber-500/15 text-amber-700 dark:text-amber-400',
+  paying: 'bg-blue-500/15 text-blue-700 dark:text-blue-400',
+  paid: 'bg-sky-500/15 text-sky-700 dark:text-sky-400',
+  canceled: 'bg-red-500/15 text-red-700 dark:text-red-400'
+}
+
+const PredictionDetailDialog = ({
+  guildId,
+  predictionId,
+  open,
+  onOpenChange,
+  detail,
+  loading,
+  error
+}: PredictionDetailDialogProps) => {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle>{detail?.title ?? 'Prediction detail'}</DialogTitle>
+          <DialogDescription>
+            {predictionId ? `ID: ${predictionId}` : 'Loading prediction...'}
+          </DialogDescription>
+        </DialogHeader>
+
+        {loading ? (
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        ) : error ? (
+          <p className="text-sm text-destructive">{error}</p>
+        ) : detail ? (
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge
+                className={`${statusBadgeClass[detail.status]} capitalize`}
+              >
+                {detail.status}
+              </Badge>
+              <span className="text-sm text-muted-foreground">
+                Total bets: {formatGuildMoney(detail.totalBetAmount)}
+              </span>
+              <span className="text-sm text-muted-foreground">
+                Bettors: {detail.bettorCount}
+              </span>
+            </div>
+
+            {detail.autolock ? (
+              <p className="text-sm text-muted-foreground">
+                Auto-lock: {new Date(detail.autolock).toLocaleString('cs-CZ')}
+              </p>
+            ) : null}
+
+            <ScrollArea className="max-h-80 pr-3">
+              <div className="space-y-4">
+                {detail.choices.map((choice) => (
+                  <div
+                    key={choice.choiceName}
+                    className="rounded-md border p-3"
+                  >
+                    <p className="font-medium">
+                      {choice.choiceName} ({choice.odds}x)
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Bets: {choice.betCount} · Total:{' '}
+                      {formatGuildMoney(choice.totalBetAmount)} · Payout if
+                      wins: {formatGuildMoney(choice.payoutIfWins)}
+                    </p>
+                    <div className="mt-2 space-y-2">
+                      {choice.bets.length > 0 ? (
+                        choice.bets.map((bet) => (
+                          <Link
+                            key={bet.betId}
+                            href={`/dashboard/g/${guildId}/users/${bet.userId}`}
+                            className="flex items-center gap-2 text-sm hover:text-primary"
+                          >
+                            <Image
+                              className="rounded-full"
+                              width={20}
+                              height={20}
+                              alt={bet.username}
+                              src={bet.avatar}
+                            />
+                            <span>
+                              {bet.username} — {formatGuildMoney(bet.amount)}
+                            </span>
+                          </Link>
+                        ))
+                      ) : (
+                        <p className="text-sm italic text-muted-foreground">
+                          No bets
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+        ) : null}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+export default PredictionDetailDialog

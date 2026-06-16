@@ -1,21 +1,29 @@
 'use client'
 
 import {
-  GAME_RECORD_FIELDS,
   defaultCasinoSettings,
-  getReadableName,
-  readableGameValueNames,
+  readableGameValueNames
+} from 'gambling-bot-shared/casino'
+import {
+  GAME_RECORD_FIELDS,
   type GameWithRecords
-} from 'gambling-bot-shared'
-import { Path, UseFormReturn, useWatch } from 'react-hook-form'
+} from 'gambling-bot-shared/casino'
+import { getReadableName } from 'gambling-bot-shared/common'
+import { Path, useWatch } from 'react-hook-form'
 
-import { TCasinoSettingsOutput, TCasinoSettingsValues } from '@/types/types'
+import {
+  TCasinoSettingsForm,
+  TCasinoSettingsInput,
+  TCasinoSettingsValues
+} from '@/types/types'
+
 import { NumberField } from './fields/NumberField'
+import { PlinkoBinFields } from './fields/PlinkoBinFields'
 import { RecordFields } from './fields/RecordFields'
 
 type Props = {
   game: keyof TCasinoSettingsValues
-  form: UseFormReturn<TCasinoSettingsOutput>
+  form: TCasinoSettingsForm
 }
 
 const GameSection = ({ game, form }: Props) => {
@@ -32,12 +40,18 @@ const GameSection = ({ game, form }: Props) => {
 
   return (
     <>
+      {game === 'winAnnouncements' && (
+        <p className="mb-3 text-xs text-muted-foreground">
+          Minimum win multiplier to announce in the configured channel. 0 =
+          disabled.
+        </p>
+      )}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
         {numericKeys.map((key) => (
           <NumberField
             key={String(key)}
             form={form}
-            name={`${game}.${key}` as Path<TCasinoSettingsValues>}
+            name={`${game}.${key}` as Path<TCasinoSettingsInput>}
             label={getReadableName(String(key), readableGameValueNames)}
             defaultValue={
               defaultCasinoSettings[game][
@@ -49,20 +63,24 @@ const GameSection = ({ game, form }: Props) => {
       </div>
 
       {game in GAME_RECORD_FIELDS &&
-        GAME_RECORD_FIELDS[game as GameWithRecords].map((recordKey) => (
-          <RecordFields
-            key={recordKey}
-            game={game as GameWithRecords}
-            recordKey={recordKey}
-            values={
-              settings?.[recordKey as keyof typeof settings] as Record<
-                string,
-                number
-              >
-            }
-            form={form}
-          />
-        ))}
+        GAME_RECORD_FIELDS[game as GameWithRecords].map((recordKey) =>
+          game === 'plinko' && recordKey === 'binMultipliers' ? (
+            <PlinkoBinFields key={recordKey} form={form} />
+          ) : (
+            <RecordFields
+              key={recordKey}
+              game={game as GameWithRecords}
+              recordKey={recordKey}
+              values={
+                settings?.[recordKey as keyof typeof settings] as Record<
+                  string,
+                  number
+                >
+              }
+              form={form}
+            />
+          )
+        )}
     </>
   )
 }
