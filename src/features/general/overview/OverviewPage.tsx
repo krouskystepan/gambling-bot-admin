@@ -4,17 +4,16 @@ import {
   getGuildOverviewTimezone,
   getOverviewData
 } from '@/actions/database/overview.action'
-import { getUserPermissions } from '@/actions/perms'
 import FeatureLayout from '@/features/FeatureLayout'
 import { authOptions } from '@/lib/auth/authOptions'
 
 import OverviewDailyPnLChart from './components/OverviewDailyPnLChart'
+import OverviewHealthLink from './components/OverviewHealthLink'
 import OverviewKpiGrid from './components/OverviewKpiGrid'
 import OverviewPeriodSelect from './components/OverviewPeriodSelect'
 import OverviewRecentTransactions from './components/OverviewRecentTransactions'
 import OverviewSourceChart from './components/OverviewSourceChart'
 import OverviewTopUsersPanel from './components/OverviewTopUsersPanel'
-import SetupHealthCard from './components/SetupHealthCard'
 import { resolveOverviewDateRange } from './period'
 
 const OverviewPage = async ({
@@ -35,8 +34,6 @@ const OverviewPage = async ({
   const data = await getOverviewData(guildId, session, range)
   if (!data) return null
 
-  const { isAdmin } = await getUserPermissions(guildId, session)
-
   return (
     <FeatureLayout
       title="Overview"
@@ -54,6 +51,8 @@ const OverviewPage = async ({
           totalLiability={data.totalLiability}
           vipRoomCount={data.vipRoomCount}
         />
+
+        <OverviewHealthLink guildId={guildId} />
 
         <div className="grid min-h-[400px] gap-6 lg:grid-cols-2">
           <OverviewDailyPnLChart
@@ -80,8 +79,6 @@ const OverviewPage = async ({
           topByBalance={data.topByBalance}
           topByNetProfit={data.topByNetProfit}
         />
-
-        {isAdmin ? <SetupHealthCard checks={data.setupHealth} /> : null}
       </div>
     </FeatureLayout>
   )

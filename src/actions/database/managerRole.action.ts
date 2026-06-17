@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth'
 
 import { authOptions } from '@/lib/auth/authOptions'
 import { connectToDatabase } from '@/lib/db'
+import { revalidateGuildHealth } from '@/lib/guild/revalidateHealth'
 import GuildConfiguration from '@/models/GuildConfiguration'
 
 import { getUserPermissions, requireGuildAccess } from '../perms'
@@ -31,5 +32,6 @@ export async function saveManagerRole(guildId: string, managerRoleId: string) {
     { $set: { managerRoleId } },
     { new: true, upsert: true }
   )
+  revalidateGuildHealth(guildId)
   return updated?.managerRoleId ?? ''
 }

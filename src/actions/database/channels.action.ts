@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth'
 
 import { authOptions } from '@/lib/auth/authOptions'
 import { connectToDatabase } from '@/lib/db'
+import { revalidateGuildHealth } from '@/lib/guild/revalidateHealth'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import { TChannelsFormValues } from '@/types/types'
 
@@ -66,6 +67,8 @@ export async function saveChannels(
     },
     { new: true, upsert: true }
   )
+
+  revalidateGuildHealth(guildId)
 
   return {
     atm: {

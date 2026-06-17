@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth'
 
 import { authOptions } from '@/lib/auth/authOptions'
 import { connectToDatabase } from '@/lib/db'
+import { revalidateGuildHealth } from '@/lib/guild/revalidateHealth'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import { TVipSettingsValues } from '@/types/types'
 
@@ -48,6 +49,8 @@ export async function saveVipSettings(
   )
 
   if (!updatedDoc) return null
+
+  revalidateGuildHealth(guildId)
 
   return {
     roleOwnerId: updatedDoc.vipSettings?.roleOwnerId ?? '',

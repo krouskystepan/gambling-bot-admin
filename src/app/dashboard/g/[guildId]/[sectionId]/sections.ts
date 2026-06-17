@@ -4,6 +4,7 @@ import {
   CasinoSettingsPage,
   ChannelSettingsPage,
   GlobalSettingsPage,
+  HealthPage,
   ManagerSettingsPage,
   OverviewPage,
   PredictionsPage,
@@ -21,6 +22,7 @@ export const sections = {
   reports: ReportsPage,
   transactions: TransactionsPage,
   'atm-queue': AtmQueuePage,
+  health: HealthPage,
 
   // Manage
   users: UsersPage,
