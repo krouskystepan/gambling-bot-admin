@@ -328,6 +328,7 @@ const OverviewDailyPnLChart = ({
   )
   const yAxisWidth = measureYAxisWidth(yAxisTicks, formatYAxisTick)
   const gradientOffset = getPnLGradientOffset(gamePnLValues)
+  const hasData = points.some((point) => point.txCount > 0)
 
   return (
     <Card className="flex h-full min-h-[380px] flex-col">
@@ -340,94 +341,102 @@ const OverviewDailyPnLChart = ({
         </CardDescription>
       </CardHeader>
       <CardContent className="flex min-h-0 flex-1 flex-col pb-4">
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto min-h-[220px] w-full flex-1 [&_.recharts-responsive-container]:h-full!"
-        >
-          <AreaChart
-            data={points}
-            margin={{ left: 0, right: 8, top: 8, bottom: 4 }}
+        {hasData ? (
+          <ChartContainer
+            config={chartConfig}
+            className="aspect-auto min-h-[220px] w-full flex-1 [&_.recharts-responsive-container]:h-full!"
           >
-            <defs>
-              <linearGradient id={fillGradientId} x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="0%"
-                  stopColor={PNL_COLORS.profit}
-                  stopOpacity={0.35}
-                />
-                <stop
-                  offset={`${gradientOffset * 100}%`}
-                  stopColor={PNL_COLORS.profit}
-                  stopOpacity={0.35}
-                />
-                <stop
-                  offset={`${gradientOffset * 100}%`}
-                  stopColor={PNL_COLORS.loss}
-                  stopOpacity={0.35}
-                />
-                <stop
-                  offset="100%"
-                  stopColor={PNL_COLORS.loss}
-                  stopOpacity={0.35}
-                />
-              </linearGradient>
-            </defs>
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="date"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              minTickGap={24}
-              ticks={hourlyAxisTicks}
-              padding={isTwoDayHourly ? { left: 16 } : undefined}
-              tick={{
-                fill: 'var(--muted-foreground)',
-                fontSize: 12,
-                ...(isTwoDayHourly ? { dx: 8 } : {})
-              }}
-              tickFormatter={formatXAxisTick}
-            />
-            <YAxis
-              domain={yDomain}
-              ticks={yAxisTicks}
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              width={yAxisWidth}
-              tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
-              tickFormatter={(value) => formatYAxisTick(Number(value))}
-            />
-            <ChartTooltip
-              cursor={{
-                stroke: 'var(--border)',
-                strokeWidth: 1,
-                strokeDasharray: '4 4',
-                fill: 'transparent'
-              }}
-              content={({ active, payload }) => (
-                <OverviewDailyPnLTooltip
-                  active={active}
-                  payload={payload}
-                  globalSettings={globalSettings}
-                  granularity={granularity}
-                  timezone={timezone}
-                />
-              )}
-            />
-            <Area
-              type="linear"
-              dataKey="gamePnL"
-              baseValue={0}
-              stroke={`url(#${fillGradientId})`}
-              fill={`url(#${fillGradientId})`}
-              strokeWidth={2}
-              dot={false}
-              activeDot={false}
-              isAnimationActive={false}
-            />
-          </AreaChart>
-        </ChartContainer>
+            <AreaChart
+              data={points}
+              margin={{ left: 0, right: 8, top: 8, bottom: 4 }}
+            >
+              <defs>
+                <linearGradient id={fillGradientId} x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="0%"
+                    stopColor={PNL_COLORS.profit}
+                    stopOpacity={0.35}
+                  />
+                  <stop
+                    offset={`${gradientOffset * 100}%`}
+                    stopColor={PNL_COLORS.profit}
+                    stopOpacity={0.35}
+                  />
+                  <stop
+                    offset={`${gradientOffset * 100}%`}
+                    stopColor={PNL_COLORS.loss}
+                    stopOpacity={0.35}
+                  />
+                  <stop
+                    offset="100%"
+                    stopColor={PNL_COLORS.loss}
+                    stopOpacity={0.35}
+                  />
+                </linearGradient>
+              </defs>
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                minTickGap={24}
+                ticks={hourlyAxisTicks}
+                padding={isTwoDayHourly ? { left: 16 } : undefined}
+                tick={{
+                  fill: 'var(--muted-foreground)',
+                  fontSize: 12,
+                  ...(isTwoDayHourly ? { dx: 8 } : {})
+                }}
+                tickFormatter={formatXAxisTick}
+              />
+              <YAxis
+                domain={yDomain}
+                ticks={yAxisTicks}
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                width={yAxisWidth}
+                tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
+                tickFormatter={(value) => formatYAxisTick(Number(value))}
+              />
+              <ChartTooltip
+                cursor={{
+                  stroke: 'var(--border)',
+                  strokeWidth: 1,
+                  strokeDasharray: '4 4',
+                  fill: 'transparent'
+                }}
+                content={({ active, payload }) => (
+                  <OverviewDailyPnLTooltip
+                    active={active}
+                    payload={payload}
+                    globalSettings={globalSettings}
+                    granularity={granularity}
+                    timezone={timezone}
+                  />
+                )}
+              />
+              <Area
+                type="linear"
+                dataKey="gamePnL"
+                baseValue={0}
+                stroke={`url(#${fillGradientId})`}
+                fill={`url(#${fillGradientId})`}
+                strokeWidth={2}
+                dot={false}
+                activeDot={false}
+                isAnimationActive={false}
+              />
+            </AreaChart>
+          </ChartContainer>
+        ) : (
+          <div className="flex flex-1 items-center justify-center">
+            <p className="text-center text-sm text-muted-foreground">
+              No game activity in this period.
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   )
