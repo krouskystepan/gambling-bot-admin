@@ -28,6 +28,7 @@ import {
 } from '@/actions/discord/predictionMessage.action'
 import { connectToDatabase } from '@/lib/db'
 import { predictionDb, predictionLifecycle } from '@/lib/games/gameServices'
+import { revalidateGuildHealth } from '@/lib/guild/revalidateHealth'
 import {
   blockPanelFeatureAction,
   blockPanelMaintenanceAction
@@ -334,6 +335,7 @@ export async function createPrediction(
     }
 
     revalidatePath(predictionsPath(guildId))
+    revalidateGuildHealth(guildId)
 
     return {
       success: true,
@@ -391,6 +393,7 @@ export async function endPrediction(
     }
 
     revalidatePath(predictionsPath(guildId))
+    revalidateGuildHealth(guildId)
 
     return { success: true, message: 'Prediction ended. No more bets allowed.' }
   } catch (err) {
@@ -460,6 +463,7 @@ export async function payoutPrediction(
 
     if (outcome === 'refunded') {
       revalidatePath(predictionsPath(guildId))
+      revalidateGuildHealth(guildId)
       return {
         success: true,
         message:
@@ -504,6 +508,7 @@ export async function payoutPrediction(
     }
 
     revalidatePath(predictionsPath(guildId))
+    revalidateGuildHealth(guildId)
 
     return {
       success: true,
@@ -560,6 +565,7 @@ export async function cancelPrediction(
     }
 
     revalidatePath(predictionsPath(guildId))
+    revalidateGuildHealth(guildId)
 
     return {
       success: true,

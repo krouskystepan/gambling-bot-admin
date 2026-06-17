@@ -3,6 +3,7 @@ export { default as OverviewPage } from './general/overview/OverviewPage'
 export { default as ReportsPage } from './general/reports/ReportsPage'
 export { default as TransactionsPage } from './general/transactions/TransactionsPage'
 export { default as AtmQueuePage } from './general/atm-queue/AtmQueuePage'
+export { default as HealthPage } from './general/health/HealthPage'
 
 // Manage
 export { default as UsersPage } from './manage/users/UsersPage'

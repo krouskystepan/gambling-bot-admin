@@ -1,0 +1,100 @@
+import type { CSSProperties } from 'react'
+
+import type { SystemHealthData } from '@/actions/database/systemHealth.action'
+import { KpiStripMetric } from '@/components/KpiStrip'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+
+import OperationsCategorySection from './OperationsCategorySection'
+
+type OperationsHealthCardProps = {
+  operations: SystemHealthData
+}
+
+const OperationsHealthCard = ({ operations }: OperationsHealthCardProps) => {
+  const { summary, atm, blackjack, predictions } = operations
+
+  const summaryItems = [
+    {
+      label: 'Needs attention',
+      value: summary.needsAttention,
+      tooltip:
+        'Active issues requiring staff action across ATM, blackjack, and predictions'
+    },
+    {
+      label: 'Pending ATM',
+      value: summary.pendingAtm,
+      tooltip: 'Deposit and withdraw requests awaiting approval'
+    },
+    {
+      label: 'Stale blackjack',
+      value: summary.staleBlackjack,
+      tooltip: 'Blackjack games with no update for 24+ hours'
+    },
+    {
+      label: 'Predictions awaiting action',
+      value: summary.predictionsAwaitingAction,
+      tooltip:
+        'Overdue autolock, ended awaiting payout, or stuck in paying status'
+    }
+  ]
+
+  return (
+    <Card className="gap-3 py-4">
+      <CardHeader className="pb-0">
+        <CardTitle>Operations</CardTitle>
+        <CardDescription>
+          {summary.needsAttention === 0
+            ? 'Runtime status for ATM, blackjack, and predictions looks good.'
+            : `${summary.needsAttention} item${summary.needsAttention === 1 ? '' : 's'} need attention across runtime subsystems.`}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6 pt-0">
+        <div
+          className="grid w-full gap-x-6 gap-y-4 max-sm:grid-cols-2 lg:grid-cols-[repeat(var(--kpi-cols),minmax(0,1fr))]"
+          style={{ '--kpi-cols': summaryItems.length } as CSSProperties}
+        >
+          {summaryItems.map((item) => (
+            <KpiStripMetric key={item.label} {...item} />
+          ))}
+        </div>
+
+        <div className="border-t border-border pt-6">
+          <div className="grid divide-y divide-border xl:grid-cols-3 xl:divide-x xl:divide-y-0">
+            <div className="pb-6 xl:pb-0 xl:pr-6">
+              <OperationsCategorySection
+                title="ATM"
+                description="No pending deposit or withdraw requests."
+                rows={atm.rows}
+                items={atm.items}
+              />
+            </div>
+            <div className="py-6 xl:py-0 xl:px-6">
+              <OperationsCategorySection
+                title="Blackjack"
+                description="No stale in-progress games."
+                rows={blackjack.rows}
+                items={blackjack.items}
+              />
+            </div>
+            <div className="pt-6 xl:pt-0 xl:pl-6">
+              <OperationsCategorySection
+                title="Predictions"
+                description="No predictions awaiting staff action."
+                rows={predictions.rows}
+                items={predictions.items}
+              />
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+export default OperationsHealthCard

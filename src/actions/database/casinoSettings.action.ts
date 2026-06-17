@@ -5,6 +5,7 @@ import { getServerSession } from 'next-auth'
 
 import { authOptions } from '@/lib/auth/authOptions'
 import { connectToDatabase } from '@/lib/db'
+import { revalidateGuildHealth } from '@/lib/guild/revalidateHealth'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import { casinoSettingsSchema } from '@/types/schemas'
 import { TCasinoSettingsValues } from '@/types/types'
@@ -47,6 +48,8 @@ export async function saveCasinoSettings(
     },
     { new: true, upsert: true }
   )
+
+  revalidateGuildHealth(guildId)
 
   return updated.casinoSettings
 }

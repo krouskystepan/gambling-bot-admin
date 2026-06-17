@@ -18,15 +18,22 @@ type PermissionItem = { id: string; label: string }
 
 const PANEL_ALLOWED: PermissionItem[] = [
   { id: 'panel-overview', label: 'Overview KPIs, charts, and top users' },
+  {
+    id: 'panel-health',
+    label: 'Health (runtime operations; setup checks for admins)'
+  },
   { id: 'panel-transactions', label: 'Transaction history' },
   { id: 'panel-users', label: 'Register users and manage balances' },
-  { id: 'panel-vips', label: 'VIP memberships' },
+  { id: 'panel-predictions', label: 'Prediction events' },
   { id: 'panel-raffles', label: 'Raffle events' },
-  { id: 'panel-predictions', label: 'Prediction events' }
+  { id: 'panel-vips', label: 'VIP memberships' }
 ]
 
 const PANEL_DENIED: PermissionItem[] = [
-  { id: 'panel-no-setup-health', label: 'Setup health checklist' },
+  {
+    id: 'panel-no-setup-health',
+    label: 'Setup section on Health (channels, roles, RTP)'
+  },
   {
     id: 'panel-no-settings',
     label: 'Settings (channels, casino, bonuses, VIP, manager)'

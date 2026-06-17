@@ -2,6 +2,8 @@ import { NextAuthOptions } from 'next-auth'
 import { JWT } from 'next-auth/jwt'
 import DiscordProvider from 'next-auth/providers/discord'
 
+import { HOUR_MS } from '@/lib/time/durations'
+
 function requiredEnv(name: string): string {
   const value = process.env[name]
   if (!value) throw new Error(`Missing env variable: ${name}`)
@@ -13,7 +15,7 @@ function requiredEnv(name: string): string {
 async function extendAccessToken(token: JWT): Promise<JWT> {
   return {
     ...token,
-    accessTokenExpires: Date.now() + 60 * 60 * 1000 // +1 hour
+    accessTokenExpires: Date.now() + HOUR_MS // +1 hour
   }
 }
 
@@ -34,7 +36,7 @@ export const authOptions: NextAuthOptions = {
         return {
           ...token,
           accessToken: account.access_token,
-          accessTokenExpires: Date.now() + 60 * 60 * 1000,
+          accessTokenExpires: Date.now() + HOUR_MS,
           userId: account.providerAccountId
         }
       }

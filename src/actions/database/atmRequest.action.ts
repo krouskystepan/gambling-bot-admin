@@ -7,6 +7,7 @@ import { Session } from 'next-auth'
 
 import { editDiscordMessage, sendEmbed } from '@/actions/discord/utils.action'
 import { connectToDatabase } from '@/lib/db'
+import { revalidateGuildHealth } from '@/lib/guild/revalidateHealth'
 import { blockPanelFeatureAction } from '@/lib/panel/panelFeatureActionGuard.server'
 import AtmRequest from '@/models/AtmRequest'
 import GuildConfiguration from '@/models/GuildConfiguration'
@@ -362,6 +363,8 @@ export const approveAtmRequestAction = async (
       logContent: `✅ Approved by <@${handledBy}> (web panel)`
     })
 
+    revalidateGuildHealth(guildId)
+
     return { success: true, message: 'Deposit approved.' }
   }
 
@@ -474,6 +477,8 @@ export const approveAtmRequestAction = async (
     logContent: `✅ Approved by <@${handledBy}> (web panel)`
   })
 
+  revalidateGuildHealth(guildId)
+
   return { success: true, message: 'Withdrawal approved.' }
 }
 
@@ -536,6 +541,8 @@ export const rejectAtmRequestAction = async (
     logMessageId: request.logMessageId,
     logContent: `❌ Rejected by <@${handledBy}> (web panel)`
   })
+
+  revalidateGuildHealth(guildId)
 
   return { success: true, message: 'Request rejected.' }
 }

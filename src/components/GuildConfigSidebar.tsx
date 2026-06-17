@@ -8,6 +8,7 @@ import {
   Dices,
   FileBarChart,
   Globe,
+  HeartPulse,
   Landmark,
   LayoutDashboard,
   LucideIcon,
@@ -35,9 +36,10 @@ const LINKS = [
     value: 'general',
     links: [
       { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-      { id: 'reports', label: 'Reports', icon: FileBarChart },
+      { id: 'health', label: 'Health', icon: HeartPulse },
+      { id: 'atm-queue', label: 'ATM Queue', icon: Banknote },
       { id: 'transactions', label: 'Transactions', icon: Landmark },
-      { id: 'atm-queue', label: 'ATM Queue', icon: Banknote }
+      { id: 'reports', label: 'Reports', icon: FileBarChart }
     ]
   },
   {
@@ -45,9 +47,9 @@ const LINKS = [
     value: 'manage',
     links: [
       { id: 'users', label: 'Users', icon: User },
-      { id: 'vips', label: 'VIPs', icon: Crown },
+      { id: 'predictions', label: 'Predictions', icon: ChartBar },
       { id: 'raffles', label: 'Raffles', icon: Ticket },
-      { id: 'predictions', label: 'Predictions', icon: ChartBar }
+      { id: 'vips', label: 'VIPs', icon: Crown }
     ]
   },
   {
@@ -57,9 +59,9 @@ const LINKS = [
       { id: 'global-settings', label: 'Global', icon: Globe },
       { id: 'channel-settings', label: 'Channels', icon: MessagesSquare },
       { id: 'manager-settings', label: 'Manager', icon: ShieldCheck },
-      { id: 'vip-settings', label: 'VIP', icon: Crown },
+      { id: 'casino-settings', label: 'Casino', icon: Dices },
       { id: 'bonus-settings', label: 'Bonuses', icon: Award },
-      { id: 'casino-settings', label: 'Casino', icon: Dices }
+      { id: 'vip-settings', label: 'VIP', icon: Crown }
     ]
   }
 ]
@@ -70,13 +72,15 @@ type GuildConfigSidebarProps = {
   isAdmin: boolean
   isManager: boolean
   pendingAtmCount?: number
+  needsAttentionCount?: number
 }
 
 const GuildConfigSidebar = ({
   guildId,
   guildName,
   isAdmin,
-  pendingAtmCount = 0
+  pendingAtmCount = 0,
+  needsAttentionCount = 0
 }: GuildConfigSidebarProps) => {
   const pathname = usePathname()
   const activeSectionId = pathname.split('/')[4] || undefined
@@ -132,6 +136,11 @@ const GuildConfigSidebar = ({
                         {link.id === 'atm-queue' && pendingAtmCount > 0 ? (
                           <Badge variant="destructive" className="ml-auto">
                             {pendingAtmCount}
+                          </Badge>
+                        ) : null}
+                        {link.id === 'health' && needsAttentionCount > 0 ? (
+                          <Badge variant="destructive" className="ml-auto">
+                            {needsAttentionCount}
                           </Badge>
                         ) : null}
                       </Link>
