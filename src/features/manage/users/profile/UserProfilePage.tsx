@@ -133,6 +133,7 @@ const UserProfilePage = async ({
             gamePnL={txData.gamePnL}
             cashFlow={txData.cashFlow}
             hideUserSearch
+            hideDatePicker
           />
         </div>
       </div>
