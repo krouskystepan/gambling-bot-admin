@@ -5,7 +5,11 @@ import { TTransaction } from 'gambling-bot-shared/transactions'
 import Image from 'next/image'
 import Link from 'next/link'
 
-import { Badge } from '@/components/ui/badge'
+import ColoredBadge from '@/components/badges/ColoredBadge'
+import {
+  getTransactionSourceBadgeClass,
+  getTransactionTypeBadgeClass
+} from '@/components/badges/badgeStyles'
 import {
   Card,
   CardContent,
@@ -13,10 +17,6 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
-import {
-  sourceBadgeMap,
-  typeBadgeMap
-} from '@/features/general/transactions/table/transactionBadges'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
 import { TTransactionDiscord } from '@/types/types'
 
@@ -88,12 +88,16 @@ const OverviewRecentTransactions = ({
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge className={`${typeBadgeMap[type]} px-2`}>
+                    <ColoredBadge
+                      colorClass={getTransactionTypeBadgeClass(type)}
+                    >
                       {type.toUpperCase()}
-                    </Badge>
-                    <Badge className={`${sourceBadgeMap[source]} px-2`}>
+                    </ColoredBadge>
+                    <ColoredBadge
+                      colorClass={getTransactionSourceBadgeClass(source)}
+                    >
                       {source.toUpperCase()}
-                    </Badge>
+                    </ColoredBadge>
                   </div>
                   <span className="font-semibold tabular-nums">
                     {formatGuildMoney(tx.amount, globalSettings)}

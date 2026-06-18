@@ -1,4 +1,4 @@
-import { typeBadgeMap } from '@/features/general/transactions/table/transactionBadges'
+import { typeBadgeMap } from '@/components/badges/badgeStyles'
 
 const eventBadgeMap: Record<string, string> = {
   REJECT: 'bg-destructive text-white',

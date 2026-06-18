@@ -12,6 +12,7 @@ import DatePicker from '@/components/DatePicker'
 import SearchableUserFilter, {
   type SearchableUserOption
 } from '@/components/SearchableUserFilter'
+import { sourceBadgeMap, typeBadgeMap } from '@/components/badges/badgeStyles'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -34,7 +35,6 @@ import { ITransactionCounts, TTransactionDiscord } from '@/types/types'
 
 import TransactionExtraButtons from './TransactionExtraButtons'
 import TransactionFilter from './TransactionTableFilter'
-import { sourceBadgeMap, typeBadgeMap } from './transactionBadges'
 import { getCasinoGameFilterLabel } from './transactionFilterLabels'
 
 const TransactionTableFilters = ({

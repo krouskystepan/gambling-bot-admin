@@ -4,12 +4,15 @@ import type { GlobalSettings } from 'gambling-bot-shared/guild'
 import Image from 'next/image'
 import Link from 'next/link'
 
-import { Badge } from '@/components/ui/badge'
+import ColoredBadge from '@/components/badges/ColoredBadge'
+import {
+  getAtmStatusBadgeClass,
+  getTransactionTypeBadgeClass
+} from '@/components/badges/badgeStyles'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
 import { TAtmRequestDiscord } from '@/types/types'
 
 import AtmQueueActions from './AtmQueueActions'
-import { statusBadgeMap, typeBadgeMap } from './atmQueueBadges'
 
 export const atmQueueColumns = (
   guildId: string,
@@ -71,9 +74,9 @@ export const atmQueueColumns = (
     cell: ({ row }) => {
       const type = row.getValue('type') as TAtmRequestDiscord['type']
       return (
-        <Badge className={`${typeBadgeMap[type]} px-2 select-none`}>
+        <ColoredBadge colorClass={getTransactionTypeBadgeClass(type)}>
           {type.toUpperCase()}
-        </Badge>
+        </ColoredBadge>
       )
     }
   },
@@ -102,9 +105,9 @@ export const atmQueueColumns = (
     cell: ({ row }) => {
       const status = row.getValue('status') as TAtmRequestDiscord['status']
       return (
-        <Badge className={`${statusBadgeMap[status]} px-2 select-none`}>
+        <ColoredBadge colorClass={getAtmStatusBadgeClass(status)}>
           {status.toUpperCase()}
-        </Badge>
+        </ColoredBadge>
       )
     }
   },
@@ -130,8 +133,11 @@ export const atmQueueColumns = (
     header: 'Created At',
     accessorKey: 'createdAt',
     size: 140,
-    cell: ({ row }) =>
-      new Date(row.getValue('createdAt') as string).toLocaleString('cs')
+    cell: ({ row }) => (
+      <span className="whitespace-nowrap">
+        {new Date(row.getValue('createdAt') as string).toLocaleString('cs')}
+      </span>
+    )
   },
   {
     header: 'Notes',

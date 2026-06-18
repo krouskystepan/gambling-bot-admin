@@ -19,6 +19,10 @@ import { useServerTable } from '@/hooks/useServerTable'
 import { useUpdateUrl } from '@/hooks/useUpdateUrl'
 import { IAtmRequestCounts, TAtmRequestDiscord } from '@/types/types'
 
+import {
+  parseAtmQueueFilterStatusForTable,
+  serializeAtmQueueFilterStatus
+} from '../atmQueueFilterParams'
 import AtmQueueTableFilters from './AtmQueueTableFilters'
 import AtmQueueTableSummary from './AtmQueueTableSummary'
 import { atmQueueColumns } from './atmQueueColumns'
@@ -74,12 +78,11 @@ const AtmQueueTable = ({
           (filters.find((filter) => filter.id === 'userId')?.value as
             | string
             | undefined) ?? ''
-        const filterStatus =
-          (
-            filters.find((filter) => filter.id === 'status')?.value as
-              | string[]
-              | undefined
-          )?.join(',') ?? ''
+        const filterStatus = serializeAtmQueueFilterStatus(
+          filters.find((filter) => filter.id === 'status')?.value as
+            | string[]
+            | undefined
+        )
         const filterType =
           (
             filters.find((filter) => filter.id === 'type')?.value as
@@ -92,7 +95,7 @@ const AtmQueueTable = ({
         debouncedUpdateUrl({
           page: 1,
           search: search || undefined,
-          filterStatus: filterStatus || undefined,
+          filterStatus,
           filterType: filterType || undefined,
           dateFrom: dateRange?.[0],
           dateTo: dateRange?.[1]
@@ -119,10 +122,8 @@ const AtmQueueTable = ({
   useHydrateServerTableFromUrl(table, searchParams, {
     filters: (params) => {
       const search = params.get('search') || ''
-      const filterStatus = params
-        .get('filterStatus')
-        ?.split(',')
-        .filter(Boolean)
+      const filterStatusParam = params.get('filterStatus')
+      const filterStatus = parseAtmQueueFilterStatusForTable(filterStatusParam)
       const filterType = params.get('filterType')?.split(',').filter(Boolean)
       const dateFrom = params.get('dateFrom') || undefined
       const dateTo = params.get('dateTo') || undefined
@@ -131,7 +132,7 @@ const AtmQueueTable = ({
         { id: 'userId', value: search || undefined },
         {
           id: 'status',
-          value: filterStatus?.length ? filterStatus : ['pending']
+          value: filterStatus
         },
         {
           id: 'type',

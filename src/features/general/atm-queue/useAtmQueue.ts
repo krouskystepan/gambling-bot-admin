@@ -7,6 +7,8 @@ import {
 import { getDiscordGuildMembers } from '@/actions/discord/member.action'
 import { IAtmRequestCounts, TAtmRequestDiscord } from '@/types/types'
 
+import { parseAtmQueueFilterStatus } from './atmQueueFilterParams'
+
 export interface AtmQueueQuery {
   page: number
   limit: number
@@ -71,9 +73,7 @@ export function normalizeAtmQueueSearchParams(
     page: Number.isInteger(page) && page > 0 ? page : 1,
     limit: Number.isInteger(limit) && limit > 0 ? limit : 10,
     search: searchParams.search,
-    filterStatus: searchParams.filterStatus?.split(',').filter(Boolean) ?? [
-      'pending'
-    ],
+    filterStatus: parseAtmQueueFilterStatus(searchParams.filterStatus),
     filterType: searchParams.filterType?.split(',').filter(Boolean) ?? [],
     dateFrom: searchParams.dateFrom,
     dateTo: searchParams.dateTo,

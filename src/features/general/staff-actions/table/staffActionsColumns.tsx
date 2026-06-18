@@ -6,7 +6,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import type { StaffActionRow } from '@/actions/database/staffActions.action'
-import { Badge } from '@/components/ui/badge'
+import ColoredBadge from '@/components/badges/ColoredBadge'
 import {
   Tooltip,
   TooltipContent,
@@ -105,11 +105,11 @@ export const staffActionsColumns = (
 
       return (
         <div className="flex items-center justify-start gap-1 select-none">
-          <Badge
-            className={`${getStaffActionBadgeStyle(row.original.actionBadge)} px-2`}
+          <ColoredBadge
+            colorClass={getStaffActionBadgeStyle(row.original.actionBadge)}
           >
             {row.original.actionBadge}
-          </Badge>
+          </ColoredBadge>
 
           {showTooltip ? (
             <Tooltip>

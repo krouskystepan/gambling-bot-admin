@@ -86,6 +86,7 @@ const AtmQueueTableFilters = ({
 
   const handleClearFilters = () => {
     table.resetColumnFilters()
+    table.getColumn('status')?.setFilterValue(['pending'])
     router.replace(`${window.location.pathname}?filterStatus=pending`, {
       scroll: false
     })

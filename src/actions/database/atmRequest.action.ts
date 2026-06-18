@@ -123,7 +123,21 @@ const attachDiscordMembers = async (
       : undefined
 
     return {
-      ...request,
+      requestId: request.requestId,
+      guildId: request.guildId,
+      userId: request.userId,
+      type: request.type,
+      amount: request.amount,
+      account: request.account,
+      status: request.status,
+      handledBy: request.handledBy,
+      handledAt: request.handledAt,
+      notes: request.notes,
+      logChannelId: request.logChannelId,
+      logMessageId: request.logMessageId,
+      meta: request.meta,
+      createdAt: request.createdAt,
+      updatedAt: request.updatedAt,
       id: request.requestId,
       username: user?.username ?? 'Unknown',
       nickname: user?.nickname ?? null,

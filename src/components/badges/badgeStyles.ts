@@ -1,3 +1,4 @@
+import { TAtmRequest } from 'gambling-bot-shared/atm'
 import {
   TRANSACTION_SOURCES,
   TRANSACTION_TYPES,
@@ -29,3 +30,32 @@ export const typeBadgeMap = Object.fromEntries(
 export const sourceBadgeMap = Object.fromEntries(
   TRANSACTION_SOURCES.map((source) => [source, SOURCE_BADGE_STYLES[source]])
 ) as Record<TTransaction['source'], string>
+
+const ATM_STATUS_BADGE_STYLES: Record<TAtmRequest['status'], string> = {
+  pending: 'bg-amber-600 text-white',
+  approved: TYPE_BADGE_STYLES.deposit,
+  rejected: 'bg-destructive text-white'
+}
+
+export const atmStatusBadgeMap = Object.fromEntries(
+  (['pending', 'approved', 'rejected'] as const).map((status) => [
+    status,
+    ATM_STATUS_BADGE_STYLES[status]
+  ])
+) as Record<TAtmRequest['status'], string>
+
+export function getTransactionTypeBadgeClass(
+  type: TTransaction['type']
+): string {
+  return typeBadgeMap[type] ?? 'bg-gray-600 text-white'
+}
+
+export function getTransactionSourceBadgeClass(
+  source: TTransaction['source']
+): string {
+  return sourceBadgeMap[source] ?? 'bg-gray-600 text-white'
+}
+
+export function getAtmStatusBadgeClass(status: TAtmRequest['status']): string {
+  return atmStatusBadgeMap[status] ?? 'bg-gray-600 text-white'
+}

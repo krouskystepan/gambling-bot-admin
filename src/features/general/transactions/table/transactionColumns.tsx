@@ -5,7 +5,11 @@ import { CircleQuestionMark } from 'lucide-react'
 
 import Image from 'next/image'
 
-import { Badge } from '@/components/ui/badge'
+import ColoredBadge from '@/components/badges/ColoredBadge'
+import {
+  getTransactionSourceBadgeClass,
+  getTransactionTypeBadgeClass
+} from '@/components/badges/badgeStyles'
 import {
   Tooltip,
   TooltipContent,
@@ -13,8 +17,6 @@ import {
 } from '@/components/ui/tooltip'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
 import { TTransactionDiscord } from '@/types/types'
-
-import { sourceBadgeMap, typeBadgeMap } from './transactionBadges'
 
 export const transactionsColumns = (
   globalSettings: GlobalSettings,
@@ -77,7 +79,7 @@ export const transactionsColumns = (
       size: 80,
       cell: ({ row }) => {
         const type = row.getValue('type') as TTransaction['type']
-        const className = typeBadgeMap[type] ?? 'bg-gray-600'
+        const className = getTransactionTypeBadgeClass(type)
 
         const meta = row.original.meta ?? {}
 
@@ -98,7 +100,9 @@ export const transactionsColumns = (
 
         return (
           <div className="flex items-center justify-start gap-1 select-none">
-            <Badge className={`${className} px-2`}>{type.toUpperCase()}</Badge>
+            <ColoredBadge colorClass={className}>
+              {type.toUpperCase()}
+            </ColoredBadge>
 
             {hasMeta && (
               <Tooltip>
@@ -182,12 +186,12 @@ export const transactionsColumns = (
       cell: ({ row }) => {
         const source = row.getValue('source') as TTransaction['source']
 
-        const className = sourceBadgeMap[source] ?? 'bg-gray-600'
+        const className = getTransactionSourceBadgeClass(source)
 
         return (
-          <Badge className={`${className} px-2 select-none`}>
+          <ColoredBadge colorClass={className}>
             {source.toUpperCase()}
-          </Badge>
+          </ColoredBadge>
         )
       }
     },
