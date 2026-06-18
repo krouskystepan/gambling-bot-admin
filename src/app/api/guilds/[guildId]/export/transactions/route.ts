@@ -19,16 +19,23 @@ export async function GET(
     return exportErrorResponse(access.error, access.status)
   }
 
-  const globalSettings = await getGuildGlobalSettings(guildId)
-  const result = await exportTransactionsCsv(
-    guildId,
-    parseTransactionExportParams(request.nextUrl.searchParams),
-    globalSettings.timezone
-  )
+  try {
+    const globalSettings = await getGuildGlobalSettings(guildId)
+    const result = await exportTransactionsCsv(
+      guildId,
+      parseTransactionExportParams(request.nextUrl.searchParams),
+      globalSettings.timezone
+    )
 
-  if ('error' in result) {
-    return exportErrorResponse(result.error, result.status)
+    if ('error' in result) {
+      return exportErrorResponse(result.error, result.status)
+    }
+
+    return csvAttachmentResponse(`transactions-${guildId}.csv`, result.csv)
+  } catch (error) {
+    console.error('Transaction export failed:', error)
+    const message =
+      error instanceof Error ? error.message : 'Transaction export failed'
+    return exportErrorResponse(message, 500)
   }
-
-  return csvAttachmentResponse(`transactions-${guildId}.csv`, result.csv)
 }

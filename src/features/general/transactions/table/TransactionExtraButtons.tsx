@@ -1,6 +1,8 @@
 import { Table } from '@tanstack/react-table'
 import { Download, Eraser, RefreshCcw } from 'lucide-react'
 
+import { useState } from 'react'
+
 import { useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
@@ -9,6 +11,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { downloadCsvFile } from '@/lib/export/downloadCsv'
 import { buildTransactionExportUrl } from '@/lib/export/exportUrls'
 import { TTransactionDiscord } from '@/types/types'
 
@@ -24,6 +27,8 @@ const TransactionExtraButtons = ({
   setIsLoading: (value: boolean) => void
 }) => {
   const router = useRouter()
+  const [isExporting, setIsExporting] = useState(false)
+
   const handleClearFilters = () => {
     table.resetColumnFilters()
     table.resetGlobalFilter()
@@ -31,10 +36,15 @@ const TransactionExtraButtons = ({
     router.replace(`${window.location.pathname}`, { scroll: false })
   }
 
-  const exportHref =
-    typeof window !== 'undefined'
-      ? buildTransactionExportUrl(guildId, window.location.search)
-      : '#'
+  const handleExport = async () => {
+    setIsExporting(true)
+    try {
+      const href = buildTransactionExportUrl(guildId, window.location.search)
+      await downloadCsvFile(href, `transactions-${guildId}.csv`)
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   return (
     <>
@@ -44,11 +54,10 @@ const TransactionExtraButtons = ({
             className="flex h-9.5 items-center justify-center"
             variant="secondary"
             size="icon"
-            asChild
+            onClick={handleExport}
+            disabled={isExporting}
           >
-            <a href={exportHref} download>
-              <Download className="h-4 w-4" />
-            </a>
+            <Download className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>

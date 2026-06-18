@@ -16,6 +16,7 @@ type ReportTableProps<T> = {
   title: string
   description: string
   exportHref: string
+  exportFilename: string
   columns: ColumnDef<T>[]
   data: T[]
 }
@@ -24,6 +25,7 @@ const ReportTable = <T,>({
   title,
   description,
   exportHref,
+  exportFilename,
   columns,
   data
 }: ReportTableProps<T>) => {
@@ -43,7 +45,7 @@ const ReportTable = <T,>({
           <p className="text-sm text-muted-foreground">{description}</p>
         </div>
         <div className="shrink-0">
-          <ExportCsvButton href={exportHref} />
+          <ExportCsvButton href={exportHref} filename={exportFilename} />
         </div>
       </div>
       <Table className="w-full table-auto">
