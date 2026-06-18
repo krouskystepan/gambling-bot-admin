@@ -23,6 +23,7 @@ const PANEL_ALLOWED: PermissionItem[] = [
     label: 'Health (runtime operations; setup checks for admins)'
   },
   { id: 'panel-transactions', label: 'Transaction history' },
+  { id: 'panel-staff-actions', label: 'Staff actions audit log' },
   { id: 'panel-users', label: 'Register users and manage balances' },
   { id: 'panel-predictions', label: 'Prediction events' },
   { id: 'panel-raffles', label: 'Raffle events' },

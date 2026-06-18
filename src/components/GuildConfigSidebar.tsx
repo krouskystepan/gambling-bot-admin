@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   LucideIcon,
   MessagesSquare,
+  ScrollText,
   ShieldCheck,
   Ticket,
   User
@@ -39,6 +40,7 @@ const LINKS = [
       { id: 'health', label: 'Health', icon: HeartPulse },
       { id: 'atm-queue', label: 'ATM Queue', icon: Banknote },
       { id: 'transactions', label: 'Transactions', icon: Landmark },
+      { id: 'staff-actions', label: 'Staff actions', icon: ScrollText },
       { id: 'reports', label: 'Reports', icon: FileBarChart }
     ]
   },
