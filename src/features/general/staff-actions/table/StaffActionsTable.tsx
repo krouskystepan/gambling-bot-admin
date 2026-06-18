@@ -2,7 +2,7 @@
 
 import type { GlobalSettings } from 'gambling-bot-shared/guild'
 
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 
 import { useSearchParams } from 'next/navigation'
 
@@ -10,6 +10,7 @@ import type {
   StaffActionCounts,
   StaffActionRow
 } from '@/actions/database/staffActions.action'
+import type { SearchableUserOption } from '@/components/SearchableUserFilter'
 import {
   CustomTableBody,
   CustomTableHeader,
@@ -32,6 +33,7 @@ type StaffActionsTableProps = {
   actions: StaffActionRow[]
   counts: StaffActionCounts
   staffMembers: { userId: string; username: string }[]
+  guildMembers: SearchableUserOption[]
   page: number
   limit: number
   total: number
@@ -43,6 +45,7 @@ const StaffActionsTable = ({
   actions,
   counts,
   staffMembers,
+  guildMembers,
   page,
   limit,
   total
@@ -103,7 +106,6 @@ const StaffActionsTable = ({
   const updateUrl = useUpdateUrl()
   const debouncedUpdateUrl = useDebouncedCallback(updateUrl, 300)
   const searchParams = useSearchParams()
-  const searchRef = useRef<HTMLInputElement>(null)
 
   useHydrateServerTableFromUrl(table, searchParams, {
     filters: (params) => {
@@ -139,9 +141,9 @@ const StaffActionsTable = ({
           table={table}
           counts={counts}
           staffMembers={staffMembers}
+          guildMembers={guildMembers}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
-          searchRef={searchRef}
         />
       }
       summary={<StaffActionsTableSummary counts={counts} />}

@@ -11,6 +11,7 @@ import {
   getStaffActionCounts,
   getStaffActions
 } from '@/actions/database/staffActions.action'
+import { getDiscordGuildMembers } from '@/actions/discord/member.action'
 
 export interface StaffActionsQuery {
   page: number
@@ -27,6 +28,7 @@ export interface StaffActionsResult {
   counts: StaffActionCounts
   total: number
   staffMembers: { userId: string; username: string }[]
+  guildMembers: Awaited<ReturnType<typeof getDiscordGuildMembers>>
 }
 
 export async function getStaffActionsData(
@@ -42,13 +44,15 @@ export async function getStaffActionsData(
     dateTo: query.dateTo
   }
 
-  const [{ actions, total }, counts, staffMembers] = await Promise.all([
-    getStaffActions(guildId, session, query.page, query.limit, filters),
-    getStaffActionCounts(guildId, session, filters),
-    getGuildStaffMembers(guildId)
-  ])
+  const [{ actions, total }, counts, staffMembers, guildMembers] =
+    await Promise.all([
+      getStaffActions(guildId, session, query.page, query.limit, filters),
+      getStaffActionCounts(guildId, session, filters),
+      getGuildStaffMembers(guildId),
+      getDiscordGuildMembers(guildId)
+    ])
 
-  return { actions, counts, total, staffMembers }
+  return { actions, counts, total, staffMembers, guildMembers }
 }
 
 type RawSearchParams = {

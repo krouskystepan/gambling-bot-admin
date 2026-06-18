@@ -70,7 +70,7 @@ export const atmQueueColumns = (
     header: 'Type',
     accessorKey: 'type',
     enableSorting: false,
-    size: 90,
+    size: 100,
     cell: ({ row }) => {
       const type = row.getValue('type') as TAtmRequestDiscord['type']
       return (

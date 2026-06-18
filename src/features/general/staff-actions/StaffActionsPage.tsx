@@ -30,11 +30,13 @@ const StaffActionsPage = async ({
 
   const query = normalizeStaffActionsSearchParams(searchParams)
 
-  const [{ actions, counts, total, staffMembers }, globalSettings] =
-    await Promise.all([
-      getStaffActionsData(guildId, session, query),
-      getGuildGlobalSettings(guildId)
-    ])
+  const [
+    { actions, counts, total, staffMembers, guildMembers },
+    globalSettings
+  ] = await Promise.all([
+    getStaffActionsData(guildId, session, query),
+    getGuildGlobalSettings(guildId)
+  ])
 
   return (
     <FeatureLayout title="Staff actions">
@@ -44,6 +46,7 @@ const StaffActionsPage = async ({
         actions={actions}
         counts={counts}
         staffMembers={staffMembers}
+        guildMembers={guildMembers}
         page={query.page}
         limit={query.limit}
         total={total}

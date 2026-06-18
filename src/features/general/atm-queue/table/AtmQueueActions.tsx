@@ -30,7 +30,10 @@ import {
   getPanelFeatureBlockMessage,
   isPanelFeatureBlocking
 } from '@/lib/panel/panelGlobalFeatureGuard'
+import { cn } from '@/lib/utils'
 import { TAtmRequestDiscord } from '@/types/types'
+
+const actionButtonClass = 'h-8 min-w-[4.75rem] flex-1 px-3 shadow-xs'
 
 type AtmQueueActionsProps = {
   guildId: string
@@ -97,8 +100,11 @@ const AtmQueueActions = ({
             <span>
               <Button
                 size="sm"
-                variant="default"
                 disabled={pending || approveBlocked}
+                className={cn(
+                  actionButtonClass,
+                  'bg-emerald-600 text-white hover:bg-emerald-600/90'
+                )}
                 onClick={() => openDialog('approve')}
               >
                 Approve
@@ -113,8 +119,12 @@ const AtmQueueActions = ({
         </Tooltip>
         <Button
           size="sm"
-          variant="destructive"
+          variant="outline"
           disabled={pending}
+          className={cn(
+            actionButtonClass,
+            'border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/20'
+          )}
           onClick={() => openDialog('reject')}
         >
           Reject

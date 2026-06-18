@@ -2,7 +2,7 @@ import { Table as ReactTable } from '@tanstack/react-table'
 import { STAFF_ACTION_CATEGORIES } from 'gambling-bot-shared/transactions'
 import { Download, Eraser, RefreshCcw } from 'lucide-react'
 
-import { Dispatch, RefObject, SetStateAction, useState } from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -11,8 +11,10 @@ import type {
   StaffActionRow
 } from '@/actions/database/staffActions.action'
 import DatePicker from '@/components/DatePicker'
+import SearchableUserFilter, {
+  type SearchableUserOption
+} from '@/components/SearchableUserFilter'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -41,17 +43,17 @@ const StaffActionsTableFilters = ({
   table,
   counts,
   staffMembers,
+  guildMembers,
   isLoading,
-  setIsLoading,
-  searchRef
+  setIsLoading
 }: {
   guildId: string
   table: ReactTable<StaffActionRow>
   counts: StaffActionCounts
   staffMembers: { userId: string; username: string }[]
+  guildMembers: SearchableUserOption[]
   isLoading: boolean
   setIsLoading: Dispatch<SetStateAction<boolean>>
-  searchRef: RefObject<HTMLInputElement | null>
 }) => {
   const router = useRouter()
   const [isExporting, setIsExporting] = useState(false)
@@ -109,15 +111,11 @@ const StaffActionsTableFilters = ({
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div className="flex min-w-0 flex-1 flex-wrap gap-2">
-        <Input
-          ref={searchRef}
-          className="h-9.5 max-w-60"
-          placeholder="User ID"
-          value={searchValue ?? ''}
-          onChange={(event) => {
-            table
-              .getColumn('search')
-              ?.setFilterValue(event.target.value || undefined)
+        <SearchableUserFilter
+          members={guildMembers}
+          value={searchValue}
+          onChange={(userId) => {
+            table.getColumn('search')?.setFilterValue(userId)
           }}
         />
 
