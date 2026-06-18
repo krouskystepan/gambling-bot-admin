@@ -1,6 +1,7 @@
 'use server'
 
 import { parseTimeToSeconds } from 'gambling-bot-shared/common'
+import { STAFF_ADMIN_ACTIONS } from 'gambling-bot-shared/transactions'
 import { type TVipRoom } from 'gambling-bot-shared/vip'
 
 import { revalidatePath } from 'next/cache'
@@ -23,8 +24,8 @@ import {
   VIP_CHANNEL_READ_ONLY
 } from '@/lib/discord/vipChannelPermissions'
 import { blockPanelFeatureAction } from '@/lib/panel/panelFeatureActionGuard.server'
+import { recordStaffAudit } from '@/lib/staffAudit/recordStaffAudit'
 import GuildConfiguration from '@/models/GuildConfiguration'
-import Transaction from '@/models/Transaction'
 import User from '@/models/User'
 import VipRoom from '@/models/VipRoom'
 import {
@@ -172,15 +173,12 @@ export async function createVipRoom(
       expiresAt
     })
 
-    await Transaction.create({
-      userId: ownerId,
+    await recordStaffAudit({
       guildId,
-      amount: 0,
-      type: 'vip',
-      source: 'web',
+      userId: ownerId,
       handledBy: managerId,
+      adminAction: STAFF_ADMIN_ACTIONS.VIP_BUY,
       meta: {
-        adminAction: 'admin-buy',
         durationDays: Math.floor(durationSeconds / 86400)
       }
     })
@@ -269,15 +267,12 @@ export async function extendVipRoom(
     return { success: false, message: 'User does not have an active VIP room.' }
   }
 
-  await Transaction.create({
-    userId: ownerId,
+  await recordStaffAudit({
     guildId,
-    amount: 0,
-    type: 'vip',
-    source: 'web',
+    userId: ownerId,
     handledBy: managerId,
+    adminAction: STAFF_ADMIN_ACTIONS.VIP_EXTEND,
     meta: {
-      adminAction: 'admin-extend',
       durationDays: Math.floor(durationSeconds / 86400)
     }
   })
@@ -318,6 +313,7 @@ export async function removeVipRoom(
   const blocked = await blockPanelFeatureAction(guildId, 'vip', access)
   if (blocked) return blocked
 
+  const managerId = access.session.userId!
   await connectToDatabase()
 
   const { vipSettings } = await loadGuildVipContext(guildId)
@@ -374,6 +370,13 @@ export async function removeVipRoom(
     }
 
     await VipRoom.findOneAndDelete({ ownerId, guildId })
+
+    await recordStaffAudit({
+      guildId,
+      userId: ownerId,
+      handledBy: managerId,
+      adminAction: STAFF_ADMIN_ACTIONS.VIP_REMOVE
+    })
   } catch (err) {
     return handleActionError(err)
   }
@@ -477,15 +480,12 @@ export async function addVipMember(
       VIP_CHANNEL_ACCESS
     )
 
-    await Transaction.create({
-      userId: ownerId,
+    await recordStaffAudit({
       guildId,
-      amount: 0,
-      type: 'vip',
-      source: 'web',
+      userId: ownerId,
       handledBy: managerId,
+      adminAction: STAFF_ADMIN_ACTIONS.VIP_ADD_MEMBER,
       meta: {
-        adminAction: 'admin-add-member',
         addedUserId: memberId,
         bypassUsed: bypassLimit
       }

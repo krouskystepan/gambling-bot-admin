@@ -1,0 +1,84 @@
+import {
+  STAFF_ACTION_CATEGORIES,
+  type StaffActionCategory
+} from 'gambling-bot-shared/transactions'
+import type { Session } from 'next-auth'
+
+import {
+  type StaffActionCounts,
+  type StaffActionRow,
+  getGuildStaffMembers,
+  getStaffActionCounts,
+  getStaffActions
+} from '@/actions/database/staffActions.action'
+
+export interface StaffActionsQuery {
+  page: number
+  limit: number
+  search?: string
+  staffId?: string
+  filterAction?: StaffActionCategory[]
+  dateFrom?: string
+  dateTo?: string
+}
+
+export interface StaffActionsResult {
+  actions: StaffActionRow[]
+  counts: StaffActionCounts
+  total: number
+  staffMembers: { userId: string; username: string }[]
+}
+
+export async function getStaffActionsData(
+  guildId: string,
+  session: Session,
+  query: StaffActionsQuery
+): Promise<StaffActionsResult> {
+  const filters = {
+    search: query.search,
+    staffId: query.staffId,
+    filterAction: query.filterAction,
+    dateFrom: query.dateFrom,
+    dateTo: query.dateTo
+  }
+
+  const [{ actions, total }, counts, staffMembers] = await Promise.all([
+    getStaffActions(guildId, session, query.page, query.limit, filters),
+    getStaffActionCounts(guildId, session, filters),
+    getGuildStaffMembers(guildId)
+  ])
+
+  return { actions, counts, total, staffMembers }
+}
+
+type RawSearchParams = {
+  page?: string
+  limit?: string
+  search?: string
+  staffId?: string
+  filterAction?: string
+  dateFrom?: string
+  dateTo?: string
+}
+
+export function normalizeStaffActionsSearchParams(
+  searchParams: RawSearchParams = {}
+): StaffActionsQuery {
+  const page = Number(searchParams.page)
+  const limit = Number(searchParams.limit)
+  const filterAction = searchParams.filterAction
+    ?.split(',')
+    .filter((value): value is StaffActionCategory =>
+      STAFF_ACTION_CATEGORIES.includes(value as StaffActionCategory)
+    )
+
+  return {
+    page: Number.isInteger(page) && page > 0 ? page : 1,
+    limit: Number.isInteger(limit) && limit > 0 ? limit : 10,
+    search: searchParams.search,
+    staffId: searchParams.staffId,
+    filterAction: filterAction?.length ? filterAction : undefined,
+    dateFrom: searchParams.dateFrom,
+    dateTo: searchParams.dateTo
+  }
+}

@@ -3,12 +3,14 @@
 import { type TAtmRequest } from 'gambling-bot-shared/atm'
 import { formatMoney } from 'gambling-bot-shared/common'
 import { normalizeGlobalSettings } from 'gambling-bot-shared/guild'
+import { STAFF_ADMIN_ACTIONS } from 'gambling-bot-shared/transactions'
 import { Session } from 'next-auth'
 
 import { editDiscordMessage, sendEmbed } from '@/actions/discord/utils.action'
 import { connectToDatabase } from '@/lib/db'
 import { revalidateGuildHealth } from '@/lib/guild/revalidateHealth'
 import { blockPanelFeatureAction } from '@/lib/panel/panelFeatureActionGuard.server'
+import { recordStaffAudit } from '@/lib/staffAudit/recordStaffAudit'
 import AtmRequest from '@/models/AtmRequest'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'
@@ -276,6 +278,31 @@ const notifyAtmChannels = async ({
   void handledBy
 }
 
+async function recordAtmRejectAudit({
+  guildId,
+  request,
+  handledBy,
+  notes
+}: {
+  guildId: string
+  request: Pick<TAtmRequest, 'userId' | 'requestId' | 'amount' | 'type'>
+  handledBy: string
+  notes?: string
+}) {
+  await recordStaffAudit({
+    guildId,
+    userId: request.userId,
+    handledBy,
+    adminAction: STAFF_ADMIN_ACTIONS.ATM_REJECT,
+    meta: {
+      requestId: request.requestId,
+      requestedAmount: request.amount,
+      type: request.type
+    },
+    notes
+  })
+}
+
 export const approveAtmRequestAction = async (
   guildId: string,
   requestId: string,
@@ -375,16 +402,24 @@ export const approveAtmRequestAction = async (
   })
 
   if (!withdrawCheck.ok) {
+    const rejectNotes = notes ?? 'Insufficient available balance at approval'
     await AtmRequest.findOneAndUpdate(
       { requestId, status: 'pending' },
       {
         status: 'rejected',
         handledBy,
         handledAt: new Date(),
-        notes: notes ?? 'Insufficient available balance at approval',
+        notes: rejectNotes,
         meta: { source: 'web', reason: withdrawCheck.reason, ...txMeta }
       }
     )
+
+    await recordAtmRejectAudit({
+      guildId,
+      request,
+      handledBy,
+      notes: rejectNotes
+    })
 
     await notifyAtmChannels({
       guildId,
@@ -417,16 +452,24 @@ export const approveAtmRequestAction = async (
   )
 
   if (!updatedUser) {
+    const rejectNotes = notes ?? 'Insufficient available balance at approval'
     await AtmRequest.findOneAndUpdate(
       { requestId, status: 'pending' },
       {
         status: 'rejected',
         handledBy,
         handledAt: new Date(),
-        notes: notes ?? 'Insufficient available balance at approval',
+        notes: rejectNotes,
         meta: { source: 'web', reason: 'INSUFFICIENT_BALANCE', ...txMeta }
       }
     )
+
+    await recordAtmRejectAudit({
+      guildId,
+      request,
+      handledBy,
+      notes: rejectNotes
+    })
 
     return {
       success: false,
@@ -524,6 +567,13 @@ export const rejectAtmRequestAction = async (
   if (!completed) {
     return { success: false, message: 'Another manager already handled this.' }
   }
+
+  await recordAtmRejectAudit({
+    guildId,
+    request,
+    handledBy,
+    notes
+  })
 
   const guildConfig = await GuildConfiguration.findOne({ guildId }).lean()
   const globalSettings = normalizeGlobalSettings(guildConfig?.globalSettings)
