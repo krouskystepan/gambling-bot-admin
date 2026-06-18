@@ -16,6 +16,7 @@ const VipPage = async ({
     page?: string
     limit?: string
     search?: string
+    userId?: string
     sort?: string
   }
 }) => {

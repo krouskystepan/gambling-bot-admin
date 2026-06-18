@@ -2,10 +2,11 @@
 
 import type { TPrediction } from 'gambling-bot-shared/predictions'
 
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 
 import { useSearchParams } from 'next/navigation'
 
+import type { SearchableUserOption } from '@/components/SearchableUserFilter'
 import {
   CustomTableBody,
   CustomTableHeader,
@@ -25,6 +26,7 @@ import { predictionColumns } from './predictionColumns'
 type PredictionsTableProps = {
   guildId: string
   predictions: TPredictionRow[]
+  guildMembers: SearchableUserOption[]
   page: number
   limit: number
   total: number
@@ -38,6 +40,7 @@ type PredictionsTableProps = {
 const PredictionsTable = ({
   guildId,
   predictions,
+  guildMembers,
   page,
   limit,
   total,
@@ -62,7 +65,7 @@ const PredictionsTable = ({
       logsChannelConfigured
     ),
     initialSorting: [{ id: 'createdAt', desc: true }],
-    initialVisibility: { search: false },
+    initialVisibility: { search: false, userId: false },
 
     onSortingChange: (sorting) => {
       debouncedUpdateUrl({
@@ -75,10 +78,14 @@ const PredictionsTable = ({
       const search =
         (filters.find((f) => f.id === 'search')?.value as string | undefined) ??
         ''
+      const userId =
+        (filters.find((f) => f.id === 'userId')?.value as string | undefined) ??
+        ''
 
       debouncedUpdateUrl({
         page: 1,
-        search
+        search: search || undefined,
+        userId: userId || undefined
       })
     },
 
@@ -95,12 +102,16 @@ const PredictionsTable = ({
   }, [setIsLoading, predictions])
 
   const searchParams = useSearchParams()
-  const searchRef = useRef<HTMLInputElement>(null)
 
   useHydrateServerTableFromUrl(table, searchParams, {
     filters: (params) => {
       const search = params.get('search') || ''
-      return search ? [{ id: 'search', value: search }] : []
+      const userId = params.get('userId') || ''
+
+      return [
+        { id: 'search', value: search || undefined },
+        { id: 'userId', value: userId || undefined }
+      ]
     }
   })
 
@@ -115,9 +126,10 @@ const PredictionsTable = ({
         <PredictionsTableFilters
           guildId={guildId}
           table={table}
+          predictions={predictions}
+          guildMembers={guildMembers}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
-          searchRef={searchRef}
           status={status}
           onStatusChange={handleStatusChange}
           predictionConfigured={predictionConfigured}

@@ -7,6 +7,7 @@ export interface VipsQuery {
   page: number
   limit: number
   search?: string
+  userId?: string
   sort?: string
 }
 
@@ -26,7 +27,8 @@ export async function getVipsData(
     query.page,
     query.limit,
     query.search,
-    query.sort
+    query.sort,
+    query.userId
   )
 
   return {
@@ -39,6 +41,7 @@ type RawSearchParams = {
   page?: string
   limit?: string
   search?: string
+  userId?: string
   sort?: string
 }
 
@@ -46,6 +49,7 @@ type NormalizedSearchParams = {
   page: number
   limit: number
   search?: string
+  userId?: string
   sort?: string
 }
 
@@ -59,6 +63,7 @@ export function normalizeVipsSearchParams(
     page: Number.isInteger(page) && page > 0 ? page : 1,
     limit: Number.isInteger(limit) && limit > 0 ? limit : 10,
     search: searchParams.search,
+    userId: searchParams.userId,
     sort: searchParams.sort
   }
 }

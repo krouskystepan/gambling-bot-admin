@@ -19,6 +19,7 @@ const PredictionsPage = async ({
     page?: string
     limit?: string
     search?: string
+    userId?: string
     sort?: string
     status?: string
   }
@@ -27,10 +28,12 @@ const PredictionsPage = async ({
   if (!session) return null
 
   const query = normalizePredictionsSearchParams(searchParams)
-  const [{ predictions, total }, pageContext] = await Promise.all([
-    getPredictionsData(guildId, session, query),
-    getPredictionPageContext(guildId)
-  ])
+  const [{ predictions, total, guildMembers }, pageContext] = await Promise.all(
+    [
+      getPredictionsData(guildId, session, query),
+      getPredictionPageContext(guildId)
+    ]
+  )
 
   if (!pageContext) return null
 
@@ -39,6 +42,7 @@ const PredictionsPage = async ({
       <PredictionsTable
         guildId={guildId}
         predictions={predictions}
+        guildMembers={guildMembers}
         page={query.page}
         limit={query.limit}
         total={total}

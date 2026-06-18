@@ -5,6 +5,9 @@ export function parseTransactionExportParams(
 ): TransactionExportFilters {
   return {
     search: searchParams.get('search') ?? undefined,
+    staffId: searchParams.get('staffId') ?? undefined,
+    betId:
+      searchParams.get('betId') ?? searchParams.get('adminSearch') ?? undefined,
     adminSearch: searchParams.get('adminSearch') ?? undefined,
     filterType:
       searchParams.get('filterType')?.split(',').filter(Boolean) ?? undefined,

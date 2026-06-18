@@ -2,7 +2,7 @@
 
 import type { GlobalSettings } from 'gambling-bot-shared/guild'
 
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 
 import { useSearchParams } from 'next/navigation'
 
@@ -29,6 +29,12 @@ type AtmQueueTableProps = {
   isGuildAdmin: boolean
   requests: TAtmRequestDiscord[]
   counts: IAtmRequestCounts
+  guildMembers: {
+    userId: string
+    username: string
+    nickname: string | null
+    avatarUrl: string
+  }[]
   page: number
   limit: number
   total: number
@@ -40,6 +46,7 @@ const AtmQueueTable = ({
   isGuildAdmin,
   requests,
   counts,
+  guildMembers,
   page,
   limit,
   total
@@ -108,7 +115,6 @@ const AtmQueueTable = ({
   const updateUrl = useUpdateUrl()
   const debouncedUpdateUrl = useDebouncedCallback(updateUrl, 300)
   const searchParams = useSearchParams()
-  const searchRef = useRef<HTMLInputElement>(null)
 
   useHydrateServerTableFromUrl(table, searchParams, {
     filters: (params) => {
@@ -145,9 +151,9 @@ const AtmQueueTable = ({
         <AtmQueueTableFilters
           table={table}
           counts={counts}
+          guildMembers={guildMembers}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
-          searchRef={searchRef}
         />
       }
       summary={

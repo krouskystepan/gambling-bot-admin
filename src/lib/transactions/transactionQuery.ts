@@ -8,6 +8,8 @@ import {
 export type TransactionQueryFilters = {
   userId?: string
   search?: string
+  staffId?: string
+  betId?: string
   adminSearch?: string
   filterType?: string[]
   filterSource?: string[]

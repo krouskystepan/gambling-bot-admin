@@ -3,11 +3,15 @@
 import { Table as ReactTable } from '@tanstack/react-table'
 import { PlusIcon, RefreshCcw } from 'lucide-react'
 
-import { Dispatch, RefObject, SetStateAction, useState } from 'react'
+import { Dispatch, SetStateAction, useMemo, useState } from 'react'
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
+import SearchableTextFilter from '@/components/SearchableTextFilter'
+import SearchableUserFilter, {
+  type SearchableUserOption
+} from '@/components/SearchableUserFilter'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -24,7 +28,6 @@ import {
 import { TRaffleRow } from '@/types/types'
 
 import CreateRaffleDialog from '../CreateRaffleDialog'
-import RaffleTableSearch from './RaffleTableSearch'
 
 const statusOptions = [
   { value: 'active', label: 'Active' },
@@ -35,9 +38,10 @@ const statusOptions = [
 const RafflesTableFilters = ({
   guildId,
   table,
+  raffles,
+  guildMembers,
   isLoading,
   setIsLoading,
-  searchRef,
   status,
   onStatusChange,
   raffleConfigured,
@@ -46,9 +50,10 @@ const RafflesTableFilters = ({
 }: {
   guildId: string
   table: ReactTable<TRaffleRow>
+  raffles: TRaffleRow[]
+  guildMembers: SearchableUserOption[]
   isLoading: boolean
   setIsLoading: Dispatch<SetStateAction<boolean>>
-  searchRef: RefObject<HTMLInputElement | null>
   status: string
   onStatusChange: (status: string) => void
   raffleConfigured: boolean
@@ -66,20 +71,47 @@ const RafflesTableFilters = ({
       ? 'Configure the raffle actions channel first.'
       : 'Create a new raffle in Discord'
 
+  const userIdFilter = table.getColumn('userId')?.getFilterValue() as
+    | string
+    | undefined
   const searchValue = table.getColumn('search')?.getFilterValue() as
     | string
     | undefined
 
+  const raffleOptions = useMemo(
+    () =>
+      raffles.map((raffle) => ({
+        value: raffle.raffleId,
+        label: raffle.channelName,
+        sublabel: raffle.raffleId
+      })),
+    [raffles]
+  )
+
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <RaffleTableSearch
-          table={table}
-          inputRef={searchRef}
-          columnId="search"
-          placeholder="Search by ID, channel, or creator..."
-          initialValue={searchValue}
-        />
+        <div className="flex min-w-0 flex-1 flex-wrap gap-2">
+          <SearchableUserFilter
+            members={guildMembers}
+            value={userIdFilter}
+            placeholder="All creators"
+            clearLabel="All creators"
+            onChange={(userId) => {
+              table.getColumn('userId')?.setFilterValue(userId)
+            }}
+          />
+          <SearchableTextFilter
+            options={raffleOptions}
+            value={searchValue}
+            placeholder="All raffles"
+            clearLabel="All raffles"
+            inputPlaceholder="Search by ID or channel..."
+            onChange={(search) => {
+              table.getColumn('search')?.setFilterValue(search)
+            }}
+          />
+        </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <Select value={status} onValueChange={onStatusChange}>

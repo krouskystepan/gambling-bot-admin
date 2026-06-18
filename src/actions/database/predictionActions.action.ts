@@ -131,7 +131,8 @@ export async function getPredictions(
   limit = 10,
   search?: string,
   sort?: string,
-  status: TPrediction['status'] | 'all' = 'active'
+  status: TPrediction['status'] | 'all' = 'active',
+  userId?: string
 ): Promise<{ predictions: TPredictionRow[]; total: number }> {
   const access = await requireGuildAccess(guildId)
   if ('error' in access || page < 1 || limit < 1 || limit > 50) {
@@ -162,15 +163,19 @@ export async function getPredictions(
     enrichPredictionRow(prediction, channelsMap, membersMap)
   )
 
+  if (userId) {
+    predictions = predictions.filter(
+      (prediction) => prediction.creatorId === userId
+    )
+  }
+
   if (search) {
     const regex = new RegExp(escapeRegExp(search), 'i')
     predictions = predictions.filter(
       (prediction) =>
         regex.test(prediction.predictionId) ||
         regex.test(prediction.title) ||
-        regex.test(prediction.channelName) ||
-        regex.test(prediction.creatorUsername) ||
-        regex.test(prediction.creatorId)
+        regex.test(prediction.channelName)
     )
   }
 

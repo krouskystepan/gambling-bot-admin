@@ -1,30 +1,51 @@
 import { Table as ReactTable } from '@tanstack/react-table'
 import { RefreshCcw } from 'lucide-react'
 
-import { Dispatch, RefObject, SetStateAction } from 'react'
+import { Dispatch, SetStateAction } from 'react'
 
 import { useRouter } from 'next/navigation'
 
+import SearchableUserFilter, {
+  type SearchableUserOption
+} from '@/components/SearchableUserFilter'
 import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { cn } from '@/lib/utils'
 import { TGuildMemberStatus } from '@/types/types'
 
-import UserTableSearch from './UserTableSearch'
+import type { UserRegistrationFilter } from '../useUsers'
+
+const registrationOptions = [
+  { value: 'all', label: 'All' },
+  { value: 'registered', label: 'Registered' },
+  { value: 'not_registered', label: 'Not Registered' }
+] as const
 
 const UserTableFilters = ({
   table,
+  guildMembers,
+  registration,
+  onRegistrationChange,
   isLoading,
-  setIsLoading,
-  searchRef
+  setIsLoading
 }: {
   table: ReactTable<TGuildMemberStatus>
+  guildMembers: SearchableUserOption[]
+  registration: UserRegistrationFilter
+  onRegistrationChange: (registration: UserRegistrationFilter) => void
   isLoading: boolean
   setIsLoading: Dispatch<SetStateAction<boolean>>
-  searchRef: RefObject<HTMLInputElement | null>
 }) => {
   const router = useRouter()
 
@@ -34,13 +55,38 @@ const UserTableFilters = ({
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
-      <UserTableSearch
-        table={table}
-        inputRef={searchRef}
-        columnId="search"
-        placeholder="Search by username, nickname or ID..."
-        initialValue={searchValue}
-      />
+      <div className="flex min-w-0 flex-1 flex-wrap gap-2">
+        <SearchableUserFilter
+          members={guildMembers}
+          value={searchValue}
+          onChange={(userId) => {
+            table.getColumn('search')?.setFilterValue(userId)
+          }}
+        />
+
+        <Select
+          value={registration}
+          onValueChange={(value) => {
+            onRegistrationChange(value as UserRegistrationFilter)
+          }}
+        >
+          <SelectTrigger
+            className={cn(
+              'h-9.5 w-44',
+              registration === 'all' && 'text-muted-foreground'
+            )}
+          >
+            <SelectValue placeholder="All" />
+          </SelectTrigger>
+          <SelectContent>
+            {registrationOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       <Tooltip>
         <TooltipTrigger asChild>

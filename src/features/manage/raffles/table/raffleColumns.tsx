@@ -36,6 +36,15 @@ export const raffleColumns = (
     size: 0
   },
   {
+    id: 'userId',
+    header: () => null,
+    cell: () => null,
+    enableSorting: false,
+    enableColumnFilter: true,
+    enableHiding: false,
+    size: 0
+  },
+  {
     id: 'status',
     header: () => <span className="whitespace-nowrap">Status</span>,
     accessorKey: 'status',

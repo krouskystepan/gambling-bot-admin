@@ -29,12 +29,15 @@ const AtmQueuePage = async ({
 
   const query = normalizeAtmQueueSearchParams(searchParams)
 
-  const [{ requests, counts, total }, globalSettings, { isAdmin }] =
-    await Promise.all([
-      getAtmQueueData(guildId, session, query),
-      getGuildGlobalSettings(guildId),
-      getUserPermissions(guildId, session)
-    ])
+  const [
+    { requests, counts, total, guildMembers },
+    globalSettings,
+    { isAdmin }
+  ] = await Promise.all([
+    getAtmQueueData(guildId, session, query),
+    getGuildGlobalSettings(guildId),
+    getUserPermissions(guildId, session)
+  ])
 
   return (
     <FeatureLayout title="ATM Queue">
@@ -44,6 +47,7 @@ const AtmQueuePage = async ({
         isGuildAdmin={isAdmin}
         requests={requests}
         counts={counts}
+        guildMembers={guildMembers}
         page={query.page}
         limit={query.limit}
         total={total}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 
 import { useSearchParams } from 'next/navigation'
 
@@ -65,7 +65,7 @@ const VipTable = ({
       vipFeatureBlockMessage
     ),
     initialSorting: [{ id: 'createdAt', desc: true }],
-    initialVisibility: { search: false },
+    initialVisibility: { search: false, userId: false },
 
     onSortingChange: (sorting) => {
       debouncedUpdateUrl({
@@ -78,10 +78,14 @@ const VipTable = ({
       const search =
         (filters.find((f) => f.id === 'search')?.value as string | undefined) ??
         ''
+      const userId =
+        (filters.find((f) => f.id === 'userId')?.value as string | undefined) ??
+        ''
 
       debouncedUpdateUrl({
         page: 1,
-        search
+        search: search || undefined,
+        userId: userId || undefined
       })
     },
 
@@ -101,13 +105,16 @@ const VipTable = ({
   const debouncedUpdateUrl = useDebouncedCallback(updateUrl, 300)
 
   const searchParams = useSearchParams()
-  const searchRef = useRef<HTMLInputElement>(null)
 
   useHydrateServerTableFromUrl(table, searchParams, {
     filters: (params) => {
       const search = params.get('search') || ''
+      const userId = params.get('userId') || ''
 
-      return search ? [{ id: 'search', value: search }] : []
+      return [
+        { id: 'search', value: search || undefined },
+        { id: 'userId', value: userId || undefined }
+      ]
     }
   })
 
@@ -117,9 +124,9 @@ const VipTable = ({
         <VipsTableFilters
           guildId={guildId}
           table={table}
+          vips={vips}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
-          searchRef={searchRef}
           vipConfigured={vipConfigured}
           vipFeatureBlocked={vipFeatureBlocked}
           vipFeatureBlockMessage={vipFeatureBlockMessage}

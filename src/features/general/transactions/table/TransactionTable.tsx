@@ -3,10 +3,11 @@
 import { VisibilityState } from '@tanstack/react-table'
 import type { GlobalSettings } from 'gambling-bot-shared/guild'
 
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 
 import { useSearchParams } from 'next/navigation'
 
+import type { SearchableUserOption } from '@/components/SearchableUserFilter'
 import {
   CustomTableBody,
   CustomTableHeader,
@@ -29,6 +30,8 @@ interface TransactionTableProps {
   globalSettings: GlobalSettings
   transactions: TTransactionDiscord[]
   transactionCounts: ITransactionCounts
+  staffMembers: { userId: string; username: string }[]
+  guildMembers: SearchableUserOption[]
   page: number
   limit: number
   total: number
@@ -43,6 +46,8 @@ const TransactionTable = ({
   globalSettings,
   transactions,
   transactionCounts,
+  staffMembers,
+  guildMembers,
   page,
   limit,
   total,
@@ -52,6 +57,7 @@ const TransactionTable = ({
   hideDatePicker = false
 }: TransactionTableProps) => {
   const defaultVisibility: VisibilityState = {
+    handledBy: false,
     betId: false,
     casinoGame: false
   }
@@ -81,8 +87,12 @@ const TransactionTable = ({
           : ((filters.find((f) => f.id === 'username')?.value as
               | string
               | undefined) ?? '')
-        const adminSearch =
-          (filters.find((f) => f.id === 'handledByUsername')?.value as
+        const staffId =
+          (filters.find((f) => f.id === 'handledBy')?.value as
+            | string
+            | undefined) ?? ''
+        const betId =
+          (filters.find((f) => f.id === 'betId')?.value as
             | string
             | undefined) ?? ''
 
@@ -110,7 +120,8 @@ const TransactionTable = ({
         debouncedUpdateUrl({
           page: 1,
           ...(hideUserSearch ? {} : { search }),
-          adminSearch,
+          staffId: staffId || undefined,
+          betId: betId || undefined,
           filterType,
           filterSource,
           filterCasinoGame,
@@ -155,13 +166,11 @@ const TransactionTable = ({
 
   const searchParams = useSearchParams()
 
-  const userSearchRef = useRef<HTMLInputElement>(null)
-  const adminSearchRef = useRef<HTMLInputElement>(null)
-
   useHydrateServerTableFromUrl(table, searchParams, {
     filters: (params) => {
       const search = params.get('search') || ''
-      const adminSearch = params.get('adminSearch') || ''
+      const staffId = params.get('staffId') || ''
+      const betId = params.get('betId') || params.get('adminSearch') || ''
       const filterType = params.get('filterType')?.split(',')
       const filterSource = params.get('filterSource')?.split(',')
       const filterCasinoGame = params.get('filterCasinoGame')?.split(',')
@@ -169,7 +178,8 @@ const TransactionTable = ({
       const dateTo = params.get('dateTo') || undefined
 
       const filters = [
-        { id: 'handledByUsername', value: adminSearch || undefined },
+        { id: 'handledBy', value: staffId || undefined },
+        { id: 'betId', value: betId || undefined },
         { id: 'type', value: filterType?.length ? filterType : undefined },
         {
           id: 'source',
@@ -203,8 +213,8 @@ const TransactionTable = ({
           counts={transactionCounts}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
-          userSearchRef={userSearchRef}
-          adminSearchRef={adminSearchRef}
+          staffMembers={staffMembers}
+          guildMembers={guildMembers}
           hideUserSearch={hideUserSearch}
           hideDatePicker={hideDatePicker}
         />

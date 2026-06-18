@@ -3,11 +3,15 @@
 import { Table as ReactTable } from '@tanstack/react-table'
 import { PlusIcon, RefreshCcw } from 'lucide-react'
 
-import { Dispatch, RefObject, SetStateAction, useState } from 'react'
+import { Dispatch, SetStateAction, useMemo, useState } from 'react'
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
+import SearchableTextFilter from '@/components/SearchableTextFilter'
+import SearchableUserFilter, {
+  type SearchableUserOption
+} from '@/components/SearchableUserFilter'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -24,7 +28,6 @@ import {
 import { TPredictionRow } from '@/types/types'
 
 import CreatePredictionDialog from '../components/CreatePredictionDialog'
-import PredictionsTableSearch from './PredictionsTableSearch'
 
 const statusOptions = [
   { value: 'active', label: 'Active' },
@@ -38,9 +41,10 @@ const statusOptions = [
 const PredictionsTableFilters = ({
   guildId,
   table,
+  predictions,
+  guildMembers,
   isLoading,
   setIsLoading,
-  searchRef,
   status,
   onStatusChange,
   predictionConfigured,
@@ -50,9 +54,10 @@ const PredictionsTableFilters = ({
 }: {
   guildId: string
   table: ReactTable<TPredictionRow>
+  predictions: TPredictionRow[]
+  guildMembers: SearchableUserOption[]
   isLoading: boolean
   setIsLoading: Dispatch<SetStateAction<boolean>>
-  searchRef: RefObject<HTMLInputElement | null>
   status: string
   onStatusChange: (status: string) => void
   predictionConfigured: boolean
@@ -72,9 +77,22 @@ const PredictionsTableFilters = ({
       ? 'Configure prediction actions and logs channels first.'
       : 'Create a new prediction in Discord'
 
+  const userIdFilter = table.getColumn('userId')?.getFilterValue() as
+    | string
+    | undefined
   const searchValue = table.getColumn('search')?.getFilterValue() as
     | string
     | undefined
+
+  const predictionOptions = useMemo(
+    () =>
+      predictions.map((prediction) => ({
+        value: prediction.predictionId,
+        label: prediction.title,
+        sublabel: prediction.predictionId
+      })),
+    [predictions]
+  )
 
   return (
     <>
@@ -92,13 +110,27 @@ const PredictionsTableFilters = ({
       ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <PredictionsTableSearch
-          table={table}
-          inputRef={searchRef}
-          columnId="search"
-          placeholder="Search by title, ID, or creator..."
-          initialValue={searchValue}
-        />
+        <div className="flex min-w-0 flex-1 flex-wrap gap-2">
+          <SearchableUserFilter
+            members={guildMembers}
+            value={userIdFilter}
+            placeholder="All creators"
+            clearLabel="All creators"
+            onChange={(userId) => {
+              table.getColumn('userId')?.setFilterValue(userId)
+            }}
+          />
+          <SearchableTextFilter
+            options={predictionOptions}
+            value={searchValue}
+            placeholder="All predictions"
+            clearLabel="All predictions"
+            inputPlaceholder="Search by title or ID..."
+            onChange={(search) => {
+              table.getColumn('search')?.setFilterValue(search)
+            }}
+          />
+        </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <Select value={status} onValueChange={onStatusChange}>

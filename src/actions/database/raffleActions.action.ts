@@ -156,7 +156,8 @@ export async function getRaffles(
   limit = 10,
   search?: string,
   sort?: string,
-  status: TRaffleStatus | 'all' = 'active'
+  status: TRaffleStatus | 'all' = 'active',
+  userId?: string
 ): Promise<{ raffles: TRaffleRow[]; total: number }> {
   const access = await requireGuildAccess(guildId)
   if ('error' in access || page < 1 || limit < 1 || limit > 50) {
@@ -187,15 +188,17 @@ export async function getRaffles(
     enrichRaffleRow(raffle, channelsMap, membersMap)
   )
 
+  if (userId) {
+    raffles = raffles.filter((raffle) => raffle.creatorId === userId)
+  }
+
   if (search) {
     const regex = new RegExp(escapeRegExp(search), 'i')
     raffles = raffles.filter(
       (raffle) =>
         regex.test(raffle.raffleId) ||
         regex.test(raffle.drawId) ||
-        regex.test(raffle.channelName) ||
-        regex.test(raffle.creatorUsername) ||
-        regex.test(raffle.creatorId)
+        regex.test(raffle.channelName)
     )
   }
 

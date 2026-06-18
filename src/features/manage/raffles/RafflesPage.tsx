@@ -16,6 +16,7 @@ const RafflesPage = async ({
     page?: string
     limit?: string
     search?: string
+    userId?: string
     sort?: string
     status?: string
   }
@@ -24,7 +25,7 @@ const RafflesPage = async ({
   if (!session) return null
 
   const query = normalizeRafflesSearchParams(searchParams)
-  const [{ raffles, total }, pageContext] = await Promise.all([
+  const [{ raffles, total, guildMembers }, pageContext] = await Promise.all([
     getRafflesData(guildId, session, query),
     getRafflePageContext(guildId)
   ])
@@ -36,6 +37,7 @@ const RafflesPage = async ({
       <RaffleTable
         guildId={guildId}
         raffles={raffles}
+        guildMembers={guildMembers}
         page={query.page}
         limit={query.limit}
         total={total}

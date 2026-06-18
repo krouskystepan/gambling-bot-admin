@@ -1,18 +1,23 @@
 import type { Session } from 'next-auth'
 
 import { getUsers } from '@/actions/database/user.action'
+import { getDiscordGuildMembers } from '@/actions/discord/member.action'
 import { TGuildMemberStatus } from '@/types/types'
+
+export type UserRegistrationFilter = 'all' | 'registered' | 'not_registered'
 
 export interface UsersQuery {
   page: number
   limit: number
   search?: string
   sort?: string
+  registration: UserRegistrationFilter
 }
 
 export interface UsersResult {
   users: TGuildMemberStatus[]
   total: number
+  guildMembers: Awaited<ReturnType<typeof getDiscordGuildMembers>>
 }
 
 export async function getUsersData(
@@ -20,18 +25,23 @@ export async function getUsersData(
   session: Session,
   query: UsersQuery
 ): Promise<UsersResult> {
-  const { users, total } = await getUsers(
-    guildId,
-    session,
-    query.page,
-    query.limit,
-    query.search,
-    query.sort
-  )
+  const [{ users, total }, guildMembers] = await Promise.all([
+    getUsers(
+      guildId,
+      session,
+      query.page,
+      query.limit,
+      query.search,
+      query.sort,
+      query.registration
+    ),
+    getDiscordGuildMembers(guildId)
+  ])
 
   return {
     users,
-    total
+    total,
+    guildMembers
   }
 }
 
@@ -40,18 +50,17 @@ type RawSearchParams = {
   limit?: string
   search?: string
   sort?: string
+  registration?: string
 }
 
-type NormalizedSearchParams = {
-  page: number
-  limit: number
-  search?: string
-  sort?: string
+function parseRegistration(registration?: string): UserRegistrationFilter {
+  if (registration === 'registered' || registration === 'not_registered') {
+    return registration
+  }
+  return 'all'
 }
 
-export function normalizeUsersSearchParams(
-  searchParams: RawSearchParams = {}
-): NormalizedSearchParams {
+export function normalizeUsersSearchParams(searchParams: RawSearchParams = {}) {
   const page = Number(searchParams.page)
   const limit = Number(searchParams.limit)
 
@@ -59,6 +68,7 @@ export function normalizeUsersSearchParams(
     page: Number.isInteger(page) && page > 0 ? page : 1,
     limit: Number.isInteger(limit) && limit > 0 ? limit : 10,
     search: searchParams.search,
-    sort: searchParams.sort
+    sort: searchParams.sort,
+    registration: parseRegistration(searchParams.registration)
   }
 }

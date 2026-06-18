@@ -3,11 +3,13 @@
 import { Table as ReactTable } from '@tanstack/react-table'
 import { PlusIcon, RefreshCcw } from 'lucide-react'
 
-import { Dispatch, RefObject, SetStateAction, useState } from 'react'
+import { Dispatch, SetStateAction, useMemo, useState } from 'react'
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
+import SearchableTextFilter from '@/components/SearchableTextFilter'
+import SearchableUserFilter from '@/components/SearchableUserFilter'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -18,14 +20,13 @@ import { TVipChannels } from '@/types/types'
 
 import CreateVipDialog from './CreateVipDialog'
 import { type GuildMemberOption } from './GuildMemberCombobox'
-import VipTableSearch from './VipTableSearch'
 
 const VipsTableFilters = ({
   guildId,
   table,
+  vips,
   isLoading,
   setIsLoading,
-  searchRef,
   vipConfigured,
   vipFeatureBlocked,
   vipFeatureBlockMessage,
@@ -34,9 +35,9 @@ const VipsTableFilters = ({
 }: {
   guildId: string
   table: ReactTable<TVipChannels>
+  vips: TVipChannels[]
   isLoading: boolean
   setIsLoading: Dispatch<SetStateAction<boolean>>
-  searchRef: RefObject<HTMLInputElement | null>
   vipConfigured: boolean
   vipFeatureBlocked: boolean
   vipFeatureBlockMessage: string | null
@@ -54,20 +55,45 @@ const VipsTableFilters = ({
       ? `Configure VIP settings first in VIP settings.`
       : 'Create a VIP room for a registered user'
 
+  const userIdFilter = table.getColumn('userId')?.getFilterValue() as
+    | string
+    | undefined
   const searchValue = table.getColumn('search')?.getFilterValue() as
     | string
     | undefined
 
+  const vipOptions = useMemo(
+    () =>
+      vips.map((vip) => ({
+        value: vip.channelId,
+        label: vip.channelName,
+        sublabel: vip.channelId
+      })),
+    [vips]
+  )
+
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <VipTableSearch
-          table={table}
-          inputRef={searchRef}
-          columnId="search"
-          placeholder="Search by username, nickname, channel or IDs..."
-          initialValue={searchValue}
-        />
+        <div className="flex min-w-0 flex-1 flex-wrap gap-2">
+          <SearchableUserFilter
+            members={members}
+            value={userIdFilter}
+            onChange={(userId) => {
+              table.getColumn('userId')?.setFilterValue(userId)
+            }}
+          />
+          <SearchableTextFilter
+            options={vipOptions}
+            value={searchValue}
+            placeholder="All VIP rooms"
+            clearLabel="All VIP rooms"
+            inputPlaceholder="Search by channel or ID..."
+            onChange={(search) => {
+              table.getColumn('search')?.setFilterValue(search)
+            }}
+          />
+        </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <Tooltip>

@@ -30,6 +30,13 @@ export const vipColumns = (
     enableColumnFilter: true
   },
   {
+    id: 'userId',
+    header: () => null,
+    cell: () => null,
+    enableSorting: false,
+    enableColumnFilter: true
+  },
+  {
     header: 'Image',
     accessorKey: 'avatar',
     enableSorting: false,

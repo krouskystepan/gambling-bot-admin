@@ -24,6 +24,8 @@ export const TRANSACTION_EXPORT_HEADERS = [
 
 export type TransactionExportFilters = {
   search?: string
+  staffId?: string
+  betId?: string
   adminSearch?: string
   filterType?: string[]
   filterSource?: string[]

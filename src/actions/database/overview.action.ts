@@ -230,6 +230,8 @@ export async function getOverviewData(
       undefined,
       undefined,
       undefined,
+      undefined,
+      undefined,
       range.dateFrom,
       range.dateTo
     )

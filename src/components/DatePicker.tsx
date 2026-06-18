@@ -1,68 +1,91 @@
 'use client'
 
-import {
-  endOfMonth,
-  endOfYear,
-  format,
-  startOfMonth,
-  startOfYear,
-  subDays,
-  subMonths,
-  subYears
-} from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
 import { DateRange } from 'react-day-picker'
 
 import { useState } from 'react'
 
-import { getWholeTimeRange } from '@/lib/overview/datePresets'
+import {
+  formatDatePickerRange,
+  getDatePickerPresets,
+  getDatePickerRangeLabel,
+  getWholeTimeDateRange,
+  rangesMatch,
+  safeDate
+} from '@/lib/datePickerPresets'
 import { cn } from '@/lib/utils'
 
 import { Button } from './ui/button'
 import { Calendar } from './ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 
-function safe(d: Date) {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12)
-}
-
 const DatePicker = ({
   onChange,
-  initialRange
+  value,
+  initialRange,
+  defaultToAllTime = true
 }: {
   onChange: (range: { from: Date; to: Date } | undefined) => void
+  value?: DateRange
   initialRange?: DateRange
+  defaultToAllTime?: boolean
 }) => {
-  const today = safe(new Date())
+  const today = safeDate(new Date())
+  const presets = getDatePickerPresets(today)
+  const wholeTime = getWholeTimeDateRange(today)
+  const controlledRange = value ?? initialRange
 
   const [month, setMonth] = useState<Date>(
-    initialRange?.to ?? initialRange?.from ?? today
+    controlledRange?.to ?? controlledRange?.from ?? today
   )
+  const [prevControlledRange, setPrevControlledRange] =
+    useState(controlledRange)
 
-  const yesterday = {
-    from: safe(subDays(today, 1)),
-    to: safe(subDays(today, 1))
+  if (controlledRange !== prevControlledRange) {
+    setPrevControlledRange(controlledRange)
+    if (controlledRange?.to ?? controlledRange?.from) {
+      setMonth(controlledRange.to ?? controlledRange.from ?? today)
+    }
   }
-  const last7Days = { from: safe(subDays(today, 6)), to: today }
-  const last30Days = { from: safe(subDays(today, 29)), to: today }
-  const monthToDate = { from: safe(startOfMonth(today)), to: today }
-  const lastMonth = {
-    from: safe(startOfMonth(subMonths(today, 1))),
-    to: safe(endOfMonth(subMonths(today, 1)))
-  }
-  const yearToDate = { from: safe(startOfYear(today)), to: today }
-  const lastYear = {
-    from: safe(startOfYear(subYears(today, 1))),
-    to: safe(endOfYear(subYears(today, 1)))
-  }
-  const wholeTime = {
-    from: safe(getWholeTimeRange().from),
-    to: today
-  }
+
+  const displayRange =
+    controlledRange?.from && controlledRange.to
+      ? {
+          from: safeDate(controlledRange.from),
+          to: safeDate(controlledRange.to)
+        }
+      : defaultToAllTime
+        ? wholeTime
+        : undefined
+
+  const isAllTime =
+    !controlledRange?.from && !controlledRange?.to && defaultToAllTime
+
+  const activePresetLabel = displayRange
+    ? isAllTime
+      ? 'All time'
+      : getDatePickerRangeLabel(displayRange.from, displayRange.to, today)
+    : null
+
+  const triggerLabel = activePresetLabel
+    ? activePresetLabel
+    : displayRange
+      ? formatDatePickerRange(displayRange.from, displayRange.to)
+      : 'Pick a date'
 
   function apply(range: { from: Date; to: Date }) {
     setMonth(range.to)
     onChange(range)
+  }
+
+  function applyPreset(preset: (typeof presets)[number]) {
+    const range = preset.match()
+    if (preset.label === 'All time' && defaultToAllTime) {
+      setMonth(range.to)
+      onChange(undefined)
+      return
+    }
+    apply(range)
   }
 
   return (
@@ -72,22 +95,11 @@ const DatePicker = ({
           variant="outline"
           className={cn(
             'h-9.5 w-64 justify-start text-left font-normal',
-            !initialRange && 'text-muted-foreground'
+            !displayRange && 'text-muted-foreground'
           )}
         >
           <CalendarIcon className="-ms-1 opacity-60" size={16} />
-          {initialRange?.from ? (
-            initialRange.to ? (
-              <>
-                {format(initialRange.from, 'LLL dd, y')} -{' '}
-                {format(initialRange.to, 'LLL dd, y')}
-              </>
-            ) : (
-              format(initialRange.from, 'LLL dd, y')
-            )
-          ) : (
-            <span>Pick a date</span>
-          )}
+          <span className="truncate">{triggerLabel}</span>
         </Button>
       </PopoverTrigger>
 
@@ -95,74 +107,45 @@ const DatePicker = ({
         <div className="flex max-sm:flex-col">
           <div className="py-4 sm:w-32 sm:border-r">
             <div className="flex flex-col gap-1 px-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => apply({ from: today, to: today })}
-              >
-                Today
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => apply(yesterday)}
-              >
-                Yesterday
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => apply(last7Days)}
-              >
-                Last 7 days
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => apply(last30Days)}
-              >
-                Last 30 days
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => apply(monthToDate)}
-              >
-                Month to date
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => apply(lastMonth)}
-              >
-                Last month
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => apply(yearToDate)}
-              >
-                Year to date
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => apply(lastYear)}>
-                Last year
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => apply(wholeTime)}
-              >
-                All time
-              </Button>
+              {presets.map((preset) => {
+                const presetRange = preset.match()
+                const isActive = isAllTime
+                  ? preset.label === 'All time'
+                  : displayRange
+                    ? rangesMatch(displayRange, presetRange)
+                    : false
+
+                return (
+                  <Button
+                    key={preset.label}
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      'justify-start font-normal',
+                      isActive && 'bg-accent text-accent-foreground'
+                    )}
+                    onClick={() => applyPreset(preset)}
+                  >
+                    {preset.label}
+                  </Button>
+                )
+              })}
             </div>
           </div>
 
           <Calendar
             mode="range"
-            selected={initialRange}
-            onSelect={(r) => {
-              if (r?.from && r.to) apply({ from: safe(r.from), to: safe(r.to) })
-              else onChange(undefined)
+            selected={
+              displayRange
+                ? { from: displayRange.from, to: displayRange.to }
+                : undefined
+            }
+            onSelect={(range) => {
+              if (range?.from && range.to) {
+                apply({ from: safeDate(range.from), to: safeDate(range.to) })
+                return
+              }
+              onChange(undefined)
             }}
             month={month}
             onMonthChange={setMonth}

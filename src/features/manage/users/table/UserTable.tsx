@@ -2,7 +2,7 @@
 
 import type { GlobalSettings } from 'gambling-bot-shared/guild'
 
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 
 import { useRouter, useSearchParams } from 'next/navigation'
 
@@ -20,6 +20,7 @@ import { useUpdateUrl } from '@/hooks/useUpdateUrl'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
 import { TGuildMemberStatus } from '@/types/types'
 
+import type { UserRegistrationFilter } from '../useUsers'
 import UserTableFooter from './UserTableFooter'
 import UsersTableFilters from './UsersTableFilters'
 import { userColumns } from './userColumns'
@@ -33,6 +34,13 @@ type UserTableProps = {
   total: number
   guildId: string
   managerId: string
+  registration: UserRegistrationFilter
+  guildMembers: {
+    userId: string
+    username: string
+    nickname: string | null
+    avatarUrl: string
+  }[]
 }
 
 const UserTable = ({
@@ -43,7 +51,9 @@ const UserTable = ({
   limit,
   total,
   guildId,
-  managerId
+  managerId,
+  registration,
+  guildMembers
 }: UserTableProps) => {
   const router = useRouter()
 
@@ -102,9 +112,15 @@ const UserTable = ({
   const updateUrl = useUpdateUrl()
   const debouncedUpdateUrl = useDebouncedCallback(updateUrl, 300)
 
-  const searchParams = useSearchParams()
+  const handleRegistrationChange = (next: UserRegistrationFilter) => {
+    setIsLoading(true)
+    updateUrl({
+      page: 1,
+      registration: next === 'all' ? undefined : next
+    })
+  }
 
-  const searchRef = useRef<HTMLInputElement>(null)
+  const searchParams = useSearchParams()
 
   useHydrateServerTableFromUrl(table, searchParams, {
     filters: (params) => {
@@ -132,9 +148,11 @@ const UserTable = ({
       toolbar={
         <UsersTableFilters
           table={table}
+          guildMembers={guildMembers}
+          registration={registration}
+          onRegistrationChange={handleRegistrationChange}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
-          searchRef={searchRef}
         />
       }
       pagination={<CustomTablePagination table={table} total={total} />}

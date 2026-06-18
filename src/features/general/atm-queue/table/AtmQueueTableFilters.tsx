@@ -1,13 +1,15 @@
 import { Table as ReactTable } from '@tanstack/react-table'
 import { Eraser, RefreshCcw } from 'lucide-react'
 
-import { Dispatch, RefObject, SetStateAction } from 'react'
+import { Dispatch, SetStateAction } from 'react'
 
 import { useRouter } from 'next/navigation'
 
 import DatePicker from '@/components/DatePicker'
+import SearchableUserFilter, {
+  type SearchableUserOption
+} from '@/components/SearchableUserFilter'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import {
   Tooltip,
   TooltipContent,
@@ -30,15 +32,15 @@ const typeOptions = [
 const AtmQueueTableFilters = ({
   table,
   counts,
+  guildMembers,
   isLoading,
-  setIsLoading,
-  searchRef
+  setIsLoading
 }: {
   table: ReactTable<TAtmRequestDiscord>
   counts: IAtmRequestCounts
+  guildMembers: SearchableUserOption[]
   isLoading: boolean
   setIsLoading: Dispatch<SetStateAction<boolean>>
-  searchRef: RefObject<HTMLInputElement | null>
 }) => {
   const router = useRouter()
 
@@ -74,6 +76,14 @@ const AtmQueueTableFilters = ({
     return new Date(y, m - 1, d, 12)
   }
 
+  const datePickerValue =
+    createdAtFilter?.[0] && createdAtFilter[1]
+      ? {
+          from: fromLocalDateString(createdAtFilter[0]),
+          to: fromLocalDateString(createdAtFilter[1])
+        }
+      : undefined
+
   const handleClearFilters = () => {
     table.resetColumnFilters()
     router.replace(`${window.location.pathname}?filterStatus=pending`, {
@@ -84,29 +94,18 @@ const AtmQueueTableFilters = ({
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div className="flex min-w-0 flex-1 flex-wrap gap-2">
-        <Input
-          ref={searchRef}
-          placeholder="Search by user ID..."
-          value={userIdFilter ?? ''}
-          onChange={(event) => {
-            table
-              .getColumn('userId')
-              ?.setFilterValue(event.target.value || undefined)
+        <SearchableUserFilter
+          members={guildMembers}
+          value={userIdFilter}
+          onChange={(userId) => {
+            table.getColumn('userId')?.setFilterValue(userId)
           }}
-          className="h-9.5 max-w-60"
         />
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
         <DatePicker
-          initialRange={
-            createdAtFilter
-              ? {
-                  from: fromLocalDateString(createdAtFilter[0]),
-                  to: fromLocalDateString(createdAtFilter[1])
-                }
-              : undefined
-          }
+          value={datePickerValue}
           onChange={(range) => {
             const col = table.getColumn('createdAt')
             if (!col) return

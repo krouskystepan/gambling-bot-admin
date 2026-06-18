@@ -39,6 +39,15 @@ export const predictionColumns = (
     size: 0
   },
   {
+    id: 'userId',
+    header: () => null,
+    cell: () => null,
+    enableSorting: false,
+    enableColumnFilter: true,
+    enableHiding: false,
+    size: 0
+  },
+  {
     header: () => <span className="whitespace-nowrap">Title</span>,
     accessorKey: 'title',
     size: 180,

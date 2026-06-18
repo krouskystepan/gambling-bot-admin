@@ -72,7 +72,8 @@ export async function getVips(
   page = 1,
   limit = 10,
   search?: string,
-  sort?: string
+  sort?: string,
+  userId?: string
 ): Promise<{ vips: TVipChannels[]; total: number }> {
   const access = await requireGuildAccess(guildId)
   if ('error' in access || page < 1 || limit < 1 || limit > 50) {
@@ -135,16 +136,15 @@ export async function getVips(
     }
   })
 
+  if (userId) {
+    vips = vips.filter((vip) => vip.ownerId === userId)
+  }
+
   if (search) {
     const regex = new RegExp(escapeRegExp(search), 'i')
 
     vips = vips.filter(
-      (vip) =>
-        regex.test(vip.ownerId) ||
-        regex.test(vip.channelId) ||
-        regex.test(vip.username) ||
-        regex.test(vip.nickname) ||
-        regex.test(vip.channelName)
+      (vip) => regex.test(vip.channelId) || regex.test(vip.channelName)
     )
   }
 

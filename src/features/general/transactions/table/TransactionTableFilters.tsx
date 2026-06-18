@@ -6,9 +6,12 @@ import {
 } from 'gambling-bot-shared/common'
 import { Columns3Icon } from 'lucide-react'
 
-import { Dispatch, RefObject, SetStateAction } from 'react'
+import { Dispatch, SetStateAction } from 'react'
 
 import DatePicker from '@/components/DatePicker'
+import SearchableUserFilter, {
+  type SearchableUserOption
+} from '@/components/SearchableUserFilter'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -17,12 +20,20 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 import { LEGACY_CASINO_GAME_KEY } from '@/lib/transactions/transactionFilters'
+import { cn } from '@/lib/utils'
 import { ITransactionCounts, TTransactionDiscord } from '@/types/types'
 
 import TransactionExtraButtons from './TransactionExtraButtons'
 import TransactionFilter from './TransactionTableFilter'
-import TransactionSearch from './TransactionTableSearch'
 import { sourceBadgeMap, typeBadgeMap } from './transactionBadges'
 import { getCasinoGameFilterLabel } from './transactionFilterLabels'
 
@@ -32,8 +43,8 @@ const TransactionTableFilters = ({
   counts,
   isLoading,
   setIsLoading,
-  userSearchRef,
-  adminSearchRef,
+  staffMembers,
+  guildMembers,
   hideUserSearch = false,
   hideDatePicker = false
 }: {
@@ -42,8 +53,8 @@ const TransactionTableFilters = ({
   counts: ITransactionCounts
   isLoading: boolean
   setIsLoading: Dispatch<SetStateAction<boolean>>
-  userSearchRef: RefObject<HTMLInputElement | null>
-  adminSearchRef: RefObject<HTMLInputElement | null>
+  staffMembers: { userId: string; username: string }[]
+  guildMembers: SearchableUserOption[]
   hideUserSearch?: boolean
   hideDatePicker?: boolean
 }) => {
@@ -104,12 +115,15 @@ const TransactionTableFilters = ({
     (option) => option.realValue === 'casino'
   )
 
-  const usernameInputFilter = hideUserSearch
-    ? undefined
-    : (table.getColumn('username')?.getFilterValue() as string | undefined)
-  const adminInputFilter = table
-    .getColumn('handledByUsername')
-    ?.getFilterValue() as string | undefined
+  const userIdFilter = table.getColumn('username')?.getFilterValue() as
+    | string
+    | undefined
+  const staffIdFilter = table.getColumn('handledBy')?.getFilterValue() as
+    | string
+    | undefined
+  const betIdFilter = table.getColumn('betId')?.getFilterValue() as
+    | string
+    | undefined
 
   function toLocalDateString(date: Date): string {
     const y = date.getFullYear()
@@ -122,42 +136,73 @@ const TransactionTableFilters = ({
     const [y, m, d] = str.split('-').map(Number)
     return new Date(y, m - 1, d, 12)
   }
+
   const createdAtFilter = table.getColumn('createdAt')?.getFilterValue() as
     | [string, string]
     | undefined
+
+  const datePickerValue =
+    createdAtFilter?.[0] && createdAtFilter[1]
+      ? {
+          from: fromLocalDateString(createdAtFilter[0]),
+          to: fromLocalDateString(createdAtFilter[1])
+        }
+      : undefined
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div className="flex min-w-0 flex-1 flex-wrap gap-2">
         {!hideUserSearch ? (
-          <TransactionSearch
-            table={table}
-            inputRef={userSearchRef}
-            placeholder="Search by user ID..."
-            inputType="username"
-            initialValue={usernameInputFilter}
+          <SearchableUserFilter
+            members={guildMembers}
+            value={userIdFilter}
+            onChange={(userId) => {
+              table.getColumn('username')?.setFilterValue(userId)
+            }}
           />
         ) : null}
 
-        <TransactionSearch
-          table={table}
-          inputRef={adminSearchRef}
-          placeholder="Search by admin ID or bet ID..."
-          inputType="handledByUsername"
-          initialValue={adminInputFilter}
+        <Select
+          value={staffIdFilter ?? 'all'}
+          onValueChange={(value) => {
+            table
+              .getColumn('handledBy')
+              ?.setFilterValue(value === 'all' ? undefined : value)
+          }}
+        >
+          <SelectTrigger
+            className={cn(
+              'h-9.5 w-44',
+              !staffIdFilter && 'text-muted-foreground'
+            )}
+          >
+            <SelectValue placeholder="All staff" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All staff</SelectItem>
+            {staffMembers.map((member) => (
+              <SelectItem key={member.userId} value={member.userId}>
+                {member.username}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Input
+          placeholder="Search by bet ID..."
+          value={betIdFilter ?? ''}
+          onChange={(event) => {
+            table
+              .getColumn('betId')
+              ?.setFilterValue(event.target.value || undefined)
+          }}
+          className="h-9.5 max-w-60"
         />
       </div>
       <div className="flex flex-wrap items-center gap-2">
         {!hideDatePicker ? (
           <DatePicker
-            initialRange={
-              createdAtFilter
-                ? {
-                    from: fromLocalDateString(createdAtFilter[0]),
-                    to: fromLocalDateString(createdAtFilter[1])
-                  }
-                : undefined
-            }
+            value={datePickerValue}
             onChange={(range) => {
               const col = table.getColumn('createdAt')
               if (!col) return

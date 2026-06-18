@@ -148,7 +148,7 @@ export const atmQueueColumns = (
     cell: ({ row }) =>
       row.original.status === 'approved' ? (
         <Link
-          href={`/dashboard/g/${guildId}/transactions?adminSearch=${row.original.requestId}`}
+          href={`/dashboard/g/${guildId}/transactions?betId=${row.original.requestId}`}
           className="text-sm text-primary hover:underline"
         >
           View tx

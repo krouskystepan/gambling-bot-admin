@@ -22,6 +22,15 @@ export const transactionsColumns = (
 ): ColumnDef<TTransactionDiscord>[] => {
   const columns: ColumnDef<TTransactionDiscord>[] = [
     {
+      id: 'handledBy',
+      header: () => null,
+      cell: () => null,
+      enableSorting: false,
+      enableColumnFilter: true,
+      enableHiding: false,
+      size: 0
+    },
+    {
       header: 'Avatar',
       accessorKey: 'avatar',
       enableSorting: false,
@@ -43,6 +52,7 @@ export const transactionsColumns = (
       accessorKey: 'username',
       enableHiding: false,
       enableSorting: false,
+      enableColumnFilter: true,
       size: 130,
       cell: ({ row }) => (
         <div>
@@ -184,6 +194,7 @@ export const transactionsColumns = (
     {
       header: 'Bet ID',
       accessorKey: 'betId',
+      enableColumnFilter: true,
       size: 160,
       cell: ({ row }) => {
         return (

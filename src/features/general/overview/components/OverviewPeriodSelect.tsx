@@ -38,7 +38,7 @@ const OverviewDateRangePicker = ({
 
   return (
     <DatePicker
-      initialRange={range}
+      value={range}
       onChange={(next) => {
         if (next?.from && next?.to) {
           setRange(next)

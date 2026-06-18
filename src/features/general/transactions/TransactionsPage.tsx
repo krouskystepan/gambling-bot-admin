@@ -19,6 +19,8 @@ const TransactionsPage = async ({
     page?: string
     limit?: string
     search?: string
+    staffId?: string
+    betId?: string
     adminSearch?: string
     filterType?: string
     filterSource?: string
@@ -34,7 +36,15 @@ const TransactionsPage = async ({
   const query = normalizeTransactionsSearchParams(searchParams)
 
   const [
-    { transactions, transactionCounts, total, gamePnL, cashFlow },
+    {
+      transactions,
+      transactionCounts,
+      total,
+      gamePnL,
+      cashFlow,
+      staffMembers,
+      guildMembers
+    },
     globalSettings
   ] = await Promise.all([
     getTransactionsData(guildId, session, query),
@@ -48,6 +58,8 @@ const TransactionsPage = async ({
         globalSettings={globalSettings}
         transactions={transactions}
         transactionCounts={transactionCounts}
+        staffMembers={staffMembers}
+        guildMembers={guildMembers}
         page={query.page}
         limit={query.limit}
         total={total}

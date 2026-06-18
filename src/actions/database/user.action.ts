@@ -461,7 +461,8 @@ export async function getUsers(
   page = 1,
   limit = 15,
   search?: string,
-  sort?: string
+  sort?: string,
+  registration: 'all' | 'registered' | 'not_registered' = 'all'
 ): Promise<{ users: TGuildMemberStatus[]; total: number }> {
   const access = await requireGuildAccess(guildId)
   if ('error' in access || page < 1 || limit < 1 || limit > 50) {
@@ -532,6 +533,12 @@ export async function getUsers(
         regex.test(u.username) ||
         (u.nickname !== null && regex.test(u.nickname))
     )
+  }
+
+  if (registration === 'registered') {
+    users = users.filter((user) => user.registered)
+  } else if (registration === 'not_registered') {
+    users = users.filter((user) => !user.registered)
   }
 
   if (sort) {
