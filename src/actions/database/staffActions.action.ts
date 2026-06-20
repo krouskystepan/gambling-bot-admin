@@ -54,6 +54,7 @@ function buildUnifiedPipeline(
         amount: '$amount',
         notes: '$meta.notes',
         meta: '$meta',
+        referenceId: '$referenceId',
         txType: '$type',
         txSource: '$source',
         sourceType: { $literal: 'transaction' }

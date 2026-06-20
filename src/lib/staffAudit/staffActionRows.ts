@@ -37,6 +37,7 @@ export type RawStaffActionDoc = {
   meta?: Record<string, unknown>
   txType?: string
   txSource?: string
+  referenceId?: string | null
   sourceType: 'transaction' | 'atmRequest'
 }
 
@@ -78,7 +79,8 @@ function mapRawToStaffActionRow(
     detailHref: resolveStaffActionDetailHref(guildId, {
       type: doc.txType,
       meta: doc.meta,
-      sourceType: doc.sourceType
+      sourceType: doc.sourceType,
+      referenceId: doc.referenceId ?? undefined
     })
   }
 }

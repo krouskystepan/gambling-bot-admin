@@ -23,10 +23,7 @@ function buildCategoryTransactionMatch(
       return {
         type: { $in: ['deposit', 'withdraw', 'bonus'] },
         source: 'web',
-        $or: [
-          { 'meta.requestId': { $exists: false } },
-          { 'meta.requestId': null }
-        ]
+        $or: [{ referenceId: { $exists: false } }, { referenceId: null }]
       }
     case 'atm':
       return {
@@ -35,7 +32,7 @@ function buildCategoryTransactionMatch(
           {
             type: { $in: ['deposit', 'withdraw'] },
             source: 'web',
-            'meta.requestId': { $exists: true, $ne: null }
+            referenceId: { $exists: true, $ne: null }
           }
         ]
       }

@@ -103,15 +103,15 @@ const attachDiscordMembers = async (
     requestIds.length > 0
       ? await Transaction.find({
           guildId,
-          'meta.requestId': { $in: requestIds }
+          referenceId: { $in: requestIds }
         })
-          .select('_id meta.requestId')
+          .select('_id referenceId')
           .lean()
       : []
 
   const transactionByRequestId = new Map(
     linkedTransactions.map((tx) => [
-      String((tx.meta as { requestId?: string })?.requestId ?? ''),
+      String(tx.referenceId ?? ''),
       String(tx._id)
     ])
   )
@@ -347,7 +347,6 @@ export const approveAtmRequestAction = async (
   const globalSettings = normalizeGlobalSettings(guildConfig?.globalSettings)
   const readableAmount = formatMoney(request.amount, globalSettings)
   const txMeta = {
-    requestId: request.requestId,
     account: request.account,
     ...(notes ? { notes } : {})
   }
@@ -389,6 +388,7 @@ export const approveAtmRequestAction = async (
       type: 'deposit',
       source: 'web',
       handledBy,
+      referenceId: request.requestId,
       meta: txMeta
     })
 
@@ -519,6 +519,7 @@ export const approveAtmRequestAction = async (
     type: 'withdraw',
     source: 'web',
     handledBy,
+    referenceId: request.requestId,
     meta: txMeta
   })
 

@@ -13,8 +13,7 @@ export interface TransactionsQuery {
   limit: number
   search?: string
   staffId?: string
-  betId?: string
-  adminSearch?: string
+  referenceId?: string
   filterType?: string[]
   filterSource?: string[]
   filterCasinoGame?: string[]
@@ -52,8 +51,7 @@ export async function getTransactionsData(
       query.limit,
       query.search,
       query.staffId,
-      query.betId,
-      query.adminSearch,
+      query.referenceId,
       query.filterType,
       query.filterSource,
       query.filterCasinoGame,
@@ -70,8 +68,7 @@ export async function getTransactionsData(
       query.filterCasinoGame,
       query.search,
       query.staffId,
-      query.betId,
-      query.adminSearch,
+      query.referenceId,
       query.dateFrom,
       query.dateTo,
       query.userId
@@ -96,6 +93,7 @@ type RawSearchParams = {
   limit?: string
   search?: string
   staffId?: string
+  referenceId?: string
   betId?: string
   adminSearch?: string
   filterType?: string
@@ -111,8 +109,7 @@ type NormalizedSearchParams = {
   limit: number
   search?: string
   staffId?: string
-  betId?: string
-  adminSearch?: string
+  referenceId?: string
   filterType: string[]
   filterSource: string[]
   filterCasinoGame: string[]
@@ -132,8 +129,10 @@ export function normalizeTransactionsSearchParams(
     limit: Number.isInteger(limit) && limit > 0 ? limit : 10,
     search: searchParams.search,
     staffId: searchParams.staffId,
-    betId: searchParams.betId,
-    adminSearch: searchParams.adminSearch,
+    referenceId:
+      searchParams.referenceId ??
+      searchParams.betId ??
+      searchParams.adminSearch,
     filterType: searchParams.filterType?.split(',').filter(Boolean) ?? [],
     filterSource: searchParams.filterSource?.split(',').filter(Boolean) ?? [],
     filterCasinoGame:

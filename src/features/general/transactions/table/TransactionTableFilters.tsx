@@ -121,7 +121,7 @@ const TransactionTableFilters = ({
   const staffIdFilter = table.getColumn('handledBy')?.getFilterValue() as
     | string
     | undefined
-  const betIdFilter = table.getColumn('betId')?.getFilterValue() as
+  const referenceIdFilter = table.getColumn('referenceId')?.getFilterValue() as
     | string
     | undefined
 
@@ -189,11 +189,11 @@ const TransactionTableFilters = ({
         </Select>
 
         <Input
-          placeholder="Search by bet ID..."
-          value={betIdFilter ?? ''}
+          placeholder="Search by reference ID..."
+          value={referenceIdFilter ?? ''}
           onChange={(event) => {
             table
-              .getColumn('betId')
+              .getColumn('referenceId')
               ?.setFilterValue(event.target.value || undefined)
           }}
           className="h-9.5 max-w-60"

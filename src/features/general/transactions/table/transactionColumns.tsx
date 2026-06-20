@@ -196,15 +196,15 @@ export const transactionsColumns = (
       }
     },
     {
-      header: 'Bet ID',
-      accessorKey: 'betId',
+      id: 'referenceId',
+      accessorKey: 'referenceId',
+      header: 'Reference ID',
       enableColumnFilter: true,
       size: 160,
       cell: ({ row }) => {
+        const referenceId = row.getValue('referenceId') as string | undefined
         return (
-          <p className="wrap-anywhere">
-            {row.getValue('betId') ? row.getValue('betId') : '-'}
-          </p>
+          <p className="wrap-anywhere">{referenceId ? referenceId : '-'}</p>
         )
       }
     },

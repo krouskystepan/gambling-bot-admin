@@ -37,8 +37,7 @@ export function buildTransactionMatchFilters({
   userId,
   search,
   staffId,
-  betId,
-  adminSearch,
+  referenceId,
   filterType,
   filterSource,
   filterCasinoGame
@@ -46,8 +45,7 @@ export function buildTransactionMatchFilters({
   userId?: string
   search?: string
   staffId?: string
-  betId?: string
-  adminSearch?: string
+  referenceId?: string
   filterType?: string[]
   filterSource?: string[]
   filterCasinoGame?: string[]
@@ -64,16 +62,9 @@ export function buildTransactionMatchFilters({
     andFilters.push({ handledBy: staffId })
   }
 
-  if (betId) {
-    const regex = new RegExp(escapeRegExp(betId), 'i')
-    andFilters.push({
-      $or: [{ betId: regex }, { 'meta.requestId': regex }]
-    })
-  } else if (adminSearch) {
-    const regex = new RegExp(escapeRegExp(adminSearch), 'i')
-    andFilters.push({
-      $or: [{ handledBy: regex }, { betId: regex }, { 'meta.requestId': regex }]
-    })
+  if (referenceId) {
+    const regex = new RegExp(escapeRegExp(referenceId), 'i')
+    andFilters.push({ referenceId: regex })
   }
 
   if (filterType?.length) {

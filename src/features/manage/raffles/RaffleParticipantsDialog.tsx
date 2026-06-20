@@ -43,7 +43,7 @@ const RaffleParticipantsDialog = ({
             {raffleId ? (
               <>
                 Message ID: {raffleId}
-                {drawId ? ` · Bet ID: ${drawId}` : null}
+                {drawId ? ` · Reference ID: ${drawId}` : null}
               </>
             ) : (
               'Ticket holders for this raffle.'

@@ -124,7 +124,7 @@ export interface TTransactionDiscord extends Pick<
   | 'amount'
   | 'source'
   | 'createdAt'
-  | 'betId'
+  | 'referenceId'
   | 'handledBy'
   | 'meta'
 > {
@@ -171,7 +171,7 @@ export type TUpdateUrl = {
   page: number
   limit?: number
   search?: string
-  adminSearch?: string
+  referenceId?: string
   filterType?: string
   filterSource?: string
   filterCasinoGame?: string

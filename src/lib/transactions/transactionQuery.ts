@@ -9,8 +9,7 @@ export type TransactionQueryFilters = {
   userId?: string
   search?: string
   staffId?: string
-  betId?: string
-  adminSearch?: string
+  referenceId?: string
   filterType?: string[]
   filterSource?: string[]
   filterCasinoGame?: string[]

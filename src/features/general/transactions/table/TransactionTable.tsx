@@ -58,7 +58,7 @@ const TransactionTable = ({
 }: TransactionTableProps) => {
   const defaultVisibility: VisibilityState = {
     handledBy: false,
-    betId: false,
+    referenceId: false,
     casinoGame: false
   }
 
@@ -91,8 +91,8 @@ const TransactionTable = ({
           (filters.find((f) => f.id === 'handledBy')?.value as
             | string
             | undefined) ?? ''
-        const betId =
-          (filters.find((f) => f.id === 'betId')?.value as
+        const referenceId =
+          (filters.find((f) => f.id === 'referenceId')?.value as
             | string
             | undefined) ?? ''
 
@@ -121,7 +121,7 @@ const TransactionTable = ({
           page: 1,
           ...(hideUserSearch ? {} : { search }),
           staffId: staffId || undefined,
-          betId: betId || undefined,
+          referenceId: referenceId || undefined,
           filterType,
           filterSource,
           filterCasinoGame,
@@ -170,7 +170,11 @@ const TransactionTable = ({
     filters: (params) => {
       const search = params.get('search') || ''
       const staffId = params.get('staffId') || ''
-      const betId = params.get('betId') || params.get('adminSearch') || ''
+      const referenceId =
+        params.get('referenceId') ||
+        params.get('betId') ||
+        params.get('adminSearch') ||
+        ''
       const filterType = params.get('filterType')?.split(',')
       const filterSource = params.get('filterSource')?.split(',')
       const filterCasinoGame = params.get('filterCasinoGame')?.split(',')
@@ -179,7 +183,7 @@ const TransactionTable = ({
 
       const filters = [
         { id: 'handledBy', value: staffId || undefined },
-        { id: 'betId', value: betId || undefined },
+        { id: 'referenceId', value: referenceId || undefined },
         { id: 'type', value: filterType?.length ? filterType : undefined },
         {
           id: 'source',

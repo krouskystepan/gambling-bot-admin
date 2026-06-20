@@ -22,6 +22,7 @@ const TransactionsPage = async ({
     limit?: string
     search?: string
     staffId?: string
+    referenceId?: string
     betId?: string
     adminSearch?: string
     filterType?: string
