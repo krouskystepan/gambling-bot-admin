@@ -48,7 +48,7 @@ const HealthRow = ({ row }: { row: SystemHealthRow }) => {
   )
 
   const rowClassName = cn(
-    'flex min-w-0 items-center gap-2 rounded-md px-2 py-1.5 text-sm leading-snug',
+    'flex max-w-fit items-center gap-2 rounded-md px-2 py-1.5 text-sm leading-snug',
     row.severity !== 'ok' && 'font-medium'
   )
 
@@ -100,7 +100,7 @@ const OperationsCategorySection = ({
         </p>
       </div>
 
-      <div className="mt-3 space-y-0.5">
+      <div className="space-y-0.5">
         {rows.map((row) => (
           <HealthRow key={row.id} row={row} />
         ))}

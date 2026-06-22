@@ -138,6 +138,9 @@ const persistOpenSections = (sections: string[]) => {
   notifySidebarSectionsChange()
 }
 
+const formatNotificationCount = (count: number) =>
+  count >= 100 ? '99+' : String(count)
+
 type GuildConfigSidebarProps = {
   guildId: string
   guildName: string
@@ -217,13 +220,19 @@ const GuildConfigSidebar = ({
                         <Icon size={16} />
                         <span className="flex-1">{link.label}</span>
                         {link.id === 'atm-queue' && pendingAtmCount > 0 ? (
-                          <Badge variant="destructive" className="ml-auto">
-                            {pendingAtmCount}
+                          <Badge
+                            variant="destructive"
+                            className="ml-auto min-w-8 justify-center tabular-nums"
+                          >
+                            {formatNotificationCount(pendingAtmCount)}
                           </Badge>
                         ) : null}
                         {link.id === 'health' && needsAttentionCount > 0 ? (
-                          <Badge variant="destructive" className="ml-auto">
-                            {needsAttentionCount}
+                          <Badge
+                            variant="destructive"
+                            className="ml-auto min-w-8 justify-center tabular-nums"
+                          >
+                            {formatNotificationCount(needsAttentionCount)}
                           </Badge>
                         ) : null}
                       </Link>
