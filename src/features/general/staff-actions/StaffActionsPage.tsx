@@ -1,7 +1,5 @@
-import { getServerSession } from 'next-auth'
-
 import FeatureLayout from '@/features/FeatureLayout'
-import { authOptions } from '@/lib/auth/authOptions'
+import { requireSession } from '@/lib/auth/requireSession'
 import { getGuildGlobalSettings } from '@/lib/guild/guildMoney.server'
 
 import StaffActionsTable from './table/StaffActionsTable'
@@ -25,8 +23,7 @@ const StaffActionsPage = async ({
     dateTo?: string
   }
 }) => {
-  const session = await getServerSession(authOptions)
-  if (!session) return null
+  const session = await requireSession()
 
   const query = normalizeStaffActionsSearchParams(searchParams)
 

@@ -1,13 +1,12 @@
-import { getServerSession } from 'next-auth'
-
 import {
   getGuildTaxPeriodSummary,
   getPnLBySource,
   getReportsTimezone,
   getStaffTaxPeriodSummary
 } from '@/actions/database/report.action'
+import LoadFailed from '@/components/states/LoadFailed'
 import FeatureLayout from '@/features/FeatureLayout'
-import { authOptions } from '@/lib/auth/authOptions'
+import { requireSession } from '@/lib/auth/requireSession'
 import { getGuildGlobalSettings } from '@/lib/guild/guildMoney.server'
 
 import { resolveReportsDateRange } from '../overview/period'
@@ -26,8 +25,7 @@ const ReportsPage = async ({
     dateTo?: string
   }
 }) => {
-  const session = await getServerSession(authOptions)
-  if (!session) return null
+  await requireSession()
 
   const timezone = await getReportsTimezone(guildId)
   const range = resolveReportsDateRange(searchParams, timezone)
@@ -40,7 +38,7 @@ const ReportsPage = async ({
       getPnLBySource(guildId, range)
     ])
 
-  if (!guildSummary || !staffSummary || !sourcePnL) return null
+  if (!guildSummary || !staffSummary || !sourcePnL) return <LoadFailed />
 
   return (
     <FeatureLayout

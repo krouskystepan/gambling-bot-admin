@@ -2,6 +2,8 @@
 
 import { Session } from 'next-auth'
 
+import { cache } from 'react'
+
 import { getSessionOrNull } from '@/lib/auth/requireSession'
 import { connectToDatabase } from '@/lib/db'
 import { hasGuildManageAccess } from '@/lib/discord/discordPermissions'
@@ -27,6 +29,49 @@ export type GuildAccessError = {
   rateLimited?: boolean
 }
 
+const fetchUserPermissions = cache(
+  async (
+    guildId: string,
+    userId: string,
+    accessToken: string
+  ): Promise<PermissionsResult> => {
+    let isAdmin = false
+    let isManager = false
+
+    const session = { userId, accessToken } as Session
+
+    try {
+      const userGuilds = await fetchUserGuilds(session)
+      const guild = userGuilds.find((g) => g.id === guildId)
+
+      if (guild) {
+        isAdmin = hasGuildManageAccess(guild)
+      }
+
+      await connectToDatabase()
+      const config = await GuildConfiguration.findOne({ guildId }).lean()
+
+      if (!config?.managerRoleId) {
+        return { isAdmin, isManager }
+      }
+
+      isManager = await resolveManagerStatus(
+        guildId,
+        userId,
+        config.managerRoleId.toString()
+      )
+    } catch (err) {
+      if (err instanceof Error && err.message === 'DiscordRateLimited') {
+        return { isAdmin, isManager, rateLimited: true }
+      }
+
+      console.error('Failed to fetch guild permissions', err)
+    }
+
+    return { isAdmin, isManager }
+  }
+)
+
 export const getUserPermissions = async (
   guildId: string,
   session: Session | null
@@ -35,38 +80,7 @@ export const getUserPermissions = async (
     return { isAdmin: false, isManager: false }
   }
 
-  let isAdmin = false
-  let isManager = false
-
-  try {
-    const userGuilds = await fetchUserGuilds(session)
-    const guild = userGuilds.find((g) => g.id === guildId)
-
-    if (guild) {
-      isAdmin = hasGuildManageAccess(guild)
-    }
-
-    await connectToDatabase()
-    const config = await GuildConfiguration.findOne({ guildId }).lean()
-
-    if (!config?.managerRoleId) {
-      return { isAdmin, isManager }
-    }
-
-    isManager = await resolveManagerStatus(
-      guildId,
-      session.userId,
-      config.managerRoleId.toString()
-    )
-  } catch (err) {
-    if (err instanceof Error && err.message === 'DiscordRateLimited') {
-      return { isAdmin, isManager, rateLimited: true }
-    }
-
-    console.error('Failed to fetch guild permissions', err)
-  }
-
-  return { isAdmin, isManager }
+  return fetchUserPermissions(guildId, session.userId, session.accessToken)
 }
 
 export async function requireGuildAccess(

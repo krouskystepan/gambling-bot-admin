@@ -1,8 +1,7 @@
-import { getServerSession } from 'next-auth'
-
 import { getRafflePageContext } from '@/actions/database/raffleActions.action'
+import LoadFailed from '@/components/states/LoadFailed'
 import FeatureLayout from '@/features/FeatureLayout'
-import { authOptions } from '@/lib/auth/authOptions'
+import { requireSession } from '@/lib/auth/requireSession'
 
 import RaffleTable from './table/RaffleTable'
 import { getRafflesData, normalizeRafflesSearchParams } from './useRaffles'
@@ -21,8 +20,7 @@ const RafflesPage = async ({
     status?: string
   }
 }) => {
-  const session = await getServerSession(authOptions)
-  if (!session) return null
+  const session = await requireSession()
 
   const query = normalizeRafflesSearchParams(searchParams)
   const [{ raffles, total, guildMembers }, pageContext] = await Promise.all([
@@ -30,7 +28,7 @@ const RafflesPage = async ({
     getRafflePageContext(guildId)
   ])
 
-  if (!pageContext) return null
+  if (!pageContext) return <LoadFailed />
 
   return (
     <FeatureLayout title="Raffles">

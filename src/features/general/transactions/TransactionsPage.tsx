@@ -1,9 +1,7 @@
-import { getServerSession } from 'next-auth'
-
 import Link from 'next/link'
 
 import FeatureLayout from '@/features/FeatureLayout'
-import { authOptions } from '@/lib/auth/authOptions'
+import { requireSession } from '@/lib/auth/requireSession'
 import { getGuildGlobalSettings } from '@/lib/guild/guildMoney.server'
 
 import TransactionTable from './table/TransactionTable'
@@ -33,8 +31,7 @@ const TransactionsPage = async ({
     sort?: string
   }
 }) => {
-  const session = await getServerSession(authOptions)
-  if (!session) return null
+  const session = await requireSession()
 
   const query = normalizeTransactionsSearchParams(searchParams)
 

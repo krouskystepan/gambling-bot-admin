@@ -1,18 +1,16 @@
-import { getServerSession } from 'next-auth'
-
 import { getHealthPageData } from '@/actions/database/health.action'
+import LoadFailed from '@/components/states/LoadFailed'
 import FeatureLayout from '@/features/FeatureLayout'
-import { authOptions } from '@/lib/auth/authOptions'
+import { requireSession } from '@/lib/auth/requireSession'
 
 import OperationsHealthCard from './components/OperationsHealthCard'
 import SetupHealthCard from './components/SetupHealthCard'
 
 const HealthPage = async ({ guildId }: { guildId: string }) => {
-  const session = await getServerSession(authOptions)
-  if (!session) return null
+  const session = await requireSession()
 
   const data = await getHealthPageData(guildId, session)
-  if (!data) return null
+  if (!data) return <LoadFailed />
 
   const { operations, setup } = data
 

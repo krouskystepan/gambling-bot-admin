@@ -1,5 +1,4 @@
 import { ArrowLeft } from 'lucide-react'
-import { getServerSession } from 'next-auth'
 
 import Link from 'next/link'
 
@@ -16,7 +15,7 @@ import {
   getTransactionsData,
   normalizeTransactionsSearchParams
 } from '@/features/general/transactions/useTransactions'
-import { authOptions } from '@/lib/auth/authOptions'
+import { requireSession } from '@/lib/auth/requireSession'
 
 import UserProfileHeader from './UserProfileHeader'
 import UserProfileKpiStrip from './UserProfileKpiStrip'
@@ -43,8 +42,7 @@ const UserProfilePage = async ({
   userId,
   searchParams
 }: UserProfilePageProps) => {
-  const session = await getServerSession(authOptions)
-  if (!session) return null
+  const session = await requireSession()
 
   const timezone = await getGuildOverviewTimezone(guildId)
   const range = resolveOverviewDateRange(searchParams, timezone)
