@@ -2,7 +2,14 @@
 
 import type { GlobalSettings } from 'gambling-bot-shared/guild'
 import { resolveGuildTimezone } from 'gambling-bot-shared/guild'
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ReferenceLine,
+  XAxis,
+  YAxis
+} from 'recharts'
 
 import { useId } from 'react'
 
@@ -39,8 +46,8 @@ import {
 } from '../period'
 
 const PNL_COLORS = {
-  profit: '#22c55e',
-  loss: '#ef4444'
+  profit: 'var(--chart-2)',
+  loss: 'var(--chart-5)'
 } as const
 
 const chartConfig = {
@@ -98,45 +105,84 @@ function getDataExtents(values: number[]): { min: number; max: number } {
   }
 }
 
-function computeYAxisDomain(values: number[]): [number, number] {
-  const { min, max } = getDataExtents(values)
+function niceAxisStep(roughStep: number): number {
+  if (!Number.isFinite(roughStep) || roughStep <= 0) return 1
 
-  if (min === max) {
-    if (min === 0) return [-1, 1]
-    return min > 0 ? [0, min] : [min, 0]
-  }
+  const exponent = Math.floor(Math.log10(roughStep))
+  const fraction = roughStep / 10 ** exponent
 
-  return [min, max]
+  let niceFraction: number
+  if (fraction <= 1) niceFraction = 1
+  else if (fraction <= 2) niceFraction = 2
+  else if (fraction <= 5) niceFraction = 5
+  else niceFraction = 10
+
+  return niceFraction * 10 ** exponent
 }
 
 function buildChartYAxisTicks(
   dataMin: number,
   dataMax: number,
-  targetCount = 6
+  includeZero: boolean,
+  targetCount = 5
 ): number[] {
-  const min = Math.round(dataMin)
-  const max = Math.round(dataMax)
+  let min = dataMin
+  let max = dataMax
 
-  if (min === max) return [min]
-  if (targetCount < 2) return [min, max]
-
-  const ticks: number[] = []
-
-  for (let i = 0; i < targetCount; i++) {
-    if (i === 0) {
-      ticks.push(min)
-      continue
-    }
-
-    if (i === targetCount - 1) {
-      ticks.push(max)
-      continue
-    }
-
-    ticks.push(Math.round(min + ((max - min) * i) / (targetCount - 1)))
+  if (includeZero) {
+    min = Math.min(min, 0)
+    max = Math.max(max, 0)
   }
 
-  return [...new Set(ticks)].sort((a, b) => a - b)
+  if (min === max) {
+    const padding = min === 0 ? 1 : Math.max(Math.abs(min) * 0.15, 1)
+    min -= padding
+    max += padding
+  }
+
+  const range = max - min
+  const step = niceAxisStep(range / Math.max(targetCount - 1, 1))
+  const niceMin = Math.floor(min / step) * step
+  const niceMax = Math.ceil(max / step) * step
+
+  const ticks: number[] = []
+  for (let tick = niceMin; tick <= niceMax + step * 0.001; tick += step) {
+    ticks.push(Math.round(tick))
+  }
+
+  if (includeZero && !ticks.includes(0)) {
+    ticks.push(0)
+    ticks.sort((a, b) => a - b)
+  }
+
+  return [...new Set(ticks)]
+}
+
+function computeYAxisLayout(
+  dataMin: number,
+  dataMax: number,
+  includeZero: boolean,
+  formatLabel: (value: number) => string
+): { domain: [number, number]; ticks: number[] } {
+  for (let targetCount = 5; targetCount <= 7; targetCount++) {
+    const ticks = dedupeTicksByLabel(
+      buildChartYAxisTicks(dataMin, dataMax, includeZero, targetCount),
+      formatLabel
+    )
+
+    if (ticks.length >= 4) {
+      return {
+        domain: [ticks[0]!, ticks[ticks.length - 1]!],
+        ticks
+      }
+    }
+  }
+
+  const ticks = buildChartYAxisTicks(dataMin, dataMax, includeZero, 5)
+  return {
+    domain: [ticks[0] ?? dataMin, ticks[ticks.length - 1] ?? dataMax],
+    ticks
+  }
 }
 
 function dedupeTicksByLabel(
@@ -154,23 +200,6 @@ function dedupeTicksByLabel(
   }
 
   return unique
-}
-
-function buildUniqueChartYAxisTicks(
-  dataMin: number,
-  dataMax: number,
-  formatLabel: (value: number) => string
-): number[] {
-  for (let targetCount = 6; targetCount <= 9; targetCount++) {
-    const ticks = dedupeTicksByLabel(
-      buildChartYAxisTicks(dataMin, dataMax, targetCount),
-      formatLabel
-    )
-
-    if (ticks.length >= 4) return ticks
-  }
-
-  return buildChartYAxisTicks(dataMin, dataMax, 6)
 }
 
 function measureYAxisWidth(
@@ -313,73 +342,82 @@ const OverviewDailyPnLChart = ({
   }
 
   const { min: dataMin, max: dataMax } = getDataExtents(gamePnLValues)
-  const yDomain = computeYAxisDomain(gamePnLValues)
+  const crossesZero = dataMin < 0 && dataMax > 0
 
-  const formatYAxisTick = (value: number): string => {
-    const amount = Math.round(value)
-    if (amount === 0) return ''
-    return formatChartAxisCurrency(amount, globalSettings)
-  }
+  const formatYAxisTick = (value: number): string =>
+    formatChartAxisCurrency(Math.round(value), globalSettings)
 
-  const yAxisTicks = buildUniqueChartYAxisTicks(
+  const { domain: yDomain, ticks: yAxisTicks } = computeYAxisLayout(
     dataMin,
     dataMax,
+    crossesZero,
     formatYAxisTick
   )
   const yAxisWidth = measureYAxisWidth(yAxisTicks, formatYAxisTick)
   const gradientOffset = getPnLGradientOffset(gamePnLValues)
-  const hasData = points.some((point) => point.txCount > 0)
+  const hasData = points.some(
+    (point) => point.txCount > 0 || point.gamePnL !== 0 || point.cashFlow !== 0
+  )
 
   return (
-    <Card className="flex h-full min-h-[380px] flex-col">
-      <CardHeader>
-        <CardTitle>{isHourly ? 'Hourly game P&L' : 'Daily game P&L'}</CardTitle>
-        <CardDescription>
-          {isHourly
-            ? 'House profit or loss per hour'
-            : 'House profit or loss per day'}
-        </CardDescription>
+    <Card className="flex h-full min-h-[400px] flex-col">
+      <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
+        <div className="space-y-1.5">
+          <CardTitle>
+            {isHourly ? 'Hourly game P&L' : 'Daily game P&L'}
+          </CardTitle>
+          <CardDescription>
+            {isHourly
+              ? 'House profit or loss per hour'
+              : 'House profit or loss per day'}
+          </CardDescription>
+        </div>
       </CardHeader>
       <CardContent className="flex min-h-0 flex-1 flex-col pb-4">
         {hasData ? (
           <ChartContainer
             config={chartConfig}
-            className="aspect-auto min-h-[220px] w-full flex-1 [&_.recharts-responsive-container]:h-full!"
+            initialDimension={{ width: 800, height: 300 }}
+            className="aspect-auto h-[300px] w-full [&_.recharts-responsive-container]:h-full!"
           >
             <AreaChart
               data={points}
-              margin={{ left: 0, right: 8, top: 8, bottom: 4 }}
+              margin={{ left: 0, right: 12, top: 12, bottom: 4 }}
             >
               <defs>
                 <linearGradient id={fillGradientId} x1="0" y1="0" x2="0" y2="1">
                   <stop
                     offset="0%"
                     stopColor={PNL_COLORS.profit}
-                    stopOpacity={0.35}
+                    stopOpacity={0.45}
                   />
                   <stop
                     offset={`${gradientOffset * 100}%`}
                     stopColor={PNL_COLORS.profit}
-                    stopOpacity={0.35}
+                    stopOpacity={0.45}
                   />
                   <stop
                     offset={`${gradientOffset * 100}%`}
                     stopColor={PNL_COLORS.loss}
-                    stopOpacity={0.35}
+                    stopOpacity={0.45}
                   />
                   <stop
                     offset="100%"
                     stopColor={PNL_COLORS.loss}
-                    stopOpacity={0.35}
+                    stopOpacity={0.45}
                   />
                 </linearGradient>
               </defs>
-              <CartesianGrid vertical={false} />
+              <CartesianGrid
+                vertical={false}
+                stroke="var(--border)"
+                strokeOpacity={0.55}
+              />
               <XAxis
                 dataKey="date"
                 tickLine={false}
                 axisLine={false}
-                tickMargin={8}
+                tickMargin={10}
                 minTickGap={24}
                 ticks={hourlyAxisTicks}
                 padding={isTwoDayHourly ? { left: 16 } : undefined}
@@ -402,10 +440,12 @@ const OverviewDailyPnLChart = ({
               />
               <ChartTooltip
                 cursor={{
-                  stroke: 'var(--border)',
+                  stroke: 'var(--muted-foreground)',
                   strokeWidth: 1,
-                  strokeDasharray: '4 4',
-                  fill: 'transparent'
+                  strokeOpacity: 0.35,
+                  strokeDasharray: '3 3',
+                  fill: 'var(--muted)',
+                  fillOpacity: 0.12
                 }}
                 content={({ active, payload }) => (
                   <OverviewDailyPnLTooltip
@@ -417,16 +457,45 @@ const OverviewDailyPnLChart = ({
                   />
                 )}
               />
+              {crossesZero ? (
+                <ReferenceLine
+                  y={0}
+                  stroke="var(--muted-foreground)"
+                  strokeOpacity={0.45}
+                  strokeDasharray="5 4"
+                />
+              ) : null}
               <Area
-                type="linear"
+                type="monotone"
                 dataKey="gamePnL"
                 baseValue={0}
-                stroke={`url(#${fillGradientId})`}
                 fill={`url(#${fillGradientId})`}
-                strokeWidth={2}
+                stroke="var(--foreground)"
+                strokeOpacity={0.2}
+                strokeWidth={1.5}
                 dot={false}
-                activeDot={false}
-                isAnimationActive={false}
+                activeDot={(props: {
+                  cx?: number
+                  cy?: number
+                  payload?: ChartPoint
+                }) => {
+                  const { cx, cy, payload } = props
+                  if (cx == null || cy == null || !payload) return null
+                  const fill =
+                    payload.gamePnL >= 0 ? PNL_COLORS.profit : PNL_COLORS.loss
+                  return (
+                    <circle
+                      cx={cx}
+                      cy={cy}
+                      r={5}
+                      fill={fill}
+                      stroke="var(--background)"
+                      strokeWidth={2}
+                    />
+                  )
+                }}
+                isAnimationActive
+                animationDuration={500}
               />
             </AreaChart>
           </ChartContainer>

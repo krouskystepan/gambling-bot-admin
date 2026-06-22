@@ -54,16 +54,15 @@ const OverviewPage = async ({
 
         <OverviewHealthLink guildId={guildId} />
 
-        <div className="grid min-h-[400px] gap-6 lg:grid-cols-2">
-          <OverviewDailyPnLChart
-            series={data.pnlSeries}
-            globalSettings={data.globalSettings}
-          />
-          <OverviewSourceChart
-            data={data.sourceAmounts}
-            globalSettings={data.globalSettings}
-          />
-        </div>
+        <OverviewDailyPnLChart
+          series={data.pnlSeries}
+          globalSettings={data.globalSettings}
+        />
+
+        <OverviewSourceChart
+          data={data.sourceAmounts}
+          globalSettings={data.globalSettings}
+        />
 
         <OverviewRecentTransactions
           guildId={guildId}

@@ -99,16 +99,15 @@ const UserProfilePage = async ({
           periodNetProfit={profile.periodNetProfit}
         />
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <OverviewDailyPnLChart
-            series={profile.pnlSeries}
-            globalSettings={profile.globalSettings}
-          />
-          <OverviewSourceChart
-            data={profile.sourceAmounts}
-            globalSettings={profile.globalSettings}
-          />
-        </div>
+        <OverviewDailyPnLChart
+          series={profile.pnlSeries}
+          globalSettings={profile.globalSettings}
+        />
+
+        <OverviewSourceChart
+          data={profile.sourceAmounts}
+          globalSettings={profile.globalSettings}
+        />
 
         <UserProfileVipCard guildId={guildId} vips={profile.vips} />
 
