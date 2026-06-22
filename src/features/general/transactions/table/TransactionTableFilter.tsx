@@ -8,6 +8,10 @@ import {
   PopoverContent,
   PopoverTrigger
 } from '@/components/ui/popover'
+import {
+  canSelectFacetValue,
+  getVisibleFacetOptions
+} from '@/lib/table/facetFilters'
 
 type Option<T = string> = {
   value: string
@@ -32,6 +36,8 @@ const TransactionTableFilter = <T extends string>({
   columnId,
   onChange
 }: TransactionFilterProps<T>) => {
+  const visibleOptions = getVisibleFacetOptions(options, selected, counts)
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -55,39 +61,55 @@ const TransactionTableFilter = <T extends string>({
             Filter by {title}
           </div>
           <div className="space-y-3">
-            {options.map((option, i) => {
-              const count = counts[option.realValue] ?? 0
-              return (
-                <div key={option.value} className="flex items-center gap-2">
-                  <Checkbox
-                    id={`${columnId}-${i}`}
-                    checked={selected.some(
-                      (sel) => sel.realValue === option.realValue
-                    )}
-                    onCheckedChange={(checked: boolean) => {
-                      let next: Option<T>[] = []
-                      if (checked) {
-                        next = [...selected, option]
-                      } else {
-                        next = selected.filter(
-                          (sel) => sel.realValue !== option.realValue
+            {visibleOptions.length ? (
+              visibleOptions.map((option, i) => {
+                const count = counts[option.realValue] ?? 0
+                const isSelected = selected.some(
+                  (entry) => entry.realValue === option.realValue
+                )
+                const canSelect =
+                  isSelected || canSelectFacetValue(option.realValue, counts)
+
+                return (
+                  <div key={option.value} className="flex items-center gap-2">
+                    <Checkbox
+                      id={`${columnId}-${i}`}
+                      checked={isSelected}
+                      disabled={!canSelect}
+                      onCheckedChange={(checked: boolean) => {
+                        if (checked) {
+                          if (!canSelectFacetValue(option.realValue, counts)) {
+                            return
+                          }
+
+                          onChange([...selected, option])
+                          return
+                        }
+
+                        onChange(
+                          selected.filter(
+                            (entry) => entry.realValue !== option.realValue
+                          )
                         )
-                      }
-                      onChange(next)
-                    }}
-                  />
-                  <Label
-                    htmlFor={`${columnId}-${i}`}
-                    className="flex grow justify-between gap-2 font-normal"
-                  >
-                    {option.label}
-                    <span className="text-muted-foreground ms-2 text-xs">
-                      {count}
-                    </span>
-                  </Label>
-                </div>
-              )
-            })}
+                      }}
+                    />
+                    <Label
+                      htmlFor={`${columnId}-${i}`}
+                      className="flex grow justify-between gap-2 font-normal"
+                    >
+                      {option.label}
+                      <span className="text-muted-foreground ms-2 text-xs">
+                        {count}
+                      </span>
+                    </Label>
+                  </div>
+                )
+              })
+            ) : (
+              <p className="text-muted-foreground text-xs">
+                No options match the current filters.
+              </p>
+            )}
           </div>
         </div>
       </PopoverContent>

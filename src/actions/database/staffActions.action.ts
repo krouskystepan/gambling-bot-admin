@@ -36,6 +36,11 @@ export type {
   StaffActionRow
 } from '@/lib/staffAudit/staffActionRows'
 
+export type StaffActionEntityFacets = {
+  staff: Record<string, number>
+  users: Record<string, number>
+}
+
 function buildUnifiedPipeline(
   guildId: string,
   filters: StaffActionsFilters,
@@ -267,6 +272,60 @@ export async function getStaffActionCounts(
   )
 
   return Object.fromEntries(counts) as StaffActionCounts
+}
+
+function mapFacetAggregation(
+  rows: { _id: string | null; count: number }[]
+): Record<string, number> {
+  const facets: Record<string, number> = {}
+
+  for (const row of rows) {
+    if (row._id) {
+      facets[row._id] = row.count
+    }
+  }
+
+  return facets
+}
+
+export async function getStaffActionEntityFacets(
+  guildId: string,
+  session: Session,
+  filters: StaffActionsFilters = {}
+): Promise<StaffActionEntityFacets> {
+  const access = await requireGuildAccess(guildId)
+  if ('error' in access) {
+    return { staff: {}, users: {} }
+  }
+
+  await connectToDatabase()
+
+  const globalSettings = await getGuildGlobalSettings(guildId)
+  const timezone = globalSettings.timezone
+
+  const [staffRows, userRows] = await Promise.all([
+    Transaction.aggregate<{ _id: string | null; count: number }>([
+      ...buildUnifiedPipeline(
+        guildId,
+        { ...filters, staffId: undefined },
+        timezone
+      ),
+      { $group: { _id: '$actorId', count: { $sum: 1 } } }
+    ]),
+    Transaction.aggregate<{ _id: string | null; count: number }>([
+      ...buildUnifiedPipeline(
+        guildId,
+        { ...filters, search: undefined },
+        timezone
+      ),
+      { $group: { _id: '$subjectUserId', count: { $sum: 1 } } }
+    ])
+  ])
+
+  return {
+    staff: mapFacetAggregation(staffRows),
+    users: mapFacetAggregation(userRows)
+  }
 }
 
 export async function fetchStaffActionsForExport(

@@ -172,48 +172,118 @@ export const getTransactionCounts = async (
       ) as Record<TTransaction['source'], number>,
       casinoGame: Object.fromEntries(
         [...CASINO_GAME_IDS, LEGACY_CASINO_GAME_KEY].map((game) => [game, 0])
-      )
+      ),
+      staff: {},
+      users: {}
     }
   }
 
   await connectToDatabase()
 
   const globalSettings = await getGuildGlobalSettings(guildId)
-  const query = buildTransactionMatch(
+  const timezone = globalSettings.timezone
+
+  const sharedFilters = {
+    userId,
+    search,
+    staffId,
+    referenceId,
+    dateFrom,
+    dateTo
+  }
+
+  const typeQuery = buildTransactionMatch(
+    guildId,
+    {
+      ...sharedFilters,
+      filterSource,
+      filterCasinoGame
+    },
+    timezone
+  )
+
+  const sourceQuery = buildTransactionMatch(
+    guildId,
+    {
+      ...sharedFilters,
+      filterType,
+      filterCasinoGame
+    },
+    timezone
+  )
+
+  const casinoGameQuery = buildTransactionMatch(
+    guildId,
+    {
+      ...sharedFilters,
+      filterType,
+      filterSource
+    },
+    timezone
+  )
+
+  const staffFacetQuery = buildTransactionMatch(
     guildId,
     {
       userId,
       search,
-      staffId,
       referenceId,
+      dateFrom,
+      dateTo,
       filterType,
       filterSource,
-      filterCasinoGame,
-      dateFrom,
-      dateTo
+      filterCasinoGame
     },
-    globalSettings.timezone
+    timezone
   )
 
-  const [typeAgg, sourceAgg, casinoGameAgg] = await Promise.all([
-    Transaction.aggregate([
-      { $match: query },
-      { $group: { _id: '$type', count: { $sum: 1 } } }
-    ]),
-    Transaction.aggregate([
-      { $match: query },
-      { $group: { _id: '$source', count: { $sum: 1 } } }
-    ]),
-    Transaction.aggregate([
-      { $match: { ...query, source: 'casino' } },
-      {
-        $group: {
-          _id: { $ifNull: ['$meta.game', LEGACY_CASINO_GAME_KEY] },
-          count: { $sum: 1 }
+  const userFacetQuery = buildTransactionMatch(
+    guildId,
+    {
+      staffId,
+      referenceId,
+      dateFrom,
+      dateTo,
+      filterType,
+      filterSource,
+      filterCasinoGame
+    },
+    timezone
+  )
+
+  const [typeAgg, sourceAgg, casinoGameAgg, staffFacetAgg, userFacetAgg] =
+    await Promise.all([
+      Transaction.aggregate([
+        { $match: typeQuery },
+        { $group: { _id: '$type', count: { $sum: 1 } } }
+      ]),
+      Transaction.aggregate([
+        { $match: sourceQuery },
+        { $group: { _id: '$source', count: { $sum: 1 } } }
+      ]),
+      Transaction.aggregate([
+        { $match: { ...casinoGameQuery, source: 'casino' } },
+        {
+          $group: {
+            _id: { $ifNull: ['$meta.game', LEGACY_CASINO_GAME_KEY] },
+            count: { $sum: 1 }
+          }
         }
-      }
+      ]),
+      Transaction.aggregate([
+        {
+          $match: {
+            ...staffFacetQuery,
+            handledBy: { $exists: true, $ne: null }
+          }
+        },
+        { $group: { _id: '$handledBy', count: { $sum: 1 } } }
+      ]),
+      Transaction.aggregate([
+        { $match: userFacetQuery },
+        { $group: { _id: '$userId', count: { $sum: 1 } } }
+      ])
     ])
-  ])
 
   const typeCounts = Object.fromEntries(
     TRANSACTION_TYPES.map((t) => [t, 0])
@@ -239,10 +309,26 @@ export const getTransactionCounts = async (
     casinoGameCounts[row._id as string] = row.count
   })
 
+  const staffCounts: Record<string, number> = {}
+  staffFacetAgg.forEach((row) => {
+    if (row._id) {
+      staffCounts[row._id as string] = row.count
+    }
+  })
+
+  const userCounts: Record<string, number> = {}
+  userFacetAgg.forEach((row) => {
+    if (row._id) {
+      userCounts[row._id as string] = row.count
+    }
+  })
+
   return {
     type: typeCounts,
     source: sourceCounts,
-    casinoGame: casinoGameCounts
+    casinoGame: casinoGameCounts,
+    staff: staffCounts,
+    users: userCounts
   }
 }
 

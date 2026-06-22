@@ -8,7 +8,20 @@ import {
   useReactTable
 } from '@tanstack/react-table'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+
+import {
+  type ServerTableUrlHydrationOptions,
+  getLeafColumnIds,
+  parseServerTableUrlState
+} from '@/lib/table/parseServerTableUrlState'
+
+type ServerTableUrlHydration = Omit<
+  ServerTableUrlHydrationOptions,
+  'columnIds'
+> & {
+  searchParams: URLSearchParams | null
+}
 
 interface ServerTableProps<T> {
   data: T[]
@@ -22,6 +35,7 @@ interface ServerTableProps<T> {
   onColumnVisibilityChange?: (visibility: VisibilityState) => void
   initialSorting?: SortingState
   initialVisibility?: VisibilityState
+  urlHydration?: ServerTableUrlHydration
 }
 
 export function useServerTable<T>({
@@ -35,18 +49,91 @@ export function useServerTable<T>({
   onPaginationChange,
   onColumnVisibilityChange,
   initialSorting = [],
-  initialVisibility = {}
+  initialVisibility = {},
+  urlHydration
 }: ServerTableProps<T>) {
+  const columnIds = useMemo(() => getLeafColumnIds(columns), [columns])
+  const hasAppliedDeferredHydrationRef = useRef(false)
+
+  const getUrlHydrationOptions = () => ({
+    filters: urlHydration?.filters,
+    defaultVisibility: urlHydration?.defaultVisibility ?? initialVisibility,
+    columnIds
+  })
+
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: page - 1,
     pageSize: limit
   })
 
-  const [sorting, setSorting] = useState<SortingState>(initialSorting)
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] =
-    useState<VisibilityState>(initialVisibility)
+  const [sorting, setSorting] = useState<SortingState>(() => {
+    if (!urlHydration?.searchParams) {
+      return initialSorting
+    }
+
+    return parseServerTableUrlState(
+      urlHydration.searchParams,
+      getUrlHydrationOptions()
+    ).sorting
+  })
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(() => {
+    if (!urlHydration?.searchParams) {
+      return []
+    }
+
+    return parseServerTableUrlState(
+      urlHydration.searchParams,
+      getUrlHydrationOptions()
+    ).columnFilters
+  })
+  const columnFiltersRef = useRef(columnFilters)
+  columnFiltersRef.current = columnFilters
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    () => {
+      if (!urlHydration?.searchParams) {
+        return initialVisibility
+      }
+
+      return parseServerTableUrlState(
+        urlHydration.searchParams,
+        getUrlHydrationOptions()
+      ).columnVisibility
+    }
+  )
+  const [isTableReady, setIsTableReady] = useState(
+    () => !urlHydration || urlHydration.searchParams !== null
+  )
   const [isLoading, setIsLoading] = useState(false)
+
+  useLayoutEffect(() => {
+    if (!urlHydration?.searchParams || isTableReady) {
+      return
+    }
+
+    if (hasAppliedDeferredHydrationRef.current) {
+      return
+    }
+
+    const parsed = parseServerTableUrlState(urlHydration.searchParams, {
+      filters: urlHydration.filters,
+      defaultVisibility: urlHydration.defaultVisibility ?? initialVisibility,
+      columnIds
+    })
+
+    setSorting(parsed.sorting)
+    columnFiltersRef.current = parsed.columnFilters
+    setColumnFilters(parsed.columnFilters)
+    setColumnVisibility(parsed.columnVisibility)
+    hasAppliedDeferredHydrationRef.current = true
+    setIsTableReady(true)
+  }, [
+    columnIds,
+    initialVisibility,
+    isTableReady,
+    urlHydration?.defaultVisibility,
+    urlHydration?.filters,
+    urlHydration?.searchParams
+  ])
 
   useEffect(() => {
     setPagination({
@@ -72,7 +159,11 @@ export function useServerTable<T>({
     },
     onColumnFiltersChange: (updater) => {
       const next =
-        typeof updater === 'function' ? updater(columnFilters) : updater
+        typeof updater === 'function'
+          ? updater(columnFiltersRef.current)
+          : updater
+
+      columnFiltersRef.current = next
       setColumnFilters(next)
       onColumnFiltersChange?.(next)
     },
@@ -99,6 +190,7 @@ export function useServerTable<T>({
   return {
     table,
     isLoading,
-    setIsLoading
+    setIsLoading,
+    isTableReady
   }
 }

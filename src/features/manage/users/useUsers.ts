@@ -18,6 +18,7 @@ export interface UsersResult {
   users: TGuildMemberStatus[]
   total: number
   guildMembers: Awaited<ReturnType<typeof getDiscordGuildMembers>>
+  registeredUserIds: string[]
 }
 
 export async function getUsersData(
@@ -25,23 +26,26 @@ export async function getUsersData(
   session: Session,
   query: UsersQuery
 ): Promise<UsersResult> {
-  const [{ users, total }, guildMembers] = await Promise.all([
-    getUsers(
-      guildId,
-      session,
-      query.page,
-      query.limit,
-      query.search,
-      query.sort,
-      query.registration
-    ),
-    getDiscordGuildMembers(guildId)
-  ])
+  const [{ users, total, registeredUserIds }, guildMembers] = await Promise.all(
+    [
+      getUsers(
+        guildId,
+        session,
+        query.page,
+        query.limit,
+        query.search,
+        query.sort,
+        query.registration
+      ),
+      getDiscordGuildMembers(guildId)
+    ]
+  )
 
   return {
     users,
     total,
-    guildMembers
+    guildMembers,
+    registeredUserIds
   }
 }
 

@@ -16,6 +16,11 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import {
+  createExclusiveOwnerEntityFilterHandlers,
+  getEntityFilterOptions,
+  getOwnerFilterMembers
+} from '@/lib/table/exclusiveOwnerEntityFilters'
 import { TVipChannels } from '@/types/types'
 
 import CreateVipDialog from './CreateVipDialog'
@@ -72,26 +77,50 @@ const VipsTableFilters = ({
     [vips]
   )
 
+  const ownerEntityRows = useMemo(
+    () =>
+      vips.map((vip) => ({
+        entityId: vip.channelId,
+        ownerId: vip.ownerId
+      })),
+    [vips]
+  )
+
+  const { handleOwnerChange, handleEntityChange } =
+    createExclusiveOwnerEntityFilterHandlers({
+      table,
+      options: vipOptions,
+      rows: ownerEntityRows
+    })
+
+  const ownerFilterMembers = getOwnerFilterMembers(
+    members,
+    searchValue,
+    vipOptions,
+    ownerEntityRows
+  )
+  const entityFilterOptions = getEntityFilterOptions(
+    vipOptions,
+    userIdFilter,
+    ownerEntityRows
+  )
+
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex min-w-0 flex-1 flex-wrap gap-2">
           <SearchableUserFilter
-            members={members}
+            members={ownerFilterMembers}
             value={userIdFilter}
-            onChange={(userId) => {
-              table.getColumn('userId')?.setFilterValue(userId)
-            }}
+            onChange={handleOwnerChange}
           />
           <SearchableTextFilter
-            options={vipOptions}
+            options={entityFilterOptions}
             value={searchValue}
             placeholder="All VIP rooms"
             clearLabel="All VIP rooms"
             inputPlaceholder="Search by channel or ID..."
-            onChange={(search) => {
-              table.getColumn('search')?.setFilterValue(search)
-            }}
+            onChange={handleEntityChange}
           />
         </div>
 

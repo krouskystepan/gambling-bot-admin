@@ -1,13 +1,13 @@
+'use client'
+
 import { Table as ReactTable } from '@tanstack/react-table'
 import { RefreshCcw } from 'lucide-react'
 
-import { Dispatch, SetStateAction } from 'react'
+import { Dispatch, SetStateAction, useMemo } from 'react'
 
 import { useRouter } from 'next/navigation'
 
-import SearchableUserFilter, {
-  type SearchableUserOption
-} from '@/components/SearchableUserFilter'
+import SearchableUserFilter from '@/components/SearchableUserFilter'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -21,27 +21,33 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import {
+  filterMembersByRegistration,
+  getVisibleRegistrationOptions,
+  isMemberCompatibleWithRegistration
+} from '@/lib/table/registrationMemberFilters'
 import { cn } from '@/lib/utils'
 import { TGuildMemberStatus } from '@/types/types'
 
 import type { UserRegistrationFilter } from '../useUsers'
 
-const registrationOptions = [
-  { value: 'all', label: 'All' },
-  { value: 'registered', label: 'Registered' },
-  { value: 'not_registered', label: 'Not Registered' }
-] as const
-
 const UserTableFilters = ({
   table,
   guildMembers,
+  registeredUserIds,
   registration,
   onRegistrationChange,
   isLoading,
   setIsLoading
 }: {
   table: ReactTable<TGuildMemberStatus>
-  guildMembers: SearchableUserOption[]
+  guildMembers: {
+    userId: string
+    username: string
+    nickname: string | null
+    avatarUrl: string
+  }[]
+  registeredUserIds: string[]
   registration: UserRegistrationFilter
   onRegistrationChange: (registration: UserRegistrationFilter) => void
   isLoading: boolean
@@ -53,13 +59,41 @@ const UserTableFilters = ({
     | string
     | undefined
 
+  const registeredIds = useMemo(
+    () => new Set(registeredUserIds),
+    [registeredUserIds]
+  )
+
+  const memberOptions = useMemo(
+    () =>
+      filterMembersByRegistration(guildMembers, registration, registeredIds),
+    [guildMembers, registration, registeredIds]
+  )
+
+  const visibleRegistrationOptions = useMemo(
+    () => getVisibleRegistrationOptions(searchValue, registeredIds),
+    [searchValue, registeredIds]
+  )
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div className="flex min-w-0 flex-1 flex-wrap gap-2">
         <SearchableUserFilter
-          members={guildMembers}
+          members={memberOptions}
           value={searchValue}
           onChange={(userId) => {
+            if (
+              userId &&
+              registration !== 'all' &&
+              !isMemberCompatibleWithRegistration(
+                userId,
+                registration,
+                registeredIds
+              )
+            ) {
+              return
+            }
+
             table.getColumn('search')?.setFilterValue(userId)
           }}
         />
@@ -79,7 +113,7 @@ const UserTableFilters = ({
             <SelectValue placeholder="All" />
           </SelectTrigger>
           <SelectContent>
-            {registrationOptions.map((option) => (
+            {visibleRegistrationOptions.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}
               </SelectItem>

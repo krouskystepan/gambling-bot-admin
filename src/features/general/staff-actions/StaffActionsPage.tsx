@@ -31,7 +31,7 @@ const StaffActionsPage = async ({
   const query = normalizeStaffActionsSearchParams(searchParams)
 
   const [
-    { actions, counts, total, staffMembers, guildMembers },
+    { actions, counts, entityFacets, total, staffMembers, guildMembers },
     globalSettings
   ] = await Promise.all([
     getStaffActionsData(guildId, session, query),
@@ -45,6 +45,7 @@ const StaffActionsPage = async ({
         globalSettings={globalSettings}
         actions={actions}
         counts={counts}
+        entityFacets={entityFacets}
         staffMembers={staffMembers}
         guildMembers={guildMembers}
         page={query.page}

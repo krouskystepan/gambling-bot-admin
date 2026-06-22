@@ -4,6 +4,7 @@ import Link from 'next/link'
 
 import { Badge } from '@/components/ui/badge'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
+import { createHiddenFilterColumn } from '@/lib/table/manualFilterColumn'
 import { TRaffleRow } from '@/types/types'
 
 import RaffleActionsMenu from './RaffleActionsMenu'
@@ -18,24 +19,8 @@ export const raffleColumns = (
   raffleFeatureBlocked: boolean,
   raffleFeatureBlockMessage: string | null
 ): ColumnDef<TRaffleRow>[] => [
-  {
-    id: 'search',
-    header: () => null,
-    cell: () => null,
-    enableSorting: false,
-    enableColumnFilter: true,
-    enableHiding: false,
-    size: 0
-  },
-  {
-    id: 'userId',
-    header: () => null,
-    cell: () => null,
-    enableSorting: false,
-    enableColumnFilter: true,
-    enableHiding: false,
-    size: 0
-  },
+  createHiddenFilterColumn<TRaffleRow>('search'),
+  createHiddenFilterColumn<TRaffleRow>('userId'),
   {
     id: 'status',
     header: () => <span className="whitespace-nowrap">Status</span>,

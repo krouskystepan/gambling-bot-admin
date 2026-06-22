@@ -26,12 +26,15 @@ const UsersPage = async ({
 
   const query = normalizeUsersSearchParams(searchParams)
 
-  const [{ users, total, guildMembers }, globalSettings, { isAdmin }] =
-    await Promise.all([
-      getUsersData(guildId, session, query),
-      getGuildGlobalSettings(guildId),
-      getUserPermissions(guildId, session)
-    ])
+  const [
+    { users, total, guildMembers, registeredUserIds },
+    globalSettings,
+    { isAdmin }
+  ] = await Promise.all([
+    getUsersData(guildId, session, query),
+    getGuildGlobalSettings(guildId),
+    getUserPermissions(guildId, session)
+  ])
 
   return (
     <FeatureLayout title={'Users'}>
@@ -43,6 +46,7 @@ const UsersPage = async ({
         managerId={session.userId!}
         registration={query.registration}
         guildMembers={guildMembers}
+        registeredUserIds={registeredUserIds}
         page={query.page}
         limit={query.limit}
         total={total}

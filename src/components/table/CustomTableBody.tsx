@@ -10,22 +10,24 @@ type TableBodyProps<T> = {
 }
 
 const CustomTableBody = <T,>({ table, isLoading }: TableBodyProps<T>) => {
+  const visibleColumns = table.getVisibleLeafColumns()
+  const skeletonRowCount = Math.max(
+    table.getState().pagination.pageSize,
+    table.getRowModel().rows.length,
+    5
+  )
+
   return (
     <TableBody>
       {isLoading ? (
-        Array.from({
-          length: table.getPaginationRowModel().rows.length
-        }).map((_, i) => (
+        Array.from({ length: skeletonRowCount }).map((_, rowIndex) => (
           <TableRow
-            key={i}
-            className={cn('h-16', i % 2 === 1 && 'bg-muted/30')}
+            key={rowIndex}
+            className={cn('h-16', rowIndex % 2 === 1 && 'bg-muted/30')}
           >
-            {table.getHeaderGroups()[0]?.headers.map((header, j) => (
-              <TableCell key={j}>
-                <Skeleton
-                  className="h-4"
-                  style={{ width: `${header.getSize()}px` }}
-                />
+            {visibleColumns.map((column) => (
+              <TableCell key={column.id}>
+                <Skeleton className="h-4 w-full max-w-32" />
               </TableCell>
             ))}
           </TableRow>

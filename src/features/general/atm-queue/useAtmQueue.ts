@@ -45,7 +45,13 @@ export async function getAtmQueueData(
       query.dateTo,
       query.sort
     ),
-    getAtmRequestCounts(guildId, session),
+    getAtmRequestCounts(guildId, session, {
+      search: query.search,
+      filterStatus: query.filterStatus,
+      filterType: query.filterType,
+      dateFrom: query.dateFrom,
+      dateTo: query.dateTo
+    }),
     getDiscordGuildMembers(guildId)
   ])
 

@@ -1,13 +1,37 @@
 import { Table, flexRender } from '@tanstack/react-table'
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
 
+import { Skeleton } from '@/components/ui/skeleton'
 import { TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 type TableHeaderProps<T> = {
   table: Table<T>
+  isLoading?: boolean
 }
 
-const CustomTableHeader = <T,>({ table }: TableHeaderProps<T>) => {
+const CustomTableHeader = <T,>({
+  table,
+  isLoading = false
+}: TableHeaderProps<T>) => {
+  if (isLoading) {
+    return (
+      <TableHeader>
+        {table.getHeaderGroups().map((headerGroup) => (
+          <TableRow key={headerGroup.id}>
+            {headerGroup.headers.map((header) => (
+              <TableHead
+                key={header.id}
+                style={{ width: `${header.getSize()}px` }}
+              >
+                <Skeleton className="h-4 w-20" />
+              </TableHead>
+            ))}
+          </TableRow>
+        ))}
+      </TableHeader>
+    )
+  }
+
   return (
     <TableHeader>
       {table.getHeaderGroups().map((headerGroup) => (

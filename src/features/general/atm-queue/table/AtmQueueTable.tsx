@@ -3,7 +3,7 @@
 import { VisibilityState } from '@tanstack/react-table'
 import type { GlobalSettings } from 'gambling-bot-shared/guild'
 
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { useSearchParams } from 'next/navigation'
 
@@ -15,7 +15,8 @@ import {
 } from '@/components/table'
 import { Table } from '@/components/ui/table'
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
-import { useHydrateServerTableFromUrl } from '@/hooks/useHydrateServerTableFromUrl'
+import { usePruneEntityColumnFilters } from '@/hooks/usePruneEntityColumnFilters'
+import { usePruneFacetColumnFilters } from '@/hooks/usePruneFacetColumnFilters'
 import { useServerTable } from '@/hooks/useServerTable'
 import { useUpdateUrl } from '@/hooks/useUpdateUrl'
 import { IAtmRequestCounts, TAtmRequestDiscord } from '@/types/types'
@@ -56,6 +57,10 @@ const AtmQueueTable = ({
   limit,
   total
 }: AtmQueueTableProps) => {
+  const searchParams = useSearchParams()
+  const updateUrl = useUpdateUrl()
+  const debouncedUpdateUrl = useDebouncedCallback(updateUrl, 300)
+
   const defaultVisibility: VisibilityState = {
     userId: false,
     nickname: false,
@@ -65,8 +70,8 @@ const AtmQueueTable = ({
     audit: false
   }
 
-  const { table, isLoading, setIsLoading } = useServerTable<TAtmRequestDiscord>(
-    {
+  const { table, isLoading, setIsLoading, isTableReady } =
+    useServerTable<TAtmRequestDiscord>({
       data: requests,
       page,
       limit,
@@ -84,6 +89,8 @@ const AtmQueueTable = ({
       },
 
       onColumnFiltersChange: (filters) => {
+        setIsLoading(true)
+
         const search =
           (filters.find((filter) => filter.id === 'userId')?.value as
             | string
@@ -134,45 +141,82 @@ const AtmQueueTable = ({
           page: 1,
           view: overrides.length ? overrides.join(',') : undefined
         })
+      },
+
+      urlHydration: {
+        searchParams,
+        defaultVisibility,
+        filters: (params) => {
+          const search = params.get('search') || ''
+          const filterStatusParam = params.get('filterStatus')
+          const filterStatus =
+            parseAtmQueueFilterStatusForTable(filterStatusParam)
+          const filterType = params
+            .get('filterType')
+            ?.split(',')
+            .filter(Boolean)
+          const dateFrom = params.get('dateFrom') || undefined
+          const dateTo = params.get('dateTo') || undefined
+
+          return [
+            { id: 'userId', value: search || undefined },
+            {
+              id: 'status',
+              value: filterStatus
+            },
+            {
+              id: 'type',
+              value: filterType?.length ? filterType : undefined
+            },
+            {
+              id: 'createdAt',
+              value: dateFrom && dateTo ? [dateFrom, dateTo] : undefined
+            }
+          ]
+        }
       }
-    }
+    })
+
+  const showTableLoading = isLoading || !isTableReady
+
+  const facetCountsByColumn = useMemo(
+    () => ({
+      status: {
+        pending: counts.pending,
+        approved: counts.approved,
+        rejected: counts.rejected
+      },
+      type: counts.type
+    }),
+    [counts]
+  )
+
+  usePruneFacetColumnFilters(
+    table,
+    facetCountsByColumn,
+    !isLoading && isTableReady
+  )
+
+  const entityFacetColumns = useMemo(
+    () => [
+      {
+        columnId: 'userId',
+        facetCounts: counts.users,
+        alwaysRestrict: true
+      }
+    ],
+    [counts.users]
+  )
+
+  usePruneEntityColumnFilters(
+    table,
+    entityFacetColumns,
+    !isLoading && isTableReady
   )
 
   useEffect(() => {
     setIsLoading(false)
   }, [setIsLoading, requests])
-
-  const updateUrl = useUpdateUrl()
-  const debouncedUpdateUrl = useDebouncedCallback(updateUrl, 300)
-  const searchParams = useSearchParams()
-
-  useHydrateServerTableFromUrl(table, searchParams, {
-    filters: (params) => {
-      const search = params.get('search') || ''
-      const filterStatusParam = params.get('filterStatus')
-      const filterStatus = parseAtmQueueFilterStatusForTable(filterStatusParam)
-      const filterType = params.get('filterType')?.split(',').filter(Boolean)
-      const dateFrom = params.get('dateFrom') || undefined
-      const dateTo = params.get('dateTo') || undefined
-
-      return [
-        { id: 'userId', value: search || undefined },
-        {
-          id: 'status',
-          value: filterStatus
-        },
-        {
-          id: 'type',
-          value: filterType?.length ? filterType : undefined
-        },
-        {
-          id: 'createdAt',
-          value: dateFrom && dateTo ? [dateFrom, dateTo] : undefined
-        }
-      ]
-    },
-    defaultVisibility
-  })
 
   return (
     <ServerTablePageLayout
@@ -191,8 +235,8 @@ const AtmQueueTable = ({
       pagination={<CustomTablePagination table={table} total={total} />}
     >
       <Table className="w-full table-auto">
-        <CustomTableHeader table={table} />
-        <CustomTableBody table={table} isLoading={isLoading} />
+        <CustomTableHeader table={table} isLoading={showTableLoading} />
+        <CustomTableBody table={table} isLoading={showTableLoading} />
       </Table>
     </ServerTablePageLayout>
   )

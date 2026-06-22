@@ -10,6 +10,8 @@ import {
   getTransactionTypeBadgeClass
 } from '@/components/badges/badgeStyles'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
+import { formatOptionalText } from '@/lib/table/formatOptionalText'
+import { createHiddenFilterColumn } from '@/lib/table/manualFilterColumn'
 import { TAtmRequestDiscord } from '@/types/types'
 
 import AtmQueueActions from './AtmQueueActions'
@@ -19,14 +21,7 @@ export const atmQueueColumns = (
   globalSettings: GlobalSettings,
   isGuildAdmin: boolean
 ): ColumnDef<TAtmRequestDiscord>[] => [
-  {
-    id: 'userId',
-    header: () => null,
-    cell: () => null,
-    enableSorting: false,
-    enableColumnFilter: true,
-    enableHiding: false
-  },
+  createHiddenFilterColumn<TAtmRequestDiscord>('userId'),
   {
     header: 'Avatar',
     accessorKey: 'avatar',
@@ -65,7 +60,7 @@ export const atmQueueColumns = (
     enableHiding: false,
     enableSorting: false,
     size: 120,
-    cell: ({ row }) => row.getValue('nickname') ?? '-'
+    cell: ({ row }) => formatOptionalText(row.original.nickname)
   },
   {
     header: 'Type',

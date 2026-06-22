@@ -6,9 +6,11 @@ import type { Session } from 'next-auth'
 
 import {
   type StaffActionCounts,
+  type StaffActionEntityFacets,
   type StaffActionRow,
   getGuildStaffMembers,
   getStaffActionCounts,
+  getStaffActionEntityFacets,
   getStaffActions
 } from '@/actions/database/staffActions.action'
 import { getDiscordGuildMembers } from '@/actions/discord/member.action'
@@ -26,6 +28,7 @@ export interface StaffActionsQuery {
 export interface StaffActionsResult {
   actions: StaffActionRow[]
   counts: StaffActionCounts
+  entityFacets: StaffActionEntityFacets
   total: number
   staffMembers: { userId: string; username: string }[]
   guildMembers: Awaited<ReturnType<typeof getDiscordGuildMembers>>
@@ -44,15 +47,16 @@ export async function getStaffActionsData(
     dateTo: query.dateTo
   }
 
-  const [{ actions, total }, counts, staffMembers, guildMembers] =
+  const [{ actions, total }, counts, entityFacets, staffMembers, guildMembers] =
     await Promise.all([
       getStaffActions(guildId, session, query.page, query.limit, filters),
       getStaffActionCounts(guildId, session, filters),
+      getStaffActionEntityFacets(guildId, session, filters),
       getGuildStaffMembers(guildId),
       getDiscordGuildMembers(guildId)
     ])
 
-  return { actions, counts, total, staffMembers, guildMembers }
+  return { actions, counts, entityFacets, total, staffMembers, guildMembers }
 }
 
 type RawSearchParams = {

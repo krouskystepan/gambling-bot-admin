@@ -15,7 +15,6 @@ import {
 } from '@/components/table'
 import { Table } from '@/components/ui/table'
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
-import { useHydrateServerTableFromUrl } from '@/hooks/useHydrateServerTableFromUrl'
 import { useServerTable } from '@/hooks/useServerTable'
 import { useUpdateUrl } from '@/hooks/useUpdateUrl'
 import { TRaffleRow } from '@/types/types'
@@ -48,69 +47,76 @@ const RaffleTable = ({
   raffleFeatureBlocked,
   raffleFeatureBlockMessage
 }: RaffleTableProps) => {
+  const searchParams = useSearchParams()
   const updateUrl = useUpdateUrl()
   const debouncedUpdateUrl = useDebouncedCallback(updateUrl, 300)
 
-  const { table, isLoading, setIsLoading } = useServerTable<TRaffleRow>({
-    data: raffles,
-    page,
-    limit,
-    total,
-    columns: raffleColumns(
-      guildId,
-      raffleFeatureBlocked,
-      raffleFeatureBlockMessage
-    ),
-    initialSorting: [{ id: 'createdAt', desc: true }],
-    initialVisibility: { search: false, userId: false },
+  const { table, isLoading, setIsLoading, isTableReady } =
+    useServerTable<TRaffleRow>({
+      data: raffles,
+      page,
+      limit,
+      total,
+      columns: raffleColumns(
+        guildId,
+        raffleFeatureBlocked,
+        raffleFeatureBlockMessage
+      ),
+      initialSorting: [{ id: 'createdAt', desc: true }],
+      initialVisibility: { search: false, userId: false },
 
-    onSortingChange: (sorting) => {
-      debouncedUpdateUrl({
-        page: 1,
-        sort: sorting.map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`).join(',')
-      })
-    },
+      onSortingChange: (sorting) => {
+        debouncedUpdateUrl({
+          page: 1,
+          sort: sorting
+            .map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`)
+            .join(',')
+        })
+      },
 
-    onColumnFiltersChange: (filters) => {
-      const search =
-        (filters.find((f) => f.id === 'search')?.value as string | undefined) ??
-        ''
-      const userId =
-        (filters.find((f) => f.id === 'userId')?.value as string | undefined) ??
-        ''
+      onColumnFiltersChange: (filters) => {
+        const search =
+          (filters.find((f) => f.id === 'search')?.value as
+            | string
+            | undefined) ?? ''
+        const userId =
+          (filters.find((f) => f.id === 'userId')?.value as
+            | string
+            | undefined) ?? ''
 
-      debouncedUpdateUrl({
-        page: 1,
-        search: search || undefined,
-        userId: userId || undefined
-      })
-    },
+        debouncedUpdateUrl({
+          page: 1,
+          search: search || undefined,
+          userId: userId || undefined
+        })
+      },
 
-    onPaginationChange: (pagination) => {
-      debouncedUpdateUrl({
-        page: pagination.pageIndex + 1,
-        limit: pagination.pageSize
-      })
-    }
-  })
+      onPaginationChange: (pagination) => {
+        debouncedUpdateUrl({
+          page: pagination.pageIndex + 1,
+          limit: pagination.pageSize
+        })
+      },
+
+      urlHydration: {
+        searchParams,
+        filters: (params) => {
+          const search = params.get('search') || ''
+          const userId = params.get('userId') || ''
+
+          return [
+            { id: 'search', value: search || undefined },
+            { id: 'userId', value: userId || undefined }
+          ]
+        }
+      }
+    })
+
+  const showTableLoading = isLoading || !isTableReady
 
   useEffect(() => {
     setIsLoading(false)
   }, [setIsLoading, raffles])
-
-  const searchParams = useSearchParams()
-
-  useHydrateServerTableFromUrl(table, searchParams, {
-    filters: (params) => {
-      const search = params.get('search') || ''
-      const userId = params.get('userId') || ''
-
-      return [
-        { id: 'search', value: search || undefined },
-        { id: 'userId', value: userId || undefined }
-      ]
-    }
-  })
 
   const handleStatusChange = (nextStatus: string) => {
     setIsLoading(true)
@@ -136,9 +142,9 @@ const RaffleTable = ({
       }
       pagination={<CustomTablePagination table={table} total={total} />}
     >
-      <Table className="w-full min-w-[72rem] table-fixed">
-        <CustomTableHeader table={table} />
-        <CustomTableBody table={table} isLoading={isLoading} />
+      <Table className="w-full min-w-6xl table-fixed">
+        <CustomTableHeader table={table} isLoading={showTableLoading} />
+        <CustomTableBody table={table} isLoading={showTableLoading} />
       </Table>
     </ServerTablePageLayout>
   )

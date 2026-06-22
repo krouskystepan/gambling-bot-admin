@@ -6,7 +6,7 @@ import {
 } from 'gambling-bot-shared/common'
 import { Columns3Icon } from 'lucide-react'
 
-import { Dispatch, SetStateAction } from 'react'
+import { Dispatch, SetStateAction, useMemo } from 'react'
 
 import DatePicker from '@/components/DatePicker'
 import SearchableUserFilter, {
@@ -29,6 +29,10 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import {
+  filterMembersByEntityFacet,
+  isEntityCompatibleWithFacet
+} from '@/lib/table/facetFilters'
 import { LEGACY_CASINO_GAME_KEY } from '@/lib/transactions/transactionFilters'
 import { cn } from '@/lib/utils'
 import { ITransactionCounts, TTransactionDiscord } from '@/types/types'
@@ -149,14 +153,44 @@ const TransactionTableFilters = ({
         }
       : undefined
 
+  const userMembers = useMemo(
+    () =>
+      filterMembersByEntityFacet(
+        guildMembers,
+        userIdFilter,
+        counts.users,
+        Boolean(staffIdFilter)
+      ),
+    [counts.users, guildMembers, staffIdFilter, userIdFilter]
+  )
+
+  const visibleStaffMembers = useMemo(
+    () =>
+      filterMembersByEntityFacet(
+        staffMembers,
+        staffIdFilter,
+        counts.staff,
+        Boolean(userIdFilter)
+      ),
+    [counts.staff, staffIdFilter, staffMembers, userIdFilter]
+  )
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div className="flex min-w-0 flex-1 flex-wrap gap-2">
         {!hideUserSearch ? (
           <SearchableUserFilter
-            members={guildMembers}
+            members={userMembers}
             value={userIdFilter}
             onChange={(userId) => {
+              if (
+                userId &&
+                staffIdFilter &&
+                !isEntityCompatibleWithFacet(userId, counts.users, true)
+              ) {
+                return
+              }
+
               table.getColumn('username')?.setFilterValue(userId)
             }}
           />
@@ -165,9 +199,17 @@ const TransactionTableFilters = ({
         <Select
           value={staffIdFilter ?? 'all'}
           onValueChange={(value) => {
-            table
-              .getColumn('handledBy')
-              ?.setFilterValue(value === 'all' ? undefined : value)
+            const nextStaffId = value === 'all' ? undefined : value
+
+            if (
+              nextStaffId &&
+              userIdFilter &&
+              !isEntityCompatibleWithFacet(nextStaffId, counts.staff, true)
+            ) {
+              return
+            }
+
+            table.getColumn('handledBy')?.setFilterValue(nextStaffId)
           }}
         >
           <SelectTrigger
@@ -180,7 +222,7 @@ const TransactionTableFilters = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All staff</SelectItem>
-            {staffMembers.map((member) => (
+            {visibleStaffMembers.map((member) => (
               <SelectItem key={member.userId} value={member.userId}>
                 {member.username}
               </SelectItem>

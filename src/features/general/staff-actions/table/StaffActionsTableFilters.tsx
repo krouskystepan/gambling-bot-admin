@@ -2,12 +2,13 @@ import { Table as ReactTable } from '@tanstack/react-table'
 import { STAFF_ACTION_CATEGORIES } from 'gambling-bot-shared/transactions'
 import { Download, Eraser, RefreshCcw } from 'lucide-react'
 
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Dispatch, SetStateAction, useMemo, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
 import type {
   StaffActionCounts,
+  StaffActionEntityFacets,
   StaffActionRow
 } from '@/actions/database/staffActions.action'
 import DatePicker from '@/components/DatePicker'
@@ -30,6 +31,10 @@ import {
 import TransactionFilter from '@/features/general/transactions/table/TransactionTableFilter'
 import { downloadCsvFile } from '@/lib/export/downloadCsv'
 import { buildStaffActionsExportUrl } from '@/lib/export/exportUrls'
+import {
+  filterMembersByEntityFacet,
+  isEntityCompatibleWithFacet
+} from '@/lib/table/facetFilters'
 import { cn } from '@/lib/utils'
 
 const categoryOptions = STAFF_ACTION_CATEGORIES.map((category, index) => ({
@@ -42,6 +47,7 @@ const StaffActionsTableFilters = ({
   guildId,
   table,
   counts,
+  entityFacets,
   staffMembers,
   guildMembers,
   isLoading,
@@ -50,6 +56,7 @@ const StaffActionsTableFilters = ({
   guildId: string
   table: ReactTable<StaffActionRow>
   counts: StaffActionCounts
+  entityFacets: StaffActionEntityFacets
   staffMembers: { userId: string; username: string }[]
   guildMembers: SearchableUserOption[]
   isLoading: boolean
@@ -93,6 +100,28 @@ const StaffActionsTableFilters = ({
         }
       : undefined
 
+  const userMembers = useMemo(
+    () =>
+      filterMembersByEntityFacet(
+        guildMembers,
+        searchValue,
+        entityFacets.users,
+        Boolean(staffIdFilter)
+      ),
+    [entityFacets.users, guildMembers, searchValue, staffIdFilter]
+  )
+
+  const visibleStaffMembers = useMemo(
+    () =>
+      filterMembersByEntityFacet(
+        staffMembers,
+        staffIdFilter,
+        entityFacets.staff,
+        Boolean(searchValue)
+      ),
+    [entityFacets.staff, searchValue, staffIdFilter, staffMembers]
+  )
+
   const handleClearFilters = () => {
     table.resetColumnFilters()
     router.replace(window.location.pathname, { scroll: false })
@@ -112,9 +141,17 @@ const StaffActionsTableFilters = ({
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div className="flex min-w-0 flex-1 flex-wrap gap-2">
         <SearchableUserFilter
-          members={guildMembers}
+          members={userMembers}
           value={searchValue}
           onChange={(userId) => {
+            if (
+              userId &&
+              staffIdFilter &&
+              !isEntityCompatibleWithFacet(userId, entityFacets.users, true)
+            ) {
+              return
+            }
+
             table.getColumn('search')?.setFilterValue(userId)
           }}
         />
@@ -122,9 +159,21 @@ const StaffActionsTableFilters = ({
         <Select
           value={staffIdFilter ?? 'all'}
           onValueChange={(value) => {
-            table
-              .getColumn('staffId')
-              ?.setFilterValue(value === 'all' ? undefined : value)
+            const nextStaffId = value === 'all' ? undefined : value
+
+            if (
+              nextStaffId &&
+              searchValue &&
+              !isEntityCompatibleWithFacet(
+                nextStaffId,
+                entityFacets.staff,
+                true
+              )
+            ) {
+              return
+            }
+
+            table.getColumn('staffId')?.setFilterValue(nextStaffId)
           }}
         >
           <SelectTrigger
@@ -137,7 +186,7 @@ const StaffActionsTableFilters = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All staff</SelectItem>
-            {staffMembers.map((member) => (
+            {visibleStaffMembers.map((member) => (
               <SelectItem key={member.userId} value={member.userId}>
                 {member.username}
               </SelectItem>

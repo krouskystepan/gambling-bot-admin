@@ -10,6 +10,8 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { formatOptionalText } from '@/lib/table/formatOptionalText'
+import { createHiddenFilterColumn } from '@/lib/table/manualFilterColumn'
 import { TVipChannels } from '@/types/types'
 
 import { type GuildMemberOption } from './GuildMemberCombobox'
@@ -22,20 +24,8 @@ export const vipColumns = (
   vipFeatureBlocked: boolean,
   vipFeatureBlockMessage: string | null
 ): ColumnDef<TVipChannels>[] => [
-  {
-    id: 'search',
-    header: () => null,
-    cell: () => null,
-    enableSorting: false,
-    enableColumnFilter: true
-  },
-  {
-    id: 'userId',
-    header: () => null,
-    cell: () => null,
-    enableSorting: false,
-    enableColumnFilter: true
-  },
+  createHiddenFilterColumn<TVipChannels>('search'),
+  createHiddenFilterColumn<TVipChannels>('userId'),
   {
     header: 'Image',
     accessorKey: 'avatar',
@@ -89,7 +79,7 @@ export const vipColumns = (
     header: 'Nickname',
     accessorKey: 'nickname',
     size: 80,
-    cell: ({ row }) => row.getValue('nickname')
+    cell: ({ row }) => formatOptionalText(row.original.nickname)
   },
   {
     header: 'Members',

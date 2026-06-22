@@ -25,6 +25,11 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import {
+  createExclusiveOwnerEntityFilterHandlers,
+  getEntityFilterOptions,
+  getOwnerFilterMembers
+} from '@/lib/table/exclusiveOwnerEntityFilters'
 import { TRaffleRow } from '@/types/types'
 
 import CreateRaffleDialog from '../CreateRaffleDialog'
@@ -88,28 +93,52 @@ const RafflesTableFilters = ({
     [raffles]
   )
 
+  const ownerEntityRows = useMemo(
+    () =>
+      raffles.map((raffle) => ({
+        entityId: raffle.raffleId,
+        ownerId: raffle.creatorId
+      })),
+    [raffles]
+  )
+
+  const { handleOwnerChange, handleEntityChange } =
+    createExclusiveOwnerEntityFilterHandlers({
+      table,
+      options: raffleOptions,
+      rows: ownerEntityRows
+    })
+
+  const ownerFilterMembers = getOwnerFilterMembers(
+    guildMembers,
+    searchValue,
+    raffleOptions,
+    ownerEntityRows
+  )
+  const entityFilterOptions = getEntityFilterOptions(
+    raffleOptions,
+    userIdFilter,
+    ownerEntityRows
+  )
+
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex min-w-0 flex-1 flex-wrap gap-2">
           <SearchableUserFilter
-            members={guildMembers}
+            members={ownerFilterMembers}
             value={userIdFilter}
             placeholder="All creators"
             clearLabel="All creators"
-            onChange={(userId) => {
-              table.getColumn('userId')?.setFilterValue(userId)
-            }}
+            onChange={handleOwnerChange}
           />
           <SearchableTextFilter
-            options={raffleOptions}
+            options={entityFilterOptions}
             value={searchValue}
             placeholder="All raffles"
             clearLabel="All raffles"
             inputPlaceholder="Search by ID or channel..."
-            onChange={(search) => {
-              table.getColumn('search')?.setFilterValue(search)
-            }}
+            onChange={handleEntityChange}
           />
         </div>
 

@@ -463,12 +463,17 @@ export async function getUsers(
   search?: string,
   sort?: string,
   registration: 'all' | 'registered' | 'not_registered' = 'all'
-): Promise<{ users: TGuildMemberStatus[]; total: number }> {
+): Promise<{
+  users: TGuildMemberStatus[]
+  total: number
+  registeredUserIds: string[]
+}> {
   const access = await requireGuildAccess(guildId)
   if ('error' in access || page < 1 || limit < 1 || limit > 50) {
     return {
       users: [],
-      total: 0
+      total: 0,
+      registeredUserIds: []
     }
   }
 
@@ -567,6 +572,7 @@ export async function getUsers(
 
   return {
     users: users.slice(start, end),
-    total
+    total,
+    registeredUserIds: dbUsers.map((user) => user.userId)
   }
 }

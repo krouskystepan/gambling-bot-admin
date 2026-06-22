@@ -25,6 +25,11 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import {
+  createExclusiveOwnerEntityFilterHandlers,
+  getEntityFilterOptions,
+  getOwnerFilterMembers
+} from '@/lib/table/exclusiveOwnerEntityFilters'
 import { TPredictionRow } from '@/types/types'
 
 import CreatePredictionDialog from '../components/CreatePredictionDialog'
@@ -94,6 +99,34 @@ const PredictionsTableFilters = ({
     [predictions]
   )
 
+  const ownerEntityRows = useMemo(
+    () =>
+      predictions.map((prediction) => ({
+        entityId: prediction.predictionId,
+        ownerId: prediction.creatorId
+      })),
+    [predictions]
+  )
+
+  const { handleOwnerChange, handleEntityChange } =
+    createExclusiveOwnerEntityFilterHandlers({
+      table,
+      options: predictionOptions,
+      rows: ownerEntityRows
+    })
+
+  const ownerFilterMembers = getOwnerFilterMembers(
+    guildMembers,
+    searchValue,
+    predictionOptions,
+    ownerEntityRows
+  )
+  const entityFilterOptions = getEntityFilterOptions(
+    predictionOptions,
+    userIdFilter,
+    ownerEntityRows
+  )
+
   return (
     <>
       {!channelsConfigured ? (
@@ -112,23 +145,19 @@ const PredictionsTableFilters = ({
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex min-w-0 flex-1 flex-wrap gap-2">
           <SearchableUserFilter
-            members={guildMembers}
+            members={ownerFilterMembers}
             value={userIdFilter}
             placeholder="All creators"
             clearLabel="All creators"
-            onChange={(userId) => {
-              table.getColumn('userId')?.setFilterValue(userId)
-            }}
+            onChange={handleOwnerChange}
           />
           <SearchableTextFilter
-            options={predictionOptions}
+            options={entityFilterOptions}
             value={searchValue}
             placeholder="All predictions"
             clearLabel="All predictions"
             inputPlaceholder="Search by title or ID..."
-            onChange={(search) => {
-              table.getColumn('search')?.setFilterValue(search)
-            }}
+            onChange={handleEntityChange}
           />
         </div>
 

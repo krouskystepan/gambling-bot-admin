@@ -154,12 +154,15 @@ export type IAtmRequestCounts = {
     pendingDeposits: number
     pendingWithdraws: number
   }
+  users: Record<string, number>
 }
 
 export type ITransactionCounts = {
   type: Record<TTransaction['type'], number>
   source: Record<TTransaction['source'], number>
   casinoGame: Record<string, number>
+  staff: Record<string, number>
+  users: Record<string, number>
 }
 
 export type TUpdateUrl = {

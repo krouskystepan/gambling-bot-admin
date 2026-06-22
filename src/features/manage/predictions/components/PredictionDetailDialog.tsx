@@ -75,8 +75,7 @@ const PredictionDetailDialog = ({
 
               {detail.autolock ? (
                 <p className="text-sm text-muted-foreground">
-                  Auto-lock:{' '}
-                  {new Date(detail.autolock).toLocaleString('cs-CZ')}
+                  Auto-lock: {new Date(detail.autolock).toLocaleString('cs-CZ')}
                 </p>
               ) : null}
             </div>
