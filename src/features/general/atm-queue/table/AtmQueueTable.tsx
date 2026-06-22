@@ -1,5 +1,6 @@
 'use client'
 
+import { VisibilityState } from '@tanstack/react-table'
 import type { GlobalSettings } from 'gambling-bot-shared/guild'
 
 import { useEffect } from 'react'
@@ -55,6 +56,15 @@ const AtmQueueTable = ({
   limit,
   total
 }: AtmQueueTableProps) => {
+  const defaultVisibility: VisibilityState = {
+    userId: false,
+    nickname: false,
+    handledByUsername: false,
+    createdAt: false,
+    notes: false,
+    audit: false
+  }
+
   const { table, isLoading, setIsLoading } = useServerTable<TAtmRequestDiscord>(
     {
       data: requests,
@@ -62,7 +72,7 @@ const AtmQueueTable = ({
       limit,
       total,
       columns: atmQueueColumns(guildId, globalSettings, isGuildAdmin),
-      initialVisibility: { userId: false },
+      initialVisibility: defaultVisibility,
 
       onSortingChange: (sorting) => {
         debouncedUpdateUrl({
@@ -107,6 +117,23 @@ const AtmQueueTable = ({
           page: pagination.pageIndex + 1,
           limit: pagination.pageSize
         })
+      },
+
+      onColumnVisibilityChange: (visibility) => {
+        const overrides: string[] = []
+
+        Object.entries(visibility).forEach(([key, value]) => {
+          const defaultValue = defaultVisibility[key] ?? true
+
+          if (value !== defaultValue) {
+            overrides.push(value ? `!${key}` : key)
+          }
+        })
+
+        debouncedUpdateUrl({
+          page: 1,
+          view: overrides.length ? overrides.join(',') : undefined
+        })
       }
     }
   )
@@ -143,7 +170,8 @@ const AtmQueueTable = ({
           value: dateFrom && dateTo ? [dateFrom, dateTo] : undefined
         }
       ]
-    }
+    },
+    defaultVisibility
   })
 
   return (

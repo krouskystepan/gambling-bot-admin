@@ -19,7 +19,7 @@ const HealthPage = async ({ guildId }: { guildId: string }) => {
   return (
     <FeatureLayout title="Health">
       <div className="space-y-6">
-        <OperationsHealthCard operations={operations} />
+        <OperationsHealthCard guildId={guildId} operations={operations} />
         {setup ? <SetupHealthCard checks={setup} /> : null}
       </div>
     </FeatureLayout>

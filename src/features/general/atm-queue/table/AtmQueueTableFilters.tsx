@@ -1,5 +1,5 @@
 import { Table as ReactTable } from '@tanstack/react-table'
-import { Eraser, RefreshCcw } from 'lucide-react'
+import { Columns3Icon, Eraser, RefreshCcw } from 'lucide-react'
 
 import { Dispatch, SetStateAction } from 'react'
 
@@ -10,6 +10,13 @@ import SearchableUserFilter, {
   type SearchableUserOption
 } from '@/components/SearchableUserFilter'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 import {
   Tooltip,
   TooltipContent,
@@ -155,6 +162,33 @@ const AtmQueueTableFilters = ({
               )
           }}
         />
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="h-9.5">
+              <Columns3Icon size={16} className="-ms-1 size-4 opacity-60" />
+              View
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
+            {table
+              .getAllColumns()
+              .filter((col) => col.getCanHide())
+              .map((col) => (
+                <DropdownMenuCheckboxItem
+                  key={col.id}
+                  checked={col.getIsVisible()}
+                  onCheckedChange={(value) => col.toggleVisibility(!!value)}
+                >
+                  {(col.columnDef.meta as { label: string })?.label ??
+                    (typeof col.columnDef.header === 'string'
+                      ? col.columnDef.header
+                      : col.id)}
+                </DropdownMenuCheckboxItem>
+              ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <Tooltip>
           <TooltipTrigger asChild>

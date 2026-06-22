@@ -115,9 +115,9 @@ const TransactionTableFilters = ({
     (option) => option.realValue === 'casino'
   )
 
-  const userIdFilter = table.getColumn('username')?.getFilterValue() as
-    | string
-    | undefined
+  const userIdFilter = hideUserSearch
+    ? undefined
+    : (table.getColumn('username')?.getFilterValue() as string | undefined)
   const staffIdFilter = table.getColumn('handledBy')?.getFilterValue() as
     | string
     | undefined

@@ -72,12 +72,7 @@ export type TRaffleRow = TRaffle & {
   totalTickets: number
   totalPot: number
   intervalLabel: string
-  participantsEnriched: {
-    userId: string
-    tickets: number
-    username: string
-    avatar: string
-  }[]
+  participantCount: number
 }
 
 export type TPredictionRow = TPrediction & {

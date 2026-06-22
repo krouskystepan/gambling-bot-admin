@@ -2,12 +2,15 @@
 
 import { type TAtmRequest } from 'gambling-bot-shared/atm'
 import { type TBlackjackGame } from 'gambling-bot-shared/blackjack'
+import { type GlobalSettings } from 'gambling-bot-shared/guild'
 import { type TPrediction } from 'gambling-bot-shared/predictions'
 import { Session } from 'next-auth'
 
 import { requireGuildAccess } from '@/actions/perms'
 import { connectToDatabase } from '@/lib/db'
 import { discordMessageLink } from '@/lib/discord/messageLink'
+import { formatGuildMoneyExact } from '@/lib/guild/guildMoney'
+import { getGuildGlobalSettings } from '@/lib/guild/guildMoney.server'
 import { formatAgeMs, formatStaleAge } from '@/lib/systemHealth/formatAge'
 import {
   atmStalePendingCutoff,
@@ -157,14 +160,15 @@ const fetchAttentionCounts = async (
 
 const mapAtmItem = (
   guildId: string,
-  request: TAtmRequest
+  request: TAtmRequest,
+  globalSettings: GlobalSettings
 ): SystemHealthItem => {
   const ageMs = Date.now() - new Date(request.createdAt).getTime()
   const typeLabel = request.type === 'deposit' ? 'Deposit' : 'Withdraw'
 
   return {
     userId: request.userId,
-    title: `${typeLabel} · ${request.amount.toLocaleString()}`,
+    title: `${typeLabel} · ${formatGuildMoneyExact(request.amount, globalSettings)}`,
     subtitle: formatAgeMs(ageMs),
     adminHref: userHref(guildId, request.userId),
     ageMs
@@ -358,41 +362,43 @@ export const getSystemHealthData = async (
   const predictionsAwaitingAction =
     counts.overdueAutolock + counts.endedPredictions + counts.stuckPaying
 
-  const [atmItems, blackjackItems, predictionItems] = await Promise.all([
-    AtmRequest.find({ guildId, status: 'pending' })
-      .sort({ createdAt: 1 })
-      .limit(10)
-      .lean<TAtmRequest[]>(),
-    counts.staleBlackjack > 0
-      ? BlackjackGame.find({
-          guildId,
-          updatedAt: { $lte: blackjackStale }
-        })
-          .sort({ updatedAt: 1 })
-          .limit(10)
-          .lean<TBlackjackGame[]>()
-      : BlackjackGame.find({ guildId })
-          .sort({ updatedAt: 1 })
-          .limit(10)
-          .lean<TBlackjackGame[]>(),
-    Prediction.find({
-      guildId,
-      $or: [
-        { status: 'ended' },
-        {
-          status: 'paying',
-          updatedAt: { $lte: stuckPayingCutoff }
-        },
-        {
-          status: 'active',
-          autolock: { $ne: null, $lte: now }
-        }
-      ]
-    })
-      .sort({ updatedAt: 1 })
-      .limit(10)
-      .lean<TPrediction[]>()
-  ])
+  const [globalSettings, atmItems, blackjackItems, predictionItems] =
+    await Promise.all([
+      getGuildGlobalSettings(guildId),
+      AtmRequest.find({ guildId, status: 'pending' })
+        .sort({ createdAt: 1 })
+        .limit(10)
+        .lean<TAtmRequest[]>(),
+      counts.staleBlackjack > 0
+        ? BlackjackGame.find({
+            guildId,
+            updatedAt: { $lte: blackjackStale }
+          })
+            .sort({ updatedAt: 1 })
+            .limit(10)
+            .lean<TBlackjackGame[]>()
+        : BlackjackGame.find({ guildId })
+            .sort({ updatedAt: 1 })
+            .limit(10)
+            .lean<TBlackjackGame[]>(),
+      Prediction.find({
+        guildId,
+        $or: [
+          { status: 'ended' },
+          {
+            status: 'paying',
+            updatedAt: { $lte: stuckPayingCutoff }
+          },
+          {
+            status: 'active',
+            autolock: { $ne: null, $lte: now }
+          }
+        ]
+      })
+        .sort({ updatedAt: 1 })
+        .limit(10)
+        .lean<TPrediction[]>()
+    ])
 
   return {
     needsAttention,
@@ -404,7 +410,9 @@ export const getSystemHealthData = async (
     },
     atm: {
       ...categories.atm,
-      items: atmItems.map((request) => mapAtmItem(guildId, request))
+      items: atmItems.map((request) =>
+        mapAtmItem(guildId, request, globalSettings)
+      )
     },
     blackjack: {
       ...categories.blackjack,

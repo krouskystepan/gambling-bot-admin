@@ -24,7 +24,8 @@ export const atmQueueColumns = (
     header: () => null,
     cell: () => null,
     enableSorting: false,
-    enableColumnFilter: true
+    enableColumnFilter: true,
+    enableHiding: false
   },
   {
     header: 'Avatar',
@@ -168,7 +169,7 @@ export const atmQueueColumns = (
     id: 'actions',
     enableSorting: false,
     enableHiding: false,
-    size: 160,
+    size: 84,
     cell: ({ row }) => (
       <AtmQueueActions
         guildId={guildId}

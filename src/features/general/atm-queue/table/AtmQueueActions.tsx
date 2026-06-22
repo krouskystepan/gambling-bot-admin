@@ -1,6 +1,7 @@
 'use client'
 
 import type { GlobalSettings } from 'gambling-bot-shared/guild'
+import { Check, X } from 'lucide-react'
 
 import { useState, useTransition } from 'react'
 
@@ -33,7 +34,7 @@ import {
 import { cn } from '@/lib/utils'
 import { TAtmRequestDiscord } from '@/types/types'
 
-const actionButtonClass = 'h-8 min-w-[4.75rem] flex-1 px-3 shadow-xs'
+const iconButtonClass = 'size-7 shrink-0 shadow-xs'
 
 type AtmQueueActionsProps = {
   guildId: string
@@ -94,41 +95,52 @@ const AtmQueueActions = ({
 
   return (
     <>
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2.5 px-1">
         <Tooltip>
           <TooltipTrigger asChild>
             <span>
               <Button
-                size="sm"
+                size="icon"
                 disabled={pending || approveBlocked}
                 className={cn(
-                  actionButtonClass,
+                  iconButtonClass,
                   'bg-emerald-600 text-white hover:bg-emerald-600/90'
                 )}
                 onClick={() => openDialog('approve')}
+                aria-label="Approve"
               >
-                Approve
+                <Check className="size-3.5" />
               </Button>
             </span>
           </TooltipTrigger>
-          {approveBlocked && approveBlockMessage ? (
-            <TooltipContent className="max-w-xs">
-              <p>{approveBlockMessage}</p>
-            </TooltipContent>
-          ) : null}
+          <TooltipContent className="max-w-xs">
+            <p>
+              {approveBlocked && approveBlockMessage
+                ? approveBlockMessage
+                : 'Approve'}
+            </p>
+          </TooltipContent>
         </Tooltip>
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={pending}
-          className={cn(
-            actionButtonClass,
-            'border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/20'
-          )}
-          onClick={() => openDialog('reject')}
-        >
-          Reject
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              variant="outline"
+              disabled={pending}
+              className={cn(
+                iconButtonClass,
+                'border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/20'
+              )}
+              onClick={() => openDialog('reject')}
+              aria-label="Reject"
+            >
+              <X className="size-3.5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Reject</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
 
       <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>

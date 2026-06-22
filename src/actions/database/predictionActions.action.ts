@@ -85,7 +85,24 @@ function enrichPredictionRow(
   const summary = getPredictionCheckSummary(prediction)
 
   return {
-    ...prediction,
+    predictionId: prediction.predictionId,
+    guildId: prediction.guildId,
+    channelId: prediction.channelId,
+    creatorId: prediction.creatorId,
+    title: prediction.title,
+    choices: prediction.choices.map((choice) => ({
+      choiceName: choice.choiceName,
+      odds: choice.odds,
+      bets: choice.bets.map((bet) => ({
+        userId: bet.userId,
+        amount: bet.amount,
+        betId: bet.betId
+      }))
+    })),
+    status: prediction.status,
+    autolock: prediction.autolock ?? null,
+    createdAt: prediction.createdAt,
+    updatedAt: prediction.updatedAt,
     channelName: channelsMap.get(prediction.channelId) ?? 'Unknown',
     creatorUsername: creator?.username ?? 'Unknown',
     creatorAvatar: creator?.avatarUrl ?? '/default-avatar.jpg',
@@ -238,13 +255,19 @@ export async function getPredictionDetail(
     predictionId: prediction.predictionId,
     title: prediction.title,
     status: prediction.status,
-    autolock: prediction.autolock,
+    autolock: prediction.autolock ?? null,
     choices: summary.choices.map((choice) => ({
-      ...choice,
+      choiceName: choice.choiceName,
+      odds: choice.odds,
+      betCount: choice.betCount,
+      totalBetAmount: choice.totalBetAmount,
+      payoutIfWins: choice.payoutIfWins,
       bets: choice.bets.map((bet) => {
         const member = membersMap.get(bet.userId)
         return {
-          ...bet,
+          userId: bet.userId,
+          amount: bet.amount,
+          betId: bet.betId,
           username: member?.username ?? 'Unknown',
           avatar: member?.avatarUrl ?? '/default-avatar.jpg'
         }

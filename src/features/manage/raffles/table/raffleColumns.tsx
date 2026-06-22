@@ -1,16 +1,8 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { CircleQuestionMark } from 'lucide-react'
 
-import Image from 'next/image'
 import Link from 'next/link'
 
 import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from '@/components/ui/tooltip'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
 import { TRaffleRow } from '@/types/types'
 
@@ -96,52 +88,16 @@ export const raffleColumns = (
   },
   {
     header: () => <span className="whitespace-nowrap">Participants</span>,
-    accessorKey: 'participantsEnriched',
+    accessorKey: 'participantCount',
     size: 112,
     minSize: 112,
     cell: ({ row }) => {
-      const participants = row.getValue(
-        'participantsEnriched'
-      ) as TRaffleRow['participantsEnriched']
+      const count = row.getValue('participantCount') as number
 
-      return (
-        <span className="flex items-center justify-start">
-          {participants.length > 0 ? (
-            <>
-              <span>{participants.length}</span>
-              <Tooltip>
-                <TooltipTrigger className="ml-2 text-muted-foreground transition hover:text-foreground">
-                  <CircleQuestionMark size={16} />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <ScrollArea className="h-fit p-1">
-                    {participants.map((participant) => (
-                      <Link
-                        key={participant.userId}
-                        href={`/dashboard/g/${guildId}/users/${participant.userId}`}
-                        className="flex items-center gap-2 text-sm hover:text-primary"
-                      >
-                        <Image
-                          className="rounded-full"
-                          width={20}
-                          height={20}
-                          alt={participant.username}
-                          src={participant.avatar}
-                        />
-                        <span>
-                          {participant.username} — {participant.tickets} ticket
-                          {participant.tickets === 1 ? '' : 's'}
-                        </span>
-                      </Link>
-                    ))}
-                  </ScrollArea>
-                </TooltipContent>
-              </Tooltip>
-            </>
-          ) : (
-            <span className="text-sm italic text-muted-foreground">None</span>
-          )}
-        </span>
+      return count > 0 ? (
+        <span>{count}</span>
+      ) : (
+        <span className="text-sm italic text-muted-foreground">None</span>
       )
     }
   },
