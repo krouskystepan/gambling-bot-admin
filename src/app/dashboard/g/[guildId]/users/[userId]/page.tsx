@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 
 import { getUserPermissions } from '@/actions/perms'
+import RateLimited from '@/components/states/RateLimmited'
 import UserProfilePage from '@/features/manage/users/profile/UserProfilePage'
 import { requireSession } from '@/lib/auth/requireSession'
 
@@ -26,7 +27,7 @@ const UserProfileRoute = async ({
   )
 
   if (rateLimited) {
-    return null
+    return <RateLimited />
   }
 
   if (!isAdmin && !isManager) {

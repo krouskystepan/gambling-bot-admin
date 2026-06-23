@@ -103,27 +103,35 @@ function enrichRaffleRow(
     0
   )
 
-  const participantsEnriched = raffle.participants
-    .filter((p) => p.tickets > 0)
-    .map((p) => {
-      const member = membersMap.get(p.userId)
-      return {
-        userId: p.userId,
-        tickets: p.tickets,
-        username: member?.username ?? 'Unknown',
-        avatar: member?.avatarUrl ?? '/default-avatar.jpg'
-      }
-    })
+  const participantCount = raffle.participants.filter(
+    (p) => p.tickets > 0
+  ).length
 
   return {
-    ...raffle,
+    drawId: raffle.drawId,
+    raffleId: raffle.raffleId,
+    guildId: raffle.guildId,
+    channelId: raffle.channelId,
+    creatorId: raffle.creatorId,
+    ticketPrice: raffle.ticketPrice,
+    maxTicketsPerUser: raffle.maxTicketsPerUser,
+    nextDrawAt: raffle.nextDrawAt,
+    lastDrawAt: raffle.lastDrawAt,
+    drawIntervalMs: raffle.drawIntervalMs,
+    status: raffle.status,
+    participants: raffle.participants.map((p) => ({
+      userId: p.userId,
+      tickets: p.tickets
+    })),
+    createdAt: raffle.createdAt,
+    updatedAt: raffle.updatedAt,
     channelName: channelsMap.get(raffle.channelId) ?? 'Unknown',
     creatorUsername: creator?.username ?? 'Unknown',
     creatorAvatar: creator?.avatarUrl ?? '/default-avatar.jpg',
     totalTickets,
     totalPot: totalTickets * raffle.ticketPrice,
     intervalLabel: formatIntervalMs(raffle.drawIntervalMs),
-    participantsEnriched
+    participantCount
   }
 }
 
@@ -158,7 +166,8 @@ export async function getRaffles(
   limit = 10,
   search?: string,
   sort?: string,
-  status: TRaffleStatus | 'all' = 'active'
+  status: TRaffleStatus | 'all' = 'active',
+  userId?: string
 ): Promise<{ raffles: TRaffleRow[]; total: number }> {
   const access = await requireGuildAccess(guildId)
   if ('error' in access || page < 1 || limit < 1 || limit > 50) {
@@ -189,15 +198,17 @@ export async function getRaffles(
     enrichRaffleRow(raffle, channelsMap, membersMap)
   )
 
+  if (userId) {
+    raffles = raffles.filter((raffle) => raffle.creatorId === userId)
+  }
+
   if (search) {
     const regex = new RegExp(escapeRegExp(search), 'i')
     raffles = raffles.filter(
       (raffle) =>
         regex.test(raffle.raffleId) ||
         regex.test(raffle.drawId) ||
-        regex.test(raffle.channelName) ||
-        regex.test(raffle.creatorUsername) ||
-        regex.test(raffle.creatorId)
+        regex.test(raffle.channelName)
     )
   }
 
@@ -209,11 +220,11 @@ export async function getRaffles(
         const av = (a as Record<string, unknown>)[field]
         const bv = (b as Record<string, unknown>)[field]
 
-        if (field === 'participantsEnriched') {
-          const aLen = Array.isArray(av) ? av.length : 0
-          const bLen = Array.isArray(bv) ? bv.length : 0
-          if (aLen < bLen) return dir === 'asc' ? -1 : 1
-          if (aLen > bLen) return dir === 'asc' ? 1 : -1
+        if (field === 'participantCount') {
+          const aCount = typeof av === 'number' ? av : 0
+          const bCount = typeof bv === 'number' ? bv : 0
+          if (aCount < bCount) return dir === 'asc' ? -1 : 1
+          if (aCount > bCount) return dir === 'asc' ? 1 : -1
           return 0
         }
 
@@ -278,6 +289,7 @@ export async function getRaffleParticipants(
         avatar: member?.avatarUrl ?? '/default-avatar.jpg'
       }
     })
+    .sort((a, b) => b.tickets - a.tickets)
 
   return {
     raffleId: raffle.raffleId,

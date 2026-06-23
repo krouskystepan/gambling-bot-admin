@@ -2,7 +2,7 @@
 
 import type { GlobalSettings } from 'gambling-bot-shared/guild'
 
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 
 import { useRouter, useSearchParams } from 'next/navigation'
 
@@ -14,12 +14,13 @@ import {
 } from '@/components/table'
 import { Table } from '@/components/ui/table'
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
-import { useHydrateServerTableFromUrl } from '@/hooks/useHydrateServerTableFromUrl'
 import { useServerTable } from '@/hooks/useServerTable'
 import { useUpdateUrl } from '@/hooks/useUpdateUrl'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
+import { isMemberCompatibleWithRegistration } from '@/lib/table/registrationMemberFilters'
 import { TGuildMemberStatus } from '@/types/types'
 
+import type { UserRegistrationFilter } from '../useUsers'
 import UserTableFooter from './UserTableFooter'
 import UsersTableFilters from './UsersTableFilters'
 import { userColumns } from './userColumns'
@@ -33,6 +34,14 @@ type UserTableProps = {
   total: number
   guildId: string
   managerId: string
+  registration: UserRegistrationFilter
+  guildMembers: {
+    userId: string
+    username: string
+    nickname: string | null
+    avatarUrl: string
+  }[]
+  registeredUserIds: string[]
 }
 
 const UserTable = ({
@@ -43,12 +52,18 @@ const UserTable = ({
   limit,
   total,
   guildId,
-  managerId
+  managerId,
+  registration,
+  guildMembers,
+  registeredUserIds
 }: UserTableProps) => {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const updateUrl = useUpdateUrl()
+  const debouncedUpdateUrl = useDebouncedCallback(updateUrl, 300)
 
-  const { table, isLoading, setIsLoading } = useServerTable<TGuildMemberStatus>(
-    {
+  const { table, isLoading, setIsLoading, isTableReady } =
+    useServerTable<TGuildMemberStatus>({
       data: users,
       page,
       limit,
@@ -91,28 +106,44 @@ const UserTable = ({
           page: pagination.pageIndex + 1,
           limit: pagination.pageSize
         })
+      },
+
+      urlHydration: {
+        searchParams,
+        filters: (params) => {
+          const search = params.get('search') || ''
+
+          return search ? [{ id: 'search', value: search }] : []
+        }
       }
-    }
-  )
+    })
+
+  const showTableLoading = isLoading || !isTableReady
 
   useEffect(() => {
     setIsLoading(false)
   }, [setIsLoading, users])
 
-  const updateUrl = useUpdateUrl()
-  const debouncedUpdateUrl = useDebouncedCallback(updateUrl, 300)
+  const handleRegistrationChange = (next: UserRegistrationFilter) => {
+    setIsLoading(true)
 
-  const searchParams = useSearchParams()
+    const search = table.getColumn('search')?.getFilterValue() as
+      | string
+      | undefined
+    const registeredIds = new Set(registeredUserIds)
+    const searchIncompatible =
+      search && !isMemberCompatibleWithRegistration(search, next, registeredIds)
 
-  const searchRef = useRef<HTMLInputElement>(null)
+    updateUrl({
+      page: 1,
+      registration: next === 'all' ? undefined : next,
+      search: searchIncompatible ? undefined : search || undefined
+    })
 
-  useHydrateServerTableFromUrl(table, searchParams, {
-    filters: (params) => {
-      const search = params.get('search') || ''
-
-      return search ? [{ id: 'search', value: search }] : []
+    if (searchIncompatible) {
+      table.getColumn('search')?.setFilterValue(undefined)
     }
-  })
+  }
 
   const rows = table.getRowModel().rows.map((r) => r.original)
 
@@ -132,16 +163,19 @@ const UserTable = ({
       toolbar={
         <UsersTableFilters
           table={table}
+          guildMembers={guildMembers}
+          registeredUserIds={registeredUserIds}
+          registration={registration}
+          onRegistrationChange={handleRegistrationChange}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
-          searchRef={searchRef}
         />
       }
       pagination={<CustomTablePagination table={table} total={total} />}
     >
       <Table className="w-full table-auto">
-        <CustomTableHeader table={table} />
-        <CustomTableBody table={table} isLoading={isLoading} />
+        <CustomTableHeader table={table} isLoading={showTableLoading} />
+        <CustomTableBody table={table} isLoading={showTableLoading} />
         <UserTableFooter
           totalBalanceStr={totalBalanceStr}
           totalNetProfit={totalNetProfit}

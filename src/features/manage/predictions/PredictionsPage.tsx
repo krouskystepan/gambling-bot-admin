@@ -1,8 +1,7 @@
-import { getServerSession } from 'next-auth'
-
 import { getPredictionPageContext } from '@/actions/database/predictionActions.action'
+import LoadFailed from '@/components/states/LoadFailed'
 import FeatureLayout from '@/features/FeatureLayout'
-import { authOptions } from '@/lib/auth/authOptions'
+import { requireSession } from '@/lib/auth/requireSession'
 
 import PredictionsTable from './table/PredictionsTable'
 import {
@@ -19,26 +18,29 @@ const PredictionsPage = async ({
     page?: string
     limit?: string
     search?: string
+    userId?: string
     sort?: string
     status?: string
   }
 }) => {
-  const session = await getServerSession(authOptions)
-  if (!session) return null
+  const session = await requireSession()
 
   const query = normalizePredictionsSearchParams(searchParams)
-  const [{ predictions, total }, pageContext] = await Promise.all([
-    getPredictionsData(guildId, session, query),
-    getPredictionPageContext(guildId)
-  ])
+  const [{ predictions, total, guildMembers }, pageContext] = await Promise.all(
+    [
+      getPredictionsData(guildId, session, query),
+      getPredictionPageContext(guildId)
+    ]
+  )
 
-  if (!pageContext) return null
+  if (!pageContext) return <LoadFailed />
 
   return (
     <FeatureLayout title="Predictions">
       <PredictionsTable
         guildId={guildId}
         predictions={predictions}
+        guildMembers={guildMembers}
         page={query.page}
         limit={query.limit}
         total={total}

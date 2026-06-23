@@ -11,6 +11,7 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
+import { createHiddenFilterColumn } from '@/lib/table/manualFilterColumn'
 import { TPredictionRow } from '@/types/types'
 
 import PredictionActionsMenu from '../components/PredictionActionsMenu'
@@ -29,15 +30,8 @@ export const predictionColumns = (
   predictionFeatureBlockMessage: string | null,
   logsChannelConfigured: boolean
 ): ColumnDef<TPredictionRow>[] => [
-  {
-    id: 'search',
-    header: () => null,
-    cell: () => null,
-    enableSorting: false,
-    enableColumnFilter: true,
-    enableHiding: false,
-    size: 0
-  },
+  createHiddenFilterColumn<TPredictionRow>('search'),
+  createHiddenFilterColumn<TPredictionRow>('userId'),
   {
     header: () => <span className="whitespace-nowrap">Title</span>,
     accessorKey: 'title',

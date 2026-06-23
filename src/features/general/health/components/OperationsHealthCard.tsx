@@ -13,10 +13,14 @@ import {
 import OperationsCategorySection from './OperationsCategorySection'
 
 type OperationsHealthCardProps = {
+  guildId: string
   operations: SystemHealthData
 }
 
-const OperationsHealthCard = ({ operations }: OperationsHealthCardProps) => {
+const OperationsHealthCard = ({
+  guildId,
+  operations
+}: OperationsHealthCardProps) => {
   const { summary, atm, blackjack, predictions } = operations
 
   const summaryItems = [
@@ -65,31 +69,37 @@ const OperationsHealthCard = ({ operations }: OperationsHealthCardProps) => {
         </div>
 
         <div className="border-t border-border pt-6">
-          <div className="grid divide-y divide-border xl:grid-cols-3 xl:divide-x xl:divide-y-0">
-            <div className="pb-6 xl:pb-0 xl:pr-6">
-              <OperationsCategorySection
-                title="ATM"
-                description="No pending deposit or withdraw requests."
-                rows={atm.rows}
-                items={atm.items}
-              />
-            </div>
-            <div className="py-6 xl:py-0 xl:px-6">
-              <OperationsCategorySection
-                title="Blackjack"
-                description="No stale in-progress games."
-                rows={blackjack.rows}
-                items={blackjack.items}
-              />
-            </div>
-            <div className="pt-6 xl:pt-0 xl:pl-6">
-              <OperationsCategorySection
-                title="Predictions"
-                description="No predictions awaiting staff action."
-                rows={predictions.rows}
-                items={predictions.items}
-              />
-            </div>
+          <div className="grid gap-4 xl:grid-cols-3 xl:grid-rows-[auto_auto_minmax(0,24rem)]">
+            <OperationsCategorySection
+              title="ATM"
+              description="No pending deposit or withdraw requests."
+              rows={atm.rows}
+              items={atm.items}
+              itemTotal={summary.pendingAtm}
+              viewAllHref={`/dashboard/g/${guildId}/atm-queue?filterStatus=pending`}
+              viewAllLabel="Open ATM queue"
+              emptyLabel="No pending requests"
+            />
+            <OperationsCategorySection
+              title="Blackjack"
+              description="No stale in-progress games."
+              rows={blackjack.rows}
+              items={blackjack.items}
+              itemTotal={
+                summary.staleBlackjack > 0 ? summary.staleBlackjack : undefined
+              }
+              emptyLabel="No stale in-progress games"
+            />
+            <OperationsCategorySection
+              title="Predictions"
+              description="No predictions awaiting staff action."
+              rows={predictions.rows}
+              items={predictions.items}
+              itemTotal={summary.predictionsAwaitingAction}
+              viewAllHref={`/dashboard/g/${guildId}/predictions`}
+              viewAllLabel="Open predictions"
+              emptyLabel="No predictions awaiting action"
+            />
           </div>
         </div>
       </CardContent>

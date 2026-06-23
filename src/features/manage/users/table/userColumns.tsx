@@ -7,6 +7,8 @@ import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import UserActionsMenu from '@/features/manage/users/profile/UserActionsMenu'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
+import { formatOptionalText } from '@/lib/table/formatOptionalText'
+import { createHiddenFilterColumn } from '@/lib/table/manualFilterColumn'
 import { cn } from '@/lib/utils'
 import { TGuildMemberStatus } from '@/types/types'
 
@@ -36,13 +38,7 @@ export const userColumns = ({
   isGuildAdmin,
   onUserUpdated
 }: UserColumnsDeps): ColumnDef<TGuildMemberStatus>[] => [
-  {
-    id: 'search',
-    header: () => null,
-    cell: () => null,
-    enableSorting: false,
-    enableColumnFilter: true
-  },
+  createHiddenFilterColumn<TGuildMemberStatus>('search'),
   {
     header: 'Avatar',
     accessorKey: 'avatar',
@@ -83,7 +79,8 @@ export const userColumns = ({
     header: 'Nickname',
     accessorKey: 'nickname',
     size: 140,
-    filterFn: multiColumnFilter
+    filterFn: multiColumnFilter,
+    cell: ({ row }) => formatOptionalText(row.original.nickname)
   },
   {
     header: 'Balance',

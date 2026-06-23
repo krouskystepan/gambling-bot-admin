@@ -1,5 +1,4 @@
 import { ArrowLeft } from 'lucide-react'
-import { getServerSession } from 'next-auth'
 
 import Link from 'next/link'
 
@@ -16,7 +15,7 @@ import {
   getTransactionsData,
   normalizeTransactionsSearchParams
 } from '@/features/general/transactions/useTransactions'
-import { authOptions } from '@/lib/auth/authOptions'
+import { requireSession } from '@/lib/auth/requireSession'
 
 import UserProfileHeader from './UserProfileHeader'
 import UserProfileKpiStrip from './UserProfileKpiStrip'
@@ -43,8 +42,7 @@ const UserProfilePage = async ({
   userId,
   searchParams
 }: UserProfilePageProps) => {
-  const session = await getServerSession(authOptions)
-  if (!session) return null
+  const session = await requireSession()
 
   const timezone = await getGuildOverviewTimezone(guildId)
   const range = resolveOverviewDateRange(searchParams, timezone)
@@ -99,16 +97,15 @@ const UserProfilePage = async ({
           periodNetProfit={profile.periodNetProfit}
         />
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <OverviewDailyPnLChart
-            series={profile.pnlSeries}
-            globalSettings={profile.globalSettings}
-          />
-          <OverviewSourceChart
-            data={profile.sourceAmounts}
-            globalSettings={profile.globalSettings}
-          />
-        </div>
+        <OverviewDailyPnLChart
+          series={profile.pnlSeries}
+          globalSettings={profile.globalSettings}
+        />
+
+        <OverviewSourceChart
+          data={profile.sourceAmounts}
+          globalSettings={profile.globalSettings}
+        />
 
         <UserProfileVipCard guildId={guildId} vips={profile.vips} />
 
@@ -127,6 +124,8 @@ const UserProfilePage = async ({
             globalSettings={profile.globalSettings}
             transactions={txData.transactions}
             transactionCounts={txData.transactionCounts}
+            staffMembers={txData.staffMembers}
+            guildMembers={txData.guildMembers}
             page={txQuery.page}
             limit={txQuery.limit}
             total={txData.total}

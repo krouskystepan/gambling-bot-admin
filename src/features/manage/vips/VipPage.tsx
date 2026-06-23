@@ -1,8 +1,7 @@
-import { getServerSession } from 'next-auth'
-
 import { getVipPageContext } from '@/actions/database/vipActions.action'
+import LoadFailed from '@/components/states/LoadFailed'
 import FeatureLayout from '@/features/FeatureLayout'
-import { authOptions } from '@/lib/auth/authOptions'
+import { requireSession } from '@/lib/auth/requireSession'
 
 import VipTable from './table/VipTable'
 import { getVipsData, normalizeVipsSearchParams } from './useVips'
@@ -16,11 +15,11 @@ const VipPage = async ({
     page?: string
     limit?: string
     search?: string
+    userId?: string
     sort?: string
   }
 }) => {
-  const session = await getServerSession(authOptions)
-  if (!session) return null
+  const session = await requireSession()
 
   const query = normalizeVipsSearchParams(searchParams)
   const [{ vips, total }, pageContext] = await Promise.all([
@@ -28,7 +27,7 @@ const VipPage = async ({
     getVipPageContext(guildId)
   ])
 
-  if (!pageContext) return null
+  if (!pageContext) return <LoadFailed />
 
   return (
     <FeatureLayout title={'VIPs Channels'}>

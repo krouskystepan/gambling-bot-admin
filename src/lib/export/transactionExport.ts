@@ -16,7 +16,7 @@ export const TRANSACTION_EXPORT_HEADERS = [
   'type',
   'source',
   'amount',
-  'betId',
+  'referenceId',
   'handledBy',
   'handledByUsername',
   'meta'
@@ -24,7 +24,8 @@ export const TRANSACTION_EXPORT_HEADERS = [
 
 export type TransactionExportFilters = {
   search?: string
-  adminSearch?: string
+  staffId?: string
+  referenceId?: string
   filterType?: string[]
   filterSource?: string[]
   filterCasinoGame?: string[]
@@ -98,7 +99,7 @@ export async function exportTransactionsCsv(
         tx.type,
         tx.source,
         tx.amount,
-        tx.betId ?? '',
+        tx.referenceId ?? '',
         tx.handledBy ?? '',
         tx.handledBy ? (discordMap.get(tx.handledBy) ?? 'Unknown') : '',
         tx.meta ? JSON.stringify(tx.meta) : ''

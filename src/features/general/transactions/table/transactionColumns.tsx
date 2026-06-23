@@ -1,26 +1,33 @@
 import { ColumnDef } from '@tanstack/react-table'
 import type { GlobalSettings } from 'gambling-bot-shared/guild'
-import { TTransaction } from 'gambling-bot-shared/transactions'
 import { CircleQuestionMark } from 'lucide-react'
 
 import Image from 'next/image'
 
-import { Badge } from '@/components/ui/badge'
+import ColoredBadge from '@/components/badges/ColoredBadge'
+import {
+  getTransactionSourceBadgeClass,
+  getTransactionTypeBadgeClass
+} from '@/components/badges/badgeStyles'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
+import { formatOptionalText } from '@/lib/table/formatOptionalText'
+import {
+  createHiddenFilterColumn,
+  createManualTableFilterFn
+} from '@/lib/table/manualFilterColumn'
 import { TTransactionDiscord } from '@/types/types'
-
-import { sourceBadgeMap, typeBadgeMap } from './transactionBadges'
 
 export const transactionsColumns = (
   globalSettings: GlobalSettings,
   options?: { hideUserColumns?: boolean }
 ): ColumnDef<TTransactionDiscord>[] => {
   const columns: ColumnDef<TTransactionDiscord>[] = [
+    createHiddenFilterColumn<TTransactionDiscord>('handledBy'),
     {
       header: 'Avatar',
       accessorKey: 'avatar',
@@ -43,6 +50,7 @@ export const transactionsColumns = (
       accessorKey: 'username',
       enableHiding: false,
       enableSorting: false,
+      enableColumnFilter: true,
       size: 130,
       cell: ({ row }) => (
         <div>
@@ -58,16 +66,19 @@ export const transactionsColumns = (
       accessorKey: 'nickname',
       enableHiding: false,
       enableSorting: false,
-      size: 120
+      size: 120,
+      cell: ({ row }) => formatOptionalText(row.original.nickname)
     },
     {
       header: 'Type',
+      id: 'typeDisplay',
       accessorKey: 'type',
       enableSorting: false,
+      enableColumnFilter: false,
       size: 80,
       cell: ({ row }) => {
-        const type = row.getValue('type') as TTransaction['type']
-        const className = typeBadgeMap[type] ?? 'bg-gray-600'
+        const type = row.original.type
+        const className = getTransactionTypeBadgeClass(type)
 
         const meta = row.original.meta ?? {}
 
@@ -88,7 +99,9 @@ export const transactionsColumns = (
 
         return (
           <div className="flex items-center justify-start gap-1 select-none">
-            <Badge className={`${className} px-2`}>{type.toUpperCase()}</Badge>
+            <ColoredBadge colorClass={className}>
+              {type.toUpperCase()}
+            </ColoredBadge>
 
             {hasMeta && (
               <Tooltip>
@@ -166,30 +179,32 @@ export const transactionsColumns = (
       } as {
         label?: string
       },
+      id: 'sourceDisplay',
       accessorKey: 'source',
       enableSorting: false,
+      enableColumnFilter: false,
       size: 80,
       cell: ({ row }) => {
-        const source = row.getValue('source') as TTransaction['source']
-
-        const className = sourceBadgeMap[source] ?? 'bg-gray-600'
+        const source = row.original.source
+        const className = getTransactionSourceBadgeClass(source)
 
         return (
-          <Badge className={`${className} px-2 select-none`}>
+          <ColoredBadge colorClass={className}>
             {source.toUpperCase()}
-          </Badge>
+          </ColoredBadge>
         )
       }
     },
     {
-      header: 'Bet ID',
-      accessorKey: 'betId',
+      id: 'referenceId',
+      accessorKey: 'referenceId',
+      header: 'Reference ID',
+      enableColumnFilter: true,
       size: 160,
       cell: ({ row }) => {
+        const referenceId = row.getValue('referenceId') as string | undefined
         return (
-          <p className="wrap-anywhere">
-            {row.getValue('betId') ? row.getValue('betId') : '-'}
-          </p>
+          <p className="wrap-anywhere">{referenceId ? referenceId : '-'}</p>
         )
       }
     },
@@ -216,10 +231,11 @@ export const transactionsColumns = (
     },
     {
       header: 'Created At',
+      id: 'createdAtDisplay',
       accessorKey: 'createdAt',
+      enableColumnFilter: false,
       size: 140,
-      cell: ({ row }) =>
-        new Date(row.getValue('createdAt')).toLocaleString('cs')
+      cell: ({ row }) => new Date(row.original.createdAt).toLocaleString('cs')
     },
     {
       id: 'casinoGame',
@@ -229,9 +245,14 @@ export const transactionsColumns = (
       },
       header: 'Game',
       enableSorting: false,
+      enableColumnFilter: true,
       enableHiding: false,
+      filterFn: createManualTableFilterFn<TTransactionDiscord>(),
       cell: () => null
-    }
+    },
+    createHiddenFilterColumn<TTransactionDiscord>('type'),
+    createHiddenFilterColumn<TTransactionDiscord>('source'),
+    createHiddenFilterColumn<TTransactionDiscord>('createdAt')
   ]
 
   if (options?.hideUserColumns) {

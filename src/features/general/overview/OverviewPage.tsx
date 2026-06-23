@@ -1,11 +1,10 @@
-import { getServerSession } from 'next-auth'
-
 import {
   getGuildOverviewTimezone,
   getOverviewData
 } from '@/actions/database/overview.action'
 import FeatureLayout from '@/features/FeatureLayout'
-import { authOptions } from '@/lib/auth/authOptions'
+import { requireSession } from '@/lib/auth/requireSession'
+import { guildPageDenial } from '@/lib/guild/guildPageDenial'
 
 import OverviewDailyPnLChart from './components/OverviewDailyPnLChart'
 import OverviewHealthLink from './components/OverviewHealthLink'
@@ -26,13 +25,16 @@ const OverviewPage = async ({
     dateTo?: string
   }
 }) => {
-  const session = await getServerSession(authOptions)
-  if (!session) return null
+  const session = await requireSession()
 
   const timezone = await getGuildOverviewTimezone(guildId)
   const range = resolveOverviewDateRange(searchParams, timezone)
-  const data = await getOverviewData(guildId, session, range)
-  if (!data) return null
+  const result = await getOverviewData(guildId, session, range)
+  if (!result.ok) {
+    return guildPageDenial({ rateLimited: result.rateLimited })
+  }
+
+  const data = result.data
 
   return (
     <FeatureLayout
@@ -54,16 +56,15 @@ const OverviewPage = async ({
 
         <OverviewHealthLink guildId={guildId} />
 
-        <div className="grid min-h-[400px] gap-6 lg:grid-cols-2">
-          <OverviewDailyPnLChart
-            series={data.pnlSeries}
-            globalSettings={data.globalSettings}
-          />
-          <OverviewSourceChart
-            data={data.sourceAmounts}
-            globalSettings={data.globalSettings}
-          />
-        </div>
+        <OverviewDailyPnLChart
+          series={data.pnlSeries}
+          globalSettings={data.globalSettings}
+        />
+
+        <OverviewSourceChart
+          data={data.sourceAmounts}
+          globalSettings={data.globalSettings}
+        />
 
         <OverviewRecentTransactions
           guildId={guildId}

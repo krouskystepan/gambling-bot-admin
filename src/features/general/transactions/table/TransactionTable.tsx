@@ -3,10 +3,11 @@
 import { VisibilityState } from '@tanstack/react-table'
 import type { GlobalSettings } from 'gambling-bot-shared/guild'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { useSearchParams } from 'next/navigation'
 
+import type { SearchableUserOption } from '@/components/SearchableUserFilter'
 import {
   CustomTableBody,
   CustomTableHeader,
@@ -15,7 +16,8 @@ import {
 } from '@/components/table'
 import { Table } from '@/components/ui/table'
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
-import { useHydrateServerTableFromUrl } from '@/hooks/useHydrateServerTableFromUrl'
+import { usePruneEntityColumnFilters } from '@/hooks/usePruneEntityColumnFilters'
+import { usePruneFacetColumnFilters } from '@/hooks/usePruneFacetColumnFilters'
 import { useServerTable } from '@/hooks/useServerTable'
 import { useUpdateUrl } from '@/hooks/useUpdateUrl'
 import { ITransactionCounts, TTransactionDiscord } from '@/types/types'
@@ -29,6 +31,8 @@ interface TransactionTableProps {
   globalSettings: GlobalSettings
   transactions: TTransactionDiscord[]
   transactionCounts: ITransactionCounts
+  staffMembers: { userId: string; username: string }[]
+  guildMembers: SearchableUserOption[]
   page: number
   limit: number
   total: number
@@ -43,6 +47,8 @@ const TransactionTable = ({
   globalSettings,
   transactions,
   transactionCounts,
+  staffMembers,
+  guildMembers,
   page,
   limit,
   total,
@@ -51,12 +57,20 @@ const TransactionTable = ({
   hideUserSearch = false,
   hideDatePicker = false
 }: TransactionTableProps) => {
+  const searchParams = useSearchParams()
+  const updateUrl = useUpdateUrl()
+  const debouncedUpdateUrl = useDebouncedCallback(updateUrl, 300)
+
   const defaultVisibility: VisibilityState = {
-    betId: false,
-    casinoGame: false
+    handledBy: false,
+    referenceId: false,
+    casinoGame: false,
+    type: false,
+    source: false,
+    createdAt: false
   }
 
-  const { table, isLoading, setIsLoading } =
+  const { table, isLoading, setIsLoading, isTableReady } =
     useServerTable<TTransactionDiscord>({
       data: transactions,
       page,
@@ -76,32 +90,38 @@ const TransactionTable = ({
       },
 
       onColumnFiltersChange: (filters) => {
+        setIsLoading(true)
+
         const search = hideUserSearch
           ? undefined
           : ((filters.find((f) => f.id === 'username')?.value as
               | string
               | undefined) ?? '')
-        const adminSearch =
-          (filters.find((f) => f.id === 'handledByUsername')?.value as
+        const staffId =
+          (filters.find((f) => f.id === 'handledBy')?.value as
+            | string
+            | undefined) ?? ''
+        const referenceId =
+          (filters.find((f) => f.id === 'referenceId')?.value as
             | string
             | undefined) ?? ''
 
         const filterType =
           (
             filters.find((f) => f.id === 'type')?.value as string[] | undefined
-          )?.join(',') ?? ''
+          )?.join(',') || undefined
         const filterSource =
           (
             filters.find((f) => f.id === 'source')?.value as
               | string[]
               | undefined
-          )?.join(',') ?? ''
+          )?.join(',') || undefined
         const filterCasinoGame =
           (
             filters.find((f) => f.id === 'casinoGame')?.value as
               | string[]
               | undefined
-          )?.join(',') ?? ''
+          )?.join(',') || undefined
 
         const dateRange = filters.find((f) => f.id === 'createdAt')?.value as
           | [string, string]
@@ -110,7 +130,8 @@ const TransactionTable = ({
         debouncedUpdateUrl({
           page: 1,
           ...(hideUserSearch ? {} : { search }),
-          adminSearch,
+          staffId: staffId || undefined,
+          referenceId: referenceId || undefined,
           filterType,
           filterSource,
           filterCasinoGame,
@@ -143,56 +164,98 @@ const TransactionTable = ({
         })
       },
 
-      initialVisibility: defaultVisibility
+      initialVisibility: defaultVisibility,
+
+      urlHydration: {
+        searchParams,
+        defaultVisibility,
+        filters: (params) => {
+          const search = params.get('search') || ''
+          const staffId = params.get('staffId') || ''
+          const referenceId =
+            params.get('referenceId') ||
+            params.get('betId') ||
+            params.get('adminSearch') ||
+            ''
+          const filterType = params.get('filterType')?.split(',')
+          const filterSource = params.get('filterSource')?.split(',')
+          const filterCasinoGame = params.get('filterCasinoGame')?.split(',')
+          const dateFrom = params.get('dateFrom') || undefined
+          const dateTo = params.get('dateTo') || undefined
+
+          const filters = [
+            { id: 'handledBy', value: staffId || undefined },
+            { id: 'referenceId', value: referenceId || undefined },
+            { id: 'type', value: filterType?.length ? filterType : undefined },
+            {
+              id: 'source',
+              value: filterSource?.length ? filterSource : undefined
+            },
+            {
+              id: 'casinoGame',
+              value: filterCasinoGame?.length ? filterCasinoGame : undefined
+            },
+            {
+              id: 'createdAt',
+              value: dateFrom && dateTo ? [dateFrom, dateTo] : undefined
+            }
+          ].filter((filter) => filter.value !== undefined)
+
+          if (!hideUserSearch) {
+            filters.unshift({ id: 'username', value: search || undefined })
+          }
+
+          return filters.filter((filter) => filter.value !== undefined)
+        }
+      }
     })
+
+  const showTableLoading = isLoading || !isTableReady
+
+  const facetCountsByColumn = useMemo(
+    () => ({
+      type: transactionCounts.type,
+      source: transactionCounts.source,
+      casinoGame: transactionCounts.casinoGame
+    }),
+    [transactionCounts]
+  )
+
+  usePruneFacetColumnFilters(
+    table,
+    facetCountsByColumn,
+    !isLoading && isTableReady
+  )
+
+  const entityFacetColumns = useMemo(() => {
+    const columns = [
+      {
+        columnId: 'handledBy',
+        facetCounts: transactionCounts.staff,
+        restrictWhenColumnId: 'username'
+      }
+    ]
+
+    if (!hideUserSearch) {
+      columns.push({
+        columnId: 'username',
+        facetCounts: transactionCounts.users,
+        restrictWhenColumnId: 'handledBy'
+      })
+    }
+
+    return columns
+  }, [hideUserSearch, transactionCounts.staff, transactionCounts.users])
+
+  usePruneEntityColumnFilters(
+    table,
+    entityFacetColumns,
+    !isLoading && isTableReady
+  )
 
   useEffect(() => {
     setIsLoading(false)
   }, [setIsLoading, transactions])
-
-  const updateUrl = useUpdateUrl()
-  const debouncedUpdateUrl = useDebouncedCallback(updateUrl, 300)
-
-  const searchParams = useSearchParams()
-
-  const userSearchRef = useRef<HTMLInputElement>(null)
-  const adminSearchRef = useRef<HTMLInputElement>(null)
-
-  useHydrateServerTableFromUrl(table, searchParams, {
-    filters: (params) => {
-      const search = params.get('search') || ''
-      const adminSearch = params.get('adminSearch') || ''
-      const filterType = params.get('filterType')?.split(',')
-      const filterSource = params.get('filterSource')?.split(',')
-      const filterCasinoGame = params.get('filterCasinoGame')?.split(',')
-      const dateFrom = params.get('dateFrom') || undefined
-      const dateTo = params.get('dateTo') || undefined
-
-      const filters = [
-        { id: 'handledByUsername', value: adminSearch || undefined },
-        { id: 'type', value: filterType?.length ? filterType : undefined },
-        {
-          id: 'source',
-          value: filterSource?.length ? filterSource : undefined
-        },
-        {
-          id: 'casinoGame',
-          value: filterCasinoGame?.length ? filterCasinoGame : undefined
-        },
-        {
-          id: 'createdAt',
-          value: dateFrom && dateTo ? [dateFrom, dateTo] : undefined
-        }
-      ]
-
-      if (!hideUserSearch) {
-        filters.unshift({ id: 'username', value: search || undefined })
-      }
-
-      return filters
-    },
-    defaultVisibility
-  })
 
   return (
     <ServerTablePageLayout
@@ -203,8 +266,8 @@ const TransactionTable = ({
           counts={transactionCounts}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
-          userSearchRef={userSearchRef}
-          adminSearchRef={adminSearchRef}
+          staffMembers={staffMembers}
+          guildMembers={guildMembers}
           hideUserSearch={hideUserSearch}
           hideDatePicker={hideDatePicker}
         />
@@ -220,8 +283,8 @@ const TransactionTable = ({
       pagination={<CustomTablePagination table={table} total={total} />}
     >
       <Table className="w-full table-auto">
-        <CustomTableHeader table={table} />
-        <CustomTableBody table={table} isLoading={isLoading} />
+        <CustomTableHeader table={table} isLoading={showTableLoading} />
+        <CustomTableBody table={table} isLoading={showTableLoading} />
       </Table>
     </ServerTablePageLayout>
   )

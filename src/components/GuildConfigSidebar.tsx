@@ -19,6 +19,8 @@ import {
   User
 } from 'lucide-react'
 
+import { useSyncExternalStore } from 'react'
+
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -68,6 +70,77 @@ const LINKS = [
   }
 ]
 
+const SIDEBAR_SECTIONS_STORAGE_KEY = 'guild-config-sidebar-sections'
+const DEFAULT_OPEN_SECTIONS = LINKS.map((group) => group.value)
+
+type SidebarSectionsListener = () => void
+
+let sidebarSectionsListeners: SidebarSectionsListener[] = []
+
+const subscribeToSidebarSections = (listener: SidebarSectionsListener) => {
+  sidebarSectionsListeners = [...sidebarSectionsListeners, listener]
+
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === SIDEBAR_SECTIONS_STORAGE_KEY) {
+      listener()
+    }
+  }
+
+  window.addEventListener('storage', onStorage)
+
+  return () => {
+    sidebarSectionsListeners = sidebarSectionsListeners.filter(
+      (item) => item !== listener
+    )
+    window.removeEventListener('storage', onStorage)
+  }
+}
+
+const notifySidebarSectionsChange = () => {
+  sidebarSectionsListeners.forEach((listener) => listener())
+}
+
+const readStoredOpenSections = (): string[] => {
+  try {
+    const raw = localStorage.getItem(SIDEBAR_SECTIONS_STORAGE_KEY)
+    if (!raw) return DEFAULT_OPEN_SECTIONS
+
+    const parsed: unknown = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return DEFAULT_OPEN_SECTIONS
+
+    return parsed.filter(
+      (value): value is string =>
+        typeof value === 'string' && DEFAULT_OPEN_SECTIONS.includes(value)
+    )
+  } catch {
+    return DEFAULT_OPEN_SECTIONS
+  }
+}
+
+const serializeOpenSections = (sections: string[]) => sections.join(',')
+
+const parseOpenSections = (serialized: string): string[] =>
+  serialized === '' ? [] : serialized.split(',')
+
+const getSidebarSectionsSnapshot = () =>
+  serializeOpenSections(readStoredOpenSections())
+
+const getSidebarSectionsServerSnapshot = () =>
+  serializeOpenSections(DEFAULT_OPEN_SECTIONS)
+
+const persistOpenSections = (sections: string[]) => {
+  try {
+    localStorage.setItem(SIDEBAR_SECTIONS_STORAGE_KEY, JSON.stringify(sections))
+  } catch {
+    // Ignore quota or private-mode storage errors.
+  }
+
+  notifySidebarSectionsChange()
+}
+
+const formatNotificationCount = (count: number) =>
+  count >= 100 ? '99+' : String(count)
+
 type GuildConfigSidebarProps = {
   guildId: string
   guildName: string
@@ -86,6 +159,16 @@ const GuildConfigSidebar = ({
 }: GuildConfigSidebarProps) => {
   const pathname = usePathname()
   const activeSectionId = pathname.split('/')[4] || undefined
+  const openSectionsSnapshot = useSyncExternalStore(
+    subscribeToSidebarSections,
+    getSidebarSectionsSnapshot,
+    getSidebarSectionsServerSnapshot
+  )
+  const openSections = parseOpenSections(openSectionsSnapshot)
+
+  const handleOpenSectionsChange = (value: string[]) => {
+    persistOpenSections(value)
+  }
 
   return (
     <section className="flex h-full min-h-0 w-60 shrink-0 flex-col overflow-hidden border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
@@ -97,7 +180,8 @@ const GuildConfigSidebar = ({
         <Accordion
           type="multiple"
           className="flex flex-col gap-3"
-          defaultValue={LINKS.map((g) => g.value)}
+          value={openSections}
+          onValueChange={handleOpenSectionsChange}
         >
           {LINKS.map((group) => {
             if (group.title === 'Settings' && !isAdmin) return null
@@ -136,13 +220,19 @@ const GuildConfigSidebar = ({
                         <Icon size={16} />
                         <span className="flex-1">{link.label}</span>
                         {link.id === 'atm-queue' && pendingAtmCount > 0 ? (
-                          <Badge variant="destructive" className="ml-auto">
-                            {pendingAtmCount}
+                          <Badge
+                            variant="destructive"
+                            className="ml-auto min-w-8 justify-center tabular-nums"
+                          >
+                            {formatNotificationCount(pendingAtmCount)}
                           </Badge>
                         ) : null}
                         {link.id === 'health' && needsAttentionCount > 0 ? (
-                          <Badge variant="destructive" className="ml-auto">
-                            {needsAttentionCount}
+                          <Badge
+                            variant="destructive"
+                            className="ml-auto min-w-8 justify-center tabular-nums"
+                          >
+                            {formatNotificationCount(needsAttentionCount)}
                           </Badge>
                         ) : null}
                       </Link>

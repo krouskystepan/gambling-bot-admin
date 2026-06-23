@@ -38,18 +38,16 @@ const OverviewDateRangePicker = ({
 
   return (
     <DatePicker
-      initialRange={range}
+      value={range}
+      defaultToAllTime={false}
       onChange={(next) => {
-        if (next?.from && next?.to) {
-          setRange(next)
-          debouncedUpdateUrl({
-            dateFrom: toLocalDateString(next.from),
-            dateTo: toLocalDateString(next.to)
-          })
-          return
-        }
+        if (!next?.from || !next?.to) return
 
-        setRange(undefined)
+        setRange(next)
+        debouncedUpdateUrl({
+          dateFrom: toLocalDateString(next.from),
+          dateTo: toLocalDateString(next.to)
+        })
       }}
     />
   )

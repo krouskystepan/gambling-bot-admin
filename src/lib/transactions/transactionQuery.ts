@@ -8,7 +8,8 @@ import {
 export type TransactionQueryFilters = {
   userId?: string
   search?: string
-  adminSearch?: string
+  staffId?: string
+  referenceId?: string
   filterType?: string[]
   filterSource?: string[]
   filterCasinoGame?: string[]

@@ -6,7 +6,7 @@ type DashboardFullPageStateProps = {
 
 const DashboardFullPageState = ({ children }: DashboardFullPageStateProps) => {
   return (
-    <div className="relative flex h-full min-h-screen w-full flex-col overflow-hidden bg-background">
+    <div className="relative flex h-full min-h-0 w-full flex-col overflow-hidden bg-background">
       <header className="absolute top-4 right-4 z-10">
         <ThemeToggle />
       </header>

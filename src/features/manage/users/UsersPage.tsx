@@ -1,8 +1,6 @@
-import { getServerSession } from 'next-auth'
-
 import { getUserPermissions } from '@/actions/perms'
 import FeatureLayout from '@/features/FeatureLayout'
-import { authOptions } from '@/lib/auth/authOptions'
+import { requireSession } from '@/lib/auth/requireSession'
 import { getGuildGlobalSettings } from '@/lib/guild/guildMoney.server'
 
 import UserTable from './table/UserTable'
@@ -18,14 +16,18 @@ const UsersPage = async ({
     limit?: string
     search?: string
     sort?: string
+    registration?: string
   }
 }) => {
-  const session = await getServerSession(authOptions)
-  if (!session) return null
+  const session = await requireSession()
 
   const query = normalizeUsersSearchParams(searchParams)
 
-  const [{ users, total }, globalSettings, { isAdmin }] = await Promise.all([
+  const [
+    { users, total, guildMembers, registeredUserIds },
+    globalSettings,
+    { isAdmin }
+  ] = await Promise.all([
     getUsersData(guildId, session, query),
     getGuildGlobalSettings(guildId),
     getUserPermissions(guildId, session)
@@ -39,6 +41,9 @@ const UsersPage = async ({
         users={users}
         guildId={guildId}
         managerId={session.userId!}
+        registration={query.registration}
+        guildMembers={guildMembers}
+        registeredUserIds={registeredUserIds}
         page={query.page}
         limit={query.limit}
         total={total}

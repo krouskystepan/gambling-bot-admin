@@ -42,6 +42,7 @@ const GuildTaxSummaryTable = ({
         dateFrom,
         dateTo
       )}
+      exportFilename={`tax-summary-guild-${guildId}.csv`}
       columns={guildTaxColumns(globalSettings, granularity, timezone)}
       data={rows}
     />

@@ -1,7 +1,5 @@
-import { getServerSession } from 'next-auth'
-
 import FeatureLayout from '@/features/FeatureLayout'
-import { authOptions } from '@/lib/auth/authOptions'
+import { requireSession } from '@/lib/auth/requireSession'
 import { getGuildGlobalSettings } from '@/lib/guild/guildMoney.server'
 
 import StaffActionsTable from './table/StaffActionsTable'
@@ -25,16 +23,17 @@ const StaffActionsPage = async ({
     dateTo?: string
   }
 }) => {
-  const session = await getServerSession(authOptions)
-  if (!session) return null
+  const session = await requireSession()
 
   const query = normalizeStaffActionsSearchParams(searchParams)
 
-  const [{ actions, counts, total, staffMembers }, globalSettings] =
-    await Promise.all([
-      getStaffActionsData(guildId, session, query),
-      getGuildGlobalSettings(guildId)
-    ])
+  const [
+    { actions, counts, entityFacets, total, staffMembers, guildMembers },
+    globalSettings
+  ] = await Promise.all([
+    getStaffActionsData(guildId, session, query),
+    getGuildGlobalSettings(guildId)
+  ])
 
   return (
     <FeatureLayout title="Staff actions">
@@ -43,7 +42,9 @@ const StaffActionsPage = async ({
         globalSettings={globalSettings}
         actions={actions}
         counts={counts}
+        entityFacets={entityFacets}
         staffMembers={staffMembers}
+        guildMembers={guildMembers}
         page={query.page}
         limit={query.limit}
         total={total}

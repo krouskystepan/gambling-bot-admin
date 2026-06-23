@@ -6,13 +6,15 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import type { StaffActionRow } from '@/actions/database/staffActions.action'
-import { Badge } from '@/components/ui/badge'
+import ColoredBadge from '@/components/badges/ColoredBadge'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
+import { formatOptionalText } from '@/lib/table/formatOptionalText'
+import { createHiddenFilterColumn } from '@/lib/table/manualFilterColumn'
 
 import { getStaffActionBadgeStyle } from './staffActionsBadges'
 
@@ -42,34 +44,10 @@ export const staffActionsColumns = (
   guildId: string,
   globalSettings: GlobalSettings
 ): ColumnDef<StaffActionRow>[] => [
-  {
-    id: 'search',
-    header: () => null,
-    cell: () => null,
-    enableSorting: false,
-    enableColumnFilter: true
-  },
-  {
-    id: 'staffId',
-    header: () => null,
-    cell: () => null,
-    enableSorting: false,
-    enableColumnFilter: true
-  },
-  {
-    id: 'category',
-    header: () => null,
-    cell: () => null,
-    enableSorting: false,
-    enableColumnFilter: true
-  },
-  {
-    id: 'occurredAt',
-    header: () => null,
-    cell: () => null,
-    enableSorting: false,
-    enableColumnFilter: true
-  },
+  createHiddenFilterColumn<StaffActionRow>('search'),
+  createHiddenFilterColumn<StaffActionRow>('staffId'),
+  createHiddenFilterColumn<StaffActionRow>('category'),
+  createHiddenFilterColumn<StaffActionRow>('occurredAt'),
   {
     header: 'Time',
     accessorKey: 'occurredAt',
@@ -105,11 +83,11 @@ export const staffActionsColumns = (
 
       return (
         <div className="flex items-center justify-start gap-1 select-none">
-          <Badge
-            className={`${getStaffActionBadgeStyle(row.original.actionBadge)} px-2`}
+          <ColoredBadge
+            colorClass={getStaffActionBadgeStyle(row.original.actionBadge)}
           >
             {row.original.actionBadge}
-          </Badge>
+          </ColoredBadge>
 
           {showTooltip ? (
             <Tooltip>
@@ -180,7 +158,7 @@ export const staffActionsColumns = (
     enableHiding: false,
     enableSorting: false,
     size: 120,
-    cell: ({ row }) => row.original.subjectNickname ?? '-'
+    cell: ({ row }) => formatOptionalText(row.original.subjectNickname)
   },
   {
     header: 'Amount',

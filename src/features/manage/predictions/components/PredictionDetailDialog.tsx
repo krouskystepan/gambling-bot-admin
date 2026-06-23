@@ -44,8 +44,8 @@ const PredictionDetailDialog = ({
 }: PredictionDetailDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl">
-        <DialogHeader>
+      <DialogContent className="flex max-h-[85vh] max-w-xl flex-col gap-4 overflow-hidden">
+        <DialogHeader className="shrink-0">
           <DialogTitle>{detail?.title ?? 'Prediction detail'}</DialogTitle>
           <DialogDescription>
             {predictionId ? `ID: ${predictionId}` : 'Loading prediction...'}
@@ -57,28 +57,30 @@ const PredictionDetailDialog = ({
         ) : error ? (
           <p className="text-sm text-destructive">{error}</p>
         ) : detail ? (
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge
-                className={`${statusBadgeClass[detail.status]} capitalize`}
-              >
-                {detail.status}
-              </Badge>
-              <span className="text-sm text-muted-foreground">
-                Total bets: {formatGuildMoney(detail.totalBetAmount)}
-              </span>
-              <span className="text-sm text-muted-foreground">
-                Bettors: {detail.bettorCount}
-              </span>
+          <>
+            <div className="shrink-0 space-y-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge
+                  className={`${statusBadgeClass[detail.status]} capitalize`}
+                >
+                  {detail.status}
+                </Badge>
+                <span className="text-sm text-muted-foreground">
+                  Total bets: {formatGuildMoney(detail.totalBetAmount)}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  Bettors: {detail.bettorCount}
+                </span>
+              </div>
+
+              {detail.autolock ? (
+                <p className="text-sm text-muted-foreground">
+                  Auto-lock: {new Date(detail.autolock).toLocaleString('cs-CZ')}
+                </p>
+              ) : null}
             </div>
 
-            {detail.autolock ? (
-              <p className="text-sm text-muted-foreground">
-                Auto-lock: {new Date(detail.autolock).toLocaleString('cs-CZ')}
-              </p>
-            ) : null}
-
-            <ScrollArea className="max-h-80 pr-3">
+            <ScrollArea className="min-h-0 flex-1 pr-3">
               <div className="space-y-4">
                 {detail.choices.map((choice) => (
                   <div
@@ -93,7 +95,7 @@ const PredictionDetailDialog = ({
                       {formatGuildMoney(choice.totalBetAmount)} · Payout if
                       wins: {formatGuildMoney(choice.payoutIfWins)}
                     </p>
-                    <div className="mt-2 space-y-2">
+                    <div className="mt-2 max-h-36 space-y-2 overflow-y-auto pr-1">
                       {choice.bets.length > 0 ? (
                         choice.bets.map((bet) => (
                           <Link
@@ -123,7 +125,7 @@ const PredictionDetailDialog = ({
                 ))}
               </div>
             </ScrollArea>
-          </div>
+          </>
         ) : null}
       </DialogContent>
     </Dialog>

@@ -4,25 +4,24 @@ import type { GlobalSettings } from 'gambling-bot-shared/guild'
 import Image from 'next/image'
 import Link from 'next/link'
 
-import { Badge } from '@/components/ui/badge'
+import ColoredBadge from '@/components/badges/ColoredBadge'
+import {
+  getAtmStatusBadgeClass,
+  getTransactionTypeBadgeClass
+} from '@/components/badges/badgeStyles'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
+import { formatOptionalText } from '@/lib/table/formatOptionalText'
+import { createHiddenFilterColumn } from '@/lib/table/manualFilterColumn'
 import { TAtmRequestDiscord } from '@/types/types'
 
 import AtmQueueActions from './AtmQueueActions'
-import { statusBadgeMap, typeBadgeMap } from './atmQueueBadges'
 
 export const atmQueueColumns = (
   guildId: string,
   globalSettings: GlobalSettings,
   isGuildAdmin: boolean
 ): ColumnDef<TAtmRequestDiscord>[] => [
-  {
-    id: 'userId',
-    header: () => null,
-    cell: () => null,
-    enableSorting: false,
-    enableColumnFilter: true
-  },
+  createHiddenFilterColumn<TAtmRequestDiscord>('userId'),
   {
     header: 'Avatar',
     accessorKey: 'avatar',
@@ -61,19 +60,19 @@ export const atmQueueColumns = (
     enableHiding: false,
     enableSorting: false,
     size: 120,
-    cell: ({ row }) => row.getValue('nickname') ?? '-'
+    cell: ({ row }) => formatOptionalText(row.original.nickname)
   },
   {
     header: 'Type',
     accessorKey: 'type',
     enableSorting: false,
-    size: 90,
+    size: 100,
     cell: ({ row }) => {
       const type = row.getValue('type') as TAtmRequestDiscord['type']
       return (
-        <Badge className={`${typeBadgeMap[type]} px-2 select-none`}>
+        <ColoredBadge colorClass={getTransactionTypeBadgeClass(type)}>
           {type.toUpperCase()}
-        </Badge>
+        </ColoredBadge>
       )
     }
   },
@@ -102,9 +101,9 @@ export const atmQueueColumns = (
     cell: ({ row }) => {
       const status = row.getValue('status') as TAtmRequestDiscord['status']
       return (
-        <Badge className={`${statusBadgeMap[status]} px-2 select-none`}>
+        <ColoredBadge colorClass={getAtmStatusBadgeClass(status)}>
           {status.toUpperCase()}
-        </Badge>
+        </ColoredBadge>
       )
     }
   },
@@ -130,8 +129,11 @@ export const atmQueueColumns = (
     header: 'Created At',
     accessorKey: 'createdAt',
     size: 140,
-    cell: ({ row }) =>
-      new Date(row.getValue('createdAt') as string).toLocaleString('cs')
+    cell: ({ row }) => (
+      <span className="whitespace-nowrap">
+        {new Date(row.getValue('createdAt') as string).toLocaleString('cs')}
+      </span>
+    )
   },
   {
     header: 'Notes',
@@ -148,7 +150,7 @@ export const atmQueueColumns = (
     cell: ({ row }) =>
       row.original.status === 'approved' ? (
         <Link
-          href={`/dashboard/g/${guildId}/transactions?adminSearch=${row.original.requestId}`}
+          href={`/dashboard/g/${guildId}/transactions?referenceId=${row.original.requestId}`}
           className="text-sm text-primary hover:underline"
         >
           View tx
@@ -162,7 +164,7 @@ export const atmQueueColumns = (
     id: 'actions',
     enableSorting: false,
     enableHiding: false,
-    size: 160,
+    size: 84,
     cell: ({ row }) => (
       <AtmQueueActions
         guildId={guildId}

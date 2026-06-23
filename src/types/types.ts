@@ -72,12 +72,7 @@ export type TRaffleRow = TRaffle & {
   totalTickets: number
   totalPot: number
   intervalLabel: string
-  participantsEnriched: {
-    userId: string
-    tickets: number
-    username: string
-    avatar: string
-  }[]
+  participantCount: number
 }
 
 export type TPredictionRow = TPrediction & {
@@ -124,7 +119,7 @@ export interface TTransactionDiscord extends Pick<
   | 'amount'
   | 'source'
   | 'createdAt'
-  | 'betId'
+  | 'referenceId'
   | 'handledBy'
   | 'meta'
 > {
@@ -159,19 +154,22 @@ export type IAtmRequestCounts = {
     pendingDeposits: number
     pendingWithdraws: number
   }
+  users: Record<string, number>
 }
 
 export type ITransactionCounts = {
   type: Record<TTransaction['type'], number>
   source: Record<TTransaction['source'], number>
   casinoGame: Record<string, number>
+  staff: Record<string, number>
+  users: Record<string, number>
 }
 
 export type TUpdateUrl = {
   page: number
   limit?: number
   search?: string
-  adminSearch?: string
+  referenceId?: string
   filterType?: string
   filterSource?: string
   filterCasinoGame?: string

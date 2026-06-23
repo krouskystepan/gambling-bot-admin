@@ -461,13 +461,19 @@ export async function getUsers(
   page = 1,
   limit = 15,
   search?: string,
-  sort?: string
-): Promise<{ users: TGuildMemberStatus[]; total: number }> {
+  sort?: string,
+  registration: 'all' | 'registered' | 'not_registered' = 'all'
+): Promise<{
+  users: TGuildMemberStatus[]
+  total: number
+  registeredUserIds: string[]
+}> {
   const access = await requireGuildAccess(guildId)
   if ('error' in access || page < 1 || limit < 1 || limit > 50) {
     return {
       users: [],
-      total: 0
+      total: 0,
+      registeredUserIds: []
     }
   }
 
@@ -534,6 +540,12 @@ export async function getUsers(
     )
   }
 
+  if (registration === 'registered') {
+    users = users.filter((user) => user.registered)
+  } else if (registration === 'not_registered') {
+    users = users.filter((user) => !user.registered)
+  }
+
   if (sort) {
     for (const part of sort.split(',').reverse()) {
       const [field, dir] = part.split(':')
@@ -560,6 +572,7 @@ export async function getUsers(
 
   return {
     users: users.slice(start, end),
-    total
+    total,
+    registeredUserIds: dbUsers.map((user) => user.userId)
   }
 }

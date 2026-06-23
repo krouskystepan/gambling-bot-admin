@@ -33,6 +33,7 @@ export type AtmRequestCounts = {
     pendingDeposits: number
     pendingWithdraws: number
   }
+  users: Record<string, number>
 }
 
 const emptyAtmRequestCounts = (): AtmRequestCounts => ({
@@ -41,7 +42,8 @@ const emptyAtmRequestCounts = (): AtmRequestCounts => ({
   rejected: 0,
   total: 0,
   type: { deposit: 0, withdraw: 0 },
-  amount: { pendingDeposits: 0, pendingWithdraws: 0 }
+  amount: { pendingDeposits: 0, pendingWithdraws: 0 },
+  users: {}
 })
 
 const previewWithdraw = async ({
@@ -103,15 +105,15 @@ const attachDiscordMembers = async (
     requestIds.length > 0
       ? await Transaction.find({
           guildId,
-          'meta.requestId': { $in: requestIds }
+          referenceId: { $in: requestIds }
         })
-          .select('_id meta.requestId')
+          .select('_id referenceId')
           .lean()
       : []
 
   const transactionByRequestId = new Map(
     linkedTransactions.map((tx) => [
-      String((tx.meta as { requestId?: string })?.requestId ?? ''),
+      String(tx.referenceId ?? ''),
       String(tx._id)
     ])
   )
@@ -123,7 +125,21 @@ const attachDiscordMembers = async (
       : undefined
 
     return {
-      ...request,
+      requestId: request.requestId,
+      guildId: request.guildId,
+      userId: request.userId,
+      type: request.type,
+      amount: request.amount,
+      account: request.account,
+      status: request.status,
+      handledBy: request.handledBy,
+      handledAt: request.handledAt,
+      notes: request.notes,
+      logChannelId: request.logChannelId,
+      logMessageId: request.logMessageId,
+      meta: request.meta,
+      createdAt: request.createdAt,
+      updatedAt: request.updatedAt,
       id: request.requestId,
       username: user?.username ?? 'Unknown',
       nickname: user?.nickname ?? null,
@@ -137,9 +153,53 @@ const attachDiscordMembers = async (
   })
 }
 
+export type AtmRequestCountFilters = {
+  search?: string
+  filterStatus?: string[]
+  filterType?: string[]
+  dateFrom?: string
+  dateTo?: string
+}
+
+function buildAtmRequestCountMatch(
+  guildId: string,
+  filters: AtmRequestCountFilters = {},
+  exclude?: 'status' | 'type' | 'search'
+): Record<string, unknown> {
+  const query: Record<string, unknown> = { guildId }
+
+  if (exclude !== 'search' && filters.search) {
+    query.userId = filters.search
+  }
+
+  if (exclude !== 'status' && filters.filterStatus?.length) {
+    query.status =
+      filters.filterStatus.length === 1
+        ? filters.filterStatus[0]
+        : { $in: filters.filterStatus }
+  }
+
+  if (exclude !== 'type' && filters.filterType?.length) {
+    query.type =
+      filters.filterType.length === 1
+        ? filters.filterType[0]
+        : { $in: filters.filterType }
+  }
+
+  if (filters.dateFrom || filters.dateTo) {
+    query.createdAt = {
+      ...(filters.dateFrom ? { $gte: new Date(filters.dateFrom) } : {}),
+      ...(filters.dateTo ? { $lte: new Date(filters.dateTo) } : {})
+    }
+  }
+
+  return query
+}
+
 export const getAtmRequestCounts = async (
   guildId: string,
-  _session: Session
+  _session: Session,
+  filters: AtmRequestCountFilters = {}
 ): Promise<AtmRequestCounts> => {
   const access = await requireGuildAccess(guildId)
   if ('error' in access) {
@@ -148,26 +208,53 @@ export const getAtmRequestCounts = async (
 
   await connectToDatabase()
 
-  const rows = await AtmRequest.aggregate([
-    { $match: { guildId } },
-    {
-      $group: {
-        _id: { status: '$status', type: '$type' },
-        count: { $sum: 1 },
-        amount: { $sum: '$amount' }
+  const statusMatch = buildAtmRequestCountMatch(guildId, filters, 'status')
+  const typeMatch = buildAtmRequestCountMatch(guildId, filters, 'type')
+  const summaryMatch = buildAtmRequestCountMatch(guildId, filters)
+  const userMatch = buildAtmRequestCountMatch(guildId, filters, 'search')
+
+  const [statusRows, typeRows, summaryRows, userRows] = await Promise.all([
+    AtmRequest.aggregate([
+      { $match: statusMatch },
+      { $group: { _id: '$status', count: { $sum: 1 } } }
+    ]),
+    AtmRequest.aggregate([
+      { $match: typeMatch },
+      { $group: { _id: '$type', count: { $sum: 1 } } }
+    ]),
+    AtmRequest.aggregate([
+      { $match: summaryMatch },
+      {
+        $group: {
+          _id: { status: '$status', type: '$type' },
+          count: { $sum: 1 },
+          amount: { $sum: '$amount' }
+        }
       }
-    }
+    ]),
+    AtmRequest.aggregate([
+      { $match: userMatch },
+      { $group: { _id: '$userId', count: { $sum: 1 } } }
+    ])
   ])
 
   const counts = emptyAtmRequestCounts()
 
-  for (const row of rows) {
+  for (const row of statusRows) {
+    const status = row._id as TAtmRequest['status']
+    counts[status] = row.count
+  }
+
+  for (const row of typeRows) {
+    const type = row._id as TAtmRequest['type']
+    counts.type[type] = row.count
+  }
+
+  for (const row of summaryRows) {
     const status = row._id.status as TAtmRequest['status']
     const type = row._id.type as TAtmRequest['type']
 
-    counts[status] += row.count
     counts.total += row.count
-    counts.type[type] += row.count
 
     if (status === 'pending') {
       if (type === 'deposit') {
@@ -178,7 +265,17 @@ export const getAtmRequestCounts = async (
     }
   }
 
-  return counts
+  const users: Record<string, number> = {}
+  for (const row of userRows) {
+    if (row._id) {
+      users[row._id as string] = row.count
+    }
+  }
+
+  return {
+    ...counts,
+    users
+  }
 }
 
 export const getAtmRequests = async (
@@ -333,7 +430,6 @@ export const approveAtmRequestAction = async (
   const globalSettings = normalizeGlobalSettings(guildConfig?.globalSettings)
   const readableAmount = formatMoney(request.amount, globalSettings)
   const txMeta = {
-    requestId: request.requestId,
     account: request.account,
     ...(notes ? { notes } : {})
   }
@@ -375,6 +471,7 @@ export const approveAtmRequestAction = async (
       type: 'deposit',
       source: 'web',
       handledBy,
+      referenceId: request.requestId,
       meta: txMeta
     })
 
@@ -505,6 +602,7 @@ export const approveAtmRequestAction = async (
     type: 'withdraw',
     source: 'web',
     handledBy,
+    referenceId: request.requestId,
     meta: txMeta
   })
 

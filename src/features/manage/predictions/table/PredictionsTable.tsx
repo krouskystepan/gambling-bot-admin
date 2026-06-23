@@ -2,10 +2,11 @@
 
 import type { TPrediction } from 'gambling-bot-shared/predictions'
 
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 
 import { useSearchParams } from 'next/navigation'
 
+import type { SearchableUserOption } from '@/components/SearchableUserFilter'
 import {
   CustomTableBody,
   CustomTableHeader,
@@ -14,7 +15,6 @@ import {
 } from '@/components/table'
 import { Table } from '@/components/ui/table'
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
-import { useHydrateServerTableFromUrl } from '@/hooks/useHydrateServerTableFromUrl'
 import { useServerTable } from '@/hooks/useServerTable'
 import { useUpdateUrl } from '@/hooks/useUpdateUrl'
 import { TPredictionRow } from '@/types/types'
@@ -25,6 +25,7 @@ import { predictionColumns } from './predictionColumns'
 type PredictionsTableProps = {
   guildId: string
   predictions: TPredictionRow[]
+  guildMembers: SearchableUserOption[]
   page: number
   limit: number
   total: number
@@ -38,6 +39,7 @@ type PredictionsTableProps = {
 const PredictionsTable = ({
   guildId,
   predictions,
+  guildMembers,
   page,
   limit,
   total,
@@ -47,62 +49,77 @@ const PredictionsTable = ({
   predictionFeatureBlocked,
   predictionFeatureBlockMessage
 }: PredictionsTableProps) => {
+  const searchParams = useSearchParams()
   const updateUrl = useUpdateUrl()
   const debouncedUpdateUrl = useDebouncedCallback(updateUrl, 300)
 
-  const { table, isLoading, setIsLoading } = useServerTable<TPredictionRow>({
-    data: predictions,
-    page,
-    limit,
-    total,
-    columns: predictionColumns(
-      guildId,
-      predictionFeatureBlocked,
-      predictionFeatureBlockMessage,
-      logsChannelConfigured
-    ),
-    initialSorting: [{ id: 'createdAt', desc: true }],
-    initialVisibility: { search: false },
+  const { table, isLoading, setIsLoading, isTableReady } =
+    useServerTable<TPredictionRow>({
+      data: predictions,
+      page,
+      limit,
+      total,
+      columns: predictionColumns(
+        guildId,
+        predictionFeatureBlocked,
+        predictionFeatureBlockMessage,
+        logsChannelConfigured
+      ),
+      initialSorting: [{ id: 'createdAt', desc: true }],
+      initialVisibility: { search: false, userId: false },
 
-    onSortingChange: (sorting) => {
-      debouncedUpdateUrl({
-        page: 1,
-        sort: sorting.map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`).join(',')
-      })
-    },
+      onSortingChange: (sorting) => {
+        debouncedUpdateUrl({
+          page: 1,
+          sort: sorting
+            .map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`)
+            .join(',')
+        })
+      },
 
-    onColumnFiltersChange: (filters) => {
-      const search =
-        (filters.find((f) => f.id === 'search')?.value as string | undefined) ??
-        ''
+      onColumnFiltersChange: (filters) => {
+        const search =
+          (filters.find((f) => f.id === 'search')?.value as
+            | string
+            | undefined) ?? ''
+        const userId =
+          (filters.find((f) => f.id === 'userId')?.value as
+            | string
+            | undefined) ?? ''
 
-      debouncedUpdateUrl({
-        page: 1,
-        search
-      })
-    },
+        debouncedUpdateUrl({
+          page: 1,
+          search: search || undefined,
+          userId: userId || undefined
+        })
+      },
 
-    onPaginationChange: (pagination) => {
-      debouncedUpdateUrl({
-        page: pagination.pageIndex + 1,
-        limit: pagination.pageSize
-      })
-    }
-  })
+      onPaginationChange: (pagination) => {
+        debouncedUpdateUrl({
+          page: pagination.pageIndex + 1,
+          limit: pagination.pageSize
+        })
+      },
+
+      urlHydration: {
+        searchParams,
+        filters: (params) => {
+          const search = params.get('search') || ''
+          const userId = params.get('userId') || ''
+
+          return [
+            { id: 'search', value: search || undefined },
+            { id: 'userId', value: userId || undefined }
+          ]
+        }
+      }
+    })
+
+  const showTableLoading = isLoading || !isTableReady
 
   useEffect(() => {
     setIsLoading(false)
   }, [setIsLoading, predictions])
-
-  const searchParams = useSearchParams()
-  const searchRef = useRef<HTMLInputElement>(null)
-
-  useHydrateServerTableFromUrl(table, searchParams, {
-    filters: (params) => {
-      const search = params.get('search') || ''
-      return search ? [{ id: 'search', value: search }] : []
-    }
-  })
 
   const handleStatusChange = (nextStatus: string) => {
     setIsLoading(true)
@@ -115,9 +132,10 @@ const PredictionsTable = ({
         <PredictionsTableFilters
           guildId={guildId}
           table={table}
+          predictions={predictions}
+          guildMembers={guildMembers}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
-          searchRef={searchRef}
           status={status}
           onStatusChange={handleStatusChange}
           predictionConfigured={predictionConfigured}
@@ -129,8 +147,8 @@ const PredictionsTable = ({
       pagination={<CustomTablePagination table={table} total={total} />}
     >
       <Table className="w-full min-w-7xl table-fixed">
-        <CustomTableHeader table={table} />
-        <CustomTableBody table={table} isLoading={isLoading} />
+        <CustomTableHeader table={table} isLoading={showTableLoading} />
+        <CustomTableBody table={table} isLoading={showTableLoading} />
       </Table>
     </ServerTablePageLayout>
   )

@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 
 import { getUserPermissions } from '@/actions/perms'
 import NotFoundBox from '@/components/states/NotFoundBox'
+import RateLimited from '@/components/states/RateLimmited'
 import { requireSession } from '@/lib/auth/requireSession'
 import { canAccessSection } from '@/lib/guild/guildSectionAccess'
 
@@ -29,7 +30,7 @@ const SectionPage = async ({ params, searchParams }: SectionPageProps) => {
   )
 
   if (rateLimited) {
-    return null
+    return <RateLimited />
   }
 
   if (!canAccessSection(sectionId as SectionId, { isAdmin, isManager })) {

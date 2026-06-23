@@ -1,19 +1,32 @@
 import { Table as ReactTable } from '@tanstack/react-table'
-import { Eraser, RefreshCcw } from 'lucide-react'
+import { Columns3Icon, Eraser, RefreshCcw } from 'lucide-react'
 
-import { Dispatch, RefObject, SetStateAction } from 'react'
+import { Dispatch, SetStateAction, useMemo } from 'react'
 
 import { useRouter } from 'next/navigation'
 
 import DatePicker from '@/components/DatePicker'
+import SearchableUserFilter, {
+  type SearchableUserOption
+} from '@/components/SearchableUserFilter'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import TransactionFilter from '@/features/general/transactions/table/TransactionTableFilter'
+import {
+  filterMembersByEntityFacet,
+  isEntityCompatibleWithFacet
+} from '@/lib/table/facetFilters'
 import { IAtmRequestCounts, TAtmRequestDiscord } from '@/types/types'
 
 const statusOptions = [
@@ -30,15 +43,15 @@ const typeOptions = [
 const AtmQueueTableFilters = ({
   table,
   counts,
+  guildMembers,
   isLoading,
-  setIsLoading,
-  searchRef
+  setIsLoading
 }: {
   table: ReactTable<TAtmRequestDiscord>
   counts: IAtmRequestCounts
+  guildMembers: SearchableUserOption[]
   isLoading: boolean
   setIsLoading: Dispatch<SetStateAction<boolean>>
-  searchRef: RefObject<HTMLInputElement | null>
 }) => {
   const router = useRouter()
 
@@ -74,39 +87,55 @@ const AtmQueueTableFilters = ({
     return new Date(y, m - 1, d, 12)
   }
 
+  const datePickerValue =
+    createdAtFilter?.[0] && createdAtFilter[1]
+      ? {
+          from: fromLocalDateString(createdAtFilter[0]),
+          to: fromLocalDateString(createdAtFilter[1])
+        }
+      : undefined
+
   const handleClearFilters = () => {
     table.resetColumnFilters()
+    table.getColumn('status')?.setFilterValue(['pending'])
     router.replace(`${window.location.pathname}?filterStatus=pending`, {
       scroll: false
     })
   }
 
+  const userMembers = useMemo(
+    () =>
+      filterMembersByEntityFacet(
+        guildMembers,
+        userIdFilter,
+        counts.users,
+        true
+      ),
+    [counts.users, guildMembers, userIdFilter]
+  )
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div className="flex min-w-0 flex-1 flex-wrap gap-2">
-        <Input
-          ref={searchRef}
-          placeholder="Search by user ID..."
-          value={userIdFilter ?? ''}
-          onChange={(event) => {
-            table
-              .getColumn('userId')
-              ?.setFilterValue(event.target.value || undefined)
+        <SearchableUserFilter
+          members={userMembers}
+          value={userIdFilter}
+          onChange={(userId) => {
+            if (
+              userId &&
+              !isEntityCompatibleWithFacet(userId, counts.users, true)
+            ) {
+              return
+            }
+
+            table.getColumn('userId')?.setFilterValue(userId)
           }}
-          className="h-9.5 max-w-60"
         />
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
         <DatePicker
-          initialRange={
-            createdAtFilter
-              ? {
-                  from: fromLocalDateString(createdAtFilter[0]),
-                  to: fromLocalDateString(createdAtFilter[1])
-                }
-              : undefined
-          }
+          value={datePickerValue}
           onChange={(range) => {
             const col = table.getColumn('createdAt')
             if (!col) return
@@ -155,6 +184,33 @@ const AtmQueueTableFilters = ({
               )
           }}
         />
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="h-9.5">
+              <Columns3Icon size={16} className="-ms-1 size-4 opacity-60" />
+              View
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
+            {table
+              .getAllColumns()
+              .filter((col) => col.getCanHide())
+              .map((col) => (
+                <DropdownMenuCheckboxItem
+                  key={col.id}
+                  checked={col.getIsVisible()}
+                  onCheckedChange={(value) => col.toggleVisibility(!!value)}
+                >
+                  {(col.columnDef.meta as { label: string })?.label ??
+                    (typeof col.columnDef.header === 'string'
+                      ? col.columnDef.header
+                      : col.id)}
+                </DropdownMenuCheckboxItem>
+              ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <Tooltip>
           <TooltipTrigger asChild>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 
 import { useSearchParams } from 'next/navigation'
 
@@ -12,7 +12,6 @@ import {
 } from '@/components/table'
 import { Table } from '@/components/ui/table'
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
-import { useHydrateServerTableFromUrl } from '@/hooks/useHydrateServerTableFromUrl'
 import { useServerTable } from '@/hooks/useServerTable'
 import { useUpdateUrl } from '@/hooks/useUpdateUrl'
 import { TVipChannels } from '@/types/types'
@@ -52,64 +51,78 @@ const VipTable = ({
   activeVipOwnerIds,
   members
 }: VipTableProps) => {
-  const { table, isLoading, setIsLoading } = useServerTable<TVipChannels>({
-    data: vips,
-    page,
-    limit,
-    total,
-    columns: vipColumns(
-      guildId,
-      maxMembers,
-      members,
-      vipFeatureBlocked,
-      vipFeatureBlockMessage
-    ),
-    initialSorting: [{ id: 'createdAt', desc: true }],
-    initialVisibility: { search: false },
+  const searchParams = useSearchParams()
+  const updateUrl = useUpdateUrl()
+  const debouncedUpdateUrl = useDebouncedCallback(updateUrl, 300)
 
-    onSortingChange: (sorting) => {
-      debouncedUpdateUrl({
-        page: 1,
-        sort: sorting.map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`).join(',')
-      })
-    },
+  const { table, isLoading, setIsLoading, isTableReady } =
+    useServerTable<TVipChannels>({
+      data: vips,
+      page,
+      limit,
+      total,
+      columns: vipColumns(
+        guildId,
+        maxMembers,
+        members,
+        vipFeatureBlocked,
+        vipFeatureBlockMessage
+      ),
+      initialSorting: [{ id: 'createdAt', desc: true }],
+      initialVisibility: { search: false, userId: false },
 
-    onColumnFiltersChange: (filters) => {
-      const search =
-        (filters.find((f) => f.id === 'search')?.value as string | undefined) ??
-        ''
+      onSortingChange: (sorting) => {
+        debouncedUpdateUrl({
+          page: 1,
+          sort: sorting
+            .map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`)
+            .join(',')
+        })
+      },
 
-      debouncedUpdateUrl({
-        page: 1,
-        search
-      })
-    },
+      onColumnFiltersChange: (filters) => {
+        const search =
+          (filters.find((f) => f.id === 'search')?.value as
+            | string
+            | undefined) ?? ''
+        const userId =
+          (filters.find((f) => f.id === 'userId')?.value as
+            | string
+            | undefined) ?? ''
 
-    onPaginationChange: (pagination) => {
-      debouncedUpdateUrl({
-        page: pagination.pageIndex + 1,
-        limit: pagination.pageSize
-      })
-    }
-  })
+        debouncedUpdateUrl({
+          page: 1,
+          search: search || undefined,
+          userId: userId || undefined
+        })
+      },
+
+      onPaginationChange: (pagination) => {
+        debouncedUpdateUrl({
+          page: pagination.pageIndex + 1,
+          limit: pagination.pageSize
+        })
+      },
+
+      urlHydration: {
+        searchParams,
+        filters: (params) => {
+          const search = params.get('search') || ''
+          const userId = params.get('userId') || ''
+
+          return [
+            { id: 'search', value: search || undefined },
+            { id: 'userId', value: userId || undefined }
+          ]
+        }
+      }
+    })
+
+  const showTableLoading = isLoading || !isTableReady
 
   useEffect(() => {
     setIsLoading(false)
   }, [setIsLoading, vips])
-
-  const updateUrl = useUpdateUrl()
-  const debouncedUpdateUrl = useDebouncedCallback(updateUrl, 300)
-
-  const searchParams = useSearchParams()
-  const searchRef = useRef<HTMLInputElement>(null)
-
-  useHydrateServerTableFromUrl(table, searchParams, {
-    filters: (params) => {
-      const search = params.get('search') || ''
-
-      return search ? [{ id: 'search', value: search }] : []
-    }
-  })
 
   return (
     <ServerTablePageLayout
@@ -117,9 +130,9 @@ const VipTable = ({
         <VipsTableFilters
           guildId={guildId}
           table={table}
+          vips={vips}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
-          searchRef={searchRef}
           vipConfigured={vipConfigured}
           vipFeatureBlocked={vipFeatureBlocked}
           vipFeatureBlockMessage={vipFeatureBlockMessage}
@@ -130,8 +143,8 @@ const VipTable = ({
       pagination={<CustomTablePagination table={table} total={total} />}
     >
       <Table className="w-full table-auto">
-        <CustomTableHeader table={table} />
-        <CustomTableBody table={table} isLoading={isLoading} />
+        <CustomTableHeader table={table} isLoading={showTableLoading} />
+        <CustomTableBody table={table} isLoading={showTableLoading} />
       </Table>
     </ServerTablePageLayout>
   )

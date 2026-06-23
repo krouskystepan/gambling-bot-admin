@@ -135,9 +135,11 @@ export function resolveStaffActionDetailHref(
     type?: string
     meta?: Record<string, unknown> | null
     sourceType?: 'transaction' | 'atmRequest'
+    referenceId?: string
   }
 ): string | undefined {
-  const requestId = input.meta?.requestId as string | undefined
+  const requestId =
+    input.referenceId ?? (input.meta?.requestId as string | undefined)
   const drawId = input.meta?.drawId as string | undefined
   const predictionId = input.meta?.predictionId as string | undefined
   const adminAction = input.meta?.adminAction as string | undefined
@@ -149,7 +151,7 @@ export function resolveStaffActionDetailHref(
       input.type === 'withdraw' ||
       input.sourceType === 'atmRequest')
   ) {
-    return `/dashboard/g/${guildId}/transactions?adminSearch=${requestId}`
+    return `/dashboard/g/${guildId}/transactions?referenceId=${requestId}`
   }
 
   if (drawId) {

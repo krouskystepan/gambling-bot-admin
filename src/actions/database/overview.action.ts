@@ -138,13 +138,19 @@ export async function getGuildOverviewTimezone(
   return resolveGuildTimezone(doc?.globalSettings?.timezone)
 }
 
+export type OverviewDataResult =
+  | { ok: true; data: OverviewData }
+  | { ok: false; rateLimited: boolean }
+
 export async function getOverviewData(
   guildId: string,
   session: Session,
   range: OverviewDateRange
-): Promise<OverviewData | null> {
+): Promise<OverviewDataResult> {
   const access = await requireGuildAccess(guildId)
-  if ('error' in access) return null
+  if ('error' in access) {
+    return { ok: false, rateLimited: access.rateLimited ?? false }
+  }
 
   await connectToDatabase()
 
@@ -230,6 +236,8 @@ export async function getOverviewData(
       undefined,
       undefined,
       undefined,
+      undefined,
+      undefined,
       range.dateFrom,
       range.dateTo
     )
@@ -284,21 +292,24 @@ export async function getOverviewData(
   )
 
   return {
-    globalSettings: normalizeGlobalSettings(
-      guildConfig?.globalSettings as Partial<GlobalSettings> | undefined
-    ),
-    gamePnL,
-    cashFlow,
-    txCount,
-    typeCounts,
-    sourceCounts,
-    pnlSeries,
-    sourceAmounts,
-    registeredUsers,
-    totalLiability: liabilityAgg[0]?.total ?? 0,
-    vipRoomCount,
-    topByBalance,
-    topByNetProfit,
-    recentTransactions: recentResult.transactions
+    ok: true,
+    data: {
+      globalSettings: normalizeGlobalSettings(
+        guildConfig?.globalSettings as Partial<GlobalSettings> | undefined
+      ),
+      gamePnL,
+      cashFlow,
+      txCount,
+      typeCounts,
+      sourceCounts,
+      pnlSeries,
+      sourceAmounts,
+      registeredUsers,
+      totalLiability: liabilityAgg[0]?.total ?? 0,
+      vipRoomCount,
+      topByBalance,
+      topByNetProfit,
+      recentTransactions: recentResult.transactions
+    }
   }
 }

@@ -42,6 +42,7 @@ const StaffTaxSummaryTable = ({
         dateFrom,
         dateTo
       )}
+      exportFilename={`tax-summary-staff-${guildId}.csv`}
       columns={staffTaxColumns(globalSettings, granularity, timezone)}
       data={rows}
     />

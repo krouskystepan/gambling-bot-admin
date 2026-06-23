@@ -1,16 +1,19 @@
 import type { Session } from 'next-auth'
 
+import { getGuildStaffMembers } from '@/actions/database/staffActions.action'
 import {
   getTransactionCounts,
   getTransactions
 } from '@/actions/database/transaction.action'
+import { getDiscordGuildMembers } from '@/actions/discord/member.action'
 import { ITransactionCounts, TTransactionDiscord } from '@/types/types'
 
 export interface TransactionsQuery {
   page: number
   limit: number
   search?: string
-  adminSearch?: string
+  staffId?: string
+  referenceId?: string
   filterType?: string[]
   filterSource?: string[]
   filterCasinoGame?: string[]
@@ -26,6 +29,8 @@ export interface TransactionsResult {
   total: number
   gamePnL: number
   cashFlow: number
+  staffMembers: { userId: string; username: string }[]
+  guildMembers: Awaited<ReturnType<typeof getDiscordGuildMembers>>
 }
 
 export async function getTransactionsData(
@@ -33,41 +38,53 @@ export async function getTransactionsData(
   session: Session,
   query: TransactionsQuery
 ): Promise<TransactionsResult> {
-  const { transactions, total, gamePnL, cashFlow } = await getTransactions(
-    guildId,
-    session,
-    query.page,
-    query.limit,
-    query.search,
-    query.adminSearch,
-    query.filterType,
-    query.filterSource,
-    query.filterCasinoGame,
-    query.dateFrom,
-    query.dateTo,
-    query.sort,
-    query.userId
-  )
-
-  const transactionCounts = await getTransactionCounts(
-    guildId,
-    session,
-    query.filterType,
-    query.filterSource,
-    query.filterCasinoGame,
-    query.search,
-    query.adminSearch,
-    query.dateFrom,
-    query.dateTo,
-    query.userId
-  )
+  const [
+    { transactions, total, gamePnL, cashFlow },
+    transactionCounts,
+    staffMembers,
+    guildMembers
+  ] = await Promise.all([
+    getTransactions(
+      guildId,
+      session,
+      query.page,
+      query.limit,
+      query.search,
+      query.staffId,
+      query.referenceId,
+      query.filterType,
+      query.filterSource,
+      query.filterCasinoGame,
+      query.dateFrom,
+      query.dateTo,
+      query.sort,
+      query.userId
+    ),
+    getTransactionCounts(
+      guildId,
+      session,
+      query.filterType,
+      query.filterSource,
+      query.filterCasinoGame,
+      query.search,
+      query.staffId,
+      query.referenceId,
+      query.dateFrom,
+      query.dateTo,
+      query.userId
+    ),
+    getGuildStaffMembers(guildId),
+    getDiscordGuildMembers(guildId)
+  ])
 
   return {
     transactions,
     transactionCounts,
     total,
     gamePnL,
-    cashFlow
+    cashFlow,
+    staffMembers,
+    guildMembers
   }
 }
 
@@ -75,6 +92,9 @@ type RawSearchParams = {
   page?: string
   limit?: string
   search?: string
+  staffId?: string
+  referenceId?: string
+  betId?: string
   adminSearch?: string
   filterType?: string
   filterSource?: string
@@ -88,7 +108,8 @@ type NormalizedSearchParams = {
   page: number
   limit: number
   search?: string
-  adminSearch?: string
+  staffId?: string
+  referenceId?: string
   filterType: string[]
   filterSource: string[]
   filterCasinoGame: string[]
@@ -107,7 +128,11 @@ export function normalizeTransactionsSearchParams(
     page: Number.isInteger(page) && page > 0 ? page : 1,
     limit: Number.isInteger(limit) && limit > 0 ? limit : 10,
     search: searchParams.search,
-    adminSearch: searchParams.adminSearch,
+    staffId: searchParams.staffId,
+    referenceId:
+      searchParams.referenceId ??
+      searchParams.betId ??
+      searchParams.adminSearch,
     filterType: searchParams.filterType?.split(',').filter(Boolean) ?? [],
     filterSource: searchParams.filterSource?.split(',').filter(Boolean) ?? [],
     filterCasinoGame:

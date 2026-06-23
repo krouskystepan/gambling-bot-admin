@@ -31,6 +31,7 @@ const SourcePnLTable = ({
         dateFrom,
         dateTo
       )}
+      exportFilename={`pnl-by-source-${guildId}.csv`}
       columns={sourcePnLColumns(globalSettings)}
       data={rows.filter((row) => row.txCount > 0)}
     />
