@@ -11,7 +11,7 @@ import {
   YAxis
 } from 'recharts'
 
-import { useId } from 'react'
+import { useId, useMemo, useState } from 'react'
 
 import {
   Card,
@@ -25,6 +25,7 @@ import {
   ChartContainer,
   ChartTooltip
 } from '@/components/ui/chart'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 
 import {
@@ -63,6 +64,17 @@ type OverviewDailyPnLChartProps = {
 }
 
 type ChartPoint = OverviewPnLSeries['points'][number]
+
+type PnLViewMode = 'daily' | 'total'
+
+function buildCumulativePoints(points: ChartPoint[]): ChartPoint[] {
+  let runningTotal = 0
+
+  return points.map((point) => {
+    runningTotal += point.gamePnL
+    return { ...point, gamePnL: runningTotal }
+  })
+}
 
 function getPnLGradientOffset(values: number[]): number {
   if (values.length === 0) return 0.5
@@ -218,13 +230,15 @@ const OverviewDailyPnLTooltip = ({
   payload,
   globalSettings,
   granularity,
-  timezone
+  timezone,
+  viewMode
 }: {
   active?: boolean
   payload?: ReadonlyArray<{ payload?: ChartPoint; value?: unknown }>
   globalSettings: GlobalSettings
   granularity: OverviewPnLSeries['granularity']
   timezone: string
+  viewMode: PnLViewMode
 }) => {
   if (!active || !payload?.length) return null
 
@@ -235,6 +249,14 @@ const OverviewDailyPnLTooltip = ({
   const isProfit = gamePnL >= 0
   const header = formatTooltipHeader(point.date, granularity, timezone)
   const periodLabel = granularity === 'hour' ? 'hour' : 'day'
+  const valueDescription =
+    viewMode === 'total'
+      ? isProfit
+        ? 'Cumulative house profit'
+        : 'Cumulative house loss'
+      : isProfit
+        ? `House profit for the ${periodLabel}`
+        : `House loss for the ${periodLabel}`
 
   return (
     <div className="grid min-w-44 gap-2 rounded-lg border border-border/60 bg-background px-3 py-2.5 text-xs shadow-xl">
@@ -270,9 +292,7 @@ const OverviewDailyPnLTooltip = ({
             {formatOverviewCurrency(gamePnL, globalSettings)}
           </span>
         </div>
-        <p className="text-[11px] text-muted-foreground">
-          {isProfit ? 'House profit' : 'House loss'} for the {periodLabel}
-        </p>
+        <p className="text-[11px] text-muted-foreground">{valueDescription}</p>
       </div>
 
       <div className="space-y-1 border-t border-border/60 pt-2">
@@ -298,8 +318,13 @@ const OverviewDailyPnLChart = ({
   globalSettings
 }: OverviewDailyPnLChartProps) => {
   const fillGradientId = useId().replace(/:/g, '')
+  const [viewMode, setViewMode] = useState<PnLViewMode>('daily')
   const { granularity, points } = series
-  const gamePnLValues = points.map((point) => point.gamePnL)
+  const chartPoints = useMemo(
+    () => (viewMode === 'total' ? buildCumulativePoints(points) : points),
+    [points, viewMode]
+  )
+  const gamePnLValues = chartPoints.map((point) => point.gamePnL)
   const timezone = resolveGuildTimezone(globalSettings.timezone)
   const isHourly = granularity === 'hour'
   const hourlyDayCount = isHourly ? getOverviewHourlyDayCount(points) : 0
@@ -358,20 +383,41 @@ const OverviewDailyPnLChart = ({
   const hasData = points.some(
     (point) => point.txCount > 0 || point.gamePnL !== 0 || point.cashFlow !== 0
   )
+  const chartTitle =
+    viewMode === 'total'
+      ? 'Total game P&L'
+      : isHourly
+        ? 'Hourly game P&L'
+        : 'Daily game P&L'
+  const chartDescription =
+    viewMode === 'total'
+      ? 'Cumulative house profit or loss'
+      : isHourly
+        ? 'House profit or loss per hour'
+        : 'House profit or loss per day'
 
   return (
     <Card className="flex h-full min-h-[400px] flex-col">
       <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
         <div className="space-y-1.5">
-          <CardTitle>
-            {isHourly ? 'Hourly game P&L' : 'Daily game P&L'}
-          </CardTitle>
-          <CardDescription>
-            {isHourly
-              ? 'House profit or loss per hour'
-              : 'House profit or loss per day'}
-          </CardDescription>
+          <CardTitle>{chartTitle}</CardTitle>
+          <CardDescription>{chartDescription}</CardDescription>
         </div>
+        {hasData ? (
+          <Tabs
+            value={viewMode}
+            onValueChange={(value) => setViewMode(value as PnLViewMode)}
+          >
+            <TabsList className="h-8 shrink-0">
+              <TabsTrigger value="daily" className="px-3 text-xs">
+                Daily
+              </TabsTrigger>
+              <TabsTrigger value="total" className="px-3 text-xs">
+                Total
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        ) : null}
       </CardHeader>
       <CardContent className="flex min-h-0 flex-1 flex-col pb-4">
         {hasData ? (
@@ -381,7 +427,7 @@ const OverviewDailyPnLChart = ({
             className="aspect-auto h-[300px] w-full [&_.recharts-responsive-container]:h-full!"
           >
             <AreaChart
-              data={points}
+              data={chartPoints}
               margin={{ left: 0, right: 12, top: 12, bottom: 4 }}
             >
               <defs>
@@ -454,6 +500,7 @@ const OverviewDailyPnLChart = ({
                     globalSettings={globalSettings}
                     granularity={granularity}
                     timezone={timezone}
+                    viewMode={viewMode}
                   />
                 )}
               />
