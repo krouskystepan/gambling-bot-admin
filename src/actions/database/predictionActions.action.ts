@@ -10,6 +10,7 @@ import {
   calculatePredictionPayoutSummary,
   getPredictionCheckSummary
 } from 'gambling-bot-shared/predictions'
+import { STAFF_ADMIN_ACTIONS } from 'gambling-bot-shared/transactions'
 import { DateTime } from 'luxon'
 import { Session } from 'next-auth'
 import { z } from 'zod'
@@ -34,6 +35,7 @@ import {
   blockPanelMaintenanceAction
 } from '@/lib/panel/panelFeatureActionGuard.server'
 import { getPanelFeatureBlockMessage } from '@/lib/panel/panelGlobalFeatureGuard'
+import { recordStaffAudit } from '@/lib/staffAudit/recordStaffAudit'
 import { escapeRegExp } from '@/lib/utils'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Prediction from '@/models/Prediction'
@@ -381,6 +383,18 @@ export async function endPrediction(
       }
     }
 
+    const managerId = access.session.userId!
+    await recordStaffAudit({
+      guildId,
+      userId: updatedPrediction.creatorId,
+      handledBy: managerId,
+      adminAction: STAFF_ADMIN_ACTIONS.PREDICTION_END,
+      meta: {
+        predictionId,
+        title: updatedPrediction.title
+      }
+    })
+
     try {
       await updatePredictionMessageEnded({
         channelId: updatedPrediction.channelId,
@@ -460,6 +474,20 @@ export async function payoutPrediction(
     }
 
     const { prediction, outcome } = payoutResult
+    const managerId = access.session.userId!
+
+    await recordStaffAudit({
+      guildId,
+      userId: prediction.creatorId,
+      handledBy: managerId,
+      adminAction: STAFF_ADMIN_ACTIONS.PREDICTION_PAYOUT,
+      meta: {
+        predictionId,
+        title: prediction.title,
+        winnerChoice: parsed.data.winnerChoice,
+        outcome
+      }
+    })
 
     if (outcome === 'refunded') {
       revalidatePath(predictionsPath(guildId))
@@ -552,6 +580,18 @@ export async function cancelPrediction(
         message: 'This prediction was already canceled/paid or does not exist.'
       }
     }
+
+    const managerId = access.session.userId!
+    await recordStaffAudit({
+      guildId,
+      userId: updatedPrediction.creatorId,
+      handledBy: managerId,
+      adminAction: STAFF_ADMIN_ACTIONS.PREDICTION_CANCEL,
+      meta: {
+        predictionId,
+        title: updatedPrediction.title
+      }
+    })
 
     try {
       await updatePredictionMessageCanceled({

@@ -8,6 +8,7 @@ import {
 import { normalizeGlobalSettings } from 'gambling-bot-shared/guild'
 import { type TRaffle, type TRaffleStatus } from 'gambling-bot-shared/raffle'
 import { raffleCreateFormSchema } from 'gambling-bot-shared/raffle'
+import { STAFF_ADMIN_ACTIONS } from 'gambling-bot-shared/transactions'
 import { DateTime } from 'luxon'
 import { Session } from 'next-auth'
 import { z } from 'zod'
@@ -28,6 +29,7 @@ import {
   blockPanelMaintenanceAction
 } from '@/lib/panel/panelFeatureActionGuard.server'
 import { getPanelFeatureBlockMessage } from '@/lib/panel/panelGlobalFeatureGuard'
+import { recordStaffAudit } from '@/lib/staffAudit/recordStaffAudit'
 import { escapeRegExp } from '@/lib/utils'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Raffle from '@/models/Raffle'
@@ -425,6 +427,19 @@ export async function cancelRaffle(
     }
 
     const { raffle, refundErrors } = cancelResult
+    const managerId = access.session.userId!
+
+    await recordStaffAudit({
+      guildId,
+      userId: raffle.creatorId,
+      handledBy: managerId,
+      adminAction: STAFF_ADMIN_ACTIONS.RAFFLE_CANCEL,
+      meta: {
+        raffleId,
+        drawId: raffle.drawId,
+        refundCount: raffle.participants.length
+      }
+    })
 
     const guildConfig = await GuildConfiguration.findOne({ guildId }).lean()
     const globalSettings = normalizeGlobalSettings(guildConfig?.globalSettings)

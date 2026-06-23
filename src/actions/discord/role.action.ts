@@ -1,5 +1,7 @@
 'use server'
 
+import { PermissionFlagsBits } from 'discord-api-types/v10'
+
 import { discordBotRequest } from '@/lib/discord/discordReq'
 import type { IGuildRole, IMemberCacheEntry } from '@/types/types'
 
@@ -49,6 +51,48 @@ export const resolveManagerStatus = async (
 
   const roles = await fetchMemberRoles(guildId, userId)
   return roles.includes(managerRoleId.toString())
+}
+
+function roleHasGuildAdminAccess(permissions: string): boolean {
+  try {
+    const bits = BigInt(permissions)
+
+    return (
+      (bits & PermissionFlagsBits.Administrator) ===
+        PermissionFlagsBits.Administrator ||
+      (bits & PermissionFlagsBits.ManageGuild) ===
+        PermissionFlagsBits.ManageGuild
+    )
+  } catch {
+    return false
+  }
+}
+
+export async function getGuildAdminRoleIds(guildId: string): Promise<string[]> {
+  const roles = await getGuildRoles(guildId)
+  return roles
+    .filter((role) => roleHasGuildAdminAccess(role.permissions))
+    .map((role) => role.id)
+}
+
+export const resolveGuildStaffStatus = async (
+  guildId: string,
+  userId: string,
+  managerRoleId: string | null | undefined,
+  adminRoleIds: string[],
+  ownerId?: string | null
+): Promise<boolean> => {
+  if (ownerId && userId === ownerId) {
+    return true
+  }
+
+  const roles = await fetchMemberRoles(guildId, userId)
+
+  if (managerRoleId && roles.includes(managerRoleId.toString())) {
+    return true
+  }
+
+  return roles.some((roleId) => adminRoleIds.includes(roleId))
 }
 
 export const getGuildRoles = async (guildId: string): Promise<IGuildRole[]> => {

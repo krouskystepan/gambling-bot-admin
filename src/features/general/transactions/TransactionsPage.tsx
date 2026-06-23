@@ -1,5 +1,7 @@
 import { getServerSession } from 'next-auth'
 
+import Link from 'next/link'
+
 import FeatureLayout from '@/features/FeatureLayout'
 import { authOptions } from '@/lib/auth/authOptions'
 import { getGuildGlobalSettings } from '@/lib/guild/guildMoney.server'
@@ -42,7 +44,17 @@ const TransactionsPage = async ({
   ])
 
   return (
-    <FeatureLayout title={'Transactions'}>
+    <FeatureLayout
+      title="Transactions"
+      actions={
+        <Link
+          href={`/dashboard/g/${guildId}/staff-actions`}
+          className="text-sm text-primary hover:underline"
+        >
+          View staff actions only →
+        </Link>
+      }
+    >
       <TransactionTable
         guildId={guildId}
         globalSettings={globalSettings}
