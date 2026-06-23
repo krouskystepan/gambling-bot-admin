@@ -9,7 +9,7 @@ const LoadFailed = () => {
   return (
     <StateLayout
       Icon={
-        <AlertCircle className="h-12 w-12 text-destructive drop-shadow-lg" />
+        <AlertCircle className="h-12 w-12 animate-pulse text-destructive drop-shadow-lg" />
       }
       titleText="Failed to load"
       titleTone="destructive"
