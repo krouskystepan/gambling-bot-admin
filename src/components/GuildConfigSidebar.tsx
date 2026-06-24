@@ -204,8 +204,8 @@ const GuildConfigSidebar = ({
           onValueChange={handleOpenSectionsChange}
         >
           {LINKS.map((group) => {
-            if (group.title === 'Settings' && !isAdmin) return null
-            if (group.title === 'Dev' && !isDev) return null
+            if (group.value === 'settings' && !isAdmin) return null
+            if (group.value === 'dev' && !isDev) return null
 
             return (
               <AccordionItem
