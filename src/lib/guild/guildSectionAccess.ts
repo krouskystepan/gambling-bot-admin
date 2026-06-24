@@ -9,17 +9,32 @@ const SETTINGS_SECTION_IDS = new Set<SectionId>([
   'vip-settings'
 ])
 
+const DEV_SECTION_IDS = new Set<SectionId>([
+  'dev',
+  'dev-system',
+  'dev-guild',
+  'dev-discord',
+  'dev-calcs',
+  'dev-ui'
+])
+
 type GuildAccess = {
   isAdmin: boolean
   isManager: boolean
+  isDev: boolean
 }
 
 export function canAccessSection(
   sectionId: SectionId,
   access: GuildAccess
 ): boolean {
+  if (DEV_SECTION_IDS.has(sectionId)) {
+    return access.isDev
+  }
+
   if (SETTINGS_SECTION_IDS.has(sectionId)) {
     return access.isAdmin
   }
+
   return access.isAdmin || access.isManager
 }

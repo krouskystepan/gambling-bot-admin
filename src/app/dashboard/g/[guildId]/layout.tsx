@@ -1,3 +1,5 @@
+import { hasDevAccess } from 'gambling-bot-shared/dev'
+
 import { redirect } from 'next/navigation'
 
 import { getAtmRequestCounts } from '@/actions/database/atmRequest.action'
@@ -54,6 +56,7 @@ const GuildConfLayout = async ({ children, params }: GuildConfLayoutProps) => {
       getHealthAttentionCount(guildId, session)
     ])
   const hasAccess = isAdmin || isManager
+  const isDev = hasDevAccess(session.userId ?? '', guildId)
 
   if (rateLimited) {
     return guildStateMain(<RateLimited />)
@@ -70,6 +73,7 @@ const GuildConfLayout = async ({ children, params }: GuildConfLayoutProps) => {
         guildName={guildName}
         isAdmin={isAdmin}
         isManager={isManager}
+        isDev={isDev}
         pendingAtmCount={atmCounts.pending}
         needsAttentionCount={needsAttentionCount}
       />

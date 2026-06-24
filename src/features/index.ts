@@ -19,3 +19,11 @@ export { default as ManagerSettingsPage } from './settings/manager-role/ManagerS
 export { default as VipSettingsPage } from './settings/vip/VipSettingsPage'
 export { default as BonusesSettingsPage } from './settings/bonuses/BonusesSettingsPage'
 export { default as CasinoSettingsPage } from './settings/casino/CasinoSettingsPage'
+
+// Dev
+export { default as DevCalcsPage } from './dev/DevCalcsPage'
+export { default as DevDiscordPage } from './dev/DevDiscordPage'
+export { default as DevGuildPage } from './dev/DevGuildPage'
+export { default as DevOverviewPage } from './dev/DevOverviewPage'
+export { default as DevSystemPage } from './dev/DevSystemPage'
+export { default as DevUiPage } from './dev/DevUiPage'

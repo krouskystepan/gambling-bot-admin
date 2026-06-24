@@ -1,19 +1,25 @@
 'use client'
 
 import {
+  Activity,
   Award,
   Banknote,
+  Bot,
+  Calculator,
   ChartBar,
   Crown,
+  Database,
   Dices,
   FileBarChart,
   Globe,
   HeartPulse,
   Landmark,
   LayoutDashboard,
+  LayoutTemplate,
   LucideIcon,
   MessagesSquare,
   ScrollText,
+  Server,
   ShieldCheck,
   Ticket,
   User
@@ -66,6 +72,18 @@ const LINKS = [
       { id: 'casino-settings', label: 'Casino', icon: Dices },
       { id: 'bonus-settings', label: 'Bonuses', icon: Award },
       { id: 'vip-settings', label: 'VIP', icon: Crown }
+    ]
+  },
+  {
+    title: 'Development',
+    value: 'dev',
+    links: [
+      { id: 'dev', label: 'Overview', icon: Activity },
+      { id: 'dev-system', label: 'System', icon: Server },
+      { id: 'dev-guild', label: 'Guild data', icon: Database },
+      { id: 'dev-discord', label: 'Discord', icon: Bot },
+      { id: 'dev-calcs', label: 'Calcs lab', icon: Calculator },
+      { id: 'dev-ui', label: 'UI kit', icon: LayoutTemplate }
     ]
   }
 ]
@@ -146,6 +164,7 @@ type GuildConfigSidebarProps = {
   guildName: string
   isAdmin: boolean
   isManager: boolean
+  isDev: boolean
   pendingAtmCount?: number
   needsAttentionCount?: number
 }
@@ -154,6 +173,7 @@ const GuildConfigSidebar = ({
   guildId,
   guildName,
   isAdmin,
+  isDev,
   pendingAtmCount = 0,
   needsAttentionCount = 0
 }: GuildConfigSidebarProps) => {
@@ -185,6 +205,7 @@ const GuildConfigSidebar = ({
         >
           {LINKS.map((group) => {
             if (group.title === 'Settings' && !isAdmin) return null
+            if (group.title === 'Dev' && !isDev) return null
 
             return (
               <AccordionItem
