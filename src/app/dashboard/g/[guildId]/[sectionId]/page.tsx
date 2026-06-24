@@ -1,3 +1,5 @@
+import { hasDevAccess } from 'gambling-bot-shared/dev'
+
 import { redirect } from 'next/navigation'
 
 import { getUserPermissions } from '@/actions/perms'
@@ -33,7 +35,11 @@ const SectionPage = async ({ params, searchParams }: SectionPageProps) => {
     return <RateLimited />
   }
 
-  if (!canAccessSection(sectionId as SectionId, { isAdmin, isManager })) {
+  const isDev = hasDevAccess(session.userId ?? '', guildId)
+
+  if (
+    !canAccessSection(sectionId as SectionId, { isAdmin, isManager, isDev })
+  ) {
     redirect(
       isAdmin || isManager ? `/dashboard/g/${guildId}/overview` : '/dashboard'
     )

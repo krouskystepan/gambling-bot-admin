@@ -3,6 +3,12 @@ import {
   BonusesSettingsPage,
   CasinoSettingsPage,
   ChannelSettingsPage,
+  DevCalcsPage,
+  DevDiscordPage,
+  DevGuildPage,
+  DevOverviewPage,
+  DevSystemPage,
+  DevUiPage,
   GlobalSettingsPage,
   HealthPage,
   ManagerSettingsPage,
@@ -38,7 +44,15 @@ export const sections = {
   'casino-settings': CasinoSettingsPage,
   'manager-settings': ManagerSettingsPage,
   'bonus-settings': BonusesSettingsPage,
-  'vip-settings': VipSettingsPage
+  'vip-settings': VipSettingsPage,
+
+  // Dev
+  dev: DevOverviewPage,
+  'dev-system': DevSystemPage,
+  'dev-guild': DevGuildPage,
+  'dev-discord': DevDiscordPage,
+  'dev-calcs': DevCalcsPage,
+  'dev-ui': DevUiPage
 } as const
 
 export type SectionId = keyof typeof sections
