@@ -2,7 +2,7 @@
 
 import { CheckIcon, ChevronDownIcon } from 'lucide-react'
 
-import { useMemo, useState } from 'react'
+import { useId, useMemo, useState } from 'react'
 
 import {
   Command,
@@ -41,7 +41,7 @@ function OptionLabel({ option }: { option: SearchableTextOption }) {
     return (
       <span className="min-w-0 flex-1">
         <span className="block leading-tight">{option.label}</span>
-        <span className="text-muted-foreground block text-xs leading-snug break-words">
+        <span className="text-muted-foreground block text-xs leading-snug wrap-break-word">
           {option.sublabel}
         </span>
       </span>
@@ -49,7 +49,7 @@ function OptionLabel({ option }: { option: SearchableTextOption }) {
   }
 
   return (
-    <span className="min-w-0 flex-1 leading-snug break-words">
+    <span className="min-w-0 flex-1 leading-snug wrap-break-word">
       {option.label}
     </span>
   )
@@ -64,6 +64,7 @@ const SearchableTextFilter = ({
   inputPlaceholder = 'Search...',
   className
 }: SearchableTextFilterProps) => {
+  const listboxId = useId()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
 
@@ -101,6 +102,7 @@ const SearchableTextFilter = ({
         <button
           type="button"
           role="combobox"
+          aria-controls={listboxId}
           aria-expanded={open}
           title={value ? triggerLabel : undefined}
           className={cn(
@@ -121,6 +123,7 @@ const SearchableTextFilter = ({
         </button>
       </PopoverTrigger>
       <PopoverContent
+        id={listboxId}
         className="w-80 min-w-(--radix-popover-trigger-width) max-w-[calc(100vw-2rem)] p-0"
         align="start"
       >
