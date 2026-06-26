@@ -34,6 +34,8 @@ import {
 import { cn } from '@/lib/utils'
 import { TAtmRequestDiscord } from '@/types/types'
 
+import { useRegisterAtmQueueBusy } from '../AtmQueueLiveUpdateContext'
+
 const iconButtonClass = 'size-7 shrink-0 shadow-xs'
 
 type AtmQueueActionsProps = {
@@ -55,6 +57,11 @@ const AtmQueueActions = ({
   const [action, setAction] = useState<'approve' | 'reject'>('approve')
   const [notes, setNotes] = useState('')
   const [message, setMessage] = useState<string | null>(null)
+
+  useRegisterAtmQueueBusy(
+    `atm-dialog-${request.requestId}`,
+    dialogOpen && request.status === 'pending'
+  )
 
   if (request.status !== 'pending') return null
 

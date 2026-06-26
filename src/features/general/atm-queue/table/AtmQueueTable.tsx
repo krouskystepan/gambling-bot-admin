@@ -14,6 +14,7 @@ import {
   ServerTablePageLayout
 } from '@/components/table'
 import { Table } from '@/components/ui/table'
+import { useAtmQueueLiveUpdates } from '@/hooks/useAtmQueueLiveUpdates'
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
 import { usePruneEntityColumnFilters } from '@/hooks/usePruneEntityColumnFilters'
 import { usePruneFacetColumnFilters } from '@/hooks/usePruneFacetColumnFilters'
@@ -21,6 +22,12 @@ import { useServerTable } from '@/hooks/useServerTable'
 import { useUpdateUrl } from '@/hooks/useUpdateUrl'
 import { IAtmRequestCounts, TAtmRequestDiscord } from '@/types/types'
 
+import AtmQueueLiveUpdateBanner from '../AtmQueueLiveUpdateBanner'
+import {
+  AtmQueueLiveUpdateProvider,
+  useAtmQueueLiveUpdateContext,
+  useRegisterAtmQueueBusy
+} from '../AtmQueueLiveUpdateContext'
 import {
   parseAtmQueueFilterStatusForTable,
   serializeAtmQueueFilterStatus
@@ -46,7 +53,13 @@ type AtmQueueTableProps = {
   total: number
 }
 
-const AtmQueueTable = ({
+const AtmQueueTable = (props: AtmQueueTableProps) => (
+  <AtmQueueLiveUpdateProvider>
+    <AtmQueueTableInner {...props} />
+  </AtmQueueLiveUpdateProvider>
+)
+
+const AtmQueueTableInner = ({
   guildId,
   globalSettings,
   isGuildAdmin,
@@ -60,6 +73,8 @@ const AtmQueueTable = ({
   const searchParams = useSearchParams()
   const updateUrl = useUpdateUrl()
   const debouncedUpdateUrl = useDebouncedCallback(updateUrl, 300)
+  const { isBusy } = useAtmQueueLiveUpdateContext()
+  const { showBanner, applyRefresh } = useAtmQueueLiveUpdates(guildId, isBusy)
 
   const defaultVisibility: VisibilityState = {
     userId: false,
@@ -179,6 +194,8 @@ const AtmQueueTable = ({
 
   const showTableLoading = isLoading || !isTableReady
 
+  useRegisterAtmQueueBusy('table-loading', isLoading)
+
   const facetCountsByColumn = useMemo(
     () => ({
       status: {
@@ -221,13 +238,19 @@ const AtmQueueTable = ({
   return (
     <ServerTablePageLayout
       toolbar={
-        <AtmQueueTableFilters
-          table={table}
-          counts={counts}
-          guildMembers={guildMembers}
-          isLoading={isLoading}
-          setIsLoading={setIsLoading}
-        />
+        <div className="space-y-3">
+          <AtmQueueLiveUpdateBanner
+            show={showBanner}
+            onRefresh={applyRefresh}
+          />
+          <AtmQueueTableFilters
+            table={table}
+            counts={counts}
+            guildMembers={guildMembers}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+          />
+        </div>
       }
       summary={
         <AtmQueueTableSummary counts={counts} globalSettings={globalSettings} />
