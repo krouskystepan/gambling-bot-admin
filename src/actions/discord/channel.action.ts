@@ -40,3 +40,34 @@ export const getGuildChannels = async (
     return []
   }
 }
+
+export async function getGuildChannelById(
+  channelId: string
+): Promise<IGuildChannel | null> {
+  try {
+    return await discordBotRequest<IGuildChannel>({
+      url: `/channels/${channelId}`,
+      method: 'GET'
+    })
+  } catch {
+    return null
+  }
+}
+
+export async function resolveGuildChannelNames(
+  channelIds: string[]
+): Promise<Map<string, string>> {
+  const uniqueIds = [...new Set(channelIds.filter(Boolean))]
+  const names = new Map<string, string>()
+
+  await Promise.all(
+    uniqueIds.map(async (channelId) => {
+      const channel = await getGuildChannelById(channelId)
+      if (channel?.name) {
+        names.set(channelId, channel.name)
+      }
+    })
+  )
+
+  return names
+}

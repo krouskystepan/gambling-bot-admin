@@ -50,6 +50,7 @@ export type TGuildMemberStatus = {
   avatar: string
   balance?: number
   netProfit?: number
+  banned?: boolean
 }
 
 export type TVipChannels = Omit<TVipRoom, 'updatedAt' | 'memberIds'> & {

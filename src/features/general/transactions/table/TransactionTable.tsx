@@ -228,11 +228,18 @@ const TransactionTable = ({
   )
 
   const entityFacetColumns = useMemo(() => {
-    const columns = [
+    const columns: Array<{
+      columnId: string
+      facetCounts: Record<string, number>
+      restrictWhenColumnId?: string
+      alwaysRestrict?: boolean
+    }> = [
       {
         columnId: 'handledBy',
         facetCounts: transactionCounts.staff,
-        restrictWhenColumnId: 'username'
+        ...(hideUserSearch
+          ? { alwaysRestrict: true }
+          : { restrictWhenColumnId: 'username' })
       }
     ]
 

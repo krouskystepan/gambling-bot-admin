@@ -20,7 +20,7 @@ import { formatGuildMoney } from '@/lib/guild/guildMoney'
 import { isMemberCompatibleWithRegistration } from '@/lib/table/registrationMemberFilters'
 import { TGuildMemberStatus } from '@/types/types'
 
-import type { UserRegistrationFilter } from '../useUsers'
+import type { UserBanStatusFilter, UserRegistrationFilter } from '../useUsers'
 import UserTableFooter from './UserTableFooter'
 import UsersTableFilters from './UsersTableFilters'
 import { userColumns } from './userColumns'
@@ -35,6 +35,7 @@ type UserTableProps = {
   guildId: string
   managerId: string
   registration: UserRegistrationFilter
+  banStatus: UserBanStatusFilter
   guildMembers: {
     userId: string
     username: string
@@ -54,6 +55,7 @@ const UserTable = ({
   guildId,
   managerId,
   registration,
+  banStatus,
   guildMembers,
   registeredUserIds
 }: UserTableProps) => {
@@ -124,6 +126,14 @@ const UserTable = ({
     setIsLoading(false)
   }, [setIsLoading, users])
 
+  const handleBanStatusChange = (next: UserBanStatusFilter) => {
+    setIsLoading(true)
+    updateUrl({
+      page: 1,
+      banStatus: next === 'all' ? undefined : next
+    })
+  }
+
   const handleRegistrationChange = (next: UserRegistrationFilter) => {
     setIsLoading(true)
 
@@ -167,6 +177,8 @@ const UserTable = ({
           registeredUserIds={registeredUserIds}
           registration={registration}
           onRegistrationChange={handleRegistrationChange}
+          banStatus={banStatus}
+          onBanStatusChange={handleBanStatusChange}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
         />
