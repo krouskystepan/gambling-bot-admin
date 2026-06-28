@@ -1,7 +1,7 @@
 import { Table as ReactTable } from '@tanstack/react-table'
 import { Columns3Icon, Eraser, RefreshCcw } from 'lucide-react'
 
-import { Dispatch, SetStateAction, useMemo } from 'react'
+import { Dispatch, SetStateAction, useCallback, useMemo, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -22,6 +22,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { useRegisterAtmQueueBusy } from '@/features/general/atm-queue/AtmQueueLiveUpdateContext'
 import TransactionFilter from '@/features/general/transactions/table/TransactionTableFilter'
 import {
   filterMembersByEntityFacet,
@@ -54,6 +55,26 @@ const AtmQueueTableFilters = ({
   setIsLoading: Dispatch<SetStateAction<boolean>>
 }) => {
   const router = useRouter()
+  const [openFilterPopovers, setOpenFilterPopovers] = useState<Set<string>>(
+    () => new Set()
+  )
+
+  const handleFilterPopoverOpenChange = useCallback(
+    (filterId: string) => (open: boolean) => {
+      setOpenFilterPopovers((prev) => {
+        const next = new Set(prev)
+        if (open) {
+          next.add(filterId)
+        } else {
+          next.delete(filterId)
+        }
+        return next
+      })
+    },
+    []
+  )
+
+  useRegisterAtmQueueBusy('filter-popovers', openFilterPopovers.size > 0)
 
   const userIdFilter = table.getColumn('userId')?.getFilterValue() as
     | string
@@ -120,6 +141,7 @@ const AtmQueueTableFilters = ({
         <SearchableUserFilter
           members={userMembers}
           value={userIdFilter}
+          onOpenChange={handleFilterPopoverOpenChange('user')}
           onChange={(userId) => {
             if (
               userId &&
@@ -136,6 +158,7 @@ const AtmQueueTableFilters = ({
       <div className="flex flex-wrap items-center gap-2">
         <DatePicker
           value={datePickerValue}
+          onOpenChange={handleFilterPopoverOpenChange('date')}
           onChange={(range) => {
             const col = table.getColumn('createdAt')
             if (!col) return
@@ -156,6 +179,7 @@ const AtmQueueTableFilters = ({
           columnId="status"
           options={statusOptions}
           selected={selectedStatusOptions}
+          onOpenChange={handleFilterPopoverOpenChange('status')}
           counts={{
             pending: counts.pending,
             approved: counts.approved,
@@ -175,6 +199,7 @@ const AtmQueueTableFilters = ({
           columnId="type"
           options={typeOptions}
           selected={selectedTypeOptions}
+          onOpenChange={handleFilterPopoverOpenChange('type')}
           counts={counts.type}
           onChange={(next) => {
             table
@@ -236,8 +261,7 @@ const AtmQueueTableFilters = ({
               disabled={isLoading}
               onClick={() => {
                 setIsLoading(true)
-                const url = new URL(window.location.href)
-                router.replace(url.pathname + url.search, { scroll: false })
+                router.refresh()
               }}
             >
               <RefreshCcw

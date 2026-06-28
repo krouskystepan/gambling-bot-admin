@@ -23,18 +23,21 @@ const DatePicker = ({
   onChange,
   value,
   initialRange,
-  defaultToAllTime = true
+  defaultToAllTime = true,
+  onOpenChange
 }: {
   onChange: (range: { from: Date; to: Date } | undefined) => void
   value?: DateRange
   initialRange?: DateRange
   defaultToAllTime?: boolean
+  onOpenChange?: (open: boolean) => void
 }) => {
   const today = safeDate(new Date())
   const presets = getDatePickerPresets(today)
   const wholeTime = getWholeTimeDateRange(today)
   const controlledRange = value ?? initialRange
 
+  const [open, setOpen] = useState(false)
   const [month, setMonth] = useState<Date>(
     controlledRange?.to ?? controlledRange?.from ?? today
   )
@@ -89,7 +92,13 @@ const DatePicker = ({
   }
 
   return (
-    <Popover>
+    <Popover
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen)
+        onOpenChange?.(nextOpen)
+      }}
+    >
       <PopoverTrigger asChild>
         <Button
           variant="outline"
