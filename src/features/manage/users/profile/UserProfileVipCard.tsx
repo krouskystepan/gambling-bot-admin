@@ -2,7 +2,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import type { UserProfileVip } from '@/actions/database/userProfile.action'
-import { Badge } from '@/components/ui/badge'
+import ColoredBadge from '@/components/badges/ColoredBadge'
+import { getVipRoleBadgeClass } from '@/components/badges/badgeStyles'
 import {
   Card,
   CardContent,
@@ -35,9 +36,9 @@ const UserProfileVipCard = ({ guildId, vips }: UserProfileVipCardProps) => {
           <CardHeader>
             <div className="flex flex-wrap items-center gap-2">
               <CardTitle>{vip.channelName}</CardTitle>
-              <Badge variant={vip.role === 'owner' ? 'default' : 'secondary'}>
+              <ColoredBadge colorClass={getVipRoleBadgeClass(vip.role)}>
                 {vip.role === 'owner' ? 'Owner' : 'Member'}
-              </Badge>
+              </ColoredBadge>
             </div>
             <CardDescription>
               Channel {vip.channelId} · Created{' '}

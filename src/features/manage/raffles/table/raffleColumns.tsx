@@ -2,17 +2,13 @@ import { ColumnDef } from '@tanstack/react-table'
 
 import Link from 'next/link'
 
-import { Badge } from '@/components/ui/badge'
+import ColoredBadge from '@/components/badges/ColoredBadge'
+import { getRaffleStatusBadgeClass } from '@/components/badges/badgeStyles'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
 import { createHiddenFilterColumn } from '@/lib/table/manualFilterColumn'
 import { TRaffleRow } from '@/types/types'
 
 import RaffleActionsMenu from './RaffleActionsMenu'
-
-const statusBadgeClass: Record<TRaffleRow['status'], string> = {
-  active: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400',
-  canceled: 'bg-red-500/15 text-red-700 dark:text-red-400'
-}
 
 export const raffleColumns = (
   guildId: string,
@@ -30,9 +26,12 @@ export const raffleColumns = (
     cell: ({ row }) => {
       const status = row.getValue('status') as TRaffleRow['status']
       return (
-        <Badge className={`${statusBadgeClass[status]} px-2 capitalize`}>
+        <ColoredBadge
+          colorClass={getRaffleStatusBadgeClass(status)}
+          className="capitalize"
+        >
           {status}
-        </Badge>
+        </ColoredBadge>
       )
     }
   },

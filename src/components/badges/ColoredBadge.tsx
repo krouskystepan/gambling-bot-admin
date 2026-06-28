@@ -16,11 +16,7 @@ const ColoredBadge = ({
   return (
     <Badge
       variant="outline"
-      className={cn(
-        'border-transparent px-2 select-none',
-        colorClass,
-        className
-      )}
+      className={cn('px-2 select-none', colorClass, className)}
       {...props}
     >
       {children}

@@ -3,7 +3,8 @@ import { CircleQuestionMark } from 'lucide-react'
 
 import Link from 'next/link'
 
-import { Badge } from '@/components/ui/badge'
+import ColoredBadge from '@/components/badges/ColoredBadge'
+import { getPredictionStatusBadgeClass } from '@/components/badges/badgeStyles'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Tooltip,
@@ -15,14 +16,6 @@ import { createHiddenFilterColumn } from '@/lib/table/manualFilterColumn'
 import { TPredictionRow } from '@/types/types'
 
 import PredictionActionsMenu from '../components/PredictionActionsMenu'
-
-const statusBadgeClass: Record<TPredictionRow['status'], string> = {
-  active: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400',
-  ended: 'bg-amber-500/15 text-amber-700 dark:text-amber-400',
-  paying: 'bg-blue-500/15 text-blue-700 dark:text-blue-400',
-  paid: 'bg-sky-500/15 text-sky-700 dark:text-sky-400',
-  canceled: 'bg-red-500/15 text-red-700 dark:text-red-400'
-}
 
 export const predictionColumns = (
   guildId: string,
@@ -56,9 +49,12 @@ export const predictionColumns = (
     cell: ({ row }) => {
       const status = row.getValue('status') as TPredictionRow['status']
       return (
-        <Badge className={`${statusBadgeClass[status]} px-2 capitalize`}>
+        <ColoredBadge
+          colorClass={getPredictionStatusBadgeClass(status)}
+          className="capitalize"
+        >
           {status}
-        </Badge>
+        </ColoredBadge>
       )
     }
   },

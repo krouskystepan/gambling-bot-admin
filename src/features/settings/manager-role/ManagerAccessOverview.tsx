@@ -2,7 +2,8 @@
 
 import { Bot, Check, Monitor, ShieldCheck, X } from 'lucide-react'
 
-import { Badge } from '@/components/ui/badge'
+import ColoredBadge from '@/components/badges/ColoredBadge'
+import { getManagerAccessBadgeClass } from '@/components/badges/badgeStyles'
 import {
   Card,
   CardContent,
@@ -89,22 +90,19 @@ function PermissionBox({ variant, items }: PermissionBoxProps) {
       className={cn(
         'flex min-h-0 flex-col rounded-lg border p-3',
         isAllowed
-          ? 'border-emerald-500/25 bg-emerald-500/5'
-          : 'border-destructive/25 bg-destructive/5'
+          ? 'border-[#10B981]/25 bg-[#10B981]/5'
+          : 'border-[#EF4444]/25 bg-[#EF4444]/5'
       )}
     >
       <div className="mb-3 flex items-center gap-2">
-        <Badge
-          variant="outline"
-          className={cn(
-            'rounded-md px-2 py-0.5 text-xs font-medium',
-            isAllowed
-              ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
-              : 'border-destructive/40 bg-destructive/10 text-destructive'
+        <ColoredBadge
+          colorClass={getManagerAccessBadgeClass(
+            isAllowed ? 'allowed' : 'denied'
           )}
+          className="rounded-md py-0.5"
         >
           {isAllowed ? 'Allowed' : 'Not allowed'}
-        </Badge>
+        </ColoredBadge>
       </div>
       <ul className="space-y-2.5">
         {items.map(({ id, label }) => (
@@ -116,8 +114,8 @@ function PermissionBox({ variant, items }: PermissionBoxProps) {
               className={cn(
                 'mt-0.5 size-4 shrink-0',
                 isAllowed
-                  ? 'text-emerald-600 dark:text-emerald-400'
-                  : 'text-destructive/80'
+                  ? 'text-[#10B981] dark:text-[#34D399]'
+                  : 'text-[#EF4444]/80'
               )}
               aria-hidden
             />

@@ -1,7 +1,18 @@
+import { Crown } from 'lucide-react'
+
 import Image from 'next/image'
 
 import type { UserProfileData } from '@/actions/database/userProfile.action'
-import { Badge } from '@/components/ui/badge'
+import ColoredBadge from '@/components/badges/ColoredBadge'
+import {
+  getUserProfileBadgeClass,
+  getVipRoleBadgeClass
+} from '@/components/badges/badgeStyles'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 import OverviewPeriodSelect from '@/features/general/overview/components/OverviewPeriodSelect'
 import { TGuildMemberStatus } from '@/types/types'
 
@@ -48,12 +59,39 @@ const UserProfileHeader = ({
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-xl font-semibold">{profile.username}</h2>
-            <Badge
-              variant={profile.registered ? 'default' : 'destructive'}
-              className="px-2.5"
+            <ColoredBadge
+              colorClass={getUserProfileBadgeClass(
+                profile.registered ? 'registered' : 'notRegistered'
+              )}
             >
               {profile.registered ? 'Registered' : 'Not Registered'}
-            </Badge>
+            </ColoredBadge>
+            {profile.vips.length > 0 ? (
+              <ColoredBadge
+                colorClass={getUserProfileBadgeClass('vip')}
+                className="gap-1"
+              >
+                <Crown className="size-3" aria-hidden />
+                VIP
+              </ColoredBadge>
+            ) : null}
+            {profile.vips.map((vip) => (
+              <Tooltip key={vip.channelId}>
+                <TooltipTrigger asChild>
+                  <span className="inline-flex">
+                    <ColoredBadge colorClass={getVipRoleBadgeClass(vip.role)}>
+                      {vip.role === 'owner' ? 'Owner' : 'Member'}
+                    </ColoredBadge>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{vip.channelName}</p>
+                  <p className="text-primary-foreground/80">
+                    Expires {new Date(vip.expiresAt).toLocaleDateString('cs')}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            ))}
           </div>
           {profile.nickname ? (
             <p className="text-sm text-muted-foreground">{profile.nickname}</p>
