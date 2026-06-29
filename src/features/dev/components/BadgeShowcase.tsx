@@ -2,6 +2,7 @@ import {
   TRANSACTION_SOURCES,
   TRANSACTION_TYPES
 } from 'gambling-bot-shared/transactions'
+import { Crown } from 'lucide-react'
 
 import ColoredBadge from '@/components/badges/ColoredBadge'
 import {
@@ -92,12 +93,19 @@ const BadgeShowcase = () => {
         ))}
       </BadgeGroup>
 
-      <BadgeGroup title="User registration">
+      <BadgeGroup title="User profile">
         <Badge variant="default" className="px-2.5">
           Registered
         </Badge>
         <Badge variant="destructive" className="px-2.5">
           Not Registered
+        </Badge>
+        <Badge variant="destructive" className="px-2.5">
+          Banned
+        </Badge>
+        <Badge variant="secondary" className="gap-1 px-2.5">
+          <Crown className="h-3 w-3" />
+          VIP
         </Badge>
       </BadgeGroup>
 

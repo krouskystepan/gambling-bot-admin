@@ -20,10 +20,7 @@ import {
 import { connectToDatabase } from '@/lib/db'
 import { userGuildDateRangeMatch } from '@/lib/guild/guildTimezone'
 import { buildPnLTimeGroupStage } from '@/lib/overview/overviewPnLAggregation'
-import {
-  netProfitSum,
-  periodTotalsGroup
-} from '@/lib/overview/transactionTotals'
+import { netProfitSum } from '@/lib/overview/transactionTotals'
 import {
   VolumeSlice,
   buildVolumeSlices,
@@ -34,7 +31,10 @@ import Transaction from '@/models/Transaction'
 import User from '@/models/User'
 import VipRoom from '@/models/VipRoom'
 
-import { getGuildChannels } from '../discord/channel.action'
+import {
+  getGuildChannels,
+  resolveGuildChannelNames
+} from '../discord/channel.action'
 import { getDiscordGuildMembers } from '../discord/member.action'
 import { requireGuildAccess } from '../perms'
 
@@ -54,6 +54,23 @@ export type UserProfileVip = {
   members: UserProfileVipMember[]
 }
 
+export type UserProfileStaffNote = {
+  text: string
+  authorId: string
+  authorUsername?: string
+  createdAt: Date
+}
+
+export type UserProfileBanHistoryEntry = {
+  bannedAt: Date
+  bannedBy: string
+  bannedByUsername?: string
+  unbannedAt: Date | null
+  unbannedBy: string | null
+  unbannedByUsername?: string
+  reason?: string
+}
+
 export type UserProfileData = {
   globalSettings: GlobalSettings
   userId: string
@@ -62,16 +79,18 @@ export type UserProfileData = {
   avatar: string
   registered: boolean
   registeredAt: Date | null
+  banned: boolean
+  bannedAt: Date | null
+  bannedBy: string | null
+  bannedByUsername?: string
+  banHistory: UserProfileBanHistoryEntry[]
+  staffNotes: UserProfileStaffNote[]
   balance: number
   bonusBalance: number
   lockedBalance: number
   dailyStreak: number
   lastDailyClaim: Date | null
   lifetimeNetProfit: number
-  gamePnL: number
-  cashFlow: number
-  txCount: number
-  periodNetProfit: number
   pnlSeries: OverviewPnLSeries
   sourceAmounts: VolumeSlice[]
   vips: UserProfileVip[]
@@ -91,8 +110,19 @@ async function enrichVipRooms(
 
   const membersMap = new Map((discordMembers ?? []).map((m) => [m.userId, m]))
   const channelsMap = new Map(
-    guildChannels.map((c) => [c.id, c.name ?? 'Unknown'])
+    guildChannels.filter((c) => c.name).map((c) => [c.id, c.name as string])
   )
+
+  const missingChannelIds = rooms
+    .map((room) => room.channelId)
+    .filter((channelId) => !channelsMap.has(channelId))
+
+  if (missingChannelIds.length > 0) {
+    const resolvedNames = await resolveGuildChannelNames(missingChannelIds)
+    for (const [channelId, name] of resolvedNames) {
+      channelsMap.set(channelId, name)
+    }
+  }
 
   return rooms.map((vip) => {
     const members = vip.memberIds
@@ -111,7 +141,7 @@ async function enrichVipRooms(
     return {
       role: vip.ownerId === userId ? ('owner' as const) : ('member' as const),
       channelId: vip.channelId,
-      channelName: channelsMap.get(vip.channelId) || 'Unknown',
+      channelName: channelsMap.get(vip.channelId) ?? 'VIP room',
       expiresAt: vip.expiresAt,
       createdAt: vip.createdAt,
       members
@@ -155,48 +185,27 @@ export async function getUserProfile(
 
   if (!discordMember && !dbUser) return null
 
-  const [
-    periodTotals,
-    dailyAgg,
-    sourceAmountAgg,
-    lifetimeNetProfitAgg,
-    periodNetProfitAgg,
-    vips
-  ] = await Promise.all([
-    Transaction.aggregate([{ $match: dateMatch }, periodTotalsGroup]),
-    Transaction.aggregate([
-      { $match: dateMatch },
-      buildPnLTimeGroupStage(timezone, pnlGranularity),
-      { $sort: { _id: 1 } }
-    ]),
-    Transaction.aggregate([{ $match: dateMatch }, volumeAmountGroupStage]),
-    Transaction.aggregate([
-      {
-        $match: {
-          guildId,
-          userId,
-          type: { $in: ['bet', 'win', 'bonus'] }
-        }
-      },
-      { $group: { _id: null, netProfit: netProfitSum } }
-    ]),
-    Transaction.aggregate([
-      {
-        $match: {
-          ...dateMatch,
-          type: { $in: ['bet', 'win', 'bonus'] }
-        }
-      },
-      { $group: { _id: null, netProfit: netProfitSum } }
-    ]),
-    enrichVipRooms(guildId, userId, vipRooms)
-  ])
+  const [dailyAgg, sourceAmountAgg, lifetimeNetProfitAgg, vips] =
+    await Promise.all([
+      Transaction.aggregate([
+        { $match: dateMatch },
+        buildPnLTimeGroupStage(timezone, pnlGranularity),
+        { $sort: { _id: 1 } }
+      ]),
+      Transaction.aggregate([{ $match: dateMatch }, volumeAmountGroupStage]),
+      Transaction.aggregate([
+        {
+          $match: {
+            guildId,
+            userId,
+            type: { $in: ['bet', 'win', 'bonus'] }
+          }
+        },
+        { $group: { _id: null, netProfit: netProfitSum } }
+      ]),
+      enrichVipRooms(guildId, userId, vipRooms)
+    ])
 
-  const totals = periodTotals[0]
-  const gamePnL = totals?.gamePnL ?? 0
-  const cashFlow = totals?.cashFlow ?? 0
-  const txCount = totals?.txCount ?? 0
-  const periodNetProfit = periodNetProfitAgg[0]?.netProfit ?? 0
   const lifetimeNetProfit = lifetimeNetProfitAgg[0]?.netProfit ?? 0
 
   const pnlPoints: OverviewDailyPoint[] = dailyAgg.map((row) => ({
@@ -216,6 +225,31 @@ export async function getUserProfile(
 
   const sourceAmounts = buildVolumeSlices(sourceAmountAgg)
 
+  const membersMap = new Map((discordMembers ?? []).map((m) => [m.userId, m]))
+  const resolveUsername = (id: string | null | undefined) =>
+    id ? membersMap.get(id)?.username : undefined
+
+  const staffNotes: UserProfileStaffNote[] = (dbUser?.staffNotes ?? []).map(
+    (note) => ({
+      text: note.text,
+      authorId: note.authorId,
+      authorUsername: resolveUsername(note.authorId),
+      createdAt: note.createdAt
+    })
+  )
+
+  const banHistory: UserProfileBanHistoryEntry[] = (
+    dbUser?.banHistory ?? []
+  ).map((entry) => ({
+    bannedAt: entry.bannedAt,
+    bannedBy: entry.bannedBy,
+    bannedByUsername: resolveUsername(entry.bannedBy),
+    unbannedAt: entry.unbannedAt,
+    unbannedBy: entry.unbannedBy,
+    unbannedByUsername: resolveUsername(entry.unbannedBy),
+    reason: entry.reason
+  }))
+
   return {
     globalSettings: normalizeGlobalSettings(
       guildConfig?.globalSettings as Partial<GlobalSettings> | undefined
@@ -226,6 +260,12 @@ export async function getUserProfile(
     avatar: discordMember?.avatarUrl ?? '/default-avatar.jpg',
     registered: Boolean(dbUser),
     registeredAt: dbUser?.createdAt ?? null,
+    banned: Boolean(dbUser?.banned),
+    bannedAt: dbUser?.bannedAt ?? null,
+    bannedBy: dbUser?.bannedBy ?? null,
+    bannedByUsername: resolveUsername(dbUser?.bannedBy),
+    banHistory,
+    staffNotes,
     balance: dbUser?.balance ?? 0,
     bonusBalance: dbUser?.bonusBalance ?? 0,
     lockedBalance: dbUser?.lockedBalance ?? 0,
@@ -236,10 +276,6 @@ export async function getUserProfile(
     ),
     lastDailyClaim: dbUser?.lastDailyClaim ?? null,
     lifetimeNetProfit,
-    gamePnL,
-    cashFlow,
-    txCount,
-    periodNetProfit,
     pnlSeries,
     sourceAmounts,
     vips

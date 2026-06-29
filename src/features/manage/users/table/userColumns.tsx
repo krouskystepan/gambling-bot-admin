@@ -128,18 +128,25 @@ export const userColumns = ({
     }
   },
   {
-    header: 'Registered',
+    header: 'Status',
     accessorKey: 'registered',
-    size: 90,
+    size: 120,
     cell: ({ row }) => {
-      const isRegistered = row.getValue('registered')
+      const isRegistered = row.original.registered
       return (
-        <Badge
-          variant={isRegistered ? 'default' : 'destructive'}
-          className="px-2.5"
-        >
-          {isRegistered ? 'Registered' : 'Not Registered'}
-        </Badge>
+        <div className="flex flex-wrap gap-1">
+          <Badge
+            variant={isRegistered ? 'default' : 'destructive'}
+            className="px-2.5"
+          >
+            {isRegistered ? 'Registered' : 'Not Registered'}
+          </Badge>
+          {row.original.banned ? (
+            <Badge variant="destructive" className="px-2.5">
+              Banned
+            </Badge>
+          ) : null}
+        </div>
       )
     }
   },

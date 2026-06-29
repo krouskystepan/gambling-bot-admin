@@ -94,6 +94,33 @@ export function resolveStaffActionLabel(input: {
     }
   }
 
+  if (adminAction === STAFF_ADMIN_ACTIONS.USER_BAN) {
+    return {
+      label: 'Player banned',
+      category: 'user',
+      badge: 'BAN',
+      sublabel: null
+    }
+  }
+
+  if (adminAction === STAFF_ADMIN_ACTIONS.USER_UNBAN) {
+    return {
+      label: 'Player unbanned',
+      category: 'user',
+      badge: 'UNBAN',
+      sublabel: null
+    }
+  }
+
+  if (adminAction === STAFF_ADMIN_ACTIONS.USER_NOTE) {
+    return {
+      label: 'Staff note added',
+      category: 'user',
+      badge: 'NOTE',
+      sublabel: null
+    }
+  }
+
   if (input.type === 'deposit') {
     return {
       label: 'Deposit',
@@ -136,6 +163,7 @@ export function resolveStaffActionDetailHref(
     meta?: Record<string, unknown> | null
     sourceType?: 'transaction' | 'atmRequest'
     referenceId?: string
+    subjectUserId?: string
   }
 ): string | undefined {
   const requestId =
@@ -143,6 +171,15 @@ export function resolveStaffActionDetailHref(
   const drawId = input.meta?.drawId as string | undefined
   const predictionId = input.meta?.predictionId as string | undefined
   const adminAction = input.meta?.adminAction as string | undefined
+
+  if (
+    input.subjectUserId &&
+    (adminAction === STAFF_ADMIN_ACTIONS.USER_BAN ||
+      adminAction === STAFF_ADMIN_ACTIONS.USER_UNBAN ||
+      adminAction === STAFF_ADMIN_ACTIONS.USER_NOTE)
+  ) {
+    return `/dashboard/g/${guildId}/users/${input.subjectUserId}`
+  }
 
   if (
     requestId &&
