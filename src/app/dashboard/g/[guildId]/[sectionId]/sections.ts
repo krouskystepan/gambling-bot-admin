@@ -11,7 +11,7 @@ import {
   DevUiPage,
   GlobalSettingsPage,
   HealthPage,
-  ManagerSettingsPage,
+  ModerationSettingsPage,
   OverviewPage,
   PredictionsPage,
   RafflesPage,
@@ -42,7 +42,8 @@ export const sections = {
   'global-settings': GlobalSettingsPage,
   'channel-settings': ChannelSettingsPage,
   'casino-settings': CasinoSettingsPage,
-  'manager-settings': ManagerSettingsPage,
+  'manager-settings': ModerationSettingsPage,
+  'moderation-settings': ModerationSettingsPage,
   'bonus-settings': BonusesSettingsPage,
   'vip-settings': VipSettingsPage,
 

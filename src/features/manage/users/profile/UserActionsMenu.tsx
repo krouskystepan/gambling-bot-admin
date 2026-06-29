@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 
 import { useState } from 'react'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 import {
@@ -16,6 +17,11 @@ import {
   unregisterUser,
   withdrawBalance
 } from '@/actions/database/user.action'
+import {
+  addUserStaffNote,
+  banUser,
+  unbanUser
+} from '@/actions/database/userModeration.action'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -131,6 +137,10 @@ const UserActionsMenu = ({
   const [balanceModal, setBalanceModal] = useState<
     null | 'deposit' | 'withdraw' | 'reset' | 'bonus'
   >(null)
+  const [moderationModal, setModerationModal] = useState<
+    null | 'ban' | 'unban' | 'note'
+  >(null)
+  const [reason, setReason] = useState('')
   const [amount, setAmount] = useState('')
 
   const handleBalanceAction = async () => {
@@ -191,6 +201,37 @@ const UserActionsMenu = ({
 
     setAmount('')
     setBalanceModal(null)
+  }
+
+  const handleModerationAction = async () => {
+    try {
+      if (moderationModal === 'note') {
+        const result = await addUserStaffNote(guildId, user.userId, reason)
+        if (result.success) {
+          toast.success(result.message)
+          handleUpdated()
+        } else {
+          toast.error(result.message)
+        }
+      } else {
+        const result =
+          moderationModal === 'ban'
+            ? await banUser(user.userId, guildId, reason || undefined)
+            : await unbanUser(user.userId, guildId, reason || undefined)
+
+        if (result.success) {
+          toast.success(result.message)
+          handleUpdated()
+        } else {
+          toast.error(result.message)
+        }
+      }
+    } catch {
+      toast.error('Moderation action failed')
+    }
+
+    setReason('')
+    setModerationModal(null)
   }
 
   const handleRegisterAction = async () => {
@@ -269,6 +310,38 @@ const UserActionsMenu = ({
 
           <DropdownMenuSeparator />
 
+          <DropdownMenuLabel>Moderation</DropdownMenuLabel>
+          <DropdownMenuItem
+            onClick={() => setModerationModal(user.banned ? 'unban' : 'ban')}
+            disabled={!user.registered}
+            className="flex items-center justify-between"
+          >
+            {user.banned ? 'Unban' : 'Ban'}
+            <Tooltip>
+              <TooltipTrigger className="ml-2 text-muted-foreground transition hover:text-foreground">
+                <CircleQuestionMark size={16} />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                <p className="mb-1 font-semibold">
+                  {user.banned ? 'Unban' : 'Ban'}
+                </p>
+                <p className="text-sm">
+                  {user.banned
+                    ? 'Restore economy access and remove the banned role.'
+                    : 'Block economy actions and assign the banned role if configured.'}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => setModerationModal('note')}
+            disabled={!user.registered}
+          >
+            Add staff note
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
           <DropdownMenuLabel>Registration</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() => setAlertOpen(true)}
@@ -331,6 +404,69 @@ const UserActionsMenu = ({
               {balanceModal
                 ? balanceModal.charAt(0).toUpperCase() + balanceModal.slice(1)
                 : ''}{' '}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={!!moderationModal}
+        onOpenChange={() => setModerationModal(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {moderationModal === 'ban'
+                ? 'Ban'
+                : moderationModal === 'unban'
+                  ? 'Unban'
+                  : 'Add staff note'}{' '}
+              {user.username}
+            </DialogTitle>
+            <DialogDescription>
+              {moderationModal === 'note'
+                ? 'Saved for other mods only. Not visible to the player.'
+                : 'Optional reason is saved as a staff note. Players only see a generic restriction message in Discord.'}
+              {moderationModal === 'ban' && isGuildAdmin ? (
+                <>
+                  {' '}
+                  <Link
+                    href={`/dashboard/g/${guildId}/moderation-settings`}
+                    className="font-medium text-primary hover:underline"
+                  >
+                    Configure banned role
+                  </Link>
+                </>
+              ) : null}
+            </DialogDescription>
+          </DialogHeader>
+
+          <textarea
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="my-2 w-full rounded border p-2"
+            placeholder={
+              moderationModal === 'note'
+                ? 'Note for other staff...'
+                : 'Optional reason'
+            }
+            maxLength={500}
+            rows={3}
+          />
+
+          <DialogFooter className="flex justify-end gap-2">
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button
+              onClick={handleModerationAction}
+              disabled={moderationModal === 'note' && !reason.trim()}
+            >
+              {moderationModal === 'ban'
+                ? 'Ban'
+                : moderationModal === 'unban'
+                  ? 'Unban'
+                  : 'Add note'}
             </Button>
           </DialogFooter>
         </DialogContent>

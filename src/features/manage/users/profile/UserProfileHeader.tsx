@@ -1,11 +1,20 @@
+import { Crown } from 'lucide-react'
+
 import Image from 'next/image'
 
 import type { UserProfileData } from '@/actions/database/userProfile.action'
-import { Badge } from '@/components/ui/badge'
+import ColoredBadge from '@/components/badges/ColoredBadge'
+import { getUserProfileBadgeClass } from '@/components/badges/badgeStyles'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 import OverviewPeriodSelect from '@/features/general/overview/components/OverviewPeriodSelect'
 import { TGuildMemberStatus } from '@/types/types'
 
 import UserActionsMenu from './UserActionsMenu'
+import UserProfileModerationSection from './UserProfileModerationSection'
 
 type UserProfileHeaderProps = {
   guildId: string
@@ -14,6 +23,14 @@ type UserProfileHeaderProps = {
   profile: UserProfileData
   dateFrom: string
   dateTo: string
+}
+
+function formatVipChannelLabel(channelName: string, channelId: string) {
+  if (channelName && channelName !== 'VIP room') {
+    return `#${channelName}`
+  }
+
+  return `channel ${channelId}`
 }
 
 const UserProfileHeader = ({
@@ -32,54 +49,111 @@ const UserProfileHeader = ({
     registered: profile.registered,
     registeredAt: profile.registeredAt,
     balance: profile.balance,
-    netProfit: profile.lifetimeNetProfit
+    netProfit: profile.lifetimeNetProfit,
+    banned: profile.banned
   }
 
+  const hasModerationContent =
+    profile.staffNotes.length > 0 ||
+    profile.banned ||
+    profile.banHistory.length > 0
+
   return (
-    <div className="flex flex-wrap items-start justify-between gap-4">
-      <div className="flex min-w-0 items-center gap-4">
-        <Image
-          src={profile.avatar}
-          alt={profile.username}
-          width={64}
-          height={64}
-          className="rounded-full"
-        />
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-xl font-semibold">{profile.username}</h2>
-            <Badge
-              variant={profile.registered ? 'default' : 'destructive'}
-              className="px-2.5"
-            >
-              {profile.registered ? 'Registered' : 'Not Registered'}
-            </Badge>
-          </div>
-          {profile.nickname ? (
-            <p className="text-sm text-muted-foreground">{profile.nickname}</p>
-          ) : null}
-          <p className="text-sm text-muted-foreground">
-            Discord ID: {profile.userId}
-          </p>
-          {profile.registeredAt ? (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-4">
+          <Image
+            src={profile.avatar}
+            alt={profile.username}
+            width={64}
+            height={64}
+            className="rounded-full"
+          />
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-xl font-semibold">{profile.username}</h2>
+              <ColoredBadge
+                colorClass={getUserProfileBadgeClass(
+                  profile.registered ? 'registered' : 'notRegistered'
+                )}
+              >
+                {profile.registered ? 'Registered' : 'Not Registered'}
+              </ColoredBadge>
+              {profile.banned ? (
+                <ColoredBadge colorClass={getUserProfileBadgeClass('banned')}>
+                  Banned
+                </ColoredBadge>
+              ) : null}
+              {profile.vips.length > 0 ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-flex">
+                      <ColoredBadge
+                        colorClass={getUserProfileBadgeClass('vip')}
+                        className="gap-1"
+                      >
+                        <Crown className="size-3" aria-hidden />
+                        VIP
+                      </ColoredBadge>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs space-y-1">
+                    {profile.vips.map((vip) => (
+                      <p key={vip.channelId} className="text-sm">
+                        {vip.role === 'owner' ? 'Owner' : 'Member'} ·{' '}
+                        {formatVipChannelLabel(vip.channelName, vip.channelId)}{' '}
+                        · expires{' '}
+                        {new Date(vip.expiresAt).toLocaleDateString('cs')}
+                      </p>
+                    ))}
+                  </TooltipContent>
+                </Tooltip>
+              ) : null}
+            </div>
+            {profile.nickname ? (
+              <p className="text-sm text-muted-foreground">
+                {profile.nickname}
+              </p>
+            ) : null}
             <p className="text-sm text-muted-foreground">
-              Registered{' '}
-              {new Date(profile.registeredAt).toLocaleDateString('cs')}
+              Discord ID: {profile.userId}
             </p>
-          ) : null}
+            {profile.banned && profile.bannedAt ? (
+              <p className="text-sm text-muted-foreground">
+                Banned since {new Date(profile.bannedAt).toLocaleString('cs')}
+                {profile.bannedBy
+                  ? ` by ${profile.bannedByUsername ?? profile.bannedBy}`
+                  : ''}
+              </p>
+            ) : null}
+            {profile.registeredAt ? (
+              <p className="text-sm text-muted-foreground">
+                Registered{' '}
+                {new Date(profile.registeredAt).toLocaleDateString('cs')}
+              </p>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="flex shrink-0 flex-col items-end gap-2">
+          <OverviewPeriodSelect dateFrom={dateFrom} dateTo={dateTo} />
+          <UserActionsMenu
+            guildId={guildId}
+            managerId={managerId}
+            user={userForActions}
+            globalSettings={profile.globalSettings}
+            isGuildAdmin={isGuildAdmin}
+          />
         </div>
       </div>
 
-      <div className="flex shrink-0 flex-col items-end gap-2">
-        <OverviewPeriodSelect dateFrom={dateFrom} dateTo={dateTo} />
-        <UserActionsMenu
-          guildId={guildId}
-          managerId={managerId}
-          user={userForActions}
-          globalSettings={profile.globalSettings}
-          isGuildAdmin={isGuildAdmin}
+      {profile.registered && hasModerationContent ? (
+        <UserProfileModerationSection
+          staffNotes={profile.staffNotes}
+          banHistory={profile.banHistory}
+          banned={profile.banned}
         />
-      </div>
+      ) : null}
     </div>
   )
 }
