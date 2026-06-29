@@ -5,57 +5,171 @@ import {
   TTransaction
 } from 'gambling-bot-shared/transactions'
 
-const TYPE_BADGE_STYLES: Record<TTransaction['type'], string> = {
-  deposit: 'bg-chart-2 text-white',
-  withdraw: 'bg-destructive text-white',
-  bet: 'bg-chart-1 text-white',
-  win: 'bg-emerald-700 text-white',
-  refund: 'bg-chart-4 text-white',
-  bonus: 'bg-primary text-primary-foreground',
-  vip: 'bg-chart-5 text-white'
+import {
+  type BadgeColor,
+  badgeFilledClass,
+  badgeOutlineClass
+} from '@/components/badges/badgePalette'
+import { TPredictionRow, TRaffleRow } from '@/types/types'
+
+const filled = badgeFilledClass
+const outline = badgeOutlineClass
+
+const TYPE_COLOR_MAP: Record<TTransaction['type'], BadgeColor> = {
+  deposit: 'emerald',
+  withdraw: 'coral',
+  bet: 'blue',
+  win: 'teal',
+  refund: 'purple',
+  bonus: 'pink',
+  vip: 'gold'
 }
 
-const SOURCE_BADGE_STYLES: Record<TTransaction['source'], string> = {
-  casino: 'bg-chart-3 text-white',
-  command: 'bg-chart-1 text-white',
-  manual: 'bg-destructive text-white',
-  system: 'bg-[var(--tag-emerald)] text-white',
-  web: 'bg-cyan-600 text-white'
+const SOURCE_COLOR_MAP: Record<TTransaction['source'], BadgeColor> = {
+  command: 'blue',
+  manual: 'coral',
+  web: 'cyan',
+  system: 'emerald',
+  casino: 'orange'
+}
+
+const ATM_STATUS_COLOR_MAP: Record<TAtmRequest['status'], BadgeColor> = {
+  pending: 'orange',
+  approved: 'emerald',
+  rejected: 'red'
+}
+
+export type UserProfileBadgeKey =
+  | 'registered'
+  | 'notRegistered'
+  | 'banned'
+  | 'vip'
+
+export type VipRoleBadgeKey = 'owner' | 'member'
+
+export type ManagerAccessBadgeKey = 'allowed' | 'denied'
+
+const USER_PROFILE_BADGE_STYLES: Record<UserProfileBadgeKey, string> = {
+  registered: outline('gray'),
+  notRegistered: outline('coral'),
+  banned: filled('red'),
+  vip: filled('gold')
+}
+
+const VIP_ROLE_BADGE_STYLES: Record<VipRoleBadgeKey, string> = {
+  owner: filled('gold'),
+  member: outline('gray')
+}
+
+const PREDICTION_STATUS_COLOR_MAP: Record<
+  TPredictionRow['status'],
+  BadgeColor
+> = {
+  active: 'emerald',
+  ended: 'amber',
+  paying: 'blue',
+  paid: 'cyan',
+  canceled: 'burgundy'
+}
+
+const RAFFLE_STATUS_COLOR_MAP: Record<TRaffleRow['status'], BadgeColor> = {
+  active: 'emerald',
+  canceled: 'burgundy'
+}
+
+const MANAGER_ACCESS_BADGE_STYLES: Record<ManagerAccessBadgeKey, string> = {
+  allowed: outline('emerald'),
+  denied: outline('red')
 }
 
 export const typeBadgeMap = Object.fromEntries(
-  TRANSACTION_TYPES.map((type) => [type, TYPE_BADGE_STYLES[type]])
+  TRANSACTION_TYPES.map((type) => [type, filled(TYPE_COLOR_MAP[type])])
 ) as Record<TTransaction['type'], string>
 
 export const sourceBadgeMap = Object.fromEntries(
-  TRANSACTION_SOURCES.map((source) => [source, SOURCE_BADGE_STYLES[source]])
+  TRANSACTION_SOURCES.map((source) => [
+    source,
+    outline(SOURCE_COLOR_MAP[source])
+  ])
 ) as Record<TTransaction['source'], string>
-
-const ATM_STATUS_BADGE_STYLES: Record<TAtmRequest['status'], string> = {
-  pending: 'bg-amber-600 text-white',
-  approved: TYPE_BADGE_STYLES.deposit,
-  rejected: 'bg-destructive text-white'
-}
 
 export const atmStatusBadgeMap = Object.fromEntries(
   (['pending', 'approved', 'rejected'] as const).map((status) => [
     status,
-    ATM_STATUS_BADGE_STYLES[status]
+    filled(ATM_STATUS_COLOR_MAP[status])
   ])
 ) as Record<TAtmRequest['status'], string>
+
+export const staffActionBadgeMap: Record<string, string> = {
+  DEPOSIT: typeBadgeMap.deposit,
+  WITHDRAW: typeBadgeMap.withdraw,
+  BONUS: typeBadgeMap.bonus,
+  VIP: typeBadgeMap.vip,
+  REJECT: filled('red'),
+  RAFFLE: filled('purple'),
+  PREDICT: filled('blue'),
+  ACTION: outline('gray')
+}
+
+export const userProfileBadgeMap = USER_PROFILE_BADGE_STYLES
+export const vipRoleBadgeMap = VIP_ROLE_BADGE_STYLES
+
+export const predictionStatusBadgeMap = Object.fromEntries(
+  Object.entries(PREDICTION_STATUS_COLOR_MAP).map(([status, color]) => [
+    status,
+    filled(color)
+  ])
+) as Record<TPredictionRow['status'], string>
+
+export const raffleStatusBadgeMap = Object.fromEntries(
+  Object.entries(RAFFLE_STATUS_COLOR_MAP).map(([status, color]) => [
+    status,
+    filled(color)
+  ])
+) as Record<TRaffleRow['status'], string>
+
+export const managerAccessBadgeMap = MANAGER_ACCESS_BADGE_STYLES
 
 export function getTransactionTypeBadgeClass(
   type: TTransaction['type']
 ): string {
-  return typeBadgeMap[type] ?? 'bg-gray-600 text-white'
+  return typeBadgeMap[type] ?? filled('gray')
 }
 
 export function getTransactionSourceBadgeClass(
   source: TTransaction['source']
 ): string {
-  return sourceBadgeMap[source] ?? 'bg-gray-600 text-white'
+  return sourceBadgeMap[source] ?? outline('gray')
 }
 
 export function getAtmStatusBadgeClass(status: TAtmRequest['status']): string {
-  return atmStatusBadgeMap[status] ?? 'bg-gray-600 text-white'
+  return atmStatusBadgeMap[status] ?? filled('gray')
+}
+
+export function getStaffActionBadgeClass(badge: string): string {
+  return staffActionBadgeMap[badge] ?? staffActionBadgeMap.ACTION
+}
+
+export function getUserProfileBadgeClass(key: UserProfileBadgeKey): string {
+  return userProfileBadgeMap[key]
+}
+
+export function getVipRoleBadgeClass(role: VipRoleBadgeKey): string {
+  return vipRoleBadgeMap[role]
+}
+
+export function getPredictionStatusBadgeClass(
+  status: TPredictionRow['status']
+): string {
+  return predictionStatusBadgeMap[status] ?? filled('gray')
+}
+
+export function getRaffleStatusBadgeClass(
+  status: TRaffleRow['status']
+): string {
+  return raffleStatusBadgeMap[status] ?? filled('gray')
+}
+
+export function getManagerAccessBadgeClass(key: ManagerAccessBadgeKey): string {
+  return managerAccessBadgeMap[key]
 }

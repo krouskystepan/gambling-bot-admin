@@ -3,7 +3,8 @@ import { Crown } from 'lucide-react'
 import Image from 'next/image'
 
 import type { UserProfileData } from '@/actions/database/userProfile.action'
-import { Badge } from '@/components/ui/badge'
+import ColoredBadge from '@/components/badges/ColoredBadge'
+import { getUserProfileBadgeClass } from '@/components/badges/badgeStyles'
 import {
   Tooltip,
   TooltipContent,
@@ -71,24 +72,30 @@ const UserProfileHeader = ({
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="text-xl font-semibold">{profile.username}</h2>
-              <Badge
-                variant={profile.registered ? 'default' : 'destructive'}
-                className="px-2.5"
+              <ColoredBadge
+                colorClass={getUserProfileBadgeClass(
+                  profile.registered ? 'registered' : 'notRegistered'
+                )}
               >
                 {profile.registered ? 'Registered' : 'Not Registered'}
-              </Badge>
+              </ColoredBadge>
               {profile.banned ? (
-                <Badge variant="destructive" className="px-2.5">
+                <ColoredBadge colorClass={getUserProfileBadgeClass('banned')}>
                   Banned
-                </Badge>
+                </ColoredBadge>
               ) : null}
               {profile.vips.length > 0 ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Badge variant="secondary" className="gap-1 px-2.5">
-                      <Crown className="h-3 w-3" />
-                      VIP
-                    </Badge>
+                    <span className="inline-flex">
+                      <ColoredBadge
+                        colorClass={getUserProfileBadgeClass('vip')}
+                        className="gap-1"
+                      >
+                        <Crown className="size-3" aria-hidden />
+                        VIP
+                      </ColoredBadge>
+                    </span>
                   </TooltipTrigger>
                   <TooltipContent className="max-w-xs space-y-1">
                     {profile.vips.map((vip) => (

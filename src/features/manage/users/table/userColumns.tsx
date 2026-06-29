@@ -4,7 +4,8 @@ import type { GlobalSettings } from 'gambling-bot-shared/guild'
 import Image from 'next/image'
 import Link from 'next/link'
 
-import { Badge } from '@/components/ui/badge'
+import ColoredBadge from '@/components/badges/ColoredBadge'
+import { getUserProfileBadgeClass } from '@/components/badges/badgeStyles'
 import UserActionsMenu from '@/features/manage/users/profile/UserActionsMenu'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
 import { formatOptionalText } from '@/lib/table/formatOptionalText'
@@ -135,16 +136,17 @@ export const userColumns = ({
       const isRegistered = row.original.registered
       return (
         <div className="flex flex-wrap gap-1">
-          <Badge
-            variant={isRegistered ? 'default' : 'destructive'}
-            className="px-2.5"
+          <ColoredBadge
+            colorClass={getUserProfileBadgeClass(
+              isRegistered ? 'registered' : 'notRegistered'
+            )}
           >
             {isRegistered ? 'Registered' : 'Not Registered'}
-          </Badge>
+          </ColoredBadge>
           {row.original.banned ? (
-            <Badge variant="destructive" className="px-2.5">
+            <ColoredBadge colorClass={getUserProfileBadgeClass('banned')}>
               Banned
-            </Badge>
+            </ColoredBadge>
           ) : null}
         </div>
       )

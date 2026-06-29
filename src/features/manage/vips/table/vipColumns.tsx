@@ -4,6 +4,8 @@ import { CircleQuestionMark } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
+import ColoredBadge from '@/components/badges/ColoredBadge'
+import { getVipRoleBadgeClass } from '@/components/badges/badgeStyles'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Tooltip,
@@ -80,6 +82,17 @@ export const vipColumns = (
     accessorKey: 'nickname',
     size: 80,
     cell: ({ row }) => formatOptionalText(row.original.nickname)
+  },
+  {
+    header: 'Role',
+    id: 'role',
+    size: 80,
+    enableSorting: false,
+    cell: () => (
+      <ColoredBadge colorClass={getVipRoleBadgeClass('owner')}>
+        Owner
+      </ColoredBadge>
+    )
   },
   {
     header: 'Members',

@@ -3,7 +3,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
-import { Badge } from '@/components/ui/badge'
+import ColoredBadge from '@/components/badges/ColoredBadge'
+import { getPredictionStatusBadgeClass } from '@/components/badges/badgeStyles'
 import {
   Dialog,
   DialogContent,
@@ -23,14 +24,6 @@ type PredictionDetailDialogProps = {
   detail: TPredictionDetail | null
   loading: boolean
   error: string | null
-}
-
-const statusBadgeClass: Record<TPredictionDetail['status'], string> = {
-  active: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400',
-  ended: 'bg-amber-500/15 text-amber-700 dark:text-amber-400',
-  paying: 'bg-blue-500/15 text-blue-700 dark:text-blue-400',
-  paid: 'bg-sky-500/15 text-sky-700 dark:text-sky-400',
-  canceled: 'bg-red-500/15 text-red-700 dark:text-red-400'
 }
 
 const PredictionDetailDialog = ({
@@ -60,11 +53,12 @@ const PredictionDetailDialog = ({
           <>
             <div className="shrink-0 space-y-4">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge
-                  className={`${statusBadgeClass[detail.status]} capitalize`}
+                <ColoredBadge
+                  colorClass={getPredictionStatusBadgeClass(detail.status)}
+                  className="capitalize"
                 >
                   {detail.status}
-                </Badge>
+                </ColoredBadge>
                 <span className="text-sm text-muted-foreground">
                   Total bets: {formatGuildMoney(detail.totalBetAmount)}
                 </span>
