@@ -3,7 +3,6 @@ import FeatureLayout from '@/features/FeatureLayout'
 
 import DevInfoCard from './components/DevInfoCard'
 import DevSystemStatusCard from './components/DevSystemStatusCard'
-import RuntimeInfoCard from './components/RuntimeInfoCard'
 import { requireDevPage } from './requireDevPage'
 
 const DevOverviewPage = async ({ guildId }: { guildId: string }) => {
@@ -13,7 +12,7 @@ const DevOverviewPage = async ({ guildId }: { guildId: string }) => {
 
   return (
     <FeatureLayout title="Overview">
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
         <DevInfoCard
           guildId={guildId}
           userId={userId}
@@ -21,7 +20,6 @@ const DevOverviewPage = async ({ guildId }: { guildId: string }) => {
           isManager={isManager}
           isDev
         />
-        <RuntimeInfoCard />
         <DevSystemStatusCard guildId={guildId} />
       </div>
     </FeatureLayout>

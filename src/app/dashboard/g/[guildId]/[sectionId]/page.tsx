@@ -22,6 +22,10 @@ const SectionPage = async ({ params, searchParams }: SectionPageProps) => {
   const { guildId, sectionId } = await params
   const resolvedSearchParams = await searchParams
 
+  if (sectionId === 'dev-discord') {
+    redirect(`/dashboard/g/${guildId}/dev-guild`)
+  }
+
   const Section = sections[sectionId as SectionId]
   if (!Section) return <NotFoundBox />
 

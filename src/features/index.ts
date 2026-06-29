@@ -22,7 +22,7 @@ export { default as CasinoSettingsPage } from './settings/casino/CasinoSettingsP
 
 // Dev
 export { default as DevCalcsPage } from './dev/DevCalcsPage'
-export { default as DevDiscordPage } from './dev/DevDiscordPage'
+export { default as DevDataOpsPage } from './dev/DevDataOpsPage'
 export { default as DevGuildPage } from './dev/DevGuildPage'
 export { default as DevOverviewPage } from './dev/DevOverviewPage'
 export { default as DevSystemPage } from './dev/DevSystemPage'

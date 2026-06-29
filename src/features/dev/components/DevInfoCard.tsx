@@ -29,7 +29,7 @@ const DevInfoCard = ({
   const flags = `isAdmin=${isAdmin} · isManager=${isManager} · isDev=${isDev}`
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle>Session & access</CardTitle>
         <CardDescription>
