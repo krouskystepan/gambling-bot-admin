@@ -13,9 +13,9 @@ const DEV_SECTION_IDS = new Set<SectionId>([
   'dev',
   'dev-system',
   'dev-guild',
-  'dev-discord',
   'dev-calcs',
-  'dev-ui'
+  'dev-ui',
+  'dev-data'
 ])
 
 type GuildAccess = {

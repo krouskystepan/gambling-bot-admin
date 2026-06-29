@@ -43,7 +43,7 @@ const DevCalcsPage = async ({ guildId }: { guildId: string }) => {
   )
 
   return (
-    <FeatureLayout title="Calcs lab">
+    <FeatureLayout title="Simulations">
       <div className="space-y-8">
         <section className="space-y-4">
           <DevSectionHeading

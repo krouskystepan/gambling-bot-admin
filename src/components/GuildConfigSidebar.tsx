@@ -4,7 +4,6 @@ import {
   Activity,
   Award,
   Banknote,
-  Bot,
   Calculator,
   ChartBar,
   Crown,
@@ -22,6 +21,7 @@ import {
   Server,
   ShieldCheck,
   Ticket,
+  Trash2,
   User
 } from 'lucide-react'
 
@@ -79,10 +79,10 @@ const LINKS = [
     value: 'dev',
     links: [
       { id: 'dev', label: 'Overview', icon: Activity },
-      { id: 'dev-system', label: 'System', icon: Server },
-      { id: 'dev-guild', label: 'Guild data', icon: Database },
-      { id: 'dev-discord', label: 'Discord', icon: Bot },
-      { id: 'dev-calcs', label: 'Calcs lab', icon: Calculator },
+      { id: 'dev-system', label: 'Platform', icon: Server },
+      { id: 'dev-guild', label: 'Guild', icon: Database },
+      { id: 'dev-data', label: 'Danger zone', icon: Trash2 },
+      { id: 'dev-calcs', label: 'Simulations', icon: Calculator },
       { id: 'dev-ui', label: 'UI kit', icon: LayoutTemplate }
     ]
   }
@@ -213,7 +213,7 @@ const GuildConfigSidebar = ({
                 value={group.value}
                 className="border-none"
               >
-                <AccordionTrigger className="cursor-pointer px-3 py-1 text-xs font-semibold tracking-wider text-muted-foreground uppercase hover:no-underline hover:text-foreground">
+                <AccordionTrigger className="cursor-pointer px-3 py-1 text-xs font-semibold tracking-wider text-muted-foreground uppercase hover:no-underline hover:text-foreground focus-visible:ring-inset">
                   {group.title}
                 </AccordionTrigger>
 
@@ -229,7 +229,7 @@ const GuildConfigSidebar = ({
                         key={link.id}
                         href={`/dashboard/g/${guildId}/${link.id}`}
                         className={cn(
-                          'relative flex items-center gap-2 overflow-hidden rounded px-5 py-2 text-sm text-sidebar-foreground transition hover:bg-sidebar-accent hover:text-sidebar-primary',
+                          'relative flex items-center gap-2 rounded px-5 py-2 text-sm text-sidebar-foreground transition outline-none hover:bg-sidebar-accent hover:text-sidebar-primary focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset',
                           isActive &&
                             'bg-sidebar-accent/50 text-sidebar-primary'
                         )}

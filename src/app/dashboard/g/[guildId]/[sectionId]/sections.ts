@@ -4,7 +4,7 @@ import {
   CasinoSettingsPage,
   ChannelSettingsPage,
   DevCalcsPage,
-  DevDiscordPage,
+  DevDataOpsPage,
   DevGuildPage,
   DevOverviewPage,
   DevSystemPage,
@@ -51,9 +51,9 @@ export const sections = {
   dev: DevOverviewPage,
   'dev-system': DevSystemPage,
   'dev-guild': DevGuildPage,
-  'dev-discord': DevDiscordPage,
   'dev-calcs': DevCalcsPage,
-  'dev-ui': DevUiPage
+  'dev-ui': DevUiPage,
+  'dev-data': DevDataOpsPage
 } as const
 
 export type SectionId = keyof typeof sections
