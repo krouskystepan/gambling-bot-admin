@@ -80,7 +80,8 @@ function mapRawToStaffActionRow(
       type: doc.txType,
       meta: doc.meta,
       sourceType: doc.sourceType,
-      referenceId: doc.referenceId ?? undefined
+      referenceId: doc.referenceId ?? undefined,
+      subjectUserId: doc.subjectUserId
     })
   }
 }

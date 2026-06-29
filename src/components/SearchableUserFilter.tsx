@@ -2,7 +2,7 @@
 
 import { CheckIcon, ChevronDownIcon } from 'lucide-react'
 
-import { useMemo, useState } from 'react'
+import { useId, useMemo, useState } from 'react'
 
 import Image from 'next/image'
 
@@ -33,6 +33,7 @@ type SearchableUserFilterProps = {
   members: SearchableUserOption[]
   value?: string
   onChange: (userId: string | undefined) => void
+  onOpenChange?: (open: boolean) => void
   placeholder?: string
   clearLabel?: string
   className?: string
@@ -51,7 +52,7 @@ function MemberOptionLabel({ member }: { member: SearchableUserOption }) {
     return (
       <span className="min-w-0 flex-1">
         <span className="block leading-tight">{member.username}</span>
-        <span className="text-muted-foreground block text-xs leading-snug break-words">
+        <span className="text-muted-foreground block text-xs leading-snug wrap-break-words">
           {member.nickname}
         </span>
       </span>
@@ -59,7 +60,7 @@ function MemberOptionLabel({ member }: { member: SearchableUserOption }) {
   }
 
   return (
-    <span className="min-w-0 flex-1 leading-snug break-words">
+    <span className="min-w-0 flex-1 leading-snug wrap-break-words">
       {member.username}
     </span>
   )
@@ -69,10 +70,12 @@ const SearchableUserFilter = ({
   members,
   value,
   onChange,
+  onOpenChange,
   placeholder = 'All users',
   clearLabel = 'All users',
   className
 }: SearchableUserFilterProps) => {
+  const listboxId = useId()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
 
@@ -94,11 +97,18 @@ const SearchableUserFilter = ({
       : placeholder
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen)
+        onOpenChange?.(nextOpen)
+      }}
+    >
       <PopoverTrigger asChild>
         <button
           type="button"
           role="combobox"
+          aria-controls={listboxId}
           aria-expanded={open}
           title={value ? triggerLabel : undefined}
           className={cn(
@@ -128,6 +138,7 @@ const SearchableUserFilter = ({
         </button>
       </PopoverTrigger>
       <PopoverContent
+        id={listboxId}
         className="w-80 min-w-(--radix-popover-trigger-width) max-w-[calc(100vw-2rem)] p-0"
         align="start"
       >

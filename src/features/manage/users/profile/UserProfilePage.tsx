@@ -19,7 +19,6 @@ import { requireSession } from '@/lib/auth/requireSession'
 
 import UserProfileHeader from './UserProfileHeader'
 import UserProfileKpiStrip from './UserProfileKpiStrip'
-import UserProfileVipCard from './UserProfileVipCard'
 
 type UserProfilePageProps = {
   guildId: string
@@ -91,10 +90,6 @@ const UserProfilePage = async ({
           lockedBalance={profile.lockedBalance}
           dailyStreak={profile.dailyStreak}
           lastDailyClaim={profile.lastDailyClaim}
-          cashFlow={profile.cashFlow}
-          gamePnL={profile.gamePnL}
-          txCount={profile.txCount}
-          periodNetProfit={profile.periodNetProfit}
         />
 
         <OverviewDailyPnLChart
@@ -106,8 +101,6 @@ const UserProfilePage = async ({
           data={profile.sourceAmounts}
           globalSettings={profile.globalSettings}
         />
-
-        <UserProfileVipCard guildId={guildId} vips={profile.vips} />
 
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-4">

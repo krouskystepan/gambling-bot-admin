@@ -5,6 +5,7 @@ import { getDiscordGuildMembers } from '@/actions/discord/member.action'
 import { TGuildMemberStatus } from '@/types/types'
 
 export type UserRegistrationFilter = 'all' | 'registered' | 'not_registered'
+export type UserBanStatusFilter = 'all' | 'active' | 'banned'
 
 export interface UsersQuery {
   page: number
@@ -12,6 +13,7 @@ export interface UsersQuery {
   search?: string
   sort?: string
   registration: UserRegistrationFilter
+  banStatus: UserBanStatusFilter
 }
 
 export interface UsersResult {
@@ -35,7 +37,8 @@ export async function getUsersData(
         query.limit,
         query.search,
         query.sort,
-        query.registration
+        query.registration,
+        query.banStatus
       ),
       getDiscordGuildMembers(guildId)
     ]
@@ -55,11 +58,19 @@ type RawSearchParams = {
   search?: string
   sort?: string
   registration?: string
+  banStatus?: string
 }
 
 function parseRegistration(registration?: string): UserRegistrationFilter {
   if (registration === 'registered' || registration === 'not_registered') {
     return registration
+  }
+  return 'all'
+}
+
+function parseBanStatus(banStatus?: string): UserBanStatusFilter {
+  if (banStatus === 'active' || banStatus === 'banned') {
+    return banStatus
   }
   return 'all'
 }
@@ -73,6 +84,7 @@ export function normalizeUsersSearchParams(searchParams: RawSearchParams = {}) {
     limit: Number.isInteger(limit) && limit > 0 ? limit : 10,
     search: searchParams.search,
     sort: searchParams.sort,
-    registration: parseRegistration(searchParams.registration)
+    registration: parseRegistration(searchParams.registration),
+    banStatus: parseBanStatus(searchParams.banStatus)
   }
 }

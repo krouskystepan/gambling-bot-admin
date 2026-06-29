@@ -43,7 +43,7 @@ function buildSetupHealth(
       id: 'manager-role',
       label: 'Manager role',
       ok: Boolean(config?.managerRoleId),
-      href: `${settingsBase}/manager-settings`
+      href: `${settingsBase}/moderation-settings`
     },
     {
       id: 'casino-channels',

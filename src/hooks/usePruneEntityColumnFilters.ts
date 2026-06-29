@@ -19,12 +19,22 @@ export function usePruneEntityColumnFilters<TData>(
       return
     }
 
+    const columnIds = new Set(table.getAllColumns().map((column) => column.id))
+
     for (const {
       columnId,
       facetCounts,
       restrictWhenColumnId,
       alwaysRestrict = false
     } of columns) {
+      if (!columnIds.has(columnId)) {
+        continue
+      }
+
+      if (restrictWhenColumnId && !columnIds.has(restrictWhenColumnId)) {
+        continue
+      }
+
       const restrictValue = restrictWhenColumnId
         ? (table.getColumn(restrictWhenColumnId)?.getFilterValue() as
             | string

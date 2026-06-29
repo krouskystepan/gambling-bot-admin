@@ -68,7 +68,7 @@ const LINKS = [
     links: [
       { id: 'global-settings', label: 'Global', icon: Globe },
       { id: 'channel-settings', label: 'Channels', icon: MessagesSquare },
-      { id: 'manager-settings', label: 'Manager', icon: ShieldCheck },
+      { id: 'moderation-settings', label: 'Moderation', icon: ShieldCheck },
       { id: 'casino-settings', label: 'Casino', icon: Dices },
       { id: 'bonus-settings', label: 'Bonuses', icon: Award },
       { id: 'vip-settings', label: 'VIP', icon: Crown }
@@ -204,8 +204,8 @@ const GuildConfigSidebar = ({
           onValueChange={handleOpenSectionsChange}
         >
           {LINKS.map((group) => {
-            if (group.title === 'Settings' && !isAdmin) return null
-            if (group.title === 'Dev' && !isDev) return null
+            if (group.value === 'settings' && !isAdmin) return null
+            if (group.value === 'dev' && !isDev) return null
 
             return (
               <AccordionItem

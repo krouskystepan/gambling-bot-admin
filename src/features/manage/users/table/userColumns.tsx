@@ -129,19 +129,26 @@ export const userColumns = ({
     }
   },
   {
-    header: 'Registered',
+    header: 'Status',
     accessorKey: 'registered',
-    size: 90,
+    size: 120,
     cell: ({ row }) => {
-      const isRegistered = row.getValue('registered')
+      const isRegistered = row.original.registered
       return (
-        <ColoredBadge
-          colorClass={getUserProfileBadgeClass(
-            isRegistered ? 'registered' : 'notRegistered'
-          )}
-        >
-          {isRegistered ? 'Registered' : 'Not Registered'}
-        </ColoredBadge>
+        <div className="flex flex-wrap gap-1">
+          <ColoredBadge
+            colorClass={getUserProfileBadgeClass(
+              isRegistered ? 'registered' : 'notRegistered'
+            )}
+          >
+            {isRegistered ? 'Registered' : 'Not Registered'}
+          </ColoredBadge>
+          {row.original.banned ? (
+            <ColoredBadge colorClass={getUserProfileBadgeClass('banned')}>
+              Banned
+            </ColoredBadge>
+          ) : null}
+        </div>
       )
     }
   },

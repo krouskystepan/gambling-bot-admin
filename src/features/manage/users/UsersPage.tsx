@@ -17,6 +17,7 @@ const UsersPage = async ({
     search?: string
     sort?: string
     registration?: string
+    banStatus?: string
   }
 }) => {
   const session = await requireSession()
@@ -42,6 +43,7 @@ const UsersPage = async ({
         guildId={guildId}
         managerId={session.userId!}
         registration={query.registration}
+        banStatus={query.banStatus}
         guildMembers={guildMembers}
         registeredUserIds={registeredUserIds}
         page={query.page}

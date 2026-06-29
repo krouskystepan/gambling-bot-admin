@@ -462,7 +462,8 @@ export async function getUsers(
   limit = 15,
   search?: string,
   sort?: string,
-  registration: 'all' | 'registered' | 'not_registered' = 'all'
+  registration: 'all' | 'registered' | 'not_registered' = 'all',
+  banStatus: 'all' | 'active' | 'banned' = 'all'
 ): Promise<{
   users: TGuildMemberStatus[]
   total: number
@@ -525,7 +526,8 @@ export async function getUsers(
       registered: Boolean(dbUser),
       registeredAt: dbUser?.createdAt ?? null,
       balance: dbUser?.balance ?? 0,
-      netProfit: netProfitMap.get(userId) ?? 0
+      netProfit: netProfitMap.get(userId) ?? 0,
+      banned: Boolean(dbUser?.banned)
     }
   })
 
@@ -544,6 +546,12 @@ export async function getUsers(
     users = users.filter((user) => user.registered)
   } else if (registration === 'not_registered') {
     users = users.filter((user) => !user.registered)
+  }
+
+  if (banStatus === 'banned') {
+    users = users.filter((user) => user.registered && user.banned)
+  } else if (banStatus === 'active') {
+    users = users.filter((user) => user.registered && !user.banned)
   }
 
   if (sort) {

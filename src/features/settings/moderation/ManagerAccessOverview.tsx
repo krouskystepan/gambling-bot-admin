@@ -1,9 +1,7 @@
 'use client'
 
-import { Bot, Check, Monitor, ShieldCheck, X } from 'lucide-react'
+import { Bot, Monitor, ShieldCheck } from 'lucide-react'
 
-import ColoredBadge from '@/components/badges/ColoredBadge'
-import { getManagerAccessBadgeClass } from '@/components/badges/badgeStyles'
 import {
   Card,
   CardContent,
@@ -13,9 +11,8 @@ import {
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { cn } from '@/lib/utils'
 
-type PermissionItem = { id: string; label: string }
+import { type PermissionItem, PermissionTabPanel } from './permissionPanel'
 
 const PANEL_ALLOWED: PermissionItem[] = [
   { id: 'panel-overview', label: 'Overview KPIs, charts, and top users' },
@@ -25,7 +22,7 @@ const PANEL_ALLOWED: PermissionItem[] = [
   },
   { id: 'panel-transactions', label: 'Transaction history' },
   { id: 'panel-staff-actions', label: 'Staff actions audit log' },
-  { id: 'panel-users', label: 'Register users and manage balances' },
+  { id: 'panel-users', label: 'Register users, balances, and bans' },
   { id: 'panel-predictions', label: 'Prediction events' },
   { id: 'panel-raffles', label: 'Raffle events' },
   { id: 'panel-vips', label: 'VIP memberships' }
@@ -38,7 +35,7 @@ const PANEL_DENIED: PermissionItem[] = [
   },
   {
     id: 'panel-no-settings',
-    label: 'Settings (channels, casino, bonuses, VIP, manager)'
+    label: 'Settings (channels, casino, bonuses, VIP, moderation)'
   },
   {
     id: 'panel-no-config',
@@ -76,77 +73,9 @@ const DISCORD_DENIED: PermissionItem[] = [
   }
 ]
 
-type PermissionBoxProps = {
-  variant: 'allowed' | 'denied'
-  items: readonly PermissionItem[]
-}
-
-function PermissionBox({ variant, items }: PermissionBoxProps) {
-  const isAllowed = variant === 'allowed'
-  const Icon = isAllowed ? Check : X
-
-  return (
-    <div
-      className={cn(
-        'flex min-h-0 flex-col rounded-lg border p-3',
-        isAllowed
-          ? 'border-[#10B981]/25 bg-[#10B981]/5'
-          : 'border-[#EF4444]/25 bg-[#EF4444]/5'
-      )}
-    >
-      <div className="mb-3 flex items-center gap-2">
-        <ColoredBadge
-          colorClass={getManagerAccessBadgeClass(
-            isAllowed ? 'allowed' : 'denied'
-          )}
-          className="rounded-md py-0.5"
-        >
-          {isAllowed ? 'Allowed' : 'Not allowed'}
-        </ColoredBadge>
-      </div>
-      <ul className="space-y-2.5">
-        {items.map(({ id, label }) => (
-          <li
-            key={id}
-            className="flex items-start gap-2.5 text-sm leading-snug"
-          >
-            <Icon
-              className={cn(
-                'mt-0.5 size-4 shrink-0',
-                isAllowed
-                  ? 'text-[#10B981] dark:text-[#34D399]'
-                  : 'text-[#EF4444]/80'
-              )}
-              aria-hidden
-            />
-            <span className={cn(!isAllowed && 'text-muted-foreground')}>
-              {label}
-            </span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
-}
-
-function PermissionTabPanel({
-  allowed,
-  denied
-}: {
-  allowed: readonly PermissionItem[]
-  denied: readonly PermissionItem[]
-}) {
-  return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      <PermissionBox variant="allowed" items={allowed} />
-      <PermissionBox variant="denied" items={denied} />
-    </div>
-  )
-}
-
 const ManagerAccessOverview = () => {
   return (
-    <Card className="min-w-0 gap-4 py-4 lg:sticky lg:top-4">
+    <Card className="min-w-0 gap-4 py-4">
       <CardHeader className="gap-3 pb-0">
         <CardTitle className="flex items-center gap-2 text-base">
           <ShieldCheck className="size-4" />

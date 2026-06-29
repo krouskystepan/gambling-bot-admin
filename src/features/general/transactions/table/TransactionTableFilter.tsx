@@ -1,5 +1,7 @@
 import { FilterIcon } from 'lucide-react'
 
+import { useState } from 'react'
+
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
@@ -26,6 +28,7 @@ interface TransactionFilterProps<T extends string> {
   counts: Record<T, number>
   columnId: string
   onChange: (next: Option<T>[]) => void
+  onOpenChange?: (open: boolean) => void
 }
 
 const TransactionTableFilter = <T extends string>({
@@ -34,12 +37,20 @@ const TransactionTableFilter = <T extends string>({
   selected,
   counts,
   columnId,
-  onChange
+  onChange,
+  onOpenChange
 }: TransactionFilterProps<T>) => {
+  const [open, setOpen] = useState(false)
   const visibleOptions = getVisibleFacetOptions(options, selected, counts)
 
   return (
-    <Popover>
+    <Popover
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen)
+        onOpenChange?.(nextOpen)
+      }}
+    >
       <PopoverTrigger asChild>
         <Button variant="outline" className="h-9.5">
           <FilterIcon

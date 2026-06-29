@@ -29,7 +29,7 @@ import {
 import { cn } from '@/lib/utils'
 import { TGuildMemberStatus } from '@/types/types'
 
-import type { UserRegistrationFilter } from '../useUsers'
+import type { UserBanStatusFilter, UserRegistrationFilter } from '../useUsers'
 
 const UserTableFilters = ({
   table,
@@ -37,6 +37,8 @@ const UserTableFilters = ({
   registeredUserIds,
   registration,
   onRegistrationChange,
+  banStatus,
+  onBanStatusChange,
   isLoading,
   setIsLoading
 }: {
@@ -50,6 +52,8 @@ const UserTableFilters = ({
   registeredUserIds: string[]
   registration: UserRegistrationFilter
   onRegistrationChange: (registration: UserRegistrationFilter) => void
+  banStatus: UserBanStatusFilter
+  onBanStatusChange: (banStatus: UserBanStatusFilter) => void
   isLoading: boolean
   setIsLoading: Dispatch<SetStateAction<boolean>>
 }) => {
@@ -118,6 +122,27 @@ const UserTableFilters = ({
                 {option.label}
               </SelectItem>
             ))}
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={banStatus}
+          onValueChange={(value) => {
+            onBanStatusChange(value as UserBanStatusFilter)
+          }}
+        >
+          <SelectTrigger
+            className={cn(
+              'h-9.5 w-40',
+              banStatus === 'all' && 'text-muted-foreground'
+            )}
+          >
+            <SelectValue placeholder="All players" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All players</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="banned">Banned</SelectItem>
           </SelectContent>
         </Select>
       </div>
