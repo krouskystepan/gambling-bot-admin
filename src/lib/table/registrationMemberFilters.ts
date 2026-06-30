@@ -1,4 +1,4 @@
-import type { SearchableUserOption } from '@/components/SearchableUserFilter'
+import type { SearchableUserOption } from '@/components/table/SearchableUserFilter'
 import type { UserRegistrationFilter } from '@/features/manage/users/useUsers'
 
 export const registrationFilterOptions = [

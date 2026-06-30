@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation'
 import { createPrediction } from '@/actions/database/predictionActions.action'
 import DateTimePicker, {
   pragueDateTimeFromPicker
-} from '@/components/DateTimePicker'
+} from '@/components/form/DateTimePicker'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,

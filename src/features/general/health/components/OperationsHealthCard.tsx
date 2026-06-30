@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react'
 
 import type { SystemHealthData } from '@/actions/database/systemHealth.action'
-import { KpiStripMetric } from '@/components/KpiStrip'
+import { KpiStripMetric } from '@/components/page/KpiStrip'
 import {
   Card,
   CardContent,

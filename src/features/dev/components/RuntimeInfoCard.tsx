@@ -12,7 +12,7 @@ import DevCardRow from './DevCardRow'
 const RuntimeInfoCard = () => {
   const nodeEnv = process.env.NODE_ENV ?? 'unknown'
   const deployment = process.env.VERCEL ? 'Vercel' : 'Local'
-  const vercelEnv = process.env.VERCEL_ENV ?? '—'
+  const vercelEnv = process.env.VERCEL_ENV ?? '-'
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
   const serverTime = new Date().toLocaleString('en-GB', { hour12: false })
 

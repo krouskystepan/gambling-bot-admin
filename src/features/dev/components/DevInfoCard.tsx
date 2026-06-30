@@ -47,10 +47,10 @@ const DevInfoCard = ({
           <CopyableCode value={flags} />
         </DevCardRow>
         <DevCardRow label="Dev guilds">
-          <CopyableCode value={DEV_GUILDS.join(', ') || '—'} />
+          <CopyableCode value={DEV_GUILDS.join(', ') || '-'} />
         </DevCardRow>
         <DevCardRow label="Dev users">
-          <CopyableCode value={DEV_USERS.join(', ') || '—'} />
+          <CopyableCode value={DEV_USERS.join(', ') || '-'} />
         </DevCardRow>
       </CardContent>
     </Card>

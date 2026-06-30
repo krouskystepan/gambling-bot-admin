@@ -16,8 +16,11 @@ import {
   type StaffActionsFilters,
   buildAtmRejectionMatch,
   buildStaffTransactionMatch,
+  buildUserBanStaffActionUnionStages,
   emptyStaffActionCategoryCounts,
-  shouldIncludeAtmRejectionUnion
+  shouldIncludeAtmRejectionUnion,
+  shouldIncludeBanUnion,
+  shouldIncludeUnbanUnion
 } from '@/lib/staffAudit/staffActionQuery'
 import {
   type RawStaffActionDoc,
@@ -28,6 +31,7 @@ import {
 import AtmRequest from '@/models/AtmRequest'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'
+import UserBan from '@/models/UserBan'
 
 import { requireGuildAccess } from '../perms'
 
@@ -123,6 +127,21 @@ function buildUnifiedPipeline(
         ]
       }
     })
+  }
+
+  const includeBan = shouldIncludeBanUnion(filters.filterAction)
+  const includeUnban = shouldIncludeUnbanUnion(filters.filterAction)
+
+  if (includeBan || includeUnban) {
+    pipeline.push(
+      ...buildUserBanStaffActionUnionStages(
+        guildId,
+        filters,
+        timezone,
+        UserBan.collection.name,
+        { includeBan, includeUnban }
+      )
+    )
   }
 
   return pipeline

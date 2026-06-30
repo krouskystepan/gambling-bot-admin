@@ -2,7 +2,7 @@ import { Dice5 } from 'lucide-react'
 
 import Link from 'next/link'
 
-import { ThemeToggle } from '@/components/ThemeToggle'
+import { ThemeToggle } from '@/components/providers/ThemeToggle'
 
 type LandingShellProps = {
   children: React.ReactNode

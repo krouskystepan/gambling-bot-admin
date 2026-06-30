@@ -2,16 +2,22 @@ import { Dice5 } from 'lucide-react'
 
 import Link from 'next/link'
 
-import { ThemeToggle } from '@/components/ThemeToggle'
 import type { IGuild } from '@/types/types'
 
+import DashboardSidebarFooter from './DashboardSidebarFooter'
 import GuildRow from './GuildRow'
 
 type DashboardSidebarProps = {
   guilds: IGuild[]
+  userName: string | null
+  userImage: string | null
 }
 
-const DashboardSidebar = ({ guilds }: DashboardSidebarProps) => {
+const DashboardSidebar = ({
+  guilds,
+  userName,
+  userImage
+}: DashboardSidebarProps) => {
   return (
     <aside className="relative flex h-full min-h-0 w-16 shrink-0 flex-col items-center overflow-hidden border-r border-sidebar-border bg-sidebar py-4 text-sidebar-foreground">
       <Link
@@ -28,11 +34,8 @@ const DashboardSidebar = ({ guilds }: DashboardSidebarProps) => {
         ))}
       </div>
 
-      <div className="flex w-full shrink-0 flex-col items-center border-t border-sidebar-border px-2 pt-3">
-        <ThemeToggle
-          variant="outline"
-          className="border-sidebar-border bg-sidebar-accent/60 text-primary hover:bg-sidebar-accent hover:text-primary"
-        />
+      <div className="flex w-full shrink-0 justify-center border-t border-sidebar-border px-2 pt-4">
+        <DashboardSidebarFooter userName={userName} userImage={userImage} />
       </div>
     </aside>
   )

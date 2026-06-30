@@ -8,8 +8,8 @@ import { Dispatch, SetStateAction, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-import SearchableTextFilter from '@/components/SearchableTextFilter'
-import SearchableUserFilter from '@/components/SearchableUserFilter'
+import SearchableTextFilter from '@/components/table/SearchableTextFilter'
+import SearchableUserFilter from '@/components/table/SearchableUserFilter'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,

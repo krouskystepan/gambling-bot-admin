@@ -5,6 +5,13 @@ import { DateRange } from 'react-day-picker'
 
 import { useState } from 'react'
 
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover'
 import {
   formatDatePickerRange,
   getDatePickerPresets,
@@ -14,10 +21,6 @@ import {
   safeDate
 } from '@/lib/datePickerPresets'
 import { cn } from '@/lib/utils'
-
-import { Button } from './ui/button'
-import { Calendar } from './ui/calendar'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 
 const DatePicker = ({
   onChange,

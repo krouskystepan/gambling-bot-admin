@@ -6,6 +6,7 @@ import {
   normalizeGlobalSettings,
   resolveGuildTimezone
 } from 'gambling-bot-shared/guild'
+import { normalizeStaffNotes } from 'gambling-bot-shared/user'
 import { TVipRoom } from 'gambling-bot-shared/vip'
 import { Session } from 'next-auth'
 
@@ -29,6 +30,7 @@ import {
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'
 import User from '@/models/User'
+import UserBan from '@/models/UserBan'
 import VipRoom from '@/models/VipRoom'
 
 import {
@@ -55,20 +57,23 @@ export type UserProfileVip = {
 }
 
 export type UserProfileStaffNote = {
+  noteId: string
   text: string
   authorId: string
   authorUsername?: string
   createdAt: Date
 }
 
-export type UserProfileBanHistoryEntry = {
+export type UserProfileBanRecord = {
+  banId: string
   bannedAt: Date
   bannedBy: string
   bannedByUsername?: string
+  banReason?: string
   unbannedAt: Date | null
   unbannedBy: string | null
   unbannedByUsername?: string
-  reason?: string
+  unbanReason?: string
 }
 
 export type UserProfileData = {
@@ -83,7 +88,7 @@ export type UserProfileData = {
   bannedAt: Date | null
   bannedBy: string | null
   bannedByUsername?: string
-  banHistory: UserProfileBanHistoryEntry[]
+  bans: UserProfileBanRecord[]
   staffNotes: UserProfileStaffNote[]
   balance: number
   bonusBalance: number
@@ -172,13 +177,14 @@ export async function getUserProfile(
 
   const pnlGranularity = resolveOverviewPnLGranularity(range, timezone)
 
-  const [discordMembers, dbUser, vipRooms] = await Promise.all([
+  const [discordMembers, dbUser, vipRooms, userBans] = await Promise.all([
     getDiscordGuildMembers(guildId),
     User.findOne({ guildId, userId }).lean(),
     VipRoom.find({
       guildId,
       $or: [{ ownerId: userId }, { memberIds: userId }]
-    }).lean()
+    }).lean(),
+    UserBan.find({ guildId, userId }).sort({ bannedAt: -1 }).lean()
   ])
 
   const discordMember = (discordMembers ?? []).find((m) => m.userId === userId)
@@ -229,25 +235,26 @@ export async function getUserProfile(
   const resolveUsername = (id: string | null | undefined) =>
     id ? membersMap.get(id)?.username : undefined
 
-  const staffNotes: UserProfileStaffNote[] = (dbUser?.staffNotes ?? []).map(
-    (note) => ({
-      text: note.text,
-      authorId: note.authorId,
-      authorUsername: resolveUsername(note.authorId),
-      createdAt: note.createdAt
-    })
-  )
+  const staffNotes: UserProfileStaffNote[] = normalizeStaffNotes(
+    dbUser?.staffNotes ?? []
+  ).map((note) => ({
+    noteId: note.noteId,
+    text: note.text,
+    authorId: note.authorId,
+    authorUsername: resolveUsername(note.authorId),
+    createdAt: note.createdAt
+  }))
 
-  const banHistory: UserProfileBanHistoryEntry[] = (
-    dbUser?.banHistory ?? []
-  ).map((entry) => ({
-    bannedAt: entry.bannedAt,
-    bannedBy: entry.bannedBy,
-    bannedByUsername: resolveUsername(entry.bannedBy),
-    unbannedAt: entry.unbannedAt,
-    unbannedBy: entry.unbannedBy,
-    unbannedByUsername: resolveUsername(entry.unbannedBy),
-    reason: entry.reason
+  const bans: UserProfileBanRecord[] = userBans.map((ban) => ({
+    banId: ban.banId,
+    bannedAt: ban.bannedAt,
+    bannedBy: ban.bannedBy,
+    bannedByUsername: resolveUsername(ban.bannedBy),
+    banReason: ban.banReason,
+    unbannedAt: ban.unbannedAt,
+    unbannedBy: ban.unbannedBy,
+    unbannedByUsername: resolveUsername(ban.unbannedBy),
+    unbanReason: ban.unbanReason
   }))
 
   return {
@@ -264,7 +271,7 @@ export async function getUserProfile(
     bannedAt: dbUser?.bannedAt ?? null,
     bannedBy: dbUser?.bannedBy ?? null,
     bannedByUsername: resolveUsername(dbUser?.bannedBy),
-    banHistory,
+    bans,
     staffNotes,
     balance: dbUser?.balance ?? 0,
     bonusBalance: dbUser?.bonusBalance ?? 0,

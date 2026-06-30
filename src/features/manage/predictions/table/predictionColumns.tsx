@@ -79,7 +79,7 @@ export const predictionColumns = (
               <ScrollArea className="h-fit p-1">
                 {choices.map((choice) => (
                   <p key={choice.choiceName} className="text-sm">
-                    {choice.choiceName} — {choice.odds}x
+                    {choice.choiceName} - {choice.odds}x
                   </p>
                 ))}
               </ScrollArea>

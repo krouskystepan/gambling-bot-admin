@@ -3,11 +3,18 @@ import {
   type StaffActionCategory
 } from 'gambling-bot-shared/transactions'
 
+const VIP_ADMIN_ACTIONS = new Set<string>([
+  STAFF_ADMIN_ACTIONS.VIP_BUY,
+  STAFF_ADMIN_ACTIONS.VIP_EXTEND,
+  STAFF_ADMIN_ACTIONS.VIP_ADD_MEMBER,
+  STAFF_ADMIN_ACTIONS.VIP_REMOVE
+])
+
 export function resolveStaffActionLabel(input: {
   type?: string
   source?: string
   meta?: Record<string, unknown> | null
-  sourceType?: 'transaction' | 'atmRequest'
+  sourceType?: 'transaction' | 'atmRequest' | 'userBan'
 }): {
   label: string
   category: StaffActionCategory
@@ -65,7 +72,52 @@ export function resolveStaffActionLabel(input: {
     }
   }
 
-  if (input.type === 'vip') {
+  if (adminAction === STAFF_ADMIN_ACTIONS.USER_BAN) {
+    return {
+      label: 'Player banned',
+      category: 'ban',
+      badge: 'BAN',
+      sublabel: null
+    }
+  }
+
+  if (adminAction === STAFF_ADMIN_ACTIONS.USER_UNBAN) {
+    return {
+      label: 'Player unbanned',
+      category: 'unban',
+      badge: 'UNBAN',
+      sublabel: null
+    }
+  }
+
+  if (adminAction === STAFF_ADMIN_ACTIONS.USER_NOTE_CREATE) {
+    return {
+      label: 'Staff note added',
+      category: 'user',
+      badge: 'NOTE',
+      sublabel: null
+    }
+  }
+
+  if (adminAction === STAFF_ADMIN_ACTIONS.USER_NOTE_UPDATE) {
+    return {
+      label: 'Staff note updated',
+      category: 'user',
+      badge: 'NOTE',
+      sublabel: null
+    }
+  }
+
+  if (adminAction === STAFF_ADMIN_ACTIONS.USER_NOTE_DELETE) {
+    return {
+      label: 'Staff note deleted',
+      category: 'user',
+      badge: 'NOTE',
+      sublabel: null
+    }
+  }
+
+  if (adminAction && VIP_ADMIN_ACTIONS.has(adminAction)) {
     const vipLabels: Record<string, string> = {
       [STAFF_ADMIN_ACTIONS.VIP_BUY]: 'Created',
       [STAFF_ADMIN_ACTIONS.VIP_EXTEND]: 'Extended',
@@ -73,9 +125,7 @@ export function resolveStaffActionLabel(input: {
       [STAFF_ADMIN_ACTIONS.VIP_REMOVE]: 'Removed'
     }
 
-    const sublabel = adminAction
-      ? (vipLabels[adminAction] ?? 'Action')
-      : 'Action'
+    const sublabel = vipLabels[adminAction] ?? 'Action'
 
     return {
       label: `VIP ${sublabel.toLowerCase()}`,
@@ -91,33 +141,6 @@ export function resolveStaffActionLabel(input: {
       category: 'atm',
       badge: input.type === 'deposit' ? 'DEPOSIT' : 'WITHDRAW',
       sublabel: 'ATM approved'
-    }
-  }
-
-  if (adminAction === STAFF_ADMIN_ACTIONS.USER_BAN) {
-    return {
-      label: 'Player banned',
-      category: 'user',
-      badge: 'BAN',
-      sublabel: null
-    }
-  }
-
-  if (adminAction === STAFF_ADMIN_ACTIONS.USER_UNBAN) {
-    return {
-      label: 'Player unbanned',
-      category: 'user',
-      badge: 'UNBAN',
-      sublabel: null
-    }
-  }
-
-  if (adminAction === STAFF_ADMIN_ACTIONS.USER_NOTE) {
-    return {
-      label: 'Staff note added',
-      category: 'user',
-      badge: 'NOTE',
-      sublabel: null
     }
   }
 
@@ -161,7 +184,7 @@ export function resolveStaffActionDetailHref(
   input: {
     type?: string
     meta?: Record<string, unknown> | null
-    sourceType?: 'transaction' | 'atmRequest'
+    sourceType?: 'transaction' | 'atmRequest' | 'userBan'
     referenceId?: string
     subjectUserId?: string
   }
@@ -176,7 +199,9 @@ export function resolveStaffActionDetailHref(
     input.subjectUserId &&
     (adminAction === STAFF_ADMIN_ACTIONS.USER_BAN ||
       adminAction === STAFF_ADMIN_ACTIONS.USER_UNBAN ||
-      adminAction === STAFF_ADMIN_ACTIONS.USER_NOTE)
+      adminAction === STAFF_ADMIN_ACTIONS.USER_NOTE_CREATE ||
+      adminAction === STAFF_ADMIN_ACTIONS.USER_NOTE_UPDATE ||
+      adminAction === STAFF_ADMIN_ACTIONS.USER_NOTE_DELETE)
   ) {
     return `/dashboard/g/${guildId}/users/${input.subjectUserId}`
   }

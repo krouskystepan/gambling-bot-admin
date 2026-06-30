@@ -5,10 +5,10 @@ import { Dispatch, SetStateAction, useCallback, useMemo, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
-import DatePicker from '@/components/DatePicker'
+import DatePicker from '@/components/form/DatePicker'
 import SearchableUserFilter, {
   type SearchableUserOption
-} from '@/components/SearchableUserFilter'
+} from '@/components/table/SearchableUserFilter'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,

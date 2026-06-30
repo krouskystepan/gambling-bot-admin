@@ -98,7 +98,7 @@ const OverviewSourceChart = ({
     <div className="grid gap-6 lg:grid-cols-2">
       <OverviewVolumeDonutCard
         title="Volume by source"
-        description="Non-casino channel split — dashed items are legend only"
+        description="Non-casino channel split - dashed items are legend only"
         pieSlices={sourcePieRenderSlices}
         legendItems={sourceLegendSlices}
         ringVisual={sourceRingVisual}
@@ -119,7 +119,7 @@ const OverviewSourceChart = ({
         isLegendOnly={(slice) => slice.key === CASINO_SOURCE_KEY}
         globalSettings={globalSettings}
         className={cn(casinoTotalVolume <= 0 && 'lg:col-span-2')}
-        emptyMessage="All volume is from casino games — see the games chart."
+        emptyMessage="All volume is from casino games - see the games chart."
       />
 
       {casinoTotalVolume > 0 ? (

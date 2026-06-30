@@ -196,10 +196,10 @@ const DevBonusSimLab = ({
                           {formatAmount(day.base)}
                         </TableCell>
                         <TableCell className="text-right tabular-nums">
-                          {day.weekly ? formatAmount(day.weekly) : '—'}
+                          {day.weekly ? formatAmount(day.weekly) : '-'}
                         </TableCell>
                         <TableCell className="text-right tabular-nums">
-                          {day.monthly ? formatAmount(day.monthly) : '—'}
+                          {day.monthly ? formatAmount(day.monthly) : '-'}
                         </TableCell>
                         <TableCell className="text-right font-medium tabular-nums">
                           {formatAmount(day.reward)}

@@ -1,7 +1,7 @@
 import type { Table as ReactTable } from '@tanstack/react-table'
 
-import type { SearchableTextOption } from '@/components/SearchableTextFilter'
-import type { SearchableUserOption } from '@/components/SearchableUserFilter'
+import type { SearchableTextOption } from '@/components/table/SearchableTextFilter'
+import type { SearchableUserOption } from '@/components/table/SearchableUserFilter'
 
 const DISCORD_SNOWFLAKE_PATTERN = /^\d{17,20}$/
 

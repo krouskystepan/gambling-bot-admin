@@ -11,13 +11,13 @@ import type {
   StaffActionEntityFacets,
   StaffActionRow
 } from '@/actions/database/staffActions.action'
-import type { SearchableUserOption } from '@/components/SearchableUserFilter'
 import {
   CustomTableBody,
   CustomTableHeader,
   CustomTablePagination,
   ServerTablePageLayout
 } from '@/components/table'
+import type { SearchableUserOption } from '@/components/table/SearchableUserFilter'
 import { Table } from '@/components/ui/table'
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
 import { usePruneEntityColumnFilters } from '@/hooks/usePruneEntityColumnFilters'

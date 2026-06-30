@@ -1,35 +1,20 @@
 'use client'
 
-import {
-  Activity,
-  Award,
-  Banknote,
-  Calculator,
-  ChartBar,
-  Crown,
-  Database,
-  Dices,
-  FileBarChart,
-  Globe,
-  HeartPulse,
-  Landmark,
-  LayoutDashboard,
-  LayoutTemplate,
-  LucideIcon,
-  MessagesSquare,
-  ScrollText,
-  Server,
-  ShieldCheck,
-  Ticket,
-  Trash2,
-  User
-} from 'lucide-react'
+import { LucideIcon } from 'lucide-react'
 
 import { useSyncExternalStore } from 'react'
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
+import { GUILD_CONFIG_SIDEBAR_LINKS } from '@/components/shell/guild-config/guildConfigSidebarLinks'
+import {
+  getSidebarSectionsServerSnapshot,
+  getSidebarSectionsSnapshot,
+  parseOpenSections,
+  persistOpenSections,
+  subscribeToSidebarSections
+} from '@/components/shell/guild-config/guildConfigSidebarSections'
 import {
   Accordion,
   AccordionContent,
@@ -38,123 +23,6 @@ import {
 } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-
-const LINKS = [
-  {
-    title: 'General',
-    value: 'general',
-    links: [
-      { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-      { id: 'health', label: 'Health', icon: HeartPulse },
-      { id: 'atm-queue', label: 'ATM Queue', icon: Banknote },
-      { id: 'transactions', label: 'Transactions', icon: Landmark },
-      { id: 'staff-actions', label: 'Staff actions', icon: ScrollText },
-      { id: 'reports', label: 'Reports', icon: FileBarChart }
-    ]
-  },
-  {
-    title: 'Manage',
-    value: 'manage',
-    links: [
-      { id: 'users', label: 'Users', icon: User },
-      { id: 'predictions', label: 'Predictions', icon: ChartBar },
-      { id: 'raffles', label: 'Raffles', icon: Ticket },
-      { id: 'vips', label: 'VIPs', icon: Crown }
-    ]
-  },
-  {
-    title: 'Settings',
-    value: 'settings',
-    links: [
-      { id: 'global-settings', label: 'Global', icon: Globe },
-      { id: 'channel-settings', label: 'Channels', icon: MessagesSquare },
-      { id: 'moderation-settings', label: 'Moderation', icon: ShieldCheck },
-      { id: 'casino-settings', label: 'Casino', icon: Dices },
-      { id: 'bonus-settings', label: 'Bonuses', icon: Award },
-      { id: 'vip-settings', label: 'VIP', icon: Crown }
-    ]
-  },
-  {
-    title: 'Development',
-    value: 'dev',
-    links: [
-      { id: 'dev', label: 'Overview', icon: Activity },
-      { id: 'dev-system', label: 'Platform', icon: Server },
-      { id: 'dev-guild', label: 'Guild', icon: Database },
-      { id: 'dev-data', label: 'Danger zone', icon: Trash2 },
-      { id: 'dev-calcs', label: 'Simulations', icon: Calculator },
-      { id: 'dev-ui', label: 'UI kit', icon: LayoutTemplate }
-    ]
-  }
-]
-
-const SIDEBAR_SECTIONS_STORAGE_KEY = 'guild-config-sidebar-sections'
-const DEFAULT_OPEN_SECTIONS = LINKS.map((group) => group.value)
-
-type SidebarSectionsListener = () => void
-
-let sidebarSectionsListeners: SidebarSectionsListener[] = []
-
-const subscribeToSidebarSections = (listener: SidebarSectionsListener) => {
-  sidebarSectionsListeners = [...sidebarSectionsListeners, listener]
-
-  const onStorage = (event: StorageEvent) => {
-    if (event.key === SIDEBAR_SECTIONS_STORAGE_KEY) {
-      listener()
-    }
-  }
-
-  window.addEventListener('storage', onStorage)
-
-  return () => {
-    sidebarSectionsListeners = sidebarSectionsListeners.filter(
-      (item) => item !== listener
-    )
-    window.removeEventListener('storage', onStorage)
-  }
-}
-
-const notifySidebarSectionsChange = () => {
-  sidebarSectionsListeners.forEach((listener) => listener())
-}
-
-const readStoredOpenSections = (): string[] => {
-  try {
-    const raw = localStorage.getItem(SIDEBAR_SECTIONS_STORAGE_KEY)
-    if (!raw) return DEFAULT_OPEN_SECTIONS
-
-    const parsed: unknown = JSON.parse(raw)
-    if (!Array.isArray(parsed)) return DEFAULT_OPEN_SECTIONS
-
-    return parsed.filter(
-      (value): value is string =>
-        typeof value === 'string' && DEFAULT_OPEN_SECTIONS.includes(value)
-    )
-  } catch {
-    return DEFAULT_OPEN_SECTIONS
-  }
-}
-
-const serializeOpenSections = (sections: string[]) => sections.join(',')
-
-const parseOpenSections = (serialized: string): string[] =>
-  serialized === '' ? [] : serialized.split(',')
-
-const getSidebarSectionsSnapshot = () =>
-  serializeOpenSections(readStoredOpenSections())
-
-const getSidebarSectionsServerSnapshot = () =>
-  serializeOpenSections(DEFAULT_OPEN_SECTIONS)
-
-const persistOpenSections = (sections: string[]) => {
-  try {
-    localStorage.setItem(SIDEBAR_SECTIONS_STORAGE_KEY, JSON.stringify(sections))
-  } catch {
-    // Ignore quota or private-mode storage errors.
-  }
-
-  notifySidebarSectionsChange()
-}
 
 const formatNotificationCount = (count: number) =>
   count >= 100 ? '99+' : String(count)
@@ -203,7 +71,7 @@ const GuildConfigSidebar = ({
           value={openSections}
           onValueChange={handleOpenSectionsChange}
         >
-          {LINKS.map((group) => {
+          {GUILD_CONFIG_SIDEBAR_LINKS.map((group) => {
             if (group.value === 'settings' && !isAdmin) return null
             if (group.value === 'dev' && !isDev) return null
 

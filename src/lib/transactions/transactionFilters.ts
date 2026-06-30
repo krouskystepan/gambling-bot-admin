@@ -6,6 +6,14 @@ export type TransactionFilter = Record<string, unknown>
 
 export const LEGACY_CASINO_GAME_KEY = 'casino'
 
+/** Staff audit rows are not financial ledger entries. */
+export const EXCLUDE_STAFF_AUDIT_TRANSACTION_FILTER: TransactionFilter = {
+  $or: [
+    { 'meta.adminAction': { $exists: false } },
+    { 'meta.adminAction': null }
+  ]
+}
+
 export function buildCasinoGameMetaFilter(
   filterCasinoGame: string[]
 ): TransactionFilter {
@@ -97,6 +105,8 @@ export function buildTransactionMatchFilters({
       ...buildCasinoGameMetaFilter(filterCasinoGame)
     })
   }
+
+  andFilters.push(EXCLUDE_STAFF_AUDIT_TRANSACTION_FILTER)
 
   return andFilters
 }

@@ -49,10 +49,24 @@ export type VipRoleBadgeKey = 'owner' | 'member'
 
 export type ManagerAccessBadgeKey = 'allowed' | 'denied'
 
+export type BanLogStatusBadgeKey = 'active' | 'ended'
+
+const MODERATION_BADGE_STYLES = {
+  banned: outline('burgundy'),
+  ban: outline('burgundy'),
+  unban: outline('teal'),
+  note: outline('cyan')
+} as const
+
+const BAN_LOG_STATUS_BADGE_STYLES: Record<BanLogStatusBadgeKey, string> = {
+  active: filled('red'),
+  ended: filled('gray')
+}
+
 const USER_PROFILE_BADGE_STYLES: Record<UserProfileBadgeKey, string> = {
   registered: outline('gray'),
   notRegistered: outline('coral'),
-  banned: filled('red'),
+  banned: MODERATION_BADGE_STYLES.banned,
   vip: filled('gold')
 }
 
@@ -105,6 +119,9 @@ export const staffActionBadgeMap: Record<string, string> = {
   WITHDRAW: typeBadgeMap.withdraw,
   BONUS: typeBadgeMap.bonus,
   VIP: typeBadgeMap.vip,
+  BAN: MODERATION_BADGE_STYLES.ban,
+  UNBAN: MODERATION_BADGE_STYLES.unban,
+  NOTE: MODERATION_BADGE_STYLES.note,
   REJECT: filled('red'),
   RAFFLE: filled('purple'),
   PREDICT: filled('blue'),
@@ -129,6 +146,7 @@ export const raffleStatusBadgeMap = Object.fromEntries(
 ) as Record<TRaffleRow['status'], string>
 
 export const managerAccessBadgeMap = MANAGER_ACCESS_BADGE_STYLES
+export const banLogStatusBadgeMap = BAN_LOG_STATUS_BADGE_STYLES
 
 export function getTransactionTypeBadgeClass(
   type: TTransaction['type']
@@ -172,4 +190,8 @@ export function getRaffleStatusBadgeClass(
 
 export function getManagerAccessBadgeClass(key: ManagerAccessBadgeKey): string {
   return managerAccessBadgeMap[key]
+}
+
+export function getBanLogStatusBadgeClass(key: BanLogStatusBadgeKey): string {
+  return banLogStatusBadgeMap[key]
 }

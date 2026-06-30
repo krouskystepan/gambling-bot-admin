@@ -7,6 +7,7 @@ import { Crown } from 'lucide-react'
 import ColoredBadge from '@/components/badges/ColoredBadge'
 import {
   atmStatusBadgeMap,
+  banLogStatusBadgeMap,
   getManagerAccessBadgeClass,
   getStaffActionBadgeClass,
   getUserProfileBadgeClass,
@@ -24,6 +25,9 @@ const STAFF_ACTION_BADGES = [
   'WITHDRAW',
   'BONUS',
   'VIP',
+  'BAN',
+  'UNBAN',
+  'NOTE',
   'REJECT',
   'RAFFLE',
   'PREDICT',
@@ -82,12 +86,18 @@ const ThemePanel = ({ mode, children }: ThemePanelProps) => (
   </div>
 )
 
+const BAN_LOG_STATUS_LABELS: Record<keyof typeof banLogStatusBadgeMap, string> =
+  {
+    active: 'Active',
+    ended: 'Ended'
+  }
+
 const BadgeShowcase = () => {
   return (
     <div className="space-y-6">
       <BadgeSection
         title="Transaction types"
-        subtitle="Filled badges — solid background, white text (gold uses dark text)"
+        subtitle="Filled badges - solid background, white text (gold uses dark text)"
         variant="filled"
       >
         <ThemePanel mode="light">
@@ -108,7 +118,7 @@ const BadgeShowcase = () => {
 
       <BadgeSection
         title="Transaction sources"
-        subtitle="Outline badges — tinted fill with colored border and text"
+        subtitle="Outline badges - tinted fill with colored border and text"
         variant="outline"
       >
         <ThemePanel mode="light">
@@ -129,7 +139,7 @@ const BadgeShowcase = () => {
 
       <BadgeSection
         title="ATM queue"
-        subtitle="Filled badges — operational status"
+        subtitle="Filled badges - operational status"
         variant="filled"
       >
         <ThemePanel mode="light">
@@ -150,7 +160,7 @@ const BadgeShowcase = () => {
 
       <BadgeSection
         title="Staff actions"
-        subtitle="Filled for transaction-like events; outline gray for generic actions"
+        subtitle="Transaction-like badges are filled; moderation badges (BAN, UNBAN, NOTE) use outline"
         variant="mixed"
       >
         <ThemePanel mode="light">
@@ -176,8 +186,37 @@ const BadgeShowcase = () => {
       </BadgeSection>
 
       <BadgeSection
+        title="Ban log status"
+        subtitle="Filled badges - active ban cycle vs ended"
+        variant="filled"
+      >
+        <ThemePanel mode="light">
+          {Object.entries(banLogStatusBadgeMap).map(([status, className]) => (
+            <ColoredBadge key={status} colorClass={className} className="px-2">
+              {
+                BAN_LOG_STATUS_LABELS[
+                  status as keyof typeof banLogStatusBadgeMap
+                ]
+              }
+            </ColoredBadge>
+          ))}
+        </ThemePanel>
+        <ThemePanel mode="dark">
+          {Object.entries(banLogStatusBadgeMap).map(([status, className]) => (
+            <ColoredBadge key={status} colorClass={className} className="px-2">
+              {
+                BAN_LOG_STATUS_LABELS[
+                  status as keyof typeof banLogStatusBadgeMap
+                ]
+              }
+            </ColoredBadge>
+          ))}
+        </ThemePanel>
+      </BadgeSection>
+
+      <BadgeSection
         title="User profile"
-        subtitle="Outline for registration state; filled for banned and VIP"
+        subtitle="Outline for registration and banned state; filled for VIP"
         variant="mixed"
       >
         <ThemePanel mode="light">
@@ -243,7 +282,7 @@ const BadgeShowcase = () => {
 
       <BadgeSection
         title="Prediction status"
-        subtitle="Filled badges — event lifecycle"
+        subtitle="Filled badges - event lifecycle"
         variant="filled"
       >
         <ThemePanel mode="light">
@@ -276,7 +315,7 @@ const BadgeShowcase = () => {
 
       <BadgeSection
         title="Raffle status"
-        subtitle="Filled badges — active and canceled"
+        subtitle="Filled badges - active and canceled"
         variant="filled"
       >
         <ThemePanel mode="light">
@@ -305,7 +344,7 @@ const BadgeShowcase = () => {
 
       <BadgeSection
         title="Manager access"
-        subtitle="Outline badges — permission granted or denied"
+        subtitle="Outline badges - permission granted or denied"
         variant="outline"
       >
         <ThemePanel mode="light">
@@ -328,7 +367,7 @@ const BadgeShowcase = () => {
 
       <BadgeSection
         title="Sidebar notifications"
-        subtitle="Unchanged shadcn destructive variant — not part of domain palette"
+        subtitle="Unchanged shadcn destructive variant - not part of domain palette"
         variant="mixed"
       >
         <ThemePanel mode="light">

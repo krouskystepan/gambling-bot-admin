@@ -18,7 +18,7 @@ export type PanelActionBlockResult = {
 
 /**
  * Server-side guard for panel mutations tied to Global Settings feature flags.
- * Always check in server actions — UI disables are not sufficient on their own.
+ * Always check in server actions - UI disables are not sufficient on their own.
  */
 export async function blockPanelFeatureAction(
   guildId: string,

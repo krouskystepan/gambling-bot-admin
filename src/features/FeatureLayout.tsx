@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 
-import { PageHeader } from '@/components/PageHeader'
+import { PageHeader } from '@/components/page/PageHeader'
 
 const FeatureLayout = ({
   title,
