@@ -15,5 +15,7 @@ declare module 'next-auth/jwt' {
     accessTokenExpires?: number
     userId?: string
     error?: string
+    name?: string | null
+    picture?: string | null
   }
 }

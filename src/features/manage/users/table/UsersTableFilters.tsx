@@ -7,7 +7,7 @@ import { Dispatch, SetStateAction, useMemo } from 'react'
 
 import { useRouter } from 'next/navigation'
 
-import SearchableUserFilter from '@/components/SearchableUserFilter'
+import SearchableUserFilter from '@/components/table/SearchableUserFilter'
 import { Button } from '@/components/ui/button'
 import {
   Select,

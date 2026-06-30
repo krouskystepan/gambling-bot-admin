@@ -5,8 +5,8 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { saveGlobalSettings } from '@/actions/database/globalSettings.action'
-import FormActionsFooter from '@/components/FormActionsFooter'
 import SettingsFormLayout from '@/components/form/SettingsFormLayout'
+import FormActionsFooter from '@/components/page/FormActionsFooter'
 import { Form } from '@/components/ui/form'
 import { globalSettingsFormSchema } from '@/types/schemas'
 import {

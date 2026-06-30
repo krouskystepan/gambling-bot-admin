@@ -105,7 +105,7 @@ const PredictionDetailDialog = ({
                               src={bet.avatar}
                             />
                             <span>
-                              {bet.username} — {formatGuildMoney(bet.amount)}
+                              {bet.username} - {formatGuildMoney(bet.amount)}
                             </span>
                           </Link>
                         ))

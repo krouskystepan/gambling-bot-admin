@@ -8,6 +8,12 @@ import { Session } from 'next-auth'
 
 import { revalidatePath } from 'next/cache'
 
+import {
+  ATM_ACTIONS_DEPOSIT_TITLE,
+  ATM_ACTIONS_WITHDRAW_TITLE,
+  atmActionsDepositDescription,
+  atmActionsWithdrawDescription
+} from '@/lib/atm/atmUserFacingCopy'
 import { connectToDatabase } from '@/lib/db'
 import {
   blockPanelFeatureAction,
@@ -182,12 +188,12 @@ export async function depositBalance(
       try {
         await sendEmbed(
           actionsChannelId,
-          'ATM - Deposit Balance via Web',
-          `An administrator has added **${money(
-            amount,
-            globalSettings
-          )}** to <@${userId}>'s balance.\n` +
-            `**New Balance:** ${money(user.balance, globalSettings)}`,
+          ATM_ACTIONS_DEPOSIT_TITLE,
+          atmActionsDepositDescription(
+            money(amount, globalSettings),
+            userId,
+            money(user.balance, globalSettings)
+          ),
           0x57f287,
           userId
         )
@@ -280,12 +286,12 @@ export async function withdrawBalance(
       try {
         await sendEmbed(
           actionsChannelId,
-          'ATM - Withdraw Balance via Web',
-          `An administrator has removed **${money(
-            amount,
-            globalSettings
-          )}** from <@${userId}>'s balance.\n` +
-            `**New Balance:** ${money(user.balance, globalSettings)}`,
+          ATM_ACTIONS_WITHDRAW_TITLE,
+          atmActionsWithdrawDescription(
+            money(amount, globalSettings),
+            userId,
+            money(user.balance, globalSettings)
+          ),
           0x57f287,
           userId
         )

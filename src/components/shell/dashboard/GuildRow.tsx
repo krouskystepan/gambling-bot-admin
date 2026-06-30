@@ -3,9 +3,12 @@
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 import { IGuild } from '@/types/types'
-
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 
 const GuildRow = ({ guild }: { guild: IGuild }) => {
   const pathname = usePathname()

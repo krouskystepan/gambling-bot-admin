@@ -8,9 +8,9 @@ import { toast } from 'sonner'
 import Link from 'next/link'
 
 import { saveModerationSettings } from '@/actions/database/moderationSettings.action'
-import FormActionsFooter from '@/components/FormActionsFooter'
 import OptionalSelect from '@/components/form/OptionalSelect'
 import SettingsFormLayout from '@/components/form/SettingsFormLayout'
+import FormActionsFooter from '@/components/page/FormActionsFooter'
 import {
   Card,
   CardContent,

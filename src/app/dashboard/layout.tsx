@@ -1,11 +1,15 @@
-import DashboardFullPageState from '@/components/DashboardFullPageState'
-import DashboardSidebar from '@/components/DashboardSidebar'
+import DashboardFullPageState from '@/components/shell/dashboard/DashboardFullPageState'
+import DashboardSidebar from '@/components/shell/dashboard/DashboardSidebar'
 import RateLimited from '@/components/states/RateLimmited'
 import { Toaster } from '@/components/ui/sonner'
+import { getSessionOrNull } from '@/lib/auth/requireSession'
 import { loadUserGuildsResult } from '@/lib/guild/userGuilds'
 
 const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
-  const guildsResult = await loadUserGuildsResult()
+  const [guildsResult, session] = await Promise.all([
+    loadUserGuildsResult(),
+    getSessionOrNull()
+  ])
 
   if (!guildsResult.ok) {
     return (
@@ -17,7 +21,11 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="flex h-full min-h-0 overflow-hidden bg-background">
-      <DashboardSidebar guilds={guildsResult.guilds} />
+      <DashboardSidebar
+        guilds={guildsResult.guilds}
+        userName={session?.user?.name ?? null}
+        userImage={session?.user?.image ?? null}
+      />
       <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         {children}
         <Toaster richColors position="bottom-right" />

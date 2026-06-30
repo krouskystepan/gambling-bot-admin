@@ -1,6 +1,6 @@
 import type { GlobalSettings } from 'gambling-bot-shared/guild'
 
-import { KpiStripMetric } from '@/components/KpiStrip'
+import { KpiStripMetric } from '@/components/page/KpiStrip'
 import { Card, CardContent } from '@/components/ui/card'
 import {
   formatOverviewCount,

@@ -38,7 +38,7 @@ export type RawStaffActionDoc = {
   txType?: string
   txSource?: string
   referenceId?: string | null
-  sourceType: 'transaction' | 'atmRequest'
+  sourceType: 'transaction' | 'atmRequest' | 'userBan'
 }
 
 function mapRawToStaffActionRow(

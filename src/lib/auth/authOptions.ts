@@ -31,13 +31,15 @@ export const authOptions: NextAuthOptions = {
   ],
 
   callbacks: {
-    async jwt({ token, account }) {
+    async jwt({ token, account, profile }) {
       if (account) {
         return {
           ...token,
           accessToken: account.access_token,
           accessTokenExpires: Date.now() + HOUR_MS,
-          userId: account.providerAccountId
+          userId: account.providerAccountId,
+          name: profile?.name ?? token.name,
+          picture: profile?.image ?? token.picture
         }
       }
 
@@ -52,6 +54,15 @@ export const authOptions: NextAuthOptions = {
       session.accessToken = token.accessToken ?? null
       session.userId = token.userId ?? null
       session.error = token.error ?? null
+
+      if (session.user) {
+        session.user.name = token.name ?? session.user.name ?? null
+        session.user.image =
+          (typeof token.picture === 'string' ? token.picture : null) ??
+          session.user.image ??
+          null
+      }
+
       return session
     }
   },

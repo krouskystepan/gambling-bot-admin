@@ -8,11 +8,11 @@ import { Columns3Icon } from 'lucide-react'
 
 import { Dispatch, SetStateAction, useMemo } from 'react'
 
-import DatePicker from '@/components/DatePicker'
+import { sourceBadgeMap, typeBadgeMap } from '@/components/badges/badgeStyles'
+import DatePicker from '@/components/form/DatePicker'
 import SearchableUserFilter, {
   type SearchableUserOption
-} from '@/components/SearchableUserFilter'
-import { sourceBadgeMap, typeBadgeMap } from '@/components/badges/badgeStyles'
+} from '@/components/table/SearchableUserFilter'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,

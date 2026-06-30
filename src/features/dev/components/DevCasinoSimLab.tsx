@@ -48,7 +48,7 @@ type DevCasinoSimLabProps = {
 }
 
 const formatRtp = (value: number | null) =>
-  value == null ? '—' : `${value.toFixed(3)}%`
+  value == null ? '-' : `${value.toFixed(3)}%`
 
 const deltaBadge = (delta: number | null) => {
   if (delta == null) return null

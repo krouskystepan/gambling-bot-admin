@@ -4,7 +4,7 @@ import { DateRange } from 'react-day-picker'
 
 import { useState } from 'react'
 
-import DatePicker from '@/components/DatePicker'
+import DatePicker from '@/components/form/DatePicker'
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback'
 import { useUpdateUrl } from '@/hooks/useUpdateUrl'
 

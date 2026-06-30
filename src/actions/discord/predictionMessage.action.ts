@@ -50,7 +50,7 @@ function buildPredictionEmbed({
   return {
     title,
     description: choices
-      .map((c) => `- **${c.choiceName}** — ${c.odds}x`)
+      .map((c) => `- **${c.choiceName}** - ${c.odds}x`)
       .join('\n'),
     footer: { text: `ID: ${messageId}` },
     color,
@@ -195,7 +195,7 @@ export async function updatePredictionMessageCanceled({
     url: `/channels/${channelId}/messages/${messageId}`,
     method: 'PATCH',
     data: {
-      content: '**Status:** Canceled — All bets refunded',
+      content: '**Status:** Canceled - All bets refunded',
       embeds: [embed],
       components: []
     }

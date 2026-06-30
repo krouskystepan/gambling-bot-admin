@@ -11,10 +11,10 @@ import type {
   StaffActionEntityFacets,
   StaffActionRow
 } from '@/actions/database/staffActions.action'
-import DatePicker from '@/components/DatePicker'
+import DatePicker from '@/components/form/DatePicker'
 import SearchableUserFilter, {
   type SearchableUserOption
-} from '@/components/SearchableUserFilter'
+} from '@/components/table/SearchableUserFilter'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -37,9 +37,23 @@ import {
 } from '@/lib/table/facetFilters'
 import { cn } from '@/lib/utils'
 
+const STAFF_ACTION_CATEGORY_LABELS: Record<
+  (typeof STAFF_ACTION_CATEGORIES)[number],
+  string
+> = {
+  balance: 'Balance',
+  atm: 'ATM',
+  vip: 'VIP',
+  raffle: 'Raffle',
+  prediction: 'Prediction',
+  ban: 'Ban',
+  unban: 'Unban',
+  user: 'Notes'
+}
+
 const categoryOptions = STAFF_ACTION_CATEGORIES.map((category, index) => ({
   value: `${category}-${index}`,
-  label: category.charAt(0).toUpperCase() + category.slice(1),
+  label: STAFF_ACTION_CATEGORY_LABELS[category],
   realValue: category
 }))
 

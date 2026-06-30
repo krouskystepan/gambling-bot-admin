@@ -216,8 +216,8 @@ const UserActionsMenu = ({
       } else {
         const result =
           moderationModal === 'ban'
-            ? await banUser(user.userId, guildId, reason || undefined)
-            : await unbanUser(user.userId, guildId, reason || undefined)
+            ? await banUser(guildId, user.userId, reason || undefined)
+            : await unbanUser(guildId, user.userId, reason || undefined)
 
         if (result.success) {
           toast.success(result.message)
@@ -255,8 +255,8 @@ const UserActionsMenu = ({
     <>
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
-          <Button size="icon" variant="ghost">
-            <EllipsisIcon className="h-5 w-5" />
+          <Button size="icon" variant="outline" className="size-9 shrink-0">
+            <EllipsisIcon className="size-4" />
           </Button>
         </DropdownMenuTrigger>
 

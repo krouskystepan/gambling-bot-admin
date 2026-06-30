@@ -7,6 +7,11 @@ import { STAFF_ADMIN_ACTIONS } from 'gambling-bot-shared/transactions'
 import { Session } from 'next-auth'
 
 import { editDiscordMessage, sendEmbed } from '@/actions/discord/utils.action'
+import {
+  atmApprovedDepositDescription,
+  atmApprovedWithdrawDescription,
+  atmRejectedDescription
+} from '@/lib/atm/atmUserFacingCopy'
 import { connectToDatabase } from '@/lib/db'
 import { revalidateGuildHealth } from '@/lib/guild/revalidateHealth'
 import { blockPanelFeatureAction } from '@/lib/panel/panelFeatureActionGuard.server'
@@ -480,7 +485,7 @@ export const approveAtmRequestAction = async (
       userId: request.userId,
       handledBy,
       title: 'ATM Transaction Approved',
-      description: `Deposit of **${readableAmount}** approved via admin panel.`,
+      description: atmApprovedDepositDescription(readableAmount),
       color: 0x57f287,
       logChannelId: request.logChannelId,
       logMessageId: request.logMessageId,
@@ -527,7 +532,7 @@ export const approveAtmRequestAction = async (
       color: 0xed4245,
       logChannelId: request.logChannelId,
       logMessageId: request.logMessageId,
-      logContent: `❌ Rejected by <@${handledBy}> — insufficient available balance (web panel).`
+      logContent: `❌ Rejected by <@${handledBy}> - insufficient available balance (web panel).`
     })
 
     return {
@@ -611,7 +616,7 @@ export const approveAtmRequestAction = async (
     userId: request.userId,
     handledBy,
     title: 'ATM Transaction Approved',
-    description: `Withdrawal of **${readableAmount}** approved via admin panel.`,
+    description: atmApprovedWithdrawDescription(readableAmount),
     color: 0x57f287,
     logChannelId: request.logChannelId,
     logMessageId: request.logMessageId,
@@ -683,7 +688,7 @@ export const rejectAtmRequestAction = async (
     userId: request.userId,
     handledBy,
     title: 'ATM Transaction Rejected',
-    description: `${actionWord} of **${readableAmount}** rejected via admin panel.`,
+    description: atmRejectedDescription(actionWord, readableAmount),
     color: 0xed4245,
     logChannelId: request.logChannelId,
     logMessageId: request.logMessageId,

@@ -5,9 +5,9 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { saveChannels } from '@/actions/database/channels.action'
-import FormActionsFooter from '@/components/FormActionsFooter'
 import OptionalSelect from '@/components/form/OptionalSelect'
 import SettingsFormLayout from '@/components/form/SettingsFormLayout'
+import FormActionsFooter from '@/components/page/FormActionsFooter'
 import {
   Card,
   CardContent,
@@ -251,8 +251,8 @@ const ChannelsSettingsForm = ({
                         </OptionalSelect>
                       </FormControl>
                       <FormDescription>
-                        Posts public embeds when players hit configured big wins
-                        in casino games
+                        Posts public announcements when players hit configured
+                        big wins in casino games
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

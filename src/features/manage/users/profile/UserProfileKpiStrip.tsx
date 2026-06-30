@@ -1,6 +1,6 @@
 import type { GlobalSettings } from 'gambling-bot-shared/guild'
 
-import KpiStrip from '@/components/KpiStrip'
+import KpiStrip from '@/components/page/KpiStrip'
 import { formatOverviewCurrency } from '@/lib/overview/overviewFormatters'
 
 type UserProfileKpiStripProps = {
@@ -25,7 +25,7 @@ const UserProfileKpiStrip = ({
   const formatCurrency = (value: number) =>
     formatOverviewCurrency(value, globalSettings)
 
-  const dash = '—'
+  const dash = '-'
   const formatWallet = (value: number) =>
     registered ? formatCurrency(value) : dash
 

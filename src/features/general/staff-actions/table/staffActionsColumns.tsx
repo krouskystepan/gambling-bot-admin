@@ -77,7 +77,11 @@ export const staffActionsColumns = (
     size: 80,
     cell: ({ row }) => {
       const meta = row.original.meta ?? {}
-      const hasMeta = Object.keys(meta).length > 0
+      const isNoteAction = row.original.actionBadge === 'NOTE'
+      const tooltipMeta = Object.entries(meta).filter(
+        ([key]) => !isNoteAction || key !== 'notes'
+      )
+      const hasMeta = tooltipMeta.length > 0
       const sublabel = row.original.actionSublabel
       const showTooltip = hasMeta || Boolean(sublabel)
 
@@ -96,7 +100,7 @@ export const staffActionsColumns = (
               </TooltipTrigger>
               <TooltipContent>
                 {sublabel && !hasMeta ? <p>Action: {sublabel}</p> : null}
-                {Object.entries(meta).map(([key, value]) => {
+                {tooltipMeta.map(([key, value]) => {
                   const formatter = metaFormatters[key]
                   if (formatter) return <p key={key}>{formatter(value)}</p>
 

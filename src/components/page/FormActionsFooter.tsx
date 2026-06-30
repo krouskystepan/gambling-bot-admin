@@ -3,9 +3,8 @@
 import { Loader2 } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-
-import { Button } from './ui/button'
 
 type FormActionsFooterProps = {
   label?: string
