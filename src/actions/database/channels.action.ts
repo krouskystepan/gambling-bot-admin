@@ -37,7 +37,8 @@ export async function getChannels(
     raffle: {
       actions: doc.raffleChannelIds?.actions ?? '',
       logs: doc.raffleChannelIds?.logs ?? ''
-    }
+    },
+    workerLogChannelId: doc.workerLogChannelId ?? ''
   }
 }
 
@@ -62,7 +63,8 @@ export async function saveChannels(
         'predictionChannelIds.actions': values.prediction.actions,
         'predictionChannelIds.logs': values.prediction.logs,
         'raffleChannelIds.actions': values.raffle.actions,
-        'raffleChannelIds.logs': values.raffle.logs
+        'raffleChannelIds.logs': values.raffle.logs,
+        workerLogChannelId: values.workerLogChannelId
       }
     },
     { new: true, upsert: true }
@@ -86,6 +88,7 @@ export async function saveChannels(
     raffle: {
       actions: updated.raffleChannelIds.actions,
       logs: updated.raffleChannelIds.logs
-    }
+    },
+    workerLogChannelId: updated.workerLogChannelId ?? ''
   }
 }

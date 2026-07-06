@@ -1,8 +1,7 @@
+import { HOUR_MS } from 'gambling-bot-shared/common'
 import { NextAuthOptions } from 'next-auth'
 import { JWT } from 'next-auth/jwt'
 import DiscordProvider from 'next-auth/providers/discord'
-
-import { HOUR_MS } from '@/lib/time/durations'
 
 function requiredEnv(name: string): string {
   const value = process.env[name]

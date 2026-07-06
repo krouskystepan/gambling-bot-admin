@@ -1,4 +1,4 @@
-import { DAY_MS, HOUR_MS, MINUTE_MS } from '@/lib/time/durations'
+import { DAY_MS, HOUR_MS, MINUTE_MS } from 'gambling-bot-shared/common'
 
 export const formatAgeMs = (ageMs: number) => {
   if (ageMs < MINUTE_MS) return 'just now'

@@ -1,4 +1,4 @@
-import { DAY_MS, MINUTE_MS } from '@/lib/time/durations'
+import { DAY_MS, MINUTE_MS } from 'gambling-bot-shared/common'
 
 /** Matches blackjack autostand worker (`getAllOldBlackjackGames(1)`). */
 export const blackjackStaleCutoff = () => new Date(Date.now() - DAY_MS)

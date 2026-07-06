@@ -260,7 +260,7 @@ export async function extendVipRoom(
 
   const updatedVip = await VipRoom.findOneAndUpdate(
     { ownerId, guildId },
-    { $set: { expiresAt: newExpiry } }
+    { $set: { expiresAt: newExpiry, expiryWarningsSent: [] } }
   )
 
   if (!updatedVip) {

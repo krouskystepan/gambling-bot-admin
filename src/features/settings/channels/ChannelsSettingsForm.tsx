@@ -37,6 +37,7 @@ type ChannelsFormProps = {
     casino: { casinoChannelIds: string[]; winAnnouncementsChannelId: string }
     prediction: { actions: string; logs: string }
     raffle: { actions: string; logs: string }
+    workerLogChannelId: string
   } | null
 }
 
@@ -64,7 +65,8 @@ const ChannelsSettingsForm = ({
       raffle: {
         actions: savedChannels?.raffle?.actions ?? '',
         logs: savedChannels?.raffle?.logs ?? ''
-      }
+      },
+      workerLogChannelId: savedChannels?.workerLogChannelId ?? ''
     }
   })
 
@@ -88,7 +90,7 @@ const ChannelsSettingsForm = ({
             actions={
               <FormActionsFooter
                 label="Save channel settings"
-                hint="Applies to ATM, casino, prediction, and raffle"
+                hint="Applies to ATM, casino, prediction, raffle, and worker logs"
               />
             }
           >
@@ -390,6 +392,57 @@ const ChannelsSettingsForm = ({
                     )}
                   />
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card className="gap-4 py-4">
+              <CardHeader className="pb-0">
+                <CardTitle>Background worker logs</CardTitle>
+                <CardDescription>
+                  Optional channel for automated background task summaries
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-0">
+                <FormField
+                  control={form.control}
+                  name="workerLogChannelId"
+                  render={({ field }) => {
+                    const selectedChannel = guildChannels.find(
+                      (channel) => channel.id === field.value
+                    )
+
+                    return (
+                      <FormItem>
+                        <Label>Worker logs channel</Label>
+                        <FormControl>
+                          <OptionalSelect
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="None (disabled)"
+                          >
+                            {guildChannels.map((channel) => (
+                              <SelectItem key={channel.id} value={channel.id}>
+                                {channel.name}
+                              </SelectItem>
+                            ))}
+                          </OptionalSelect>
+                        </FormControl>
+                        <FormDescription>
+                          Optional. When set, the bot posts summaries of
+                          automated background tasks (VIP expiry, raffle draws,
+                          orphan cleanup, etc.). When unset, worker logs are not
+                          sent to Discord.
+                        </FormDescription>
+                        <p className="text-sm text-muted-foreground">
+                          {field.value
+                            ? `Enabled — ${selectedChannel?.name ?? field.value}`
+                            : 'Disabled — no Discord worker logs'}
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )
+                  }}
+                />
               </CardContent>
             </Card>
           </SettingsFormLayout>
