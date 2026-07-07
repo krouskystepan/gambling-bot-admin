@@ -71,6 +71,7 @@ const OperationsHealthCard = ({
         <div className="border-t border-border pt-6">
           <div className="grid gap-4 xl:grid-cols-3 xl:grid-rows-[auto_auto_minmax(0,24rem)]">
             <OperationsCategorySection
+              guildId={guildId}
               title="ATM"
               description="No pending deposit or withdraw requests."
               rows={atm.rows}
@@ -81,6 +82,7 @@ const OperationsHealthCard = ({
               emptyLabel="No pending requests"
             />
             <OperationsCategorySection
+              guildId={guildId}
               title="Blackjack"
               description="No stale in-progress games."
               rows={blackjack.rows}
@@ -91,6 +93,7 @@ const OperationsHealthCard = ({
               emptyLabel="No stale in-progress games"
             />
             <OperationsCategorySection
+              guildId={guildId}
               title="Predictions"
               description="No predictions awaiting staff action."
               rows={predictions.rows}

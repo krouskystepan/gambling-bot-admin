@@ -23,6 +23,10 @@ import Prediction from '@/models/Prediction'
 
 export type SystemHealthSeverity = 'ok' | 'warning' | 'attention'
 
+export type SystemHealthRepairAction =
+  | { kind: 'resetPredictionPayout'; predictionId: string }
+  | { kind: 'forceCloseBlackjack'; userId: string }
+
 export type SystemHealthRow = {
   id: string
   label: string
@@ -39,6 +43,7 @@ export type SystemHealthItem = {
   discordHref?: string
   adminHref?: string
   ageMs: number
+  repair?: SystemHealthRepairAction
 }
 
 export type SystemHealthCategory = {
@@ -192,7 +197,12 @@ const mapBlackjackItem = (
       : `${formatAgeMs(ageMs)} · ${game.phase} phase`,
     discordHref: discordMessageLink(guildId, game.channelId, game.messageId),
     adminHref: userHref(guildId, game.userId),
-    ageMs
+    ageMs,
+    ...(isStale
+      ? {
+          repair: { kind: 'forceCloseBlackjack' as const, userId: game.userId }
+        }
+      : {})
   }
 }
 
@@ -227,7 +237,15 @@ const mapPredictionItem = (
       prediction.channelId,
       prediction.predictionId
     ),
-    ageMs
+    ageMs,
+    ...(prediction.status === 'paying' && updatedAt <= stuckPayingCutoff
+      ? {
+          repair: {
+            kind: 'resetPredictionPayout' as const,
+            predictionId: prediction.predictionId
+          }
+        }
+      : {})
   }
 }
 

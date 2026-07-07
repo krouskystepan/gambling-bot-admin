@@ -89,7 +89,7 @@ const OverviewVolumeDonutCard = ({
             />
           </>
         ) : (
-          <p className="flex flex-1 items-center justify-center py-6 text-center text-sm text-muted-foreground">
+          <p className="col-span-3 flex items-center justify-center py-6 text-center text-sm text-muted-foreground">
             {emptyMessage ?? 'No volume in this period.'}
           </p>
         )}

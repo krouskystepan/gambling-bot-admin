@@ -28,9 +28,14 @@ function buildCategoryTransactionMatch(
   switch (category) {
     case 'balance':
       return {
-        type: { $in: ['deposit', 'withdraw', 'bonus'] },
-        source: 'web',
-        $or: [{ referenceId: { $exists: false } }, { referenceId: null }]
+        $or: [
+          {
+            type: { $in: ['deposit', 'withdraw', 'bonus'] },
+            source: 'web',
+            $or: [{ referenceId: { $exists: false } }, { referenceId: null }]
+          },
+          { 'meta.adminAction': STAFF_ADMIN_ACTIONS.BLACKJACK_FORCE_CLOSE }
+        ]
       }
     case 'atm':
       return {
@@ -62,7 +67,8 @@ function buildCategoryTransactionMatch(
           $in: [
             STAFF_ADMIN_ACTIONS.PREDICTION_END,
             STAFF_ADMIN_ACTIONS.PREDICTION_PAYOUT,
-            STAFF_ADMIN_ACTIONS.PREDICTION_CANCEL
+            STAFF_ADMIN_ACTIONS.PREDICTION_CANCEL,
+            STAFF_ADMIN_ACTIONS.PREDICTION_RESET_PAYOUT
           ]
         }
       }

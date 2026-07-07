@@ -18,6 +18,7 @@ import OperationsItemList from './OperationsItemList'
 import type { OperationsItemListProps } from './OperationsItemList'
 
 type OperationsCategorySectionProps = {
+  guildId: string
   title: string
   description: string
   rows: SystemHealthRow[]
@@ -78,6 +79,7 @@ const HealthRow = ({ row }: { row: SystemHealthRow }) => {
 }
 
 const OperationsCategorySection = ({
+  guildId,
   title,
   description,
   rows,
@@ -108,6 +110,7 @@ const OperationsCategorySection = ({
 
       <div className="flex min-h-0 flex-col">
         <OperationsItemList
+          guildId={guildId}
           items={items}
           totalCount={itemTotal}
           viewAllHref={viewAllHref}
