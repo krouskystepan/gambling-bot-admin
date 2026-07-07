@@ -72,6 +72,24 @@ export function resolveStaffActionLabel(input: {
     }
   }
 
+  if (adminAction === STAFF_ADMIN_ACTIONS.PREDICTION_RESET_PAYOUT) {
+    return {
+      label: 'Prediction payout reset',
+      category: 'prediction',
+      badge: 'PREDICT',
+      sublabel: 'Payout reset'
+    }
+  }
+
+  if (adminAction === STAFF_ADMIN_ACTIONS.BLACKJACK_FORCE_CLOSE) {
+    return {
+      label: 'Blackjack force closed',
+      category: 'balance',
+      badge: 'BLACKJACK',
+      sublabel: 'Force closed'
+    }
+  }
+
   if (adminAction === STAFF_ADMIN_ACTIONS.USER_BAN) {
     return {
       label: 'Player banned',

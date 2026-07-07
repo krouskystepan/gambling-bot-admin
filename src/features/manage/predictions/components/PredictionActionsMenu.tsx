@@ -27,6 +27,7 @@ import CancelPredictionDialog from './CancelPredictionDialog'
 import EndPredictionDialog from './EndPredictionDialog'
 import PayoutPredictionDialog from './PayoutPredictionDialog'
 import PredictionDetailDialog from './PredictionDetailDialog'
+import ResetStuckPayoutDialog from './ResetStuckPayoutDialog'
 
 type PredictionActionsMenuProps = {
   guildId: string
@@ -48,6 +49,7 @@ const PredictionActionsMenu = ({
   const [endOpen, setEndOpen] = useState(false)
   const [payoutOpen, setPayoutOpen] = useState(false)
   const [cancelOpen, setCancelOpen] = useState(false)
+  const [resetPayoutOpen, setResetPayoutOpen] = useState(false)
   const [loadingDetail, setLoadingDetail] = useState(false)
   const [detailError, setDetailError] = useState<string | null>(null)
   const [detail, setDetail] = useState<TPredictionDetail | null>(null)
@@ -199,6 +201,34 @@ const PredictionActionsMenu = ({
               </Tooltip>
             </>
           ) : null}
+
+          {prediction.status === 'paying' ? (
+            <>
+              <DropdownMenuSeparator />
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span>
+                    <DropdownMenuItem
+                      className="text-destructive focus:text-destructive"
+                      disabled={!canMutate}
+                      onClick={() => {
+                        if (!canMutate) return
+                        setMenuOpen(false)
+                        setResetPayoutOpen(true)
+                      }}
+                    >
+                      Reset stuck payout
+                    </DropdownMenuItem>
+                  </span>
+                </TooltipTrigger>
+                {mutationTooltip ? (
+                  <TooltipContent className="max-w-xs">
+                    <p>{mutationTooltip}</p>
+                  </TooltipContent>
+                ) : null}
+              </Tooltip>
+            </>
+          ) : null}
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -233,6 +263,14 @@ const PredictionActionsMenu = ({
         title={prediction.title}
         open={cancelOpen}
         onOpenChange={setCancelOpen}
+      />
+
+      <ResetStuckPayoutDialog
+        guildId={guildId}
+        predictionId={prediction.predictionId}
+        title={prediction.title}
+        open={resetPayoutOpen}
+        onOpenChange={setResetPayoutOpen}
       />
     </>
   )

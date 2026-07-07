@@ -406,42 +406,31 @@ const ChannelsSettingsForm = ({
                 <FormField
                   control={form.control}
                   name="workerLogChannelId"
-                  render={({ field }) => {
-                    const selectedChannel = guildChannels.find(
-                      (channel) => channel.id === field.value
-                    )
-
-                    return (
-                      <FormItem>
-                        <Label>Worker logs channel</Label>
-                        <FormControl>
-                          <OptionalSelect
-                            value={field.value}
-                            onValueChange={field.onChange}
-                            placeholder="None (disabled)"
-                          >
-                            {guildChannels.map((channel) => (
-                              <SelectItem key={channel.id} value={channel.id}>
-                                {channel.name}
-                              </SelectItem>
-                            ))}
-                          </OptionalSelect>
-                        </FormControl>
-                        <FormDescription>
-                          Optional. When set, the bot posts summaries of
-                          automated background tasks (VIP expiry, raffle draws,
-                          orphan cleanup, etc.). When unset, worker logs are not
-                          sent to Discord.
-                        </FormDescription>
-                        <p className="text-sm text-muted-foreground">
-                          {field.value
-                            ? `Enabled — ${selectedChannel?.name ?? field.value}`
-                            : 'Disabled — no Discord worker logs'}
-                        </p>
-                        <FormMessage />
-                      </FormItem>
-                    )
-                  }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <Label>Worker logs channel</Label>
+                      <FormControl>
+                        <OptionalSelect
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          placeholder="None (disabled)"
+                        >
+                          {guildChannels.map((channel) => (
+                            <SelectItem key={channel.id} value={channel.id}>
+                              {channel.name}
+                            </SelectItem>
+                          ))}
+                        </OptionalSelect>
+                      </FormControl>
+                      <FormDescription>
+                        Optional. When set, the bot posts summaries of automated
+                        background tasks (VIP expiry, raffle draws, orphan
+                        cleanup, etc.). When unset, worker logs are not sent to
+                        Discord.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </CardContent>
             </Card>

@@ -14,7 +14,10 @@ import {
 } from '@/components/ui/table'
 import { formatAgeMs } from '@/lib/systemHealth/formatAge'
 
+import OperationsRepairMenu from './OperationsRepairMenu'
+
 export type OperationsItemListProps = {
+  guildId: string
   items: SystemHealthItem[]
   totalCount?: number
   viewAllHref?: string
@@ -39,6 +42,7 @@ const getStatusLabel = (subtitle: string, ageMs: number) => {
 }
 
 const OperationsItemList = ({
+  guildId,
   items,
   totalCount,
   viewAllHref,
@@ -129,6 +133,13 @@ const OperationsItemList = ({
                             >
                               <ExternalLink size={14} />
                             </a>
+                          ) : null}
+                          {item.repair ? (
+                            <OperationsRepairMenu
+                              guildId={guildId}
+                              repair={item.repair}
+                              itemTitle={item.title}
+                            />
                           ) : null}
                         </div>
                       </TableCell>
