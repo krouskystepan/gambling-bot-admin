@@ -4,6 +4,7 @@ import Link from 'next/link'
 
 import ColoredBadge from '@/components/badges/ColoredBadge'
 import { getRaffleStatusBadgeClass } from '@/components/badges/badgeStyles'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
 import { createHiddenFilterColumn } from '@/lib/table/manualFilterColumn'
 import { TRaffleRow } from '@/types/types'
@@ -109,7 +110,7 @@ export const raffleColumns = (
     cell: ({ row }) => (
       <p>
         <Link
-          href={`/dashboard/g/${guildId}/users/${row.original.creatorId}`}
+          href={`${guildBasePath(guildId)}/users/${row.original.creatorId}`}
           className="font-medium hover:text-primary hover:underline"
         >
           {row.getValue('creatorUsername')}

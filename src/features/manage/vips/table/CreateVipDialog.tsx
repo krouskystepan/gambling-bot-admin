@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 
 import GuildMemberCombobox, {
   type GuildMemberOption
@@ -106,7 +107,7 @@ const CreateVipDialog = ({
           <p className="text-sm text-muted-foreground">
             VIP is not configured yet. Set up{' '}
             <Link
-              href={`/dashboard/g/${guildId}/vip-settings`}
+              href={`${guildBasePath(guildId)}/vip-settings`}
               className="text-primary hover:underline"
             >
               VIP settings

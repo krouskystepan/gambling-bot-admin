@@ -16,6 +16,7 @@ import {
   normalizeTransactionsSearchParams
 } from '@/features/general/transactions/useTransactions'
 import { requireSession } from '@/lib/auth/requireSession'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 
 import UserProfileHeader from './UserProfileHeader'
 import UserProfileKpiStrip from './UserProfileKpiStrip'
@@ -60,13 +61,13 @@ const UserProfilePage = async ({
 
   if (!profile) return <NotFoundBox />
 
-  const transactionsHref = `/dashboard/g/${guildId}/transactions?search=${userId}&dateFrom=${range.dateFrom}&dateTo=${range.dateTo}`
+  const transactionsHref = `${guildBasePath(guildId)}/transactions?search=${userId}&dateFrom=${range.dateFrom}&dateTo=${range.dateTo}`
 
   return (
     <FeatureLayout title="User profile">
       <div className="space-y-6">
         <Link
-          href={`/dashboard/g/${guildId}/users`}
+          href={`${guildBasePath(guildId)}/users`}
           className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />

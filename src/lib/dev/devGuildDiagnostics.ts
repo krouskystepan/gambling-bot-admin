@@ -12,6 +12,18 @@ import { isBotInGuild } from '@/actions/discord/utils.action'
 import { connectToDatabase } from '@/lib/db'
 import { serializeForDev } from '@/lib/dev/serializeDevJson'
 import { PANEL_FEATURE_DISABLED_MESSAGES } from '@/lib/panel/panelGlobalFeatureGuard'
+import {
+  demoGlobalSettings,
+  getDemoDevBotPresence,
+  getDemoDevChannelChecks,
+  getDemoDevDatabaseStatus,
+  getDemoDevEnvStatus,
+  getDemoDevGuildConfig,
+  getDemoDevGuildCounts,
+  getDemoDevRecentTransactions,
+  isDemoGuild,
+  isPresentationRequest
+} from '@/lib/presentation'
 import AtmRequest from '@/models/AtmRequest'
 import BlackjackGame from '@/models/BlackjackGame'
 import GuildConfiguration from '@/models/GuildConfiguration'
@@ -57,6 +69,10 @@ export type DevChannelCheck = {
 }
 
 export async function getDevEnvStatus(): Promise<DevEnvStatus> {
+  if (await isPresentationRequest()) {
+    return getDemoDevEnvStatus()
+  }
+
   return {
     nodeEnv: process.env.NODE_ENV ?? 'unknown',
     deployment: process.env.VERCEL ? 'Vercel' : 'Local',
@@ -72,6 +88,10 @@ export async function getDevEnvStatus(): Promise<DevEnvStatus> {
 }
 
 export async function getDevDatabaseStatus() {
+  if (await isPresentationRequest()) {
+    return getDemoDevDatabaseStatus()
+  }
+
   await connectToDatabase()
 
   const readyState = mongoose.connection.readyState
@@ -101,6 +121,10 @@ export async function getDevDatabaseStatus() {
 export async function getDevGuildCounts(
   guildId: string
 ): Promise<DevGuildCounts> {
+  if (isDemoGuild(guildId)) {
+    return getDemoDevGuildCounts()
+  }
+
   await connectToDatabase()
 
   const [
@@ -141,17 +165,25 @@ export async function getDevGuildCounts(
   }
 }
 
-export async function getDevFeatureFlags(
+async function loadGuildGlobalSettings(
   guildId: string
-): Promise<DevFeatureFlag[]> {
+): Promise<GlobalSettings> {
   await connectToDatabase()
   const config = await GuildConfiguration.findOne({ guildId })
     .select('globalSettings')
     .lean()
 
-  const globalSettings = normalizeGlobalSettings(
+  return normalizeGlobalSettings(
     config?.globalSettings as Partial<GlobalSettings> | undefined
   )
+}
+
+export async function getDevFeatureFlags(
+  guildId: string
+): Promise<DevFeatureFlag[]> {
+  const globalSettings = isDemoGuild(guildId)
+    ? demoGlobalSettings
+    : await loadGuildGlobalSettings(guildId)
 
   const guildConfig = { globalSettings } as Parameters<
     typeof isGlobalFeatureDisabled
@@ -164,12 +196,20 @@ export async function getDevFeatureFlags(
 }
 
 export async function getDevGuildConfig(guildId: string) {
+  if (isDemoGuild(guildId)) {
+    return getDemoDevGuildConfig()
+  }
+
   await connectToDatabase()
   const config = await GuildConfiguration.findOne({ guildId }).lean()
   return config ? serializeForDev(config) : null
 }
 
 export async function getDevRecentTransactions(guildId: string, limit = 10) {
+  if (isDemoGuild(guildId)) {
+    return getDemoDevRecentTransactions()
+  }
+
   await connectToDatabase()
 
   const rows = await Transaction.find({ guildId })
@@ -184,6 +224,10 @@ export async function getDevRecentTransactions(guildId: string, limit = 10) {
 export async function getDevChannelChecks(
   guildId: string
 ): Promise<DevChannelCheck[]> {
+  if (isDemoGuild(guildId)) {
+    return getDemoDevChannelChecks()
+  }
+
   await connectToDatabase()
   const [config, channels] = await Promise.all([
     GuildConfiguration.findOne({ guildId }).lean(),
@@ -224,6 +268,10 @@ export async function getDevChannelChecks(
 }
 
 export async function getDevBotPresence(guildId: string) {
+  if (isDemoGuild(guildId)) {
+    return getDemoDevBotPresence()
+  }
+
   const inGuild = await isBotInGuild(guildId)
   return { inGuild }
 }

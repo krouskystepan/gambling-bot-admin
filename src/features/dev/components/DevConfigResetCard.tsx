@@ -8,6 +8,7 @@ import {
   type GuildConfigResetScope,
   devResetGuildConfig
 } from '@/actions/dev/devDataOps.action'
+import { usePresentationReadOnly } from '@/components/presentation/PresentationProvider'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -62,6 +63,7 @@ type DevConfigResetCardProps = {
 
 const DevConfigResetCard = ({ guildId }: DevConfigResetCardProps) => {
   const router = useRouter()
+  const readOnly = usePresentationReadOnly()
   const [pending, startTransition] = useTransition()
   const [selected, setSelected] = useState<SelectableConfigScope[]>([])
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -126,13 +128,19 @@ const DevConfigResetCard = ({ guildId }: DevConfigResetCardProps) => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {readOnly ? (
+            <p className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+              Read-only demo — destructive dev tooling is disabled.
+            </p>
+          ) : null}
+
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={selectAll}
-              disabled={allSelected}
+              disabled={allSelected || readOnly}
             >
               Reset all config
             </Button>
@@ -141,7 +149,7 @@ const DevConfigResetCard = ({ guildId }: DevConfigResetCardProps) => {
               variant="ghost"
               size="sm"
               onClick={clearSelection}
-              disabled={selected.length === 0}
+              disabled={selected.length === 0 || readOnly}
             >
               Clear selection
             </Button>
@@ -159,6 +167,7 @@ const DevConfigResetCard = ({ guildId }: DevConfigResetCardProps) => {
                   <Checkbox
                     className="mt-0.5 shrink-0"
                     checked={checked}
+                    disabled={readOnly}
                     onCheckedChange={(value) =>
                       toggleScope(option.id, value === true)
                     }
@@ -177,7 +186,7 @@ const DevConfigResetCard = ({ guildId }: DevConfigResetCardProps) => {
           <Button
             type="button"
             variant="destructive"
-            disabled={selected.length === 0}
+            disabled={selected.length === 0 || readOnly}
             onClick={() => {
               setError(null)
               setResult(null)

@@ -25,6 +25,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 import {
   createExclusiveOwnerEntityFilterHandlers,
   getEntityFilterOptions,
@@ -133,7 +134,7 @@ const PredictionsTableFilters = ({
         <p className="text-sm text-muted-foreground">
           Prediction channels are not fully configured. Set actions and logs in{' '}
           <Link
-            href={`/dashboard/g/${guildId}/channel-settings`}
+            href={`${guildBasePath(guildId)}/channel-settings`}
             className="text-primary hover:underline"
           >
             Channel settings

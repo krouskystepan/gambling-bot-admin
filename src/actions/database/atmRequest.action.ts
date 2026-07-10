@@ -15,6 +15,11 @@ import {
 import { connectToDatabase } from '@/lib/db'
 import { revalidateGuildHealth } from '@/lib/guild/revalidateHealth'
 import { blockPanelFeatureAction } from '@/lib/panel/panelFeatureActionGuard.server'
+import {
+  getDemoAtmRequestCounts,
+  getDemoAtmRequests,
+  isDemoGuild
+} from '@/lib/presentation'
 import { recordStaffAudit } from '@/lib/staffAudit/recordStaffAudit'
 import AtmRequest from '@/models/AtmRequest'
 import GuildConfiguration from '@/models/GuildConfiguration'
@@ -206,6 +211,10 @@ export const getAtmRequestCounts = async (
   _session: Session,
   filters: AtmRequestCountFilters = {}
 ): Promise<AtmRequestCounts> => {
+  if (isDemoGuild(guildId)) {
+    return getDemoAtmRequestCounts()
+  }
+
   const access = await requireGuildAccess(guildId)
   if ('error' in access) {
     return emptyAtmRequestCounts()
@@ -295,6 +304,17 @@ export const getAtmRequests = async (
   dateTo?: string,
   sort?: string
 ): Promise<{ requests: TAtmRequestDiscord[]; total: number }> => {
+  if (isDemoGuild(guildId)) {
+    return getDemoAtmRequests({
+      page,
+      limit,
+      search,
+      filterStatus,
+      filterType,
+      sort
+    })
+  }
+
   const access = await requireGuildAccess(guildId)
   if ('error' in access || page < 1 || limit < 1 || limit > 50) {
     return { requests: [], total: 0 }

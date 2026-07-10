@@ -13,6 +13,13 @@ import { connectToDatabase } from '@/lib/db'
 import { discordBotRequest } from '@/lib/discord/discordReq'
 import { getGuildGlobalSettings } from '@/lib/guild/guildMoney.server'
 import {
+  getDemoStaffActionCounts,
+  getDemoStaffActionEntityFacets,
+  getDemoStaffActions,
+  getDemoStaffMembers,
+  isDemoGuild
+} from '@/lib/presentation'
+import {
   type StaffActionsFilters,
   buildAtmRejectionMatch,
   buildStaffTransactionMatch,
@@ -150,6 +157,10 @@ function buildUnifiedPipeline(
 export async function getGuildStaffMembers(
   guildId: string
 ): Promise<{ userId: string; username: string }[]> {
+  if (isDemoGuild(guildId)) {
+    return getDemoStaffMembers()
+  }
+
   await connectToDatabase()
 
   const [config, members, adminRoleIds, guild] = await Promise.all([
@@ -198,6 +209,16 @@ export async function getStaffActions(
   limit = 15,
   filters: StaffActionsFilters = {}
 ): Promise<{ actions: StaffActionRow[]; total: number }> {
+  if (isDemoGuild(guildId)) {
+    return getDemoStaffActions({
+      page,
+      limit,
+      search: filters.search,
+      staffId: filters.staffId,
+      filterAction: filters.filterAction
+    })
+  }
+
   const access = await requireGuildAccess(guildId)
   if ('error' in access || page < 1 || limit < 1 || limit > 50) {
     return { actions: [], total: 0 }
@@ -264,6 +285,10 @@ export async function getStaffActionCounts(
   session: Session,
   filters: Omit<StaffActionsFilters, 'filterAction'> = {}
 ): Promise<StaffActionCounts> {
+  if (isDemoGuild(guildId)) {
+    return getDemoStaffActionCounts()
+  }
+
   const access = await requireGuildAccess(guildId)
   if ('error' in access) {
     return emptyStaffActionCategoryCounts()
@@ -312,6 +337,10 @@ export async function getStaffActionEntityFacets(
   session: Session,
   filters: StaffActionsFilters = {}
 ): Promise<StaffActionEntityFacets> {
+  if (isDemoGuild(guildId)) {
+    return getDemoStaffActionEntityFacets()
+  }
+
   const access = await requireGuildAccess(guildId)
   if ('error' in access) {
     return { staff: {}, users: {} }

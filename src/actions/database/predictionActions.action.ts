@@ -35,6 +35,11 @@ import {
   blockPanelMaintenanceAction
 } from '@/lib/panel/panelFeatureActionGuard.server'
 import { getPanelFeatureBlockMessage } from '@/lib/panel/panelGlobalFeatureGuard'
+import {
+  getDemoPredictionPageContext,
+  getDemoPredictions,
+  isDemoGuild
+} from '@/lib/presentation'
 import { recordStaffAudit } from '@/lib/staffAudit/recordStaffAudit'
 import { escapeRegExp } from '@/lib/utils'
 import GuildConfiguration from '@/models/GuildConfiguration'
@@ -120,6 +125,8 @@ function enrichPredictionRow(
 export async function getPredictionPageContext(
   guildId: string
 ): Promise<PredictionPageContext | null> {
+  if (isDemoGuild(guildId)) return getDemoPredictionPageContext()
+
   const access = await requireGuildAccess(guildId)
   if ('error' in access) return null
 
@@ -153,6 +160,10 @@ export async function getPredictions(
   status: TPrediction['status'] | 'all' = 'active',
   userId?: string
 ): Promise<{ predictions: TPredictionRow[]; total: number }> {
+  if (isDemoGuild(guildId)) {
+    return getDemoPredictions({ page, limit, search, status, userId })
+  }
+
   const access = await requireGuildAccess(guildId)
   if ('error' in access || page < 1 || limit < 1 || limit > 50) {
     return { predictions: [], total: 0 }

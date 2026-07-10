@@ -3,6 +3,8 @@ import {
   type StaffActionCategory
 } from 'gambling-bot-shared/transactions'
 
+import { guildBasePath } from '@/lib/guild/guildBasePath'
+
 const VIP_ADMIN_ACTIONS = new Set<string>([
   STAFF_ADMIN_ACTIONS.VIP_BUY,
   STAFF_ADMIN_ACTIONS.VIP_EXTEND,
@@ -221,7 +223,7 @@ export function resolveStaffActionDetailHref(
       adminAction === STAFF_ADMIN_ACTIONS.USER_NOTE_UPDATE ||
       adminAction === STAFF_ADMIN_ACTIONS.USER_NOTE_DELETE)
   ) {
-    return `/dashboard/g/${guildId}/users/${input.subjectUserId}`
+    return `${guildBasePath(guildId)}/users/${input.subjectUserId}`
   }
 
   if (
@@ -231,15 +233,15 @@ export function resolveStaffActionDetailHref(
       input.type === 'withdraw' ||
       input.sourceType === 'atmRequest')
   ) {
-    return `/dashboard/g/${guildId}/transactions?referenceId=${requestId}`
+    return `${guildBasePath(guildId)}/transactions?referenceId=${requestId}`
   }
 
   if (drawId) {
-    return `/dashboard/g/${guildId}/raffles?search=${drawId}`
+    return `${guildBasePath(guildId)}/raffles?search=${drawId}`
   }
 
   if (predictionId) {
-    return `/dashboard/g/${guildId}/predictions?search=${predictionId}`
+    return `${guildBasePath(guildId)}/predictions?search=${predictionId}`
   }
 
   return undefined

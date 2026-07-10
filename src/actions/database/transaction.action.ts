@@ -11,6 +11,11 @@ import { Session } from 'next-auth'
 import { connectToDatabase } from '@/lib/db'
 import { getGuildGlobalSettings } from '@/lib/guild/guildMoney.server'
 import { cashFlowSum, gamePnLSum } from '@/lib/overview/transactionTotals'
+import {
+  getDemoTransactionCounts,
+  getDemoTransactions,
+  isDemoGuild
+} from '@/lib/presentation'
 import { LEGACY_CASINO_GAME_KEY } from '@/lib/transactions/transactionFilters'
 import { buildTransactionMatch } from '@/lib/transactions/transactionQuery'
 import Transaction from '@/models/Transaction'
@@ -40,6 +45,23 @@ export const getTransactions = async (
   gamePnL: number
   cashFlow: number
 }> => {
+  if (isDemoGuild(guildId)) {
+    return getDemoTransactions({
+      page,
+      limit,
+      search,
+      staffId,
+      referenceId,
+      filterType,
+      filterSource,
+      filterCasinoGame,
+      dateFrom,
+      dateTo,
+      sort,
+      userId
+    })
+  }
+
   const access = await requireGuildAccess(guildId)
   if ('error' in access || page < 1 || limit < 1 || limit > 50) {
     return { transactions: [], total: 0, gamePnL: 0, cashFlow: 0 }
@@ -160,6 +182,20 @@ export const getTransactionCounts = async (
   dateTo?: string,
   userId?: string
 ): Promise<ITransactionCounts> => {
+  if (isDemoGuild(guildId)) {
+    return getDemoTransactionCounts({
+      filterType,
+      filterSource,
+      filterCasinoGame,
+      search,
+      staffId,
+      referenceId,
+      dateFrom,
+      dateTo,
+      userId
+    })
+  }
+
   const access = await requireGuildAccess(guildId)
   if ('error' in access) {
     return {

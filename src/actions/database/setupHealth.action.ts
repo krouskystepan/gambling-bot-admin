@@ -9,7 +9,9 @@ import { getReadableName } from 'gambling-bot-shared/common'
 import { type TGuildConfiguration } from 'gambling-bot-shared/guild'
 
 import { connectToDatabase } from '@/lib/db'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 import { getRtpStatus, skipsCasinoRtpCheck } from '@/lib/overview/rtpWarnings'
+import { getDemoSetupHealthChecks, isDemoGuild } from '@/lib/presentation'
 import GuildConfiguration from '@/models/GuildConfiguration'
 
 export type SetupHealthCheck = {
@@ -25,7 +27,7 @@ function buildSetupHealth(
   guildId: string,
   config: TGuildConfiguration | null
 ): SetupHealthCheck[] {
-  const settingsBase = `/dashboard/g/${guildId}`
+  const settingsBase = guildBasePath(guildId)
   const checks: SetupHealthCheck[] = [
     {
       id: 'atm-actions',
@@ -116,6 +118,10 @@ const countSetupHealthIssues = (checks: SetupHealthCheck[]) =>
 export const getSetupHealthChecks = async (
   guildId: string
 ): Promise<SetupHealthCheck[]> => {
+  if (isDemoGuild(guildId)) {
+    return getDemoSetupHealthChecks()
+  }
+
   await connectToDatabase()
   const config = await GuildConfiguration.findOne({ guildId }).lean()
   return buildSetupHealth(guildId, config as TGuildConfiguration | null)

@@ -11,6 +11,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
 import { createHiddenFilterColumn } from '@/lib/table/manualFilterColumn'
 import { TPredictionRow } from '@/types/types'
@@ -130,7 +131,7 @@ export const predictionColumns = (
     cell: ({ row }) => (
       <p>
         <Link
-          href={`/dashboard/g/${guildId}/users/${row.original.creatorId}`}
+          href={`${guildBasePath(guildId)}/users/${row.original.creatorId}`}
           className="font-medium hover:text-primary hover:underline"
         >
           {row.getValue('creatorUsername')}

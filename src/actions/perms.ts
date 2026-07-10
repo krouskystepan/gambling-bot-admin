@@ -7,6 +7,7 @@ import { cache } from 'react'
 import { getSessionOrNull } from '@/lib/auth/requireSession'
 import { connectToDatabase } from '@/lib/db'
 import { hasGuildManageAccess } from '@/lib/discord/discordPermissions'
+import { DEMO_MUTATION_MESSAGE, isDemoGuild } from '@/lib/presentation'
 import GuildConfiguration from '@/models/GuildConfiguration'
 
 import { fetchUserGuilds } from './discord/guilds.action'
@@ -76,6 +77,10 @@ export const getUserPermissions = async (
   guildId: string,
   session: Session | null
 ): Promise<PermissionsResult> => {
+  if (isDemoGuild(guildId)) {
+    return { isAdmin: true, isManager: true }
+  }
+
   if (!session?.accessToken || !session.userId) {
     return { isAdmin: false, isManager: false }
   }
@@ -87,6 +92,12 @@ export async function requireGuildAccess(
   guildId: string,
   options?: { requireAdmin?: boolean }
 ): Promise<GuildAccess | GuildAccessError> {
+  // Demo reads short-circuit to fixtures before ever reaching here, so anything
+  // that gets this far for the sentinel guild is a write — block it (read-only).
+  if (isDemoGuild(guildId)) {
+    return { error: DEMO_MUTATION_MESSAGE }
+  }
+
   const session = await getSessionOrNull()
   if (!session) {
     return { error: 'Unauthorized' }

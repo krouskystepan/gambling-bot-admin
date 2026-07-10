@@ -5,6 +5,11 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/authOptions'
 import { connectToDatabase } from '@/lib/db'
 import { revalidateGuildHealth } from '@/lib/guild/revalidateHealth'
+import {
+  assertNotDemoMutation,
+  getDemoModerationSettings,
+  isDemoGuild
+} from '@/lib/presentation'
 import GuildConfiguration from '@/models/GuildConfiguration'
 
 import { getUserPermissions, requireGuildAccess } from '../perms'
@@ -12,6 +17,8 @@ import { getUserPermissions, requireGuildAccess } from '../perms'
 export async function getModerationSettings(
   guildId: string
 ): Promise<{ managerRoleId: string; bannedRoleId: string } | null> {
+  if (isDemoGuild(guildId)) return getDemoModerationSettings()
+
   const access = await requireGuildAccess(guildId, { requireAdmin: true })
   if ('error' in access) return null
 
@@ -28,6 +35,8 @@ export async function saveModerationSettings(
   guildId: string,
   values: { managerRoleId: string; bannedRoleId: string }
 ) {
+  assertNotDemoMutation(guildId)
+
   const session = await getServerSession(authOptions)
   const { isAdmin } = await getUserPermissions(guildId, session)
   if (!isAdmin) throw new Error('Insufficient permissions: Admin only')

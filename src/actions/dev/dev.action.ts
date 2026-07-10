@@ -18,6 +18,11 @@ import {
 } from '@/lib/dev/devGuildDiagnostics'
 import { requireDevAction } from '@/lib/dev/requireDevAction'
 import { discordBotRequest } from '@/lib/discord/discordReq'
+import {
+  DEMO_MUTATION_MESSAGE,
+  getDemoDevDiscordGuild,
+  isDemoGuild
+} from '@/lib/presentation'
 
 export async function devPing(guildId: string) {
   const access = await requireDevAction(guildId)
@@ -143,6 +148,10 @@ export async function devGetDiscordGuild(guildId: string) {
   const access = await requireDevAction(guildId)
   if (!access.ok) return access
 
+  if (isDemoGuild(guildId)) {
+    return { ok: true as const, inGuild: true, guild: getDemoDevDiscordGuild() }
+  }
+
   try {
     const presence = await getDevBotPresence(guildId)
     if (!presence.inGuild) {
@@ -208,12 +217,20 @@ export async function devInvalidateCaches(guildId: string) {
   const access = await requireDevAction(guildId)
   if (!access.ok) return access
 
+  if (isDemoGuild(guildId)) {
+    return { ok: false as const, error: DEMO_MUTATION_MESSAGE }
+  }
+
   return { ok: true as const, ...(await invalidateDevDiscordCaches(guildId)) }
 }
 
 export async function devRevalidateGuild(guildId: string) {
   const access = await requireDevAction(guildId)
   if (!access.ok) return access
+
+  if (isDemoGuild(guildId)) {
+    return { ok: false as const, error: DEMO_MUTATION_MESSAGE }
+  }
 
   const paths = [
     `/dashboard/g/${guildId}`,

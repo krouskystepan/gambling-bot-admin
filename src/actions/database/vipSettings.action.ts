@@ -5,6 +5,11 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/authOptions'
 import { connectToDatabase } from '@/lib/db'
 import { revalidateGuildHealth } from '@/lib/guild/revalidateHealth'
+import {
+  assertNotDemoMutation,
+  getDemoVipSettings,
+  isDemoGuild
+} from '@/lib/presentation'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import { TVipSettingsValues } from '@/types/types'
 
@@ -13,6 +18,8 @@ import { getUserPermissions, requireGuildAccess } from '../perms'
 export async function getVipSettings(
   guildId: string
 ): Promise<TVipSettingsValues | null> {
+  if (isDemoGuild(guildId)) return getDemoVipSettings()
+
   const access = await requireGuildAccess(guildId, { requireAdmin: true })
   if ('error' in access) return null
 
@@ -36,6 +43,8 @@ export async function saveVipSettings(
   guildId: string,
   values: TVipSettingsValues
 ) {
+  assertNotDemoMutation(guildId)
+
   const session = await getServerSession(authOptions)
   const { isAdmin } = await getUserPermissions(guildId, session)
   if (!isAdmin) throw new Error('Insufficient permissions: Admin only')

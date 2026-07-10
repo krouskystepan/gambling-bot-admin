@@ -3,6 +3,7 @@
 import { PermissionFlagsBits } from 'discord-api-types/v10'
 
 import { discordBotRequest } from '@/lib/discord/discordReq'
+import { getDemoGuildRoles, isDemoGuild } from '@/lib/presentation'
 import type { IGuildRole, IMemberCacheEntry } from '@/types/types'
 
 const memberCache = new Map<string, IMemberCacheEntry>()
@@ -96,6 +97,8 @@ export const resolveGuildStaffStatus = async (
 }
 
 export const getGuildRoles = async (guildId: string): Promise<IGuildRole[]> => {
+  if (isDemoGuild(guildId)) return getDemoGuildRoles()
+
   try {
     const roles = await discordBotRequest<IGuildRole[]>({
       url: `/guilds/${guildId}/roles`,

@@ -20,6 +20,12 @@ import {
   buildTaxPeriodGroupStage,
   sourcePnLGroupStage
 } from '@/lib/overview/transactionTotals'
+import {
+  getDemoGuildTaxPeriodSummary,
+  getDemoPnLBySource,
+  getDemoStaffTaxPeriodSummary,
+  isDemoGuild
+} from '@/lib/presentation'
 import Transaction from '@/models/Transaction'
 
 import { getDiscordGuildMembers } from '../discord/member.action'
@@ -83,6 +89,8 @@ export async function getPnLBySource(
   guildId: string,
   range: OverviewDateRange
 ): Promise<SourcePnLRow[] | null> {
+  if (isDemoGuild(guildId)) return getDemoPnLBySource(range)
+
   const context = await getReportContext(guildId, range)
   if ('error' in context) return null
 
@@ -109,6 +117,8 @@ export async function getGuildTaxPeriodSummary(
   guildId: string,
   range: OverviewDateRange
 ): Promise<MonthlyTaxPoint[] | null> {
+  if (isDemoGuild(guildId)) return getDemoGuildTaxPeriodSummary(range)
+
   const context = await getReportContext(guildId, range)
   if ('error' in context) return null
 
@@ -135,6 +145,8 @@ export async function getStaffTaxPeriodSummary(
   guildId: string,
   range: OverviewDateRange
 ): Promise<StaffTaxRow[] | null> {
+  if (isDemoGuild(guildId)) return getDemoStaffTaxPeriodSummary(range)
+
   const context = await getReportContext(guildId, range)
   if ('error' in context) return null
 

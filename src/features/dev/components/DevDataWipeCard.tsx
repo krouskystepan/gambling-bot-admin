@@ -7,6 +7,7 @@ import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { devWipeGuildData } from '@/actions/dev/devDataOps.action'
+import { usePresentationReadOnly } from '@/components/presentation/PresentationProvider'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -74,6 +75,7 @@ type DevDataWipeCardProps = {
 
 const DevDataWipeCard = ({ guildId, counts }: DevDataWipeCardProps) => {
   const router = useRouter()
+  const readOnly = usePresentationReadOnly()
   const [pending, startTransition] = useTransition()
   const [selected, setSelected] = useState<SelectableWipeEntity[]>([])
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -151,13 +153,19 @@ const DevDataWipeCard = ({ guildId, counts }: DevDataWipeCardProps) => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {readOnly ? (
+            <p className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+              Read-only demo — destructive dev tooling is disabled.
+            </p>
+          ) : null}
+
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={selectAll}
-              disabled={allSelected}
+              disabled={allSelected || readOnly}
             >
               Select all
             </Button>
@@ -166,7 +174,7 @@ const DevDataWipeCard = ({ guildId, counts }: DevDataWipeCardProps) => {
               variant="ghost"
               size="sm"
               onClick={clearSelection}
-              disabled={selected.length === 0}
+              disabled={selected.length === 0 || readOnly}
             >
               Clear selection
             </Button>
@@ -188,6 +196,7 @@ const DevDataWipeCard = ({ guildId, counts }: DevDataWipeCardProps) => {
                   <Checkbox
                     className="mt-0.5 shrink-0"
                     checked={checked}
+                    disabled={readOnly}
                     onCheckedChange={(value) =>
                       toggleEntity(option.id, value === true)
                     }
@@ -209,7 +218,7 @@ const DevDataWipeCard = ({ guildId, counts }: DevDataWipeCardProps) => {
             <Button
               type="button"
               variant="destructive"
-              disabled={selected.length === 0}
+              disabled={selected.length === 0 || readOnly}
               onClick={() => openReview(selected)}
             >
               Review wipe
@@ -218,6 +227,7 @@ const DevDataWipeCard = ({ guildId, counts }: DevDataWipeCardProps) => {
               type="button"
               variant="outline"
               className="border-destructive/40 text-destructive hover:bg-destructive/10"
+              disabled={readOnly}
               onClick={() =>
                 openReview(WIPE_OPTIONS.map((option) => option.id))
               }

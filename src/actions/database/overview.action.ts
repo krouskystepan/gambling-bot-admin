@@ -32,6 +32,11 @@ import {
   buildVolumeSlices,
   volumeAmountGroupStage
 } from '@/lib/overview/volumeSlices'
+import {
+  DEMO_TIMEZONE,
+  getDemoOverviewData,
+  isDemoGuild
+} from '@/lib/presentation'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'
 import User from '@/models/User'
@@ -131,6 +136,10 @@ async function enrichTopUsers(
 export async function getGuildOverviewTimezone(
   guildId: string
 ): Promise<string> {
+  if (isDemoGuild(guildId)) {
+    return DEMO_TIMEZONE
+  }
+
   await connectToDatabase()
   const doc = await GuildConfiguration.findOne({ guildId })
     .select('globalSettings.timezone')
@@ -147,6 +156,10 @@ export async function getOverviewData(
   session: Session,
   range: OverviewDateRange
 ): Promise<OverviewDataResult> {
+  if (isDemoGuild(guildId)) {
+    return { ok: true, data: getDemoOverviewData(range) }
+  }
+
   const access = await requireGuildAccess(guildId)
   if ('error' in access) {
     return { ok: false, rateLimited: access.rateLimited ?? false }

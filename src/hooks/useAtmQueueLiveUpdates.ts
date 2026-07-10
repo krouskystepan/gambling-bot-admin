@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
+import { usePresentationReadOnly } from '@/components/presentation/PresentationProvider'
+
 type AtmQueueSnapshot = {
   revision: string
   pending: number
@@ -17,6 +19,7 @@ export function useAtmQueueLiveUpdates(
   intervalMs = 20_000
 ) {
   const router = useRouter()
+  const readOnly = usePresentationReadOnly()
   const lastRevisionRef = useRef<string | null>(null)
   const pendingRevisionRef = useRef<string | null>(null)
   const isBusyRef = useRef(isBusy)
@@ -72,6 +75,9 @@ export function useAtmQueueLiveUpdates(
   }, [guildId, router])
 
   useEffect(() => {
+    // Static snapshot in the demo — no polling of the (blocked) snapshot API.
+    if (readOnly) return
+
     const runCheck = () => {
       void checkSnapshot()
     }
@@ -92,7 +98,7 @@ export function useAtmQueueLiveUpdates(
       clearInterval(intervalId)
       document.removeEventListener('visibilitychange', onVisibilityChange)
     }
-  }, [checkSnapshot, intervalMs])
+  }, [checkSnapshot, intervalMs, readOnly])
 
   return { showBanner, applyRefresh, dismissBanner }
 }

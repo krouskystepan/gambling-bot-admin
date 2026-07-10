@@ -16,6 +16,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 import {
   createExclusiveOwnerEntityFilterHandlers,
   getEntityFilterOptions,
@@ -143,7 +144,7 @@ const VipsTableFilters = ({
                 <p>
                   Configure VIP settings first in{' '}
                   <Link
-                    href={`/dashboard/g/${guildId}/vip-settings`}
+                    href={`${guildBasePath(guildId)}/vip-settings`}
                     className="underline"
                   >
                     VIP settings
