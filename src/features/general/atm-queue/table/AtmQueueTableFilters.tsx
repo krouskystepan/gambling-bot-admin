@@ -33,7 +33,12 @@ import { IAtmRequestCounts, TAtmRequestDiscord } from '@/types/types'
 const statusOptions = [
   { value: 'pending-0', label: 'Pending', realValue: 'pending' as const },
   { value: 'approved-1', label: 'Approved', realValue: 'approved' as const },
-  { value: 'rejected-2', label: 'Rejected', realValue: 'rejected' as const }
+  { value: 'rejected-2', label: 'Rejected', realValue: 'rejected' as const },
+  {
+    value: 'cancelled-3',
+    label: 'Cancelled',
+    realValue: 'cancelled' as const
+  }
 ]
 
 const typeOptions = [
@@ -183,7 +188,8 @@ const AtmQueueTableFilters = ({
           counts={{
             pending: counts.pending,
             approved: counts.approved,
-            rejected: counts.rejected
+            rejected: counts.rejected,
+            cancelled: counts.cancelled
           }}
           onChange={(next) => {
             table

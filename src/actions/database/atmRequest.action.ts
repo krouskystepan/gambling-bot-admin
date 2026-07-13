@@ -29,6 +29,7 @@ export type AtmRequestCounts = {
   pending: number
   approved: number
   rejected: number
+  cancelled: number
   total: number
   type: {
     deposit: number
@@ -45,6 +46,7 @@ const emptyAtmRequestCounts = (): AtmRequestCounts => ({
   pending: 0,
   approved: 0,
   rejected: 0,
+  cancelled: 0,
   total: 0,
   type: { deposit: 0, withdraw: 0 },
   amount: { pendingDeposits: 0, pendingWithdraws: 0 },
