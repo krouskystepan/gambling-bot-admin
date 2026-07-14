@@ -38,6 +38,7 @@ import {
   resolveGuildChannelNames
 } from '../discord/channel.action'
 import { getDiscordGuildMembers } from '../discord/member.action'
+import { resolveManagerStatus } from '../discord/role.action'
 import { requireGuildAccess } from '../perms'
 
 export type UserProfileVipMember = {
@@ -88,6 +89,7 @@ export type UserProfileData = {
   bannedAt: Date | null
   bannedBy: string | null
   bannedByUsername?: string
+  hasManagerRole: boolean
   bans: UserProfileBanRecord[]
   staffNotes: UserProfileStaffNote[]
   balance: number
@@ -257,6 +259,12 @@ export async function getUserProfile(
     unbanReason: ban.unbanReason
   }))
 
+  const hasManagerRole = await resolveManagerStatus(
+    guildId,
+    userId,
+    guildConfig?.managerRoleId
+  )
+
   return {
     globalSettings: normalizeGlobalSettings(
       guildConfig?.globalSettings as Partial<GlobalSettings> | undefined
@@ -271,6 +279,7 @@ export async function getUserProfile(
     bannedAt: dbUser?.bannedAt ?? null,
     bannedBy: dbUser?.bannedBy ?? null,
     bannedByUsername: resolveUsername(dbUser?.bannedBy),
+    hasManagerRole,
     bans,
     staffNotes,
     balance: dbUser?.balance ?? 0,

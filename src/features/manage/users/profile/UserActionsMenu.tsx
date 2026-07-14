@@ -73,6 +73,7 @@ type UserActionsMenuProps = {
   user: TGuildMemberStatus
   globalSettings: GlobalSettings
   isGuildAdmin: boolean
+  targetHasManagerRole?: boolean
   onUserUpdated?: () => void
 }
 
@@ -82,6 +83,7 @@ const UserActionsMenu = ({
   user,
   globalSettings,
   isGuildAdmin,
+  targetHasManagerRole = false,
   onUserUpdated
 }: UserActionsMenuProps) => {
   const router = useRouter()
@@ -142,6 +144,18 @@ const UserActionsMenu = ({
   >(null)
   const [reason, setReason] = useState('')
   const [amount, setAmount] = useState('')
+
+  const isSelfTarget = managerId === user.userId
+  const isManagerTargetBlocked = targetHasManagerRole && !isGuildAdmin
+  const banActionDisabled =
+    !user.registered || isSelfTarget || isManagerTargetBlocked
+  const banActionTooltip = isSelfTarget
+    ? 'You cannot ban or unban yourself.'
+    : isManagerTargetBlocked
+      ? 'Managers cannot ban or unban other managers. Contact a server administrator.'
+      : user.banned
+        ? 'Restore economy access and remove the banned role.'
+        : 'Block economy actions and assign the banned role if configured.'
 
   const handleBalanceAction = async () => {
     const value = parseFloat(amount)
@@ -313,7 +327,7 @@ const UserActionsMenu = ({
           <DropdownMenuLabel>Moderation</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() => setModerationModal(user.banned ? 'unban' : 'ban')}
-            disabled={!user.registered}
+            disabled={banActionDisabled}
             className="flex items-center justify-between"
           >
             {user.banned ? 'Unban' : 'Ban'}
@@ -325,11 +339,7 @@ const UserActionsMenu = ({
                 <p className="mb-1 font-semibold">
                   {user.banned ? 'Unban' : 'Ban'}
                 </p>
-                <p className="text-sm">
-                  {user.banned
-                    ? 'Restore economy access and remove the banned role.'
-                    : 'Block economy actions and assign the banned role if configured.'}
-                </p>
+                <p className="text-sm">{banActionTooltip}</p>
               </TooltipContent>
             </Tooltip>
           </DropdownMenuItem>
