@@ -1,8 +1,10 @@
 'use server'
 
+import { previewWithdrawBalance } from 'gambling-bot-shared/atm'
 import { formatMoney } from 'gambling-bot-shared/common'
 import { normalizeGlobalSettings } from 'gambling-bot-shared/guild'
 import type { GlobalSettings } from 'gambling-bot-shared/guild'
+import { computeUserNetProfitDelta } from 'gambling-bot-shared/transactions'
 import { TUser } from 'gambling-bot-shared/user'
 import { Session } from 'next-auth'
 
@@ -231,14 +233,17 @@ export async function withdrawBalance(
     const user = await User.findOne({ userId, guildId })
     if (!user) return { success: false, message: 'User not registered.' }
 
-    const lockedBalance = user.lockedBalance ?? 0
-    const withdrawable = user.balance - lockedBalance
+    const preview = previewWithdrawBalance(
+      user.balance,
+      user.lockedBalance ?? 0,
+      amount
+    )
 
-    if (user.balance < amount) {
-      return { success: false, message: 'User has insufficient balance.' }
-    }
+    if (!preview.ok) {
+      if (preview.reason === 'INSUFFICIENT_BALANCE') {
+        return { success: false, message: 'User has insufficient balance.' }
+      }
 
-    if (withdrawable < amount) {
       return {
         success: false,
         message:
@@ -503,16 +508,10 @@ export async function getUsers(
 
   for (const tx of transactions) {
     const current = netProfitMap.get(tx.userId) ?? 0
-
-    switch (tx.type) {
-      case 'bet':
-        netProfitMap.set(tx.userId, current - tx.amount)
-        break
-      case 'win':
-      case 'bonus':
-        netProfitMap.set(tx.userId, current + tx.amount)
-        break
-    }
+    netProfitMap.set(
+      tx.userId,
+      current + computeUserNetProfitDelta(tx.type, tx.amount)
+    )
   }
 
   let users: TGuildMemberStatus[] = Array.from(

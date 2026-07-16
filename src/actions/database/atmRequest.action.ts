@@ -1,6 +1,9 @@
 'use server'
 
-import { type TAtmRequest } from 'gambling-bot-shared/atm'
+import {
+  type TAtmRequest,
+  previewWithdrawBalance
+} from 'gambling-bot-shared/atm'
 import { formatMoney } from 'gambling-bot-shared/common'
 import { normalizeGlobalSettings } from 'gambling-bot-shared/guild'
 import { STAFF_ADMIN_ACTIONS } from 'gambling-bot-shared/transactions'
@@ -65,19 +68,13 @@ const previewWithdraw = async ({
   const user = await User.findOne({ userId, guildId }).lean()
   if (!user) return { ok: false as const, reason: 'NO_USER' as const }
 
-  const balance = user.balance ?? 0
-  const lockedBalance = user.lockedBalance ?? 0
-  const withdrawable = balance - lockedBalance
-
-  if (balance < amount) {
-    return { ok: false as const, reason: 'INSUFFICIENT_BALANCE' as const }
-  }
-
-  if (withdrawable < amount) {
-    return {
-      ok: false as const,
-      reason: 'INSUFFICIENT_WITHDRAWABLE' as const
-    }
+  const result = previewWithdrawBalance(
+    user.balance ?? 0,
+    user.lockedBalance ?? 0,
+    amount
+  )
+  if (!result.ok) {
+    return { ok: false as const, reason: result.reason }
   }
 
   return { ok: true as const }
