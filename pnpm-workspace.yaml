@@ -1,6 +1,7 @@
 excludeLinksFromLockfile: true
 
 allowBuilds:
+  mongodb-memory-server: set this to true or false
   sharp: true
   unrs-resolver: true
 minimumReleaseAgeExclude:

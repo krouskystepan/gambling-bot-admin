@@ -168,10 +168,7 @@ export function buildUserBanStaffActionUnionStages(
 
   const banMatch =
     banAndFilters.length === 1 ? banAndFilters[0] : { $and: banAndFilters }
-  const unbanMatch =
-    unbanAndFilters.length === 1
-      ? unbanAndFilters[0]
-      : { $and: unbanAndFilters }
+  const unbanMatch = { $and: unbanAndFilters }
 
   const stages: PipelineStage[] = []
 
@@ -307,7 +304,7 @@ export function buildAtmRejectionMatch(
   )
   if (dateMatch) andFilters.push(dateMatch)
 
-  return andFilters.length === 1 ? andFilters[0] : { $and: andFilters }
+  return { $and: andFilters }
 }
 
 export function emptyStaffActionCategoryCounts(): Record<

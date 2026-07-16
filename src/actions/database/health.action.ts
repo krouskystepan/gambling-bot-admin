@@ -3,9 +3,9 @@
 import { Session } from 'next-auth'
 
 import { getUserPermissions } from '@/actions/perms'
+import { type SetupHealthCheck } from '@/lib/overview/setupHealth'
 
 import {
-  type SetupHealthCheck,
   getSetupHealthChecks,
   getSetupHealthIssueCount
 } from './setupHealth.action'
