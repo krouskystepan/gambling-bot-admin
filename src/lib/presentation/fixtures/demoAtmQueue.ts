@@ -148,6 +148,7 @@ export function getDemoAtmRequestCounts() {
     pending: 0,
     approved: 0,
     rejected: 0,
+    cancelled: 0,
     total: rows.length,
     type: { deposit: 0, withdraw: 0 },
     amount: { pendingDeposits: 0, pendingWithdraws: 0 },

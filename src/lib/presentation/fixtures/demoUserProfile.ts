@@ -12,6 +12,7 @@ import {
 import { buildVolumeSlices } from '@/lib/overview/volumeSlices'
 
 import {
+  DEMO_STAFF_MEMBERS,
   DEMO_TIMEZONE,
   demoGlobalSettings,
   getDemoAvatar,
@@ -114,6 +115,7 @@ export function getDemoUserProfile(
     bannedByUsername: record.banned
       ? getDemoUsername('100000000000000001')
       : undefined,
+    hasManagerRole: DEMO_STAFF_MEMBERS.some((m) => m.userId === userId),
     bans: record.banned
       ? [
           {

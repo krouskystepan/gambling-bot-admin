@@ -22,11 +22,21 @@ import {
 } from '@/lib/dev/devGuildDiagnostics'
 import { requireDevAction } from '@/lib/dev/requireDevAction'
 import { serializeForDev } from '@/lib/dev/serializeDevJson'
+import {
+  DEMO_GUILD_ID,
+  PRESENTATION_HEADER,
+  PRESENTATION_USER_ID
+} from '@/lib/presentation/constants'
 import AtmRequest from '@/models/AtmRequest'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'
 import User from '@/models/User'
 
+const { headers } = vi.hoisted(() => ({
+  headers: vi.fn().mockResolvedValue(new Headers())
+}))
+
+vi.mock('next/headers', () => ({ headers }))
 vi.mock('@/lib/auth/requireSession', () => ({
   getSessionOrNull: vi.fn()
 }))
@@ -134,11 +144,21 @@ describe('requireDevAction', () => {
       session: expect.objectContaining({ userId: 'dev-1' })
     })
   })
+
+  it('grants read-only access for the demo guild without Discord auth', async () => {
+    await expect(requireDevAction(DEMO_GUILD_ID)).resolves.toEqual({
+      ok: true,
+      userId: PRESENTATION_USER_ID,
+      session: expect.objectContaining({ userId: PRESENTATION_USER_ID })
+    })
+    expect(getSessionOrNull).not.toHaveBeenCalled()
+  })
 })
 
 describe('devGuildDiagnostics', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    headers.mockResolvedValue(new Headers())
     vi.mocked(connectToDatabase).mockResolvedValue(undefined)
   })
 
@@ -149,6 +169,47 @@ describe('devGuildDiagnostics', () => {
         NEXTAUTH_SECRET: true
       })
     })
+  })
+
+  it('getDevEnvStatus and getDevDatabaseStatus use demo fixtures in presentation', async () => {
+    headers.mockResolvedValue(new Headers({ [PRESENTATION_HEADER]: '1' }))
+
+    await expect(getDevEnvStatus()).resolves.toMatchObject({
+      deployment: 'Vercel',
+      variables: expect.objectContaining({ MONGO_URI: true })
+    })
+    await expect(getDevDatabaseStatus()).resolves.toMatchObject({
+      readyStateLabel: 'connected',
+      host: 'demo-cluster.mongodb.net'
+    })
+    expect(connectToDatabase).not.toHaveBeenCalled()
+  })
+
+  it('demo guild diagnostics short-circuit to fixtures', async () => {
+    await expect(getDevGuildCounts(DEMO_GUILD_ID)).resolves.toMatchObject({
+      atmPending: 3
+    })
+    await expect(getDevFeatureFlags(DEMO_GUILD_ID)).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ feature: expect.any(String) })
+      ])
+    )
+    await expect(getDevGuildConfig(DEMO_GUILD_ID)).resolves.toMatchObject({
+      guildId: DEMO_GUILD_ID
+    })
+    await expect(getDevRecentTransactions(DEMO_GUILD_ID)).resolves.toEqual(
+      expect.any(Array)
+    )
+    await expect(getDevChannelChecks(DEMO_GUILD_ID)).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: expect.any(String) })
+      ])
+    )
+    await expect(getDevBotPresence(DEMO_GUILD_ID)).resolves.toEqual({
+      inGuild: true
+    })
+    expect(connectToDatabase).not.toHaveBeenCalled()
+    expect(isBotInGuild).not.toHaveBeenCalled()
   })
 
   it('getDevDatabaseStatus reports connection state', async () => {

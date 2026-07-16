@@ -11,19 +11,24 @@ import {
   requireSession,
   safeCallbackUrl
 } from '@/lib/auth/requireSession'
+import {
+  PRESENTATION_HEADER,
+  PRESENTATION_USER_ID
+} from '@/lib/presentation/constants'
 
-const { getToken, redirect, getServerSession } = vi.hoisted(() => ({
+const { getToken, redirect, getServerSession, headers } = vi.hoisted(() => ({
   getToken: vi.fn(),
   redirect: vi.fn((url: string) => {
     throw new Error(`REDIRECT:${url}`)
   }),
-  getServerSession: vi.fn()
+  getServerSession: vi.fn(),
+  headers: vi.fn().mockResolvedValue(new Headers())
 }))
 
 vi.mock('next-auth/jwt', () => ({ getToken }))
 vi.mock('next/headers', () => ({
   cookies: vi.fn().mockResolvedValue({ get: vi.fn() }),
-  headers: vi.fn().mockResolvedValue(new Headers())
+  headers
 }))
 vi.mock('next/navigation', () => ({ redirect }))
 vi.mock('next-auth', () => ({ getServerSession }))
@@ -34,6 +39,7 @@ vi.mock('next-auth/providers/discord', () => ({
 describe('authToken', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    headers.mockResolvedValue(new Headers())
     process.env.NEXTAUTH_SECRET = 'secret'
     delete process.env.VERCEL
     process.env.NEXTAUTH_URL = 'http://localhost:3000'
@@ -206,6 +212,7 @@ describe('authOptions callbacks', () => {
 describe('requireSession', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    headers.mockResolvedValue(new Headers())
     getToken.mockResolvedValue({ accessToken: 'token' })
   })
 
@@ -237,6 +244,14 @@ describe('requireSession', () => {
     await expect(getSessionOrNull()).resolves.toBeNull()
   })
 
+  it('getSessionOrNull returns presentation session when header is set', async () => {
+    headers.mockResolvedValue(new Headers({ [PRESENTATION_HEADER]: '1' }))
+    await expect(getSessionOrNull()).resolves.toMatchObject({
+      userId: PRESENTATION_USER_ID,
+      accessToken: 'presentation'
+    })
+  })
+
   it('requireSession redirects when token is invalid', async () => {
     getToken.mockResolvedValue(null)
     await expect(requireSession()).rejects.toThrow('REDIRECT:/login')
@@ -257,5 +272,13 @@ describe('requireSession', () => {
       .mockResolvedValueOnce({ accessToken: 'token', user: { name: 'Alice' } })
       .mockResolvedValueOnce({ accessToken: null, error: 'Expired' })
     await expect(requireSession()).rejects.toThrow('REDIRECT:/login')
+  })
+
+  it('requireSession returns presentation session when header is set', async () => {
+    headers.mockResolvedValue(new Headers({ [PRESENTATION_HEADER]: '1' }))
+    await expect(requireSession()).resolves.toMatchObject({
+      userId: PRESENTATION_USER_ID,
+      accessToken: 'presentation'
+    })
   })
 })

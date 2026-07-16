@@ -28,10 +28,16 @@ export { DEMO_GUILD_ID, PRESENTATION_HEADER, PRESENTATION_USER_ID }
  * True when the current request is being served under the always-on `/present`
  * route tree (the proxy set the internal header). Only meaningful for
  * `requireSession`; data access keys off {@link isDemoGuild} instead.
+ *
+ * Returns false outside a Next.js request scope (e.g. unit tests, scripts).
  */
 export async function isPresentationRequest(): Promise<boolean> {
-  const store = await headers()
-  return store.get(PRESENTATION_HEADER) === '1'
+  try {
+    const store = await headers()
+    return store.get(PRESENTATION_HEADER) === '1'
+  } catch {
+    return false
+  }
 }
 
 /**

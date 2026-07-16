@@ -20,7 +20,7 @@ export async function requireDevAction(
   // dev actions guard against the sentinel guild separately.
   if (isDemoGuild(guildId)) {
     const session = getPresentationSession()
-    return { ok: true, userId: session.userId ?? '', session }
+    return { ok: true, userId: session.userId!, session }
   }
 
   const session = await getSessionOrNull()

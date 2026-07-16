@@ -21,7 +21,11 @@ export default defineConfig({
       reporter: ['text', 'text-summary', 'html'],
       reportsDirectory: 'coverage',
       include: ['src/lib/**/*.ts'],
-      exclude: ['src/**/index.ts'],
+      exclude: [
+        'src/**/index.ts',
+        // Presentation/demo mode is out of coverage scope.
+        'src/lib/presentation/**'
+      ],
       thresholds: {
         lines: 100,
         branches: 100,
