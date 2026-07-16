@@ -2,7 +2,6 @@ import { CheckCircle2, TriangleAlert, XCircle } from 'lucide-react'
 
 import Link from 'next/link'
 
-import type { SetupHealthCheck } from '@/lib/overview/setupHealth'
 import {
   Card,
   CardContent,
@@ -10,6 +9,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
+import type { SetupHealthCheck } from '@/lib/overview/setupHealth'
 import { cn } from '@/lib/utils'
 
 type SetupHealthCardProps = {
