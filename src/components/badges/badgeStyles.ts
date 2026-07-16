@@ -36,7 +36,8 @@ const SOURCE_COLOR_MAP: Record<TTransaction['source'], BadgeColor> = {
 const ATM_STATUS_COLOR_MAP: Record<TAtmRequest['status'], BadgeColor> = {
   pending: 'orange',
   approved: 'emerald',
-  rejected: 'red'
+  rejected: 'red',
+  cancelled: 'gray'
 }
 
 export type UserProfileBadgeKey =

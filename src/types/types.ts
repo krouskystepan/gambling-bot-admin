@@ -146,6 +146,7 @@ export type IAtmRequestCounts = {
   pending: number
   approved: number
   rejected: number
+  cancelled: number
   total: number
   type: {
     deposit: number

@@ -34,7 +34,7 @@ const STAFF_ACTION_BADGES = [
   'ACTION'
 ] as const
 
-const ATM_STATUSES = ['pending', 'approved', 'rejected'] as const
+const ATM_STATUSES = ['pending', 'approved', 'rejected', 'cancelled'] as const
 
 type BadgeSectionProps = {
   title: string

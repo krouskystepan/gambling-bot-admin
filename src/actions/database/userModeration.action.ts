@@ -3,7 +3,10 @@
 import { generateId } from 'gambling-bot-shared/common'
 import { STAFF_ADMIN_ACTIONS } from 'gambling-bot-shared/transactions'
 import {
+  MODERATION_MANAGER_TARGET_ERROR,
+  MODERATION_SELF_ERROR,
   appendStaffNote,
+  canModerateUserTarget,
   createStaffNoteEntry,
   normalizeBanReason,
   normalizeStaffNotes,
@@ -13,6 +16,7 @@ import {
 
 import { revalidatePath } from 'next/cache'
 
+import { resolveManagerStatus } from '@/actions/discord/role.action'
 import {
   addGuildMemberRole,
   removeGuildMemberRole
@@ -96,10 +100,31 @@ export async function banUser(
   try {
     await connectToDatabase()
 
-    const [user, guildConfig] = await Promise.all([
-      User.findOne({ guildId, userId }),
-      GuildConfiguration.findOne({ guildId }).lean()
-    ])
+    const guildConfig = await GuildConfiguration.findOne({ guildId }).lean()
+    const targetHasManagerRole = await resolveManagerStatus(
+      guildId,
+      userId,
+      guildConfig?.managerRoleId
+    )
+
+    const moderationGuard = canModerateUserTarget({
+      actorUserId: managerId,
+      actorIsElevated: access.isAdmin,
+      targetUserId: userId,
+      targetHasManagerRole
+    })
+
+    if (!moderationGuard.ok) {
+      return {
+        success: false,
+        message:
+          moderationGuard.code === 'SELF'
+            ? MODERATION_SELF_ERROR
+            : MODERATION_MANAGER_TARGET_ERROR
+      }
+    }
+
+    const [user] = await Promise.all([User.findOne({ guildId, userId })])
 
     if (!user) {
       return { success: false, message: 'User is not registered.' }
@@ -160,12 +185,35 @@ export async function unbanUser(
   try {
     await connectToDatabase()
 
-    const [user, activeBan, guildConfig] = await Promise.all([
+    const guildConfig = await GuildConfiguration.findOne({ guildId }).lean()
+    const targetHasManagerRole = await resolveManagerStatus(
+      guildId,
+      userId,
+      guildConfig?.managerRoleId
+    )
+
+    const moderationGuard = canModerateUserTarget({
+      actorUserId: managerId,
+      actorIsElevated: access.isAdmin,
+      targetUserId: userId,
+      targetHasManagerRole
+    })
+
+    if (!moderationGuard.ok) {
+      return {
+        success: false,
+        message:
+          moderationGuard.code === 'SELF'
+            ? MODERATION_SELF_ERROR
+            : MODERATION_MANAGER_TARGET_ERROR
+      }
+    }
+
+    const [user, activeBan] = await Promise.all([
       User.findOne({ guildId, userId }),
       UserBan.findOne({ guildId, userId, unbannedAt: null }).sort({
         bannedAt: -1
-      }),
-      GuildConfiguration.findOne({ guildId }).lean()
+      })
     ])
 
     if (!user) {

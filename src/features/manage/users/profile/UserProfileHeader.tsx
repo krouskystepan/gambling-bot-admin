@@ -155,6 +155,7 @@ const UserProfileHeader = ({
               user={userForActions}
               globalSettings={profile.globalSettings}
               isGuildAdmin={isGuildAdmin}
+              targetHasManagerRole={profile.hasManagerRole}
             />
           </div>
         </div>
