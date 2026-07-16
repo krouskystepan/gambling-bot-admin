@@ -1,5 +1,5 @@
-import type { SetupHealthCheck } from '@/actions/database/setupHealth.action'
 import type { SystemHealthData } from '@/actions/database/systemHealth.action'
+import type { SetupHealthCheck } from '@/lib/overview/setupHealth'
 
 const HOUR = 60 * 60 * 1000
 

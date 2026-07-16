@@ -11,8 +11,6 @@ import {
 import { getDemoSetupHealthChecks, isDemoGuild } from '@/lib/presentation'
 import GuildConfiguration from '@/models/GuildConfiguration'
 
-export type { SetupHealthCheck }
-
 export const getSetupHealthChecks = async (
   guildId: string
 ): Promise<SetupHealthCheck[]> => {
