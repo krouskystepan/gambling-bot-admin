@@ -63,8 +63,6 @@ const CASINO_GAME_CHART_FILLS = {
 
 const casinoGameChartFillMap: Record<string, string> = CASINO_GAME_CHART_FILLS
 
-const LEGACY_CASINO_FILL = CASINO_SOURCE_LEGEND_FILL
-
 const NON_CASINO_SOURCES = TRANSACTION_SOURCES.filter(
   (source) => source !== 'casino'
 )
@@ -94,16 +92,10 @@ function getVolumeSliceColor(key: string): string {
   if (key in SOURCE_CHART_FILLS) {
     return SOURCE_CHART_FILLS[key as TTransaction['source']]
   }
-  if (key === 'casino') {
-    return LEGACY_CASINO_FILL
-  }
   return casinoGameChartFillMap[key] ?? 'var(--muted)'
 }
 
 function getVolumeSliceLabel(key: string): string {
-  if (nonCasinoSourceSet.has(key)) {
-    return formatTransactionSourceLabel(key)
-  }
   if (key === 'casino') {
     return 'CASINO'
   }

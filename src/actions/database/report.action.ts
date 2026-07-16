@@ -15,6 +15,7 @@ import {
 import { connectToDatabase } from '@/lib/db'
 import { getGuildGlobalSettings } from '@/lib/guild/guildMoney.server'
 import { guildDateRangeMatch } from '@/lib/guild/guildTimezone'
+import { mapReportMetrics } from '@/lib/overview/mapReportMetrics'
 import {
   buildStaffTaxPeriodGroupStage,
   buildTaxPeriodGroupStage,
@@ -45,26 +46,6 @@ export type SourcePnLRow = {
 export type StaffTaxRow = MonthlyTaxPoint & {
   handlerId: string
   handlerUsername: string
-}
-
-function mapReportMetrics(row: {
-  gamePnL?: number
-  cashFlow?: number
-  betVolume?: number
-  winVolume?: number
-  depositVolume?: number
-  withdrawVolume?: number
-  txCount?: number
-}): Omit<MonthlyTaxPoint, 'period'> {
-  return {
-    gamePnL: row.gamePnL ?? 0,
-    cashFlow: row.cashFlow ?? 0,
-    betVolume: row.betVolume ?? 0,
-    winVolume: row.winVolume ?? 0,
-    depositVolume: row.depositVolume ?? 0,
-    withdrawVolume: row.withdrawVolume ?? 0,
-    txCount: row.txCount ?? 0
-  }
 }
 
 async function getReportContext(guildId: string, range: OverviewDateRange) {

@@ -21,18 +21,10 @@ export function isSpecificEntitySelection(
 
 function resolveOwnerIdForSearch(
   search: string,
-  options: SearchableTextOption[],
+  _options: SearchableTextOption[],
   rows: OwnerEntityRow[]
 ): string | undefined {
-  if (options.some((option) => option.value === search)) {
-    return rows.find((row) => row.entityId === search)?.ownerId
-  }
-
-  if (DISCORD_SNOWFLAKE_PATTERN.test(search)) {
-    return rows.find((row) => row.entityId === search)?.ownerId
-  }
-
-  return undefined
+  return rows.find((row) => row.entityId === search)?.ownerId
 }
 
 export function getOwnerFilterMembers(

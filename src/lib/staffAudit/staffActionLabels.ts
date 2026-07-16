@@ -145,7 +145,7 @@ export function resolveStaffActionLabel(input: {
       [STAFF_ADMIN_ACTIONS.VIP_REMOVE]: 'Removed'
     }
 
-    const sublabel = vipLabels[adminAction] ?? 'Action'
+    const sublabel = vipLabels[adminAction]
 
     return {
       label: `VIP ${sublabel.toLowerCase()}`,

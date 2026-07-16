@@ -1,12 +1,12 @@
-'use server'
-
+import {
+  calculateRTP,
+  defaultCasinoSettings,
+  readableGameNames
+} from 'gambling-bot-shared/casino'
+import { getReadableName } from 'gambling-bot-shared/common'
 import { type TGuildConfiguration } from 'gambling-bot-shared/guild'
 
-import { connectToDatabase } from '@/lib/db'
-import { guildBasePath } from '@/lib/guild/guildBasePath'
 import { getRtpStatus, skipsCasinoRtpCheck } from '@/lib/overview/rtpWarnings'
-import { getDemoSetupHealthChecks, isDemoGuild } from '@/lib/presentation'
-import GuildConfiguration from '@/models/GuildConfiguration'
 
 export type SetupHealthCheck = {
   id: string
@@ -17,11 +17,11 @@ export type SetupHealthCheck = {
   rtpStatus?: 'high' | 'low'
 }
 
-function buildSetupHealth(
+export function buildSetupHealth(
   guildId: string,
   config: TGuildConfiguration | null
 ): SetupHealthCheck[] {
-  const settingsBase = guildBasePath(guildId)
+  const settingsBase = `/dashboard/g/${guildId}`
   const checks: SetupHealthCheck[] = [
     {
       id: 'atm-actions',
@@ -106,31 +106,5 @@ function buildSetupHealth(
   return checks
 }
 
-const countSetupHealthIssues = (checks: SetupHealthCheck[]) =>
+export const countSetupHealthIssues = (checks: SetupHealthCheck[]) =>
   checks.filter((check) => !check.ok).length
-
-import {
-  type SetupHealthCheck,
-  buildSetupHealth,
-  countSetupHealthIssues
-} from '@/lib/overview/setupHealth'
-import GuildConfiguration from '@/models/GuildConfiguration'
-
-export const getSetupHealthChecks = async (
-  guildId: string
-): Promise<SetupHealthCheck[]> => {
-  if (isDemoGuild(guildId)) {
-    return getDemoSetupHealthChecks()
-  }
-
-  await connectToDatabase()
-  const config = await GuildConfiguration.findOne({ guildId }).lean()
-  return buildSetupHealth(guildId, config as TGuildConfiguration | null)
-}
-
-export const getSetupHealthIssueCount = async (
-  guildId: string
-): Promise<number> => {
-  const checks = await getSetupHealthChecks(guildId)
-  return countSetupHealthIssues(checks)
-}
