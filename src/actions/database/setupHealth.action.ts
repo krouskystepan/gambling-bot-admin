@@ -10,8 +10,6 @@ import {
 } from '@/lib/overview/setupHealth'
 import GuildConfiguration from '@/models/GuildConfiguration'
 
-export type { SetupHealthCheck }
-
 export const getSetupHealthChecks = async (
   guildId: string
 ): Promise<SetupHealthCheck[]> => {
