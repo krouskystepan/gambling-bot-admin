@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getUserGuilds } from '@/actions/discord/guilds.action'
 import { requireSession } from '@/lib/auth/requireSession'
 import { connectToDatabase } from '@/lib/db'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 import {
   formatGuildMoney,
   formatGuildMoneyCompactSigned,
@@ -18,6 +19,7 @@ import {
 } from '@/lib/guild/guildTimezone'
 import { revalidateGuildHealth } from '@/lib/guild/revalidateHealth'
 import { loadUserGuildsResult } from '@/lib/guild/userGuilds'
+import { DEMO_GUILD_ID } from '@/lib/presentation/constants'
 import GuildConfiguration from '@/models/GuildConfiguration'
 
 vi.unmock('@/lib/guild/revalidateHealth')
@@ -112,8 +114,16 @@ describe('revalidateGuildHealth', () => {
   })
 })
 
+describe('guildBasePath', () => {
+  it('uses /present for the demo guild and dashboard otherwise', () => {
+    expect(guildBasePath(DEMO_GUILD_ID)).toBe('/present')
+    expect(guildBasePath('guild-1')).toBe('/dashboard/g/guild-1')
+  })
+})
+
 describe('getGuildGlobalSettings', () => {
   beforeEach(() => {
+    vi.clearAllMocks()
     vi.mocked(connectToDatabase).mockResolvedValue(undefined)
   })
 
@@ -129,6 +139,13 @@ describe('getGuildGlobalSettings', () => {
     await expect(getGuildGlobalSettings('guild-1')).resolves.toMatchObject({
       currencySymbol: '€'
     })
+  })
+
+  it('returns demo settings for the demo guild', async () => {
+    await expect(getGuildGlobalSettings(DEMO_GUILD_ID)).resolves.toMatchObject({
+      currencySymbol: expect.any(String)
+    })
+    expect(connectToDatabase).not.toHaveBeenCalled()
   })
 })
 

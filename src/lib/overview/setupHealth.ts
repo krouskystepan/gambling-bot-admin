@@ -6,6 +6,7 @@ import {
 import { getReadableName } from 'gambling-bot-shared/common'
 import { type TGuildConfiguration } from 'gambling-bot-shared/guild'
 
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 import { getRtpStatus, skipsCasinoRtpCheck } from '@/lib/overview/rtpWarnings'
 
 export type SetupHealthCheck = {
@@ -21,7 +22,7 @@ export function buildSetupHealth(
   guildId: string,
   config: TGuildConfiguration | null
 ): SetupHealthCheck[] {
-  const settingsBase = `/dashboard/g/${guildId}`
+  const settingsBase = guildBasePath(guildId)
   const checks: SetupHealthCheck[] = [
     {
       id: 'atm-actions',

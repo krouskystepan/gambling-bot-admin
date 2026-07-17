@@ -6,6 +6,11 @@ import { getServerSession } from 'next-auth'
 
 import { authOptions } from '@/lib/auth/authOptions'
 import { connectToDatabase } from '@/lib/db'
+import {
+  assertNotDemoMutation,
+  getDemoBonusSettings,
+  isDemoGuild
+} from '@/lib/presentation'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import { TBonusFormValues } from '@/types/types'
 
@@ -36,6 +41,8 @@ const toFormValues = (bonus: Record<string, unknown>): TBonusFormValues => {
 export async function getBonusSettings(
   guildId: string
 ): Promise<TBonusFormValues | null> {
+  if (isDemoGuild(guildId)) return getDemoBonusSettings()
+
   const access = await requireGuildAccess(guildId, { requireAdmin: true })
   if ('error' in access) return null
 
@@ -51,6 +58,8 @@ export async function saveBonusSettings(
   guildId: string,
   values: TBonusFormValues
 ) {
+  assertNotDemoMutation(guildId)
+
   const session = await getServerSession(authOptions)
   const { isAdmin } = await getUserPermissions(guildId, session)
   if (!isAdmin) throw new Error('Insufficient permissions: Admin only')

@@ -21,6 +21,7 @@ import {
   blockPanelFeatureAction,
   blockPanelMaintenanceAction
 } from '@/lib/panel/panelFeatureActionGuard.server'
+import { getDemoUsers, isDemoGuild } from '@/lib/presentation'
 import { escapeRegExp } from '@/lib/utils'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'
@@ -480,6 +481,10 @@ export async function getUsers(
   total: number
   registeredUserIds: string[]
 }> {
+  if (isDemoGuild(guildId)) {
+    return getDemoUsers({ page, limit, search, sort, registration, banStatus })
+  }
+
   const access = await requireGuildAccess(guildId)
   if ('error' in access || page < 1 || limit < 1 || limit > 50) {
     return {

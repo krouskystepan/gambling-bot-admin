@@ -2,9 +2,9 @@ import NotFoundBox from '@/components/states/NotFoundBox'
 
 const NotFound = () => {
   return (
-    <section className="min-h-screen">
+    <div className="flex min-h-dvh flex-col p-6">
       <NotFoundBox />
-    </section>
+    </div>
   )
 }
 

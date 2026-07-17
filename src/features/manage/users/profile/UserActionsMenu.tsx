@@ -22,6 +22,7 @@ import {
   banUser,
   unbanUser
 } from '@/actions/database/userModeration.action'
+import { usePresentationReadOnly } from '@/components/presentation/PresentationProvider'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,6 +56,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 import {
   getPanelFeatureBlockMessage,
   isPanelFeatureBlocking
@@ -87,6 +89,7 @@ const UserActionsMenu = ({
   onUserUpdated
 }: UserActionsMenuProps) => {
   const router = useRouter()
+  const readOnly = usePresentationReadOnly()
 
   const handleUpdated = () => {
     onUserUpdated?.()
@@ -145,6 +148,8 @@ const UserActionsMenu = ({
   const [reason, setReason] = useState('')
   const [amount, setAmount] = useState('')
 
+  // Read-only demo: no row-level mutations.
+  if (readOnly) return null
   const isSelfTarget = managerId === user.userId
   const isManagerTargetBlocked = targetHasManagerRole && !isGuildAdmin
   const banActionDisabled =
@@ -335,7 +340,7 @@ const UserActionsMenu = ({
               <TooltipTrigger className="ml-2 text-muted-foreground transition hover:text-foreground">
                 <CircleQuestionMark size={16} />
               </TooltipTrigger>
-              <TooltipContent className="max-w-xs">
+              <TooltipContent>
                 <p className="mb-1 font-semibold">
                   {user.banned ? 'Unban' : 'Ban'}
                 </p>
@@ -441,7 +446,7 @@ const UserActionsMenu = ({
                 <>
                   {' '}
                   <Link
-                    href={`/dashboard/g/${guildId}/moderation-settings`}
+                    href={`${guildBasePath(guildId)}/moderation-settings`}
                     className="font-medium text-primary hover:underline"
                   >
                     Configure banned role

@@ -9,6 +9,7 @@ import {
   getAtmStatusBadgeClass,
   getTransactionTypeBadgeClass
 } from '@/components/badges/badgeStyles'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
 import { formatOptionalText } from '@/lib/table/formatOptionalText'
 import { createHiddenFilterColumn } from '@/lib/table/manualFilterColumn'
@@ -150,7 +151,7 @@ export const atmQueueColumns = (
     cell: ({ row }) =>
       row.original.status === 'approved' ? (
         <Link
-          href={`/dashboard/g/${guildId}/transactions?referenceId=${row.original.requestId}`}
+          href={`${guildBasePath(guildId)}/transactions?referenceId=${row.original.requestId}`}
           className="text-sm text-primary hover:underline"
         >
           View tx

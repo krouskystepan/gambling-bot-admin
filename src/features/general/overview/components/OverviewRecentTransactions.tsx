@@ -17,6 +17,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
 import { TTransactionDiscord } from '@/types/types'
 
@@ -35,7 +36,7 @@ const OverviewRecentTransactions = ({
   dateFrom,
   dateTo
 }: OverviewRecentTransactionsProps) => {
-  const transactionsHref = `/dashboard/g/${guildId}/transactions?dateFrom=${dateFrom}&dateTo=${dateTo}`
+  const transactionsHref = `${guildBasePath(guildId)}/transactions?dateFrom=${dateFrom}&dateTo=${dateTo}`
 
   return (
     <Card>
@@ -78,7 +79,7 @@ const OverviewRecentTransactions = ({
                   />
                   <div className="min-w-0 flex-1">
                     <Link
-                      href={`/dashboard/g/${guildId}/users/${tx.userId}`}
+                      href={`${guildBasePath(guildId)}/users/${tx.userId}`}
                       className="truncate font-medium hover:text-primary hover:underline"
                     >
                       {tx.username}

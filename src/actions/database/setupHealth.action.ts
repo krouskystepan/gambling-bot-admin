@@ -8,11 +8,16 @@ import {
   buildSetupHealth,
   countSetupHealthIssues
 } from '@/lib/overview/setupHealth'
+import { getDemoSetupHealthChecks, isDemoGuild } from '@/lib/presentation'
 import GuildConfiguration from '@/models/GuildConfiguration'
 
 export const getSetupHealthChecks = async (
   guildId: string
 ): Promise<SetupHealthCheck[]> => {
+  if (isDemoGuild(guildId)) {
+    return getDemoSetupHealthChecks()
+  }
+
   await connectToDatabase()
   const config = await GuildConfiguration.findOne({ guildId }).lean()
   return buildSetupHealth(guildId, config as TGuildConfiguration | null)

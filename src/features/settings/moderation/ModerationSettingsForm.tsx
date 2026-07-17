@@ -29,6 +29,7 @@ import {
 import { Label } from '@/components/ui/label'
 import { SelectItem } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 import { managerRoleFormSchema } from '@/types/schemas'
 import { IGuildRole, TManagerRoleValues } from '@/types/types'
 
@@ -134,7 +135,7 @@ const ModerationSettingsForm = ({
                           <FormDescription>
                             Ban from the{' '}
                             <Link
-                              href={`/dashboard/g/${guildId}/users`}
+                              href={`${guildBasePath(guildId)}/users`}
                               className="font-medium text-primary hover:underline"
                             >
                               users table

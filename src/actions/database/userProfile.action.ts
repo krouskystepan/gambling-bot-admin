@@ -27,6 +27,7 @@ import {
   buildVolumeSlices,
   volumeAmountGroupStage
 } from '@/lib/overview/volumeSlices'
+import { getDemoUserProfile, isDemoGuild } from '@/lib/presentation'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Transaction from '@/models/Transaction'
 import User from '@/models/User'
@@ -162,6 +163,8 @@ export async function getUserProfile(
   _session: Session,
   range: OverviewDateRange
 ): Promise<UserProfileData | null> {
+  if (isDemoGuild(guildId)) return getDemoUserProfile(userId, range)
+
   const access = await requireGuildAccess(guildId)
   if ('error' in access) return null
 

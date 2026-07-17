@@ -1,5 +1,6 @@
 import { ChevronRight, HeartPulse } from 'lucide-react'
 import { getServerSession } from 'next-auth'
+import type { Session } from 'next-auth'
 
 import Link from 'next/link'
 
@@ -12,19 +13,24 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import { authOptions } from '@/lib/auth/authOptions'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
+import { isDemoGuild } from '@/lib/presentation'
 
 const OverviewHealthLink = async ({ guildId }: { guildId: string }) => {
-  const session = await getServerSession(authOptions)
-  if (!session) return null
+  // The demo is public (no Discord session), so only require a session for real
+  // guilds. Demo health data ignores the session anyway.
+  const demo = isDemoGuild(guildId)
+  const session = demo ? null : await getServerSession(authOptions)
+  if (!demo && !session) return null
 
   const [attentionCount, { isAdmin }] = await Promise.all([
-    getHealthAttentionCount(guildId, session),
+    getHealthAttentionCount(guildId, session as Session),
     getUserPermissions(guildId, session)
   ])
 
   if (attentionCount === 0) return null
 
-  const healthHref = `/dashboard/g/${guildId}/health`
+  const healthHref = `${guildBasePath(guildId)}/health`
   const scope = isAdmin ? 'operations and setup' : 'operations'
 
   return (

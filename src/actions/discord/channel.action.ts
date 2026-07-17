@@ -1,6 +1,7 @@
 'use server'
 
 import { discordBotRequest } from '@/lib/discord/discordReq'
+import { getDemoGuildChannels, isDemoGuild } from '@/lib/presentation'
 import type { IChannelsCacheEntry, IGuildChannel } from '@/types/types'
 
 const guildChannelsCache = new Map<string, IChannelsCacheEntry>()
@@ -15,6 +16,8 @@ export async function invalidateGuildChannelsCache(
 export const getGuildChannels = async (
   guildId: string
 ): Promise<IGuildChannel[]> => {
+  if (isDemoGuild(guildId)) return getDemoGuildChannels()
+
   const now = Date.now()
   const cached = guildChannelsCache.get(guildId)
 

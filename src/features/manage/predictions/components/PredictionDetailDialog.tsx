@@ -13,6 +13,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
 import { TPredictionDetail } from '@/types/types'
 
@@ -94,7 +95,7 @@ const PredictionDetailDialog = ({
                         choice.bets.map((bet) => (
                           <Link
                             key={bet.betId}
-                            href={`/dashboard/g/${guildId}/users/${bet.userId}`}
+                            href={`${guildBasePath(guildId)}/users/${bet.userId}`}
                             className="flex items-center gap-2 text-sm hover:text-primary"
                           >
                             <Image

@@ -5,6 +5,11 @@ import { Session } from 'next-auth'
 
 import { connectToDatabase } from '@/lib/db'
 import { getPanelFeatureBlockMessage } from '@/lib/panel/panelGlobalFeatureGuard'
+import {
+  getDemoVipPageContext,
+  getDemoVips,
+  isDemoGuild
+} from '@/lib/presentation'
 import { escapeRegExp } from '@/lib/utils'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import VipRoom from '@/models/VipRoom'
@@ -26,6 +31,8 @@ export type VipPageContext = {
 export async function getVipPageContext(
   guildId: string
 ): Promise<VipPageContext | null> {
+  if (isDemoGuild(guildId)) return getDemoVipPageContext()
+
   const access = await requireGuildAccess(guildId)
   if ('error' in access) return null
 
@@ -75,6 +82,10 @@ export async function getVips(
   sort?: string,
   userId?: string
 ): Promise<{ vips: TVipChannels[]; total: number }> {
+  if (isDemoGuild(guildId)) {
+    return getDemoVips({ page, limit, search, userId })
+  }
+
   const access = await requireGuildAccess(guildId)
   if ('error' in access || page < 1 || limit < 1 || limit > 50) {
     return { vips: [], total: 0 }

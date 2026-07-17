@@ -7,6 +7,7 @@ import { normalizeGlobalSettings } from 'gambling-bot-shared/guild'
 
 import FeatureLayout from '@/features/FeatureLayout'
 import { connectToDatabase } from '@/lib/db'
+import { getDemoDevCalcsSettings, isDemoGuild } from '@/lib/presentation'
 import GuildConfiguration from '@/models/GuildConfiguration'
 
 import DevBonusSimLab from './components/DevBonusSimLab'
@@ -24,23 +25,35 @@ const DEFAULT_BONUS_SETTINGS = normalizeBonusSettings({
   milestoneBonus: { weekly: 0, monthly: 0 }
 })
 
-const DevCalcsPage = async ({ guildId }: { guildId: string }) => {
-  await requireDevPage(guildId)
+async function loadCalcsSettings(guildId: string) {
+  if (isDemoGuild(guildId)) {
+    return getDemoDevCalcsSettings()
+  }
 
   await connectToDatabase()
   const config = await GuildConfiguration.findOne({ guildId }).lean()
 
-  const casinoSettings = normalizeCasinoSettings(
-    config?.casinoSettings ?? defaultCasinoSettings
-  )
-  const bonusSettings = normalizeBonusSettings(
-    (config?.bonusSettings as typeof DEFAULT_BONUS_SETTINGS | undefined) ??
-      DEFAULT_BONUS_SETTINGS
-  )
-  const globalSettings = normalizeGlobalSettings(
-    (config?.globalSettings as Parameters<typeof normalizeGlobalSettings>[0]) ??
-      {}
-  )
+  return {
+    casinoSettings: normalizeCasinoSettings(
+      config?.casinoSettings ?? defaultCasinoSettings
+    ),
+    bonusSettings: normalizeBonusSettings(
+      (config?.bonusSettings as typeof DEFAULT_BONUS_SETTINGS | undefined) ??
+        DEFAULT_BONUS_SETTINGS
+    ),
+    globalSettings: normalizeGlobalSettings(
+      (config?.globalSettings as Parameters<
+        typeof normalizeGlobalSettings
+      >[0]) ?? {}
+    )
+  }
+}
+
+const DevCalcsPage = async ({ guildId }: { guildId: string }) => {
+  await requireDevPage(guildId)
+
+  const { casinoSettings, bonusSettings, globalSettings } =
+    await loadCalcsSettings(guildId)
 
   return (
     <FeatureLayout title="Simulations">

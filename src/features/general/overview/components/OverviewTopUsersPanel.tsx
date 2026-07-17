@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
 
 type OverviewTopUsersPanelProps = {
@@ -55,7 +56,7 @@ const UserList = ({
             />
             <div className="min-w-0 flex-1">
               <Link
-                href={`/dashboard/g/${guildId}/users/${user.userId}`}
+                href={`${guildBasePath(guildId)}/users/${user.userId}`}
                 className="truncate font-medium hover:text-primary hover:underline"
               >
                 {user.username}

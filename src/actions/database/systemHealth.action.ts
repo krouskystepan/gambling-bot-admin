@@ -9,8 +9,10 @@ import { Session } from 'next-auth'
 import { requireGuildAccess } from '@/actions/perms'
 import { connectToDatabase } from '@/lib/db'
 import { discordMessageLink } from '@/lib/discord/messageLink'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 import { formatGuildMoneyExact } from '@/lib/guild/guildMoney'
 import { getGuildGlobalSettings } from '@/lib/guild/guildMoney.server'
+import { getDemoSystemHealthData, isDemoGuild } from '@/lib/presentation'
 import { formatAgeMs, formatStaleAge } from '@/lib/systemHealth/formatAge'
 import {
   atmStalePendingCutoff,
@@ -67,10 +69,10 @@ export type SystemHealthData = {
 }
 
 const atmQueueHref = (guildId: string) =>
-  `/dashboard/g/${guildId}/atm-queue?filterStatus=pending`
+  `${guildBasePath(guildId)}/atm-queue?filterStatus=pending`
 
 const userHref = (guildId: string, userId: string) =>
-  `/dashboard/g/${guildId}/users/${userId}`
+  `${guildBasePath(guildId)}/users/${userId}`
 
 const rowSeverity = (
   count: number,
@@ -337,6 +339,10 @@ export const getSystemHealthAttentionCount = async (
   guildId: string,
   _session: Session
 ): Promise<number> => {
+  if (isDemoGuild(guildId)) {
+    return getDemoSystemHealthData().needsAttention + 2 // + setup issues
+  }
+
   const access = await requireGuildAccess(guildId)
   if ('error' in access) return 0
 
@@ -357,6 +363,10 @@ export const getSystemHealthData = async (
   guildId: string,
   _session: Session
 ): Promise<SystemHealthData | null> => {
+  if (isDemoGuild(guildId)) {
+    return getDemoSystemHealthData()
+  }
+
   const access = await requireGuildAccess(guildId)
   if ('error' in access) return null
 

@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 
 type CreateRaffleDialogProps = {
   guildId: string
@@ -124,7 +125,7 @@ const CreateRaffleDialog = ({
           <p className="text-sm text-muted-foreground">
             Raffle actions channel is not configured. Set it in{' '}
             <Link
-              href={`/dashboard/g/${guildId}/channel-settings`}
+              href={`${guildBasePath(guildId)}/channel-settings`}
               className="text-primary hover:underline"
             >
               Channel settings

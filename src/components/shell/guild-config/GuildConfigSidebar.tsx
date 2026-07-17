@@ -35,6 +35,10 @@ type GuildConfigSidebarProps = {
   isDev: boolean
   pendingAtmCount?: number
   needsAttentionCount?: number
+  /** Link prefix; sections resolve to `${basePath}/${sectionId}`. */
+  basePath?: string
+  /** Index into the pathname segments that holds the active section id. */
+  activeSegmentIndex?: number
 }
 
 const GuildConfigSidebar = ({
@@ -43,10 +47,13 @@ const GuildConfigSidebar = ({
   isAdmin,
   isDev,
   pendingAtmCount = 0,
-  needsAttentionCount = 0
+  needsAttentionCount = 0,
+  basePath,
+  activeSegmentIndex = 4
 }: GuildConfigSidebarProps) => {
   const pathname = usePathname()
-  const activeSectionId = pathname.split('/')[4] || undefined
+  const resolvedBasePath = basePath ?? `/dashboard/g/${guildId}`
+  const activeSectionId = pathname.split('/')[activeSegmentIndex] || undefined
   const openSectionsSnapshot = useSyncExternalStore(
     subscribeToSidebarSections,
     getSidebarSectionsSnapshot,
@@ -95,7 +102,7 @@ const GuildConfigSidebar = ({
                     return (
                       <Link
                         key={link.id}
-                        href={`/dashboard/g/${guildId}/${link.id}`}
+                        href={`${resolvedBasePath}/${link.id}`}
                         className={cn(
                           'relative flex items-center gap-2 rounded px-5 py-2 text-sm text-sidebar-foreground transition outline-none hover:bg-sidebar-accent hover:text-sidebar-primary focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset',
                           isActive &&

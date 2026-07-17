@@ -1,6 +1,7 @@
 'use server'
 
 import { discordBotRequest } from '@/lib/discord/discordReq'
+import { getDemoDiscordMembers, isDemoGuild } from '@/lib/presentation'
 
 type GuildMember = {
   userId: string
@@ -22,6 +23,10 @@ const MEMBERS_CACHE_DURATION = 60_000 // 1 min
 export const getDiscordGuildMembers = async (
   guildId: string
 ): Promise<GuildMember[]> => {
+  if (isDemoGuild(guildId)) {
+    return getDemoDiscordMembers()
+  }
+
   const now = Date.now()
   const cached = guildMembersCache.get(guildId)
 

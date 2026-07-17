@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 
 import OperationsCategorySection from './OperationsCategorySection'
 
@@ -77,7 +78,7 @@ const OperationsHealthCard = ({
               rows={atm.rows}
               items={atm.items}
               itemTotal={summary.pendingAtm}
-              viewAllHref={`/dashboard/g/${guildId}/atm-queue?filterStatus=pending`}
+              viewAllHref={`${guildBasePath(guildId)}/atm-queue?filterStatus=pending`}
               viewAllLabel="Open ATM queue"
               emptyLabel="No pending requests"
             />
@@ -99,7 +100,7 @@ const OperationsHealthCard = ({
               rows={predictions.rows}
               items={predictions.items}
               itemTotal={summary.predictionsAwaitingAction}
-              viewAllHref={`/dashboard/g/${guildId}/predictions`}
+              viewAllHref={`${guildBasePath(guildId)}/predictions`}
               viewAllLabel="Open predictions"
               emptyLabel="No predictions awaiting action"
             />

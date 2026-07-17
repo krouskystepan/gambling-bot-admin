@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 import FeatureLayout from '@/features/FeatureLayout'
 import { requireSession } from '@/lib/auth/requireSession'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 import { getGuildGlobalSettings } from '@/lib/guild/guildMoney.server'
 
 import TransactionTable from './table/TransactionTable'
@@ -56,7 +57,7 @@ const TransactionsPage = async ({
       title="Transactions"
       actions={
         <Link
-          href={`/dashboard/g/${guildId}/staff-actions`}
+          href={`${guildBasePath(guildId)}/staff-actions`}
           className="text-sm text-primary hover:underline"
         >
           View staff actions only →

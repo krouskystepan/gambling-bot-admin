@@ -29,6 +29,11 @@ import {
   blockPanelMaintenanceAction
 } from '@/lib/panel/panelFeatureActionGuard.server'
 import { getPanelFeatureBlockMessage } from '@/lib/panel/panelGlobalFeatureGuard'
+import {
+  getDemoRafflePageContext,
+  getDemoRaffles,
+  isDemoGuild
+} from '@/lib/presentation'
 import { recordStaffAudit } from '@/lib/staffAudit/recordStaffAudit'
 import { escapeRegExp } from '@/lib/utils'
 import GuildConfiguration from '@/models/GuildConfiguration'
@@ -138,6 +143,8 @@ function enrichRaffleRow(
 export async function getRafflePageContext(
   guildId: string
 ): Promise<RafflePageContext | null> {
+  if (isDemoGuild(guildId)) return getDemoRafflePageContext()
+
   const access = await requireGuildAccess(guildId)
   if ('error' in access) return null
 
@@ -169,6 +176,10 @@ export async function getRaffles(
   status: TRaffleStatus | 'all' = 'active',
   userId?: string
 ): Promise<{ raffles: TRaffleRow[]; total: number }> {
+  if (isDemoGuild(guildId)) {
+    return getDemoRaffles({ page, limit, search, status, userId })
+  }
+
   const access = await requireGuildAccess(guildId)
   if ('error' in access || page < 1 || limit < 1 || limit > 50) {
     return { raffles: [], total: 0 }

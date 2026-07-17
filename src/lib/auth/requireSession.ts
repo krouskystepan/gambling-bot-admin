@@ -5,6 +5,10 @@ import { redirect } from 'next/navigation'
 
 import { authOptions } from '@/lib/auth/authOptions'
 import { getAuthToken, isValidAuthToken } from '@/lib/auth/authToken'
+import {
+  getPresentationSession,
+  isPresentationRequest
+} from '@/lib/presentation'
 
 function isValidSession(session: Session | null): session is Session {
   return Boolean(session?.accessToken && !session.error)
@@ -31,6 +35,10 @@ export function safeCallbackUrl(
 }
 
 export async function getSessionOrNull(): Promise<Session | null> {
+  if (await isPresentationRequest()) {
+    return getPresentationSession()
+  }
+
   if (!(await hasValidAuth())) {
     return null
   }
@@ -43,6 +51,10 @@ export async function getSessionOrNull(): Promise<Session | null> {
 }
 
 export async function requireSession(): Promise<Session> {
+  if (await isPresentationRequest()) {
+    return getPresentationSession()
+  }
+
   if (!(await hasValidAuth())) {
     redirect('/login')
   }

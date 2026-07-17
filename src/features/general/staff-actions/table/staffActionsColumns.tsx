@@ -12,6 +12,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
 import { formatOptionalText } from '@/lib/table/formatOptionalText'
 import { createHiddenFilterColumn } from '@/lib/table/manualFilterColumn'
@@ -144,7 +145,7 @@ export const staffActionsColumns = (
     cell: ({ row }) => (
       <div>
         <Link
-          href={`/dashboard/g/${guildId}/users/${row.original.subjectUserId}`}
+          href={`${guildBasePath(guildId)}/users/${row.original.subjectUserId}`}
           className="hover:underline"
         >
           {row.original.subjectUsername ?? 'Unknown'}

@@ -7,6 +7,7 @@ import Link from 'next/link'
 import ColoredBadge from '@/components/badges/ColoredBadge'
 import { getUserProfileBadgeClass } from '@/components/badges/badgeStyles'
 import UserActionsMenu from '@/features/manage/users/profile/UserActionsMenu'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 import { formatGuildMoney } from '@/lib/guild/guildMoney'
 import { formatOptionalText } from '@/lib/table/formatOptionalText'
 import { createHiddenFilterColumn } from '@/lib/table/manualFilterColumn'
@@ -64,7 +65,7 @@ export const userColumns = ({
     cell: ({ row }) => (
       <p>
         <Link
-          href={`/dashboard/g/${guildId}/users/${row.original.userId}`}
+          href={`${guildBasePath(guildId)}/users/${row.original.userId}`}
           className="font-medium hover:text-primary hover:underline"
         >
           {row.getValue('username')}

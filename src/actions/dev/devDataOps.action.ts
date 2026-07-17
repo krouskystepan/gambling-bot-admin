@@ -12,6 +12,7 @@ import { revalidatePath } from 'next/cache'
 import { invalidateGuildChannelsCache } from '@/actions/discord/channel.action'
 import { connectToDatabase } from '@/lib/db'
 import { requireDevAction } from '@/lib/dev/requireDevAction'
+import { DEMO_MUTATION_MESSAGE, isDemoGuild } from '@/lib/presentation'
 import AtmRequest from '@/models/AtmRequest'
 import BlackjackGame from '@/models/BlackjackGame'
 import GuildConfiguration from '@/models/GuildConfiguration'
@@ -127,6 +128,10 @@ export async function devWipeGuildData({
   const access = await requireDevAction(guildId)
   if (!access.ok) return access
 
+  if (isDemoGuild(guildId)) {
+    return { ok: false, error: DEMO_MUTATION_MESSAGE }
+  }
+
   const phraseError = validateConfirmationPhrase(guildId, confirmationPhrase)
   if (phraseError) return phraseError
 
@@ -161,6 +166,10 @@ export async function devResetGuildConfig({
 > {
   const access = await requireDevAction(guildId)
   if (!access.ok) return access
+
+  if (isDemoGuild(guildId)) {
+    return { ok: false, error: DEMO_MUTATION_MESSAGE }
+  }
 
   const phraseError = validateConfirmationPhrase(guildId, confirmationPhrase)
   if (phraseError) return phraseError

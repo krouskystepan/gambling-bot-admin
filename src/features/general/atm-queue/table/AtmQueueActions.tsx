@@ -11,6 +11,7 @@ import {
   approveAtmRequestAction,
   rejectAtmRequestAction
 } from '@/actions/database/atmRequest.action'
+import { usePresentationReadOnly } from '@/components/presentation/PresentationProvider'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -52,6 +53,7 @@ const AtmQueueActions = ({
   isGuildAdmin
 }: AtmQueueActionsProps) => {
   const router = useRouter()
+  const readOnly = usePresentationReadOnly()
   const [pending, startTransition] = useTransition()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [action, setAction] = useState<'approve' | 'reject'>('approve')
@@ -63,7 +65,7 @@ const AtmQueueActions = ({
     dialogOpen && request.status === 'pending'
   )
 
-  if (request.status !== 'pending') return null
+  if (request.status !== 'pending' || readOnly) return null
 
   const feature = request.type === 'deposit' ? 'deposit' : 'withdraw'
   const approveBlocked = isPanelFeatureBlocking(

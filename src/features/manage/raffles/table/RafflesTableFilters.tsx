@@ -25,6 +25,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 import {
   createExclusiveOwnerEntityFilterHandlers,
   getEntityFilterOptions,
@@ -174,7 +175,7 @@ const RafflesTableFilters = ({
                 <p>
                   Configure the raffle actions channel in{' '}
                   <Link
-                    href={`/dashboard/g/${guildId}/channel-settings`}
+                    href={`${guildBasePath(guildId)}/channel-settings`}
                     className="underline"
                   >
                     Channel settings

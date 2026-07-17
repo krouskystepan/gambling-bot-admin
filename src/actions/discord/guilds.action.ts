@@ -4,6 +4,7 @@ import { Session } from 'next-auth'
 
 import { hasGuildManageAccess } from '@/lib/discord/discordPermissions'
 import { discordApiRequest, discordBotRequest } from '@/lib/discord/discordReq'
+import { DEMO_GUILD_NAME, isDemoGuild } from '@/lib/presentation'
 import type { ICacheEntry, IGuild } from '@/types/types'
 
 import { getAllGuildConfigsWithManagers } from '../database/guild.action'
@@ -78,6 +79,10 @@ export const getUserGuilds = async (
 }
 
 export const getGuildName = async (guildId: string): Promise<string | null> => {
+  if (isDemoGuild(guildId)) {
+    return DEMO_GUILD_NAME
+  }
+
   try {
     const guild = await discordBotRequest<{
       id: string

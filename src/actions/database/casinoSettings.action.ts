@@ -6,6 +6,11 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/authOptions'
 import { connectToDatabase } from '@/lib/db'
 import { revalidateGuildHealth } from '@/lib/guild/revalidateHealth'
+import {
+  assertNotDemoMutation,
+  getDemoCasinoSettings,
+  isDemoGuild
+} from '@/lib/presentation'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import { casinoSettingsSchema } from '@/types/schemas'
 import { TCasinoSettingsValues } from '@/types/types'
@@ -15,6 +20,8 @@ import { getUserPermissions, requireGuildAccess } from '../perms'
 export async function getCasinoSettings(
   guildId: string
 ): Promise<TCasinoSettingsValues | null> {
+  if (isDemoGuild(guildId)) return getDemoCasinoSettings()
+
   const access = await requireGuildAccess(guildId, { requireAdmin: true })
   if ('error' in access) return null
 
@@ -30,6 +37,8 @@ export async function saveCasinoSettings(
   guildId: string,
   values: TCasinoSettingsValues
 ) {
+  assertNotDemoMutation(guildId)
+
   const session = await getServerSession(authOptions)
   const { isAdmin } = await getUserPermissions(guildId, session)
   if (!isAdmin) throw new Error('Insufficient permissions: Admin only')

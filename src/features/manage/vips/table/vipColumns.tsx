@@ -12,6 +12,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 import { formatOptionalText } from '@/lib/table/formatOptionalText'
 import { createHiddenFilterColumn } from '@/lib/table/manualFilterColumn'
 import { TVipChannels } from '@/types/types'
@@ -65,7 +66,7 @@ export const vipColumns = (
     cell: ({ row }) => (
       <p>
         <Link
-          href={`/dashboard/g/${guildId}/users/${row.original.ownerId}`}
+          href={`${guildBasePath(guildId)}/users/${row.original.ownerId}`}
           className="font-medium hover:text-primary hover:underline"
         >
           {row.getValue('username')}
@@ -115,7 +116,7 @@ export const vipColumns = (
                     {members.map((member) => (
                       <Link
                         key={member.userId}
-                        href={`/dashboard/g/${guildId}/users/${member.userId}`}
+                        href={`${guildBasePath(guildId)}/users/${member.userId}`}
                         className="flex items-center gap-2 text-sm hover:text-primary"
                       >
                         <Image

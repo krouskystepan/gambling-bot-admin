@@ -12,6 +12,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { guildBasePath } from '@/lib/guild/guildBasePath'
 
 type RaffleParticipantsDialogProps = {
   guildId: string
@@ -68,7 +69,7 @@ const RaffleParticipantsDialog = ({
                   className="flex items-center justify-between gap-3"
                 >
                   <Link
-                    href={`/dashboard/g/${guildId}/users/${participant.userId}`}
+                    href={`${guildBasePath(guildId)}/users/${participant.userId}`}
                     className="flex min-w-0 items-center gap-2 hover:text-primary"
                   >
                     <Image
