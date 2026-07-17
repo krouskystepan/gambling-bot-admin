@@ -1,6 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { parseReadableStringToNumber } from 'gambling-bot-shared/common'
 import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -29,8 +30,22 @@ type Props = {
   savedSettings: TVipSettingsValues
 }
 
+const VIP_PRICE_FIELDS = [
+  'pricePerDay',
+  'pricePerCreate',
+  'pricePerAdditionalMember'
+] as const
+
 function roleColorHex(color: number) {
   return `#${color.toString(16).padStart(6, '0')}`
+}
+
+const parseVipPriceInput = (raw: string): number | null => {
+  const trimmed = raw.trim()
+  if (trimmed === '') return 0
+  const parsed = parseReadableStringToNumber(trimmed)
+  if (Number.isNaN(parsed)) return null
+  return parsed
 }
 
 const VipSettingsForm = ({
@@ -175,31 +190,52 @@ const VipSettingsForm = ({
                       ],
                       ['maxMembers', 'Max Members']
                     ] as const
-                  ).map(([name, label]) => (
-                    <FormField
-                      key={name}
-                      control={form.control}
-                      name={name}
-                      render={({ field }) => (
-                        <FormItem>
-                          <Label>{label}</Label>
-                          <FormControl>
-                            <Input
-                              variant="muted"
-                              type="text"
-                              value={field.value}
-                              onChange={(e) =>
-                                field.onChange(
-                                  Number(e.target.value.replace(/\D/g, ''))
-                                )
-                              }
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  ))}
+                  ).map(([name, label]) => {
+                    const isPriceField = (
+                      VIP_PRICE_FIELDS as readonly string[]
+                    ).includes(name)
+
+                    return (
+                      <FormField
+                        key={name}
+                        control={form.control}
+                        name={name}
+                        render={({ field }) => (
+                          <FormItem>
+                            <Label>{label}</Label>
+                            <FormControl>
+                              <Input
+                                variant="muted"
+                                type="text"
+                                placeholder={
+                                  isPriceField
+                                    ? 'e.g. 1000, 2k, 4.5k'
+                                    : undefined
+                                }
+                                value={field.value}
+                                onChange={(e) => {
+                                  if (!isPriceField) {
+                                    field.onChange(
+                                      Number(e.target.value.replace(/\D/g, ''))
+                                    )
+                                    return
+                                  }
+
+                                  const parsed = parseVipPriceInput(
+                                    e.target.value
+                                  )
+                                  if (parsed !== null) {
+                                    field.onChange(parsed)
+                                  }
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )
+                  })}
                 </div>
               </CardContent>
             </Card>

@@ -1,5 +1,6 @@
 'use client'
 
+import { parseReadableStringToNumber } from 'gambling-bot-shared/common'
 import { RotateCw } from 'lucide-react'
 import { type ControllerRenderProps, Path } from 'react-hook-form'
 
@@ -22,33 +23,51 @@ type Props = {
   defaultValue?: number
   form: TCasinoSettingsForm
   onValueCommit?: (value: number) => void
+  /** Accept compact money suffixes like `2k` / `4.5M` (minBet / maxBet). */
+  compactMoney?: boolean
 }
 
-const parseNumberFieldValue = (raw: string): number => {
+const parsePlainNumberFieldValue = (raw: string): number => {
   if (raw === '') return 0
   const parsed = Number(raw)
   return Number.isNaN(parsed) ? 0 : parsed
 }
+
+const parseCompactMoneyFieldValue = (raw: string): number => {
+  const trimmed = raw.trim()
+  if (trimmed === '') return 0
+  const parsed = parseReadableStringToNumber(trimmed)
+  return Number.isNaN(parsed) ? 0 : parsed
+}
+
+const sanitizePlainDraft = (raw: string): string => raw.replace(/[^0-9.]/g, '')
+
+const sanitizeCompactMoneyDraft = (raw: string): string =>
+  raw.replace(/[^0-9.kKmMbB]/g, '')
 
 type NumberFieldInputProps = {
   field: ControllerRenderProps<TCasinoSettingsInput, Path<TCasinoSettingsInput>>
   label: string
   defaultValue?: number
   onValueCommit?: (value: number) => void
+  compactMoney: boolean
 }
 
 const NumberFieldInput = ({
   field,
   label,
   defaultValue,
-  onValueCommit
+  onValueCommit,
+  compactMoney
 }: NumberFieldInputProps) => {
   const [draft, setDraft] = useState(() => String(field.value ?? ''))
   const [isFocused, setIsFocused] = useState(false)
   const displayValue = isFocused ? draft : String(field.value ?? '')
 
   const commit = (raw: string) => {
-    const parsed = parseNumberFieldValue(raw)
+    const parsed = compactMoney
+      ? parseCompactMoneyFieldValue(raw)
+      : parsePlainNumberFieldValue(raw)
     field.onChange(parsed)
     field.onBlur()
     onValueCommit?.(parsed)
@@ -62,18 +81,29 @@ const NumberFieldInput = ({
           <Input
             variant="muted"
             className="rounded-r-none"
+            placeholder={compactMoney ? 'e.g. 1000, 2k, 4.5k' : undefined}
             value={displayValue}
             onFocus={() => {
               setDraft(String(field.value ?? ''))
               setIsFocused(true)
             }}
             onChange={(e) => {
-              const cleaned = e.target.value.replace(/[^0-9.]/g, '')
+              const cleaned = compactMoney
+                ? sanitizeCompactMoneyDraft(e.target.value)
+                : sanitizePlainDraft(e.target.value)
               setDraft(cleaned)
 
-              if (cleaned !== '' && !cleaned.endsWith('.')) {
-                field.onChange(parseNumberFieldValue(cleaned))
+              if (cleaned === '' || cleaned.endsWith('.')) return
+
+              if (compactMoney) {
+                const parsed = parseReadableStringToNumber(cleaned)
+                if (!Number.isNaN(parsed)) {
+                  field.onChange(parsed)
+                }
+                return
               }
+
+              field.onChange(parsePlainNumberFieldValue(cleaned))
             }}
             onBlur={(e) => {
               commit(e.target.value)
@@ -106,7 +136,8 @@ export const NumberField = ({
   label,
   defaultValue,
   form,
-  onValueCommit
+  onValueCommit,
+  compactMoney = false
 }: Props) => (
   <FormField
     control={form.control}
@@ -117,6 +148,7 @@ export const NumberField = ({
         label={label}
         defaultValue={defaultValue}
         onValueCommit={onValueCommit}
+        compactMoney={compactMoney}
       />
     )}
   />

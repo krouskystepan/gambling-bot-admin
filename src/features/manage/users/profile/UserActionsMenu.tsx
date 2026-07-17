@@ -1,5 +1,6 @@
 'use client'
 
+import { parseReadableStringToNumber } from 'gambling-bot-shared/common'
 import type { GlobalFeature, GlobalSettings } from 'gambling-bot-shared/guild'
 import { CircleQuestionMark, EllipsisIcon } from 'lucide-react'
 import { toast } from 'sonner'
@@ -50,6 +51,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
 import {
   Tooltip,
   TooltipContent,
@@ -158,12 +160,13 @@ const UserActionsMenu = ({
         : 'Block economy actions and assign the banned role if configured.'
 
   const handleBalanceAction = async () => {
-    const value = parseFloat(amount)
-    if (
-      (balanceModal === 'deposit' || balanceModal === 'withdraw') &&
-      (isNaN(value) || value <= 0)
-    ) {
-      toast.error('Enter a valid number')
+    const needsAmount =
+      balanceModal === 'deposit' ||
+      balanceModal === 'withdraw' ||
+      balanceModal === 'bonus'
+    const value = parseReadableStringToNumber(amount.trim())
+    if (needsAmount && (Number.isNaN(value) || value <= 0)) {
+      toast.error('Enter a valid amount (e.g. 1000, 2k, 4.5k)')
       return
     }
 
@@ -392,17 +395,16 @@ const UserActionsMenu = ({
             <DialogDescription>
               {balanceModal === 'reset'
                 ? 'This will reset the balance to 0.'
-                : 'Enter the amount:'}
+                : 'Enter the amount (e.g. 1000, 2k, 4.5k):'}
             </DialogDescription>
           </DialogHeader>
 
           {balanceModal !== 'reset' && (
-            <input
-              type="number"
+            <Input
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="my-2 w-full rounded border p-2"
-              placeholder="Enter amount"
+              className="my-2"
+              placeholder="e.g. 1000, 2k, 4.5k"
             />
           )}
 
