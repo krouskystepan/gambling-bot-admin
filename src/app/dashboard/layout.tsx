@@ -1,7 +1,7 @@
+import { PreferencesToaster } from '@/components/providers/PreferencesToaster'
 import DashboardFullPageState from '@/components/shell/dashboard/DashboardFullPageState'
 import DashboardSidebar from '@/components/shell/dashboard/DashboardSidebar'
 import RateLimited from '@/components/states/RateLimmited'
-import { Toaster } from '@/components/ui/sonner'
 import { getSessionOrNull } from '@/lib/auth/requireSession'
 import { loadUserGuildsResult } from '@/lib/guild/userGuilds'
 
@@ -28,7 +28,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
       />
       <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         {children}
-        <Toaster richColors position="bottom-right" />
+        <PreferencesToaster />
       </div>
     </div>
   )
