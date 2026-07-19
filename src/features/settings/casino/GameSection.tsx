@@ -58,6 +58,7 @@ const GameSection = ({ game, form }: Props) => {
                 key as keyof (typeof defaultCasinoSettings)[typeof game]
               ] as number
             }
+            compactMoney={key === 'minBet' || key === 'maxBet'}
           />
         ))}
       </div>
