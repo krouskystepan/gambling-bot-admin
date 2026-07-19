@@ -6,10 +6,12 @@ import LoadingScreen from '@/components/states/Loading'
 import NoGuildSelected from '@/components/states/NoGuildSelected'
 import NoPerms from '@/components/states/NoPerms'
 import NotFoundBox from '@/components/states/NotFoundBox'
+import OpeningGuild from '@/components/states/OpeningGuild'
 import RateLimited from '@/components/states/RateLimmited'
 
 const states = [
   { id: 'loading', label: 'Loading', Component: LoadingScreen },
+  { id: 'opening-guild', label: 'Opening guild', Component: OpeningGuild },
   {
     id: 'bot-not-in-guild',
     label: 'Bot not in guild',

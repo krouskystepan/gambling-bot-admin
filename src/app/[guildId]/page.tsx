@@ -1,6 +1,7 @@
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 
-import { getSessionOrNull, safeCallbackUrl } from '@/lib/auth/requireSession'
+import GuildLandingRedirect from '@/components/shell/dashboard/GuildLandingRedirect'
+import { getSessionOrNull } from '@/lib/auth/requireSession'
 
 type PublicGuildPageProps = {
   params: Promise<{ guildId: string }>
@@ -14,7 +15,7 @@ const PublicGuildPage = async ({ params }: PublicGuildPageProps) => {
     notFound()
   }
 
-  redirect(safeCallbackUrl(`/dashboard/g/${guildId}/overview`))
+  return <GuildLandingRedirect guildId={guildId} />
 }
 
 export default PublicGuildPage
