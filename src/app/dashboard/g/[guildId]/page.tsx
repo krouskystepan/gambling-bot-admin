@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+import GuildLandingRedirect from '@/components/shell/dashboard/GuildLandingRedirect'
 
 const GuildPage = async ({
   params
@@ -7,7 +7,7 @@ const GuildPage = async ({
 }) => {
   const { guildId } = await params
 
-  return redirect(`/dashboard/g/${guildId}/overview`)
+  return <GuildLandingRedirect guildId={guildId} />
 }
 
 export default GuildPage
