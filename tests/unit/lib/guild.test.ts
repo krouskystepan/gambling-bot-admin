@@ -70,6 +70,20 @@ describe('guildSectionAccess', () => {
       })
     ).toBe(true)
     expect(
+      canAccessSection('settings-changes', {
+        isAdmin: true,
+        isManager: false,
+        isDev: false
+      })
+    ).toBe(true)
+    expect(
+      canAccessSection('settings-changes', {
+        isAdmin: false,
+        isManager: true,
+        isDev: false
+      })
+    ).toBe(false)
+    expect(
       canAccessSection('users', {
         isAdmin: false,
         isManager: true,
