@@ -7,7 +7,10 @@ const GlobalSettingsPage = async ({ guildId }: { guildId: string }) => {
   const savedSettings = await getGlobalSettings(guildId)
 
   return (
-    <FeatureLayout title="Global Settings">
+    <FeatureLayout
+      title="Global Settings"
+      description="Core guild settings (currency, timezone, etc.)"
+    >
       <GlobalSettingsForm guildId={guildId} savedSettings={savedSettings} />
     </FeatureLayout>
   )

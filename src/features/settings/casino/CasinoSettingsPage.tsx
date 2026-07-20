@@ -12,7 +12,10 @@ const CasinoSettingsPage = async ({ guildId }: { guildId: string }) => {
     (defaultCasinoSettings as TCasinoSettingsValues)
 
   return (
-    <FeatureLayout title="Casino Settings">
+    <FeatureLayout
+      title="Casino Settings"
+      description="Game toggles, limits, and RTP-related settings"
+    >
       <CasinoSettingsForm guildId={guildId} savedSettings={savedSettings} />
     </FeatureLayout>
   )
