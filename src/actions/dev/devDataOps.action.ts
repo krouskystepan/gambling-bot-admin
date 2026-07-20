@@ -13,6 +13,11 @@ import { invalidateGuildChannelsCache } from '@/actions/discord/channel.action'
 import { connectToDatabase } from '@/lib/db'
 import { requireDevAction } from '@/lib/dev/requireDevAction'
 import { DEMO_MUTATION_MESSAGE, isDemoGuild } from '@/lib/presentation'
+import { recordSettingsChange } from '@/lib/settingsAudit/recordSettingsChange'
+import {
+  channelsSliceFromDoc,
+  moderationSliceFromDoc
+} from '@/lib/settingsAudit/settingsSlices'
 import AtmRequest from '@/models/AtmRequest'
 import BlackjackGame from '@/models/BlackjackGame'
 import GuildConfiguration from '@/models/GuildConfiguration'
@@ -114,6 +119,32 @@ function normalizeConfigResetScopes(
   )
 }
 
+function snapshotResetScopes(
+  config: TGuildConfiguration,
+  scopes: Exclude<GuildConfigResetScope, 'all'>[]
+): Record<string, unknown> {
+  const snapshot: Record<string, unknown> = {}
+
+  if (scopes.includes('casino')) {
+    snapshot.casinoSettings = config.casinoSettings ?? null
+  }
+  if (scopes.includes('global')) {
+    snapshot.globalSettings = config.globalSettings ?? null
+  }
+  if (scopes.includes('channels')) {
+    snapshot.channels = channelsSliceFromDoc(config)
+    snapshot.moderation = moderationSliceFromDoc(config)
+  }
+  if (scopes.includes('vip')) {
+    snapshot.vipSettings = config.vipSettings ?? null
+  }
+  if (scopes.includes('bonus')) {
+    snapshot.bonusSettings = config.bonusSettings ?? null
+  }
+
+  return snapshot
+}
+
 export async function devWipeGuildData({
   guildId,
   entities,
@@ -189,6 +220,7 @@ export async function devResetGuildConfig({
     return { ok: false, error: 'Guild configuration not found.' }
   }
 
+  const beforeSnapshot = snapshotResetScopes(config, normalizedScopes)
   const reset: string[] = []
 
   if (normalizedScopes.includes('casino')) {
@@ -223,6 +255,16 @@ export async function devResetGuildConfig({
   }
 
   await config.save()
+
+  const afterSnapshot = snapshotResetScopes(config, normalizedScopes)
+
+  await recordSettingsChange({
+    guildId,
+    changedBy: access.userId,
+    section: 'reset',
+    before: beforeSnapshot,
+    after: afterSnapshot
+  })
 
   const channelsCleared = normalizedScopes.includes('channels')
   if (channelsCleared) {

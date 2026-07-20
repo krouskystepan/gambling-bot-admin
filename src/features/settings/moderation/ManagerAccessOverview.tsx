@@ -38,6 +38,10 @@ const PANEL_DENIED: PermissionItem[] = [
     label: 'Settings (channels, casino, bonuses, VIP, moderation)'
   },
   {
+    id: 'panel-no-settings-changes',
+    label: 'Settings changes audit log'
+  },
+  {
     id: 'panel-no-config',
     label: 'Guild configuration and bot defaults'
   }

@@ -5,6 +5,7 @@ export { default as TransactionsPage } from './general/transactions/Transactions
 export { default as AtmQueuePage } from './general/atm-queue/AtmQueuePage'
 export { default as HealthPage } from './general/health/HealthPage'
 export { default as StaffActionsPage } from './general/staff-actions/StaffActionsPage'
+export { default as SettingsChangesPage } from './general/settings-changes/SettingsChangesPage'
 
 // Manage
 export { default as UsersPage } from './manage/users/UsersPage'

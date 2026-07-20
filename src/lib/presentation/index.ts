@@ -59,6 +59,11 @@ export {
   getDemoStaffActionEntityFacets
 } from './fixtures/demoStaffActions'
 export {
+  getDemoSettingsChanges,
+  getDemoSettingsChangeCounts,
+  getDemoSettingsChangeEntityFacets
+} from './fixtures/demoSettingsChanges'
+export {
   getDemoPredictions,
   getDemoPredictionPageContext,
   getDemoRaffles,

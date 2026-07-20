@@ -94,6 +94,8 @@ const GuildConfigSidebar = ({
 
                 <AccordionContent className="flex flex-col gap-1 pt-1 pb-0">
                   {group.links.map((link) => {
+                    if (link.id === 'settings-changes' && !isAdmin) return null
+
                     const Icon = link.icon as LucideIcon
                     const isActive =
                       activeSectionId === link.id ||

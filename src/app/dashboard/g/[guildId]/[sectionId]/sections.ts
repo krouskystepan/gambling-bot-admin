@@ -16,6 +16,7 @@ import {
   PredictionsPage,
   RafflesPage,
   ReportsPage,
+  SettingsChangesPage,
   StaffActionsPage,
   TransactionsPage,
   UsersPage,
@@ -29,6 +30,7 @@ export const sections = {
   reports: ReportsPage,
   transactions: TransactionsPage,
   'staff-actions': StaffActionsPage,
+  'settings-changes': SettingsChangesPage,
   'atm-queue': AtmQueuePage,
   health: HealthPage,
 

@@ -10,6 +10,8 @@ import {
   getDemoChannels,
   isDemoGuild
 } from '@/lib/presentation'
+import { recordSettingsChange } from '@/lib/settingsAudit/recordSettingsChange'
+import { channelsSliceFromDoc } from '@/lib/settingsAudit/settingsSlices'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import { TChannelsFormValues } from '@/types/types'
 
@@ -28,25 +30,7 @@ export async function getChannels(
   const doc = await GuildConfiguration.findOne({ guildId })
   if (!doc) return null
 
-  return {
-    atm: {
-      actions: doc.atmChannelIds?.actions ?? '',
-      logs: doc.atmChannelIds?.logs ?? ''
-    },
-    casino: {
-      casinoChannelIds: doc.casinoChannelIds ?? [],
-      winAnnouncementsChannelId: doc.winAnnouncementsChannelId ?? ''
-    },
-    prediction: {
-      actions: doc.predictionChannelIds?.actions ?? '',
-      logs: doc.predictionChannelIds?.logs ?? ''
-    },
-    raffle: {
-      actions: doc.raffleChannelIds?.actions ?? '',
-      logs: doc.raffleChannelIds?.logs ?? ''
-    },
-    workerLogChannelId: doc.workerLogChannelId ?? ''
-  }
+  return channelsSliceFromDoc(doc)
 }
 
 export async function saveChannels(
@@ -60,6 +44,10 @@ export async function saveChannels(
   if (!isAdmin) throw new Error('Insufficient permissions: Admin only')
 
   await connectToDatabase()
+
+  const existing = await GuildConfiguration.findOne({ guildId }).lean()
+  const before = channelsSliceFromDoc(existing)
+
   const updated = await GuildConfiguration.findOneAndUpdate(
     { guildId },
     {
@@ -79,25 +67,17 @@ export async function saveChannels(
     { new: true, upsert: true }
   )
 
+  const after = channelsSliceFromDoc(updated) ?? values
+
+  await recordSettingsChange({
+    guildId,
+    changedBy: session!.userId!,
+    section: 'channels',
+    before,
+    after
+  })
+
   revalidateGuildHealth(guildId)
 
-  return {
-    atm: {
-      actions: updated.atmChannelIds.actions,
-      logs: updated.atmChannelIds.logs
-    },
-    casino: {
-      casinoChannelIds: updated.casinoChannelIds,
-      winAnnouncementsChannelId: updated.winAnnouncementsChannelId ?? ''
-    },
-    prediction: {
-      actions: updated.predictionChannelIds.actions,
-      logs: updated.predictionChannelIds.logs
-    },
-    raffle: {
-      actions: updated.raffleChannelIds.actions,
-      logs: updated.raffleChannelIds.logs
-    },
-    workerLogChannelId: updated.workerLogChannelId ?? ''
-  }
+  return after
 }

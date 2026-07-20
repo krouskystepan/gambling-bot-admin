@@ -6,7 +6,8 @@ const SETTINGS_SECTION_IDS = new Set<SectionId>([
   'casino-settings',
   'moderation-settings',
   'bonus-settings',
-  'vip-settings'
+  'vip-settings',
+  'settings-changes'
 ])
 
 const DEV_SECTION_IDS = new Set<SectionId>([

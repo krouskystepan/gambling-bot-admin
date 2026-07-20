@@ -14,6 +14,7 @@ import {
   getDemoGlobalSettings,
   isDemoGuild
 } from '@/lib/presentation'
+import { recordSettingsChange } from '@/lib/settingsAudit/recordSettingsChange'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import { TGlobalSettingsFormValues } from '@/types/types'
 
@@ -53,6 +54,9 @@ export async function saveGlobalSettings(
 
   await connectToDatabase()
 
+  const existing = await GuildConfiguration.findOne({ guildId }).lean()
+  const before = existing?.globalSettings ?? null
+
   const updated = await GuildConfiguration.findOneAndUpdate(
     { guildId },
     {
@@ -62,9 +66,19 @@ export async function saveGlobalSettings(
     { new: true, upsert: true }
   )
 
+  const after = updated?.globalSettings ?? parsed
+
+  await recordSettingsChange({
+    guildId,
+    changedBy: session!.userId!,
+    section: 'global',
+    before,
+    after
+  })
+
   return globalSettingsFormSchema.parse(
     normalizeGlobalSettings(
-      (updated?.globalSettings ?? parsed) as Partial<TGlobalSettingsFormValues>
+      (after ?? parsed) as Partial<TGlobalSettingsFormValues>
     )
   )
 }

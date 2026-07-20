@@ -11,6 +11,7 @@ import {
   getDemoBonusSettings,
   isDemoGuild
 } from '@/lib/presentation'
+import { recordSettingsChange } from '@/lib/settingsAudit/recordSettingsChange'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import { TBonusFormValues } from '@/types/types'
 
@@ -68,6 +69,11 @@ export async function saveBonusSettings(
 
   await connectToDatabase()
 
+  const existing = await GuildConfiguration.findOne({ guildId }).lean()
+  const before = existing?.bonusSettings
+    ? toFormValues(existing.bonusSettings as Record<string, unknown>)
+    : null
+
   const updatedDoc = await GuildConfiguration.findOneAndUpdate(
     { guildId },
     { $set: { bonusSettings: parsed } },
@@ -76,7 +82,17 @@ export async function saveBonusSettings(
 
   if (!updatedDoc) return null
 
-  return toFormValues(
+  const after = toFormValues(
     (updatedDoc.bonusSettings ?? {}) as Record<string, unknown>
   )
+
+  await recordSettingsChange({
+    guildId,
+    changedBy: session!.userId!,
+    section: 'bonus',
+    before,
+    after
+  })
+
+  return after
 }

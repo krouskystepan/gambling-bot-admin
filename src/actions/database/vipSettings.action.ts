@@ -10,10 +10,29 @@ import {
   getDemoVipSettings,
   isDemoGuild
 } from '@/lib/presentation'
+import { recordSettingsChange } from '@/lib/settingsAudit/recordSettingsChange'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import { TVipSettingsValues } from '@/types/types'
 
 import { getUserPermissions, requireGuildAccess } from '../perms'
+
+function vipSliceFromDoc(
+  doc: {
+    vipSettings?: Partial<TVipSettingsValues> | null
+  } | null
+): TVipSettingsValues | null {
+  if (!doc) return null
+
+  return {
+    roleOwnerId: doc.vipSettings?.roleOwnerId ?? '',
+    roleMemberId: doc.vipSettings?.roleMemberId ?? '',
+    categoryId: doc.vipSettings?.categoryId ?? '',
+    pricePerAdditionalMember: doc.vipSettings?.pricePerAdditionalMember ?? 0,
+    maxMembers: doc.vipSettings?.maxMembers ?? 0,
+    pricePerDay: doc.vipSettings?.pricePerDay ?? 0,
+    pricePerCreate: doc.vipSettings?.pricePerCreate ?? 0
+  }
+}
 
 export async function getVipSettings(
   guildId: string
@@ -28,15 +47,7 @@ export async function getVipSettings(
   const doc = await GuildConfiguration.findOne({ guildId })
   if (!doc) return null
 
-  return {
-    roleOwnerId: doc.vipSettings?.roleOwnerId ?? '',
-    roleMemberId: doc.vipSettings?.roleMemberId ?? '',
-    categoryId: doc.vipSettings?.categoryId ?? '',
-    pricePerAdditionalMember: doc.vipSettings?.pricePerAdditionalMember ?? 0,
-    maxMembers: doc.vipSettings?.maxMembers ?? 0,
-    pricePerDay: doc.vipSettings?.pricePerDay ?? 0,
-    pricePerCreate: doc.vipSettings?.pricePerCreate ?? 0
-  }
+  return vipSliceFromDoc(doc)
 }
 
 export async function saveVipSettings(
@@ -51,6 +62,9 @@ export async function saveVipSettings(
 
   await connectToDatabase()
 
+  const existing = await GuildConfiguration.findOne({ guildId }).lean()
+  const before = vipSliceFromDoc(existing)
+
   const updatedDoc = await GuildConfiguration.findOneAndUpdate(
     { guildId },
     { $set: { vipSettings: values } },
@@ -59,16 +73,17 @@ export async function saveVipSettings(
 
   if (!updatedDoc) return null
 
+  const after = vipSliceFromDoc(updatedDoc)
+
+  await recordSettingsChange({
+    guildId,
+    changedBy: session!.userId!,
+    section: 'vip',
+    before,
+    after
+  })
+
   revalidateGuildHealth(guildId)
 
-  return {
-    roleOwnerId: updatedDoc.vipSettings?.roleOwnerId ?? '',
-    roleMemberId: updatedDoc.vipSettings?.roleMemberId ?? '',
-    categoryId: updatedDoc.vipSettings?.categoryId ?? '',
-    pricePerAdditionalMember:
-      updatedDoc.vipSettings?.pricePerAdditionalMember ?? 0,
-    maxMembers: updatedDoc.vipSettings?.maxMembers ?? 0,
-    pricePerDay: updatedDoc.vipSettings?.pricePerDay ?? 0,
-    pricePerCreate: updatedDoc.vipSettings?.pricePerCreate ?? 0
-  }
+  return after
 }

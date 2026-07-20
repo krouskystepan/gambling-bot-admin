@@ -10,6 +10,8 @@ import {
   getDemoModerationSettings,
   isDemoGuild
 } from '@/lib/presentation'
+import { recordSettingsChange } from '@/lib/settingsAudit/recordSettingsChange'
+import { moderationSliceFromDoc } from '@/lib/settingsAudit/settingsSlices'
 import GuildConfiguration from '@/models/GuildConfiguration'
 
 import { getUserPermissions, requireGuildAccess } from '../perms'
@@ -25,10 +27,7 @@ export async function getModerationSettings(
   await connectToDatabase()
   const doc = await GuildConfiguration.findOne({ guildId })
   if (!doc) return null
-  return {
-    managerRoleId: doc.managerRoleId ?? '',
-    bannedRoleId: doc.bannedRoleId ?? ''
-  }
+  return moderationSliceFromDoc(doc)
 }
 
 export async function saveModerationSettings(
@@ -42,14 +41,26 @@ export async function saveModerationSettings(
   if (!isAdmin) throw new Error('Insufficient permissions: Admin only')
 
   await connectToDatabase()
+
+  const existing = await GuildConfiguration.findOne({ guildId }).lean()
+  const before = moderationSliceFromDoc(existing)
+
   const updated = await GuildConfiguration.findOneAndUpdate(
     { guildId },
     { $set: values },
     { new: true, upsert: true }
   )
+
+  const after = moderationSliceFromDoc(updated) ?? values
+
+  await recordSettingsChange({
+    guildId,
+    changedBy: session!.userId!,
+    section: 'moderation',
+    before,
+    after
+  })
+
   revalidateGuildHealth(guildId)
-  return {
-    managerRoleId: updated?.managerRoleId ?? '',
-    bannedRoleId: updated?.bannedRoleId ?? ''
-  }
+  return after
 }
