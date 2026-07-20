@@ -11,7 +11,10 @@ const ModerationSettingsPage = async ({ guildId }: { guildId: string }) => {
   ])
 
   return (
-    <FeatureLayout title="Moderation Settings">
+    <FeatureLayout
+      title="Moderation Settings"
+      description="Manager access and moderation behavior"
+    >
       <ModerationSettingsForm
         guildId={guildId}
         roles={roles}

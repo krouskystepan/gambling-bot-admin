@@ -12,7 +12,10 @@ const DevGuildPage = async ({ guildId }: { guildId: string }) => {
   await requireDevPage(guildId)
 
   return (
-    <FeatureLayout title="Guild">
+    <FeatureLayout
+      title="Guild"
+      description="Guild-scoped diagnostics and data checks"
+    >
       <div className="space-y-8">
         <section className="space-y-4">
           <DevSectionHeading

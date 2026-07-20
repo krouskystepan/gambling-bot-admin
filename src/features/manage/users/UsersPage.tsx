@@ -35,7 +35,10 @@ const UsersPage = async ({
   ])
 
   return (
-    <FeatureLayout title={'Users'}>
+    <FeatureLayout
+      title={'Users'}
+      description="Look up members, balances, and profiles"
+    >
       <UserTable
         globalSettings={globalSettings}
         isGuildAdmin={isAdmin}

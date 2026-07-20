@@ -10,7 +10,10 @@ const DevSystemPage = async ({ guildId }: { guildId: string }) => {
   await requireDevPage(guildId)
 
   return (
-    <FeatureLayout title="Platform">
+    <FeatureLayout
+      title="Platform"
+      description="Runtime, environment, and platform-level actions"
+    >
       <div className="space-y-6">
         <div className="grid gap-6 lg:grid-cols-2">
           <RuntimeInfoCard />

@@ -36,7 +36,10 @@ const PredictionsPage = async ({
   if (!pageContext) return <LoadFailed />
 
   return (
-    <FeatureLayout title="Predictions">
+    <FeatureLayout
+      title="Predictions"
+      description="Manage prediction markets for this guild"
+    >
       <PredictionsTable
         guildId={guildId}
         predictions={predictions}

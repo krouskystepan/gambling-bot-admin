@@ -39,6 +39,7 @@ const OverviewPage = async ({
   return (
     <FeatureLayout
       title="Overview"
+      description="Guild snapshot: cash flow, game P&L, and recent activity"
       actions={
         <OverviewPeriodSelect dateFrom={range.dateFrom} dateTo={range.dateTo} />
       }

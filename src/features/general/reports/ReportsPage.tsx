@@ -43,6 +43,7 @@ const ReportsPage = async ({
   return (
     <FeatureLayout
       title="Reports"
+      description="Tax and P&L summaries for a chosen period"
       actions={
         <ReportsPeriodSelect
           dateFrom={range.dateFrom}

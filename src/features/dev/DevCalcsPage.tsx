@@ -56,7 +56,10 @@ const DevCalcsPage = async ({ guildId }: { guildId: string }) => {
     await loadCalcsSettings(guildId)
 
   return (
-    <FeatureLayout title="Simulations">
+    <FeatureLayout
+      title="Simulations"
+      description="Run RTP and other calculation simulations"
+    >
       <div className="space-y-8">
         <section className="space-y-4">
           <DevSectionHeading
