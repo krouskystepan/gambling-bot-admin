@@ -11,7 +11,10 @@ const DevOverviewPage = async ({ guildId }: { guildId: string }) => {
   const { isAdmin, isManager } = await getUserPermissions(guildId, session)
 
   return (
-    <FeatureLayout title="Overview">
+    <FeatureLayout
+      title="Overview"
+      description="Dev tools and diagnostics for this guild"
+    >
       <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
         <DevInfoCard
           guildId={guildId}

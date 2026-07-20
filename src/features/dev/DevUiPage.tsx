@@ -10,7 +10,10 @@ const DevUiPage = async ({ guildId }: { guildId: string }) => {
   await requireDevPage(guildId)
 
   return (
-    <FeatureLayout title="UI kit">
+    <FeatureLayout
+      title="UI kit"
+      description="Shared badges and UI kit reference for this app"
+    >
       <div className="space-y-10">
         <section className="space-y-4">
           <DevSectionHeading
