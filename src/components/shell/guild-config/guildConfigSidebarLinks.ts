@@ -10,6 +10,7 @@ import {
   FileBarChart,
   Globe,
   HeartPulse,
+  History,
   Landmark,
   LayoutDashboard,
   LayoutTemplate,
@@ -32,6 +33,7 @@ export const GUILD_CONFIG_SIDEBAR_LINKS = [
       { id: 'atm-queue', label: 'ATM Queue', icon: Banknote },
       { id: 'transactions', label: 'Transactions', icon: Landmark },
       { id: 'staff-actions', label: 'Staff actions', icon: ScrollText },
+      { id: 'settings-changes', label: 'Settings changes', icon: History },
       { id: 'reports', label: 'Reports', icon: FileBarChart }
     ]
   },

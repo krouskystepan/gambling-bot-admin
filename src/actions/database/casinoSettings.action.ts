@@ -11,6 +11,7 @@ import {
   getDemoCasinoSettings,
   isDemoGuild
 } from '@/lib/presentation'
+import { recordSettingsChange } from '@/lib/settingsAudit/recordSettingsChange'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import { casinoSettingsSchema } from '@/types/schemas'
 import { TCasinoSettingsValues } from '@/types/types'
@@ -47,6 +48,9 @@ export async function saveCasinoSettings(
 
   await connectToDatabase()
 
+  const existing = await GuildConfiguration.findOne({ guildId }).lean()
+  const before = existing?.casinoSettings ?? null
+
   const updated = await GuildConfiguration.findOneAndUpdate(
     { guildId },
     {
@@ -57,6 +61,14 @@ export async function saveCasinoSettings(
     },
     { new: true, upsert: true }
   )
+
+  await recordSettingsChange({
+    guildId,
+    changedBy: session!.userId!,
+    section: 'casino',
+    before,
+    after: updated.casinoSettings
+  })
 
   revalidateGuildHealth(guildId)
 

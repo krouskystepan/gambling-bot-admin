@@ -52,6 +52,15 @@ export type ManagerAccessBadgeKey = 'allowed' | 'denied'
 
 export type BanLogStatusBadgeKey = 'active' | 'ended'
 
+export type SettingsChangeSectionBadgeKey =
+  | 'global'
+  | 'channels'
+  | 'moderation'
+  | 'casino'
+  | 'bonus'
+  | 'vip'
+  | 'reset'
+
 const MODERATION_BADGE_STYLES = {
   banned: outline('burgundy'),
   ban: outline('burgundy'),
@@ -62,6 +71,19 @@ const MODERATION_BADGE_STYLES = {
 const BAN_LOG_STATUS_BADGE_STYLES: Record<BanLogStatusBadgeKey, string> = {
   active: filled('red'),
   ended: filled('gray')
+}
+
+const SETTINGS_CHANGE_SECTION_BADGE_STYLES: Record<
+  SettingsChangeSectionBadgeKey,
+  string
+> = {
+  global: outline('blue'),
+  channels: outline('cyan'),
+  moderation: outline('burgundy'),
+  casino: outline('orange'),
+  bonus: outline('pink'),
+  vip: outline('gold'),
+  reset: outline('red')
 }
 
 const USER_PROFILE_BADGE_STYLES: Record<UserProfileBadgeKey, string> = {
@@ -148,6 +170,8 @@ export const raffleStatusBadgeMap = Object.fromEntries(
 
 export const managerAccessBadgeMap = MANAGER_ACCESS_BADGE_STYLES
 export const banLogStatusBadgeMap = BAN_LOG_STATUS_BADGE_STYLES
+export const settingsChangeSectionBadgeMap =
+  SETTINGS_CHANGE_SECTION_BADGE_STYLES
 
 export function getTransactionTypeBadgeClass(
   type: TTransaction['type']
@@ -195,4 +219,10 @@ export function getManagerAccessBadgeClass(key: ManagerAccessBadgeKey): string {
 
 export function getBanLogStatusBadgeClass(key: BanLogStatusBadgeKey): string {
   return banLogStatusBadgeMap[key]
+}
+
+export function getSettingsChangeSectionBadgeClass(
+  key: SettingsChangeSectionBadgeKey
+): string {
+  return settingsChangeSectionBadgeMap[key] ?? outline('gray')
 }

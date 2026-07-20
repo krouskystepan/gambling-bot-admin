@@ -34,6 +34,10 @@ vi.mock('@/lib/staffAudit/recordStaffAudit', () => ({
   recordStaffAudit: vi.fn().mockResolvedValue(undefined)
 }))
 
+vi.mock('@/lib/settingsAudit/recordSettingsChange', () => ({
+  recordSettingsChange: vi.fn().mockResolvedValue(null)
+}))
+
 vi.mock('@/lib/guild/revalidateHealth', () => ({
   revalidateGuildHealth: vi.fn()
 }))

@@ -14,10 +14,12 @@ import {
   getVipRoleBadgeClass,
   predictionStatusBadgeMap,
   raffleStatusBadgeMap,
+  settingsChangeSectionBadgeMap,
   sourceBadgeMap,
   typeBadgeMap
 } from '@/components/badges/badgeStyles'
 import { Badge } from '@/components/ui/badge'
+import { SETTINGS_CHANGE_SECTION_LABELS } from '@/lib/settingsAudit/settingsChangeSections'
 import { cn } from '@/lib/utils'
 
 const STAFF_ACTION_BADGES = [
@@ -211,6 +213,47 @@ const BadgeShowcase = () => {
               }
             </ColoredBadge>
           ))}
+        </ThemePanel>
+      </BadgeSection>
+
+      <BadgeSection
+        title="Settings changes"
+        subtitle="Outline badges - settings section that was modified"
+        variant="outline"
+      >
+        <ThemePanel mode="light">
+          {Object.entries(settingsChangeSectionBadgeMap).map(
+            ([section, className]) => (
+              <ColoredBadge
+                key={section}
+                colorClass={className}
+                className="px-2"
+              >
+                {
+                  SETTINGS_CHANGE_SECTION_LABELS[
+                    section as keyof typeof settingsChangeSectionBadgeMap
+                  ]
+                }
+              </ColoredBadge>
+            )
+          )}
+        </ThemePanel>
+        <ThemePanel mode="dark">
+          {Object.entries(settingsChangeSectionBadgeMap).map(
+            ([section, className]) => (
+              <ColoredBadge
+                key={section}
+                colorClass={className}
+                className="px-2"
+              >
+                {
+                  SETTINGS_CHANGE_SECTION_LABELS[
+                    section as keyof typeof settingsChangeSectionBadgeMap
+                  ]
+                }
+              </ColoredBadge>
+            )
+          )}
         </ThemePanel>
       </BadgeSection>
 
