@@ -25,8 +25,10 @@ import {
   isPresentationRequest
 } from '@/lib/presentation'
 import AtmRequest from '@/models/AtmRequest'
+import BaccaratGame from '@/models/BaccaratGame'
 import BlackjackGame from '@/models/BlackjackGame'
 import GuildConfiguration from '@/models/GuildConfiguration'
+import MinesGame from '@/models/MinesGame'
 import Prediction from '@/models/Prediction'
 import Raffle from '@/models/Raffle'
 import Transaction from '@/models/Transaction'
@@ -54,6 +56,8 @@ export type DevGuildCounts = {
   raffles: number
   vipRooms: number
   blackjackGames: number
+  baccaratGames: number
+  minesGames: number
 }
 
 export type DevFeatureFlag = {
@@ -137,7 +141,9 @@ export async function getDevGuildCounts(
     predictions,
     raffles,
     vipRooms,
-    blackjackGames
+    blackjackGames,
+    baccaratGames,
+    minesGames
   ] = await Promise.all([
     User.countDocuments({ guildId }),
     User.countDocuments({ guildId, registered: true }),
@@ -148,7 +154,9 @@ export async function getDevGuildCounts(
     Prediction.countDocuments({ guildId }),
     Raffle.countDocuments({ guildId }),
     VipRoom.countDocuments({ guildId }),
-    BlackjackGame.countDocuments({ guildId })
+    BlackjackGame.countDocuments({ guildId }),
+    BaccaratGame.countDocuments({ guildId }),
+    MinesGame.countDocuments({ guildId })
   ])
 
   return {
@@ -161,7 +169,9 @@ export async function getDevGuildCounts(
     predictions,
     raffles,
     vipRooms,
-    blackjackGames
+    blackjackGames,
+    baccaratGames,
+    minesGames
   }
 }
 

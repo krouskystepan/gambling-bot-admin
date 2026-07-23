@@ -19,8 +19,10 @@ import {
   moderationSliceFromDoc
 } from '@/lib/settingsAudit/settingsSlices'
 import AtmRequest from '@/models/AtmRequest'
+import BaccaratGame from '@/models/BaccaratGame'
 import BlackjackGame from '@/models/BlackjackGame'
 import GuildConfiguration from '@/models/GuildConfiguration'
+import MinesGame from '@/models/MinesGame'
 import Prediction from '@/models/Prediction'
 import Raffle from '@/models/Raffle'
 import Transaction from '@/models/Transaction'
@@ -35,6 +37,8 @@ const WIPE_MODELS = {
   predictions: Prediction,
   vipRooms: VipRoom,
   blackjackGames: BlackjackGame,
+  baccaratGames: BaccaratGame,
+  minesGames: MinesGame,
   userBans: UserBan,
   users: User
 } as const

@@ -59,6 +59,12 @@ vi.mock('@/models/AtmRequest', () => ({
 vi.mock('@/models/BlackjackGame', () => ({
   default: { countDocuments: vi.fn() }
 }))
+vi.mock('@/models/BaccaratGame', () => ({
+  default: { countDocuments: vi.fn() }
+}))
+vi.mock('@/models/MinesGame', () => ({
+  default: { countDocuments: vi.fn() }
+}))
 vi.mock('@/models/GuildConfiguration', () => ({
   default: {
     findOne: vi.fn(),

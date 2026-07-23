@@ -45,7 +45,7 @@ describe('datePresets', () => {
 
 describe('rtpWarnings', () => {
   it('skipsCasinoRtpCheck only for known skip games', () => {
-    expect(skipsCasinoRtpCheck('blackjack')).toBe(true)
+    expect(skipsCasinoRtpCheck('blackjack')).toBe(false)
     expect(skipsCasinoRtpCheck('prediction')).toBe(true)
     expect(skipsCasinoRtpCheck('winAnnouncements')).toBe(true)
     expect(skipsCasinoRtpCheck('dice')).toBe(false)
@@ -156,13 +156,14 @@ describe('setupHealth helpers', () => {
     expect(rtp?.label).toMatch(/:/)
   })
 
-  it('buildSetupHealth skips missing game settings entries', () => {
+  it('buildSetupHealth normalizes legacy blackjack without winMultipliers', () => {
     const checks = buildSetupHealth('g1', {
       guildId: 'g1',
       casinoSettings: {
-        dice: undefined
+        blackjack: { maxBet: 0, minBet: 0 }
       }
     } as never)
-    expect(checks.every((c) => !c.id.startsWith('rtp-dice'))).toBe(true)
+
+    expect(checks.every((c) => !c.id.startsWith('rtp-blackjack'))).toBe(true)
   })
 })

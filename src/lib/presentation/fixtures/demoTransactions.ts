@@ -15,9 +15,13 @@ import { createDemoRng, pick, randInt } from './demoRng'
 const CASINO_GAMES = [
   'dice',
   'coinflip',
+  'hilo',
+  'limbo',
   'slots',
   'roulette',
+  'baccarat',
   'blackjack',
+  'mines',
   'plinko',
   'lottery',
   'rps'
@@ -37,8 +41,12 @@ type GameModel = { winProb: number; mult: number; weight: number }
 const GAME_MODELS: Record<DemoGame, GameModel> = {
   dice: { winProb: 0.49, mult: 2.0, weight: 20 },
   coinflip: { winProb: 0.48, mult: 2.0, weight: 18 },
+  hilo: { winProb: 0.46, mult: 1.94, weight: 12 },
+  limbo: { winProb: 0.485, mult: 2.0, weight: 11 },
   blackjack: { winProb: 0.47, mult: 2.05, weight: 16 },
+  mines: { winProb: 0.44, mult: 2.15, weight: 10 },
   roulette: { winProb: 0.47, mult: 2.0, weight: 14 },
+  baccarat: { winProb: 0.446, mult: 2.0, weight: 12 },
   plinko: { winProb: 0.45, mult: 2.1, weight: 10 },
   rps: { winProb: 0.46, mult: 2.0, weight: 9 },
   slots: { winProb: 0.3, mult: 3.2, weight: 8 },
