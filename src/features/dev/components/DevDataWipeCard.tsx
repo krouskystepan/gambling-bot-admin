@@ -75,6 +75,11 @@ const WIPE_OPTIONS: Array<{
     id: 'mines',
     label: 'Mines games',
     getCount: (counts) => counts.minesGames
+  },
+  {
+    id: 'roulette',
+    label: 'Roulette games',
+    getCount: (counts) => counts.rouletteGames
   }
 ]
 
