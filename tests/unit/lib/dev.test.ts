@@ -68,6 +68,9 @@ vi.mock('@/models/MinesGame', () => ({
 vi.mock('@/models/RouletteGame', () => ({
   default: { countDocuments: vi.fn() }
 }))
+vi.mock('@/models/SlotsGame', () => ({
+  default: { countDocuments: vi.fn() }
+}))
 vi.mock('@/models/GuildConfiguration', () => ({
   default: {
     findOne: vi.fn(),

@@ -56,7 +56,8 @@ export function getDemoDevGuildCounts(): DevGuildCounts {
     blackjackGames: 2,
     baccaratGames: 1,
     minesGames: 1,
-    rouletteGames: 1
+    rouletteGames: 1,
+    slotsGames: 1
   }
 }
 
