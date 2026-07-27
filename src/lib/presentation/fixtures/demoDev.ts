@@ -53,7 +53,11 @@ export function getDemoDevGuildCounts(): DevGuildCounts {
     predictions: 58,
     raffles: 24,
     vipRooms: 11,
-    blackjackGames: 2
+    blackjackGames: 2,
+    baccaratGames: 1,
+    minesGames: 1,
+    rouletteGames: 1,
+    slotsGames: 1
   }
 }
 

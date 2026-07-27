@@ -14,7 +14,6 @@ export { getRtpStatus, hasRtpWarning, isRtpOutOfRange }
 export type { RtpStatus } from '@/lib/overview/rtpWarnings'
 
 export const HIDDEN_RTP_GAMES: Array<keyof TCasinoSettingsValues> = [
-  'blackjack',
   'prediction'
 ]
 

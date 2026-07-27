@@ -1,6 +1,7 @@
 import {
   calculateRTP,
   defaultCasinoSettings,
+  normalizeCasinoSettings,
   readableGameNames
 } from 'gambling-bot-shared/casino'
 import { getReadableName } from 'gambling-bot-shared/common'
@@ -68,8 +69,8 @@ export function buildSetupHealth(
     }
   ]
 
-  const casinoSettings = config?.casinoSettings ?? defaultCasinoSettings
-  const games = Object.keys(casinoSettings) as Array<
+  const casinoSettings = normalizeCasinoSettings(config?.casinoSettings)
+  const games = Object.keys(defaultCasinoSettings) as Array<
     keyof typeof defaultCasinoSettings
   >
 
@@ -77,12 +78,7 @@ export function buildSetupHealth(
     if (skipsCasinoRtpCheck(game)) continue
 
     const settings = casinoSettings[game]
-    if (!settings) continue
-
-    const rtp = calculateRTP(
-      game,
-      settings as (typeof defaultCasinoSettings)[typeof game]
-    )
+    const rtp = calculateRTP(game, settings)
 
     const status = getRtpStatus(rtp, false)
     if (status !== 'high' && status !== 'low') continue

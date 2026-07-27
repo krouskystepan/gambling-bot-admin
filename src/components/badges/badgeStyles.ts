@@ -131,7 +131,7 @@ export const sourceBadgeMap = Object.fromEntries(
 ) as Record<TTransaction['source'], string>
 
 export const atmStatusBadgeMap = Object.fromEntries(
-  (['pending', 'approved', 'rejected'] as const).map((status) => [
+  (['pending', 'approved', 'rejected', 'cancelled'] as const).map((status) => [
     status,
     filled(ATM_STATUS_COLOR_MAP[status])
   ])

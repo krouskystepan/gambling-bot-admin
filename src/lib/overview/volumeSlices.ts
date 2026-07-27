@@ -50,12 +50,16 @@ const CASINO_SOURCE_LEGEND_FILL = 'var(--chart-3)'
 const CASINO_GAME_CHART_FILLS = {
   dice: 'var(--chart-1)',
   coinflip: 'var(--destructive)',
+  hilo: 'oklch(0.65 0.18 25)',
+  limbo: 'oklch(0.7 0.15 55)',
   slots: 'var(--tag-emerald)',
   lottery: 'var(--tag-amber)',
   roulette: 'oklch(0.62 0.22 340)',
+  baccarat: 'oklch(0.58 0.16 250)',
   rps: 'var(--tag-cyan)',
   goldenJackpot: 'var(--brand)',
   blackjack: 'var(--tag-sky)',
+  mines: 'oklch(0.68 0.14 145)',
   prediction: 'var(--chart-2)',
   raffle: 'var(--tag-violet)',
   plinko: 'var(--primary)'
