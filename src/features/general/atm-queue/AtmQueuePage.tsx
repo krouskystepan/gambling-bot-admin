@@ -37,7 +37,10 @@ const AtmQueuePage = async ({
   ])
 
   return (
-    <FeatureLayout title="ATM Queue">
+    <FeatureLayout
+      title="ATM Queue"
+      description="Pending ATM withdraw/deposit requests to review"
+    >
       <AtmQueueTable
         guildId={guildId}
         globalSettings={globalSettings}

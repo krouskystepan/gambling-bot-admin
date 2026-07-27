@@ -36,7 +36,10 @@ const StaffActionsPage = async ({
   ])
 
   return (
-    <FeatureLayout title="Staff actions">
+    <FeatureLayout
+      title="Staff actions"
+      description="Admin/manager balance and permission actions only"
+    >
       <StaffActionsTable
         guildId={guildId}
         globalSettings={globalSettings}

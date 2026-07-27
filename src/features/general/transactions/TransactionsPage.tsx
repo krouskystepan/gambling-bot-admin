@@ -55,6 +55,7 @@ const TransactionsPage = async ({
   return (
     <FeatureLayout
       title="Transactions"
+      description="Full money movement log across games and staff"
       actions={
         <Link
           href={`${guildBasePath(guildId)}/staff-actions`}

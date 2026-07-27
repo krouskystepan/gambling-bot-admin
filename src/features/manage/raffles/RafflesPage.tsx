@@ -31,7 +31,7 @@ const RafflesPage = async ({
   if (!pageContext) return <LoadFailed />
 
   return (
-    <FeatureLayout title="Raffles">
+    <FeatureLayout title="Raffles" description="Create and manage raffles">
       <RaffleTable
         guildId={guildId}
         raffles={raffles}

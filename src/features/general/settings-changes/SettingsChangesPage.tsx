@@ -29,7 +29,10 @@ const SettingsChangesPage = async ({
     await getSettingsChangesData(guildId, session, query)
 
   return (
-    <FeatureLayout title="Settings changes">
+    <FeatureLayout
+      title="Settings changes"
+      description="Who changed guild settings, and what changed"
+    >
       <SettingsChangesTable
         changes={changes}
         counts={counts}

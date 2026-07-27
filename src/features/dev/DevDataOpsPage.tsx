@@ -13,7 +13,10 @@ const DevDataOpsPage = async ({ guildId }: { guildId: string }) => {
   const counts = await getDevGuildCounts(guildId)
 
   return (
-    <FeatureLayout title="Danger zone">
+    <FeatureLayout
+      title="Danger zone"
+      description="Destructive data ops — use with extreme care"
+    >
       <div className="space-y-6">
         <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm">
           <div className="mb-1 flex items-center gap-2 font-semibold text-destructive">

@@ -15,7 +15,10 @@ const HealthPage = async ({ guildId }: { guildId: string }) => {
   const { operations, setup } = data
 
   return (
-    <FeatureLayout title="Health">
+    <FeatureLayout
+      title="Health"
+      description="Bot and guild health signals worth checking first"
+    >
       <div className="space-y-6">
         <OperationsHealthCard guildId={guildId} operations={operations} />
         {setup ? <SetupHealthCard checks={setup} /> : null}

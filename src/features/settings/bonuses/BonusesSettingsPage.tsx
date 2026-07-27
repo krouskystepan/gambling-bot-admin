@@ -11,7 +11,10 @@ const BonusesSettingsPage = async ({ guildId }: { guildId: string }) => {
   ])
 
   return (
-    <FeatureLayout title="Bonus Settings">
+    <FeatureLayout
+      title="Bonus Settings"
+      description="Daily/weekly and other bonus configuration"
+    >
       <BonuseSettingsForm
         guildId={guildId}
         globalSettings={globalSettings}

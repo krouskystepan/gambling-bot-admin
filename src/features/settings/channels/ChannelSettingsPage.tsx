@@ -11,7 +11,10 @@ const ChannelSettingsPage = async ({ guildId }: { guildId: string }) => {
   ])
 
   return (
-    <FeatureLayout title="Channel Settings">
+    <FeatureLayout
+      title="Channel Settings"
+      description="Where the bot posts and listens"
+    >
       <ChannelsSettingsForm
         guildId={guildId}
         guildChannels={guildChannels}

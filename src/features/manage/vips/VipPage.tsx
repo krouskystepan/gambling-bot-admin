@@ -30,7 +30,10 @@ const VipPage = async ({
   if (!pageContext) return <LoadFailed />
 
   return (
-    <FeatureLayout title={'VIPs Channels'}>
+    <FeatureLayout
+      title={'VIPs Channels'}
+      description="Manage VIP channels and membership"
+    >
       <VipTable
         guildId={guildId}
         vips={vips}

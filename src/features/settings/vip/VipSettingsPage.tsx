@@ -14,7 +14,10 @@ const VipSettingsPage = async ({ guildId }: { guildId: string }) => {
   ])
 
   return (
-    <FeatureLayout title="VIP Settings">
+    <FeatureLayout
+      title="VIP Settings"
+      description="VIP tiers and related rewards settings"
+    >
       <VipSettingsForm
         guildId={guildId}
         roles={roles}
