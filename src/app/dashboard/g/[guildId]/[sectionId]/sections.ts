@@ -14,6 +14,7 @@ import {
   ModerationSettingsPage,
   OverviewPage,
   PredictionsPage,
+  QuestsPage,
   RafflesPage,
   ReportsPage,
   SettingsChangesPage,
@@ -38,6 +39,7 @@ export const sections = {
   users: UsersPage,
   raffles: RafflesPage,
   predictions: PredictionsPage,
+  quests: QuestsPage,
   vips: VipPage,
 
   // Settings
