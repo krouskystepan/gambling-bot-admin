@@ -25,6 +25,7 @@ import {
   getDemoQuests,
   isDemoGuild
 } from '@/lib/presentation'
+import { recordSettingsChange } from '@/lib/settingsAudit/recordSettingsChange'
 import { escapeRegExp } from '@/lib/utils'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import Quest from '@/models/Quest'
@@ -66,6 +67,40 @@ function toQuestProps(quest: TQuest): TQuest {
     createdAt: quest.createdAt,
     updatedAt: quest.updatedAt
   }
+}
+
+/** Stable audit snapshot (no timestamps / guild id noise). */
+function toQuestAuditSnapshot(quest: {
+  questId: string
+  name: string
+  description: string
+  kind: QuestKind
+  condition: TQuest['condition']
+  rewardAmount: number
+  enabled: boolean
+  sortOrder: number
+}) {
+  return {
+    questId: quest.questId,
+    name: quest.name,
+    description: quest.description,
+    kind: quest.kind,
+    condition: {
+      type: quest.condition.type,
+      threshold: quest.condition.threshold,
+      ...(quest.condition.game ? { game: quest.condition.game } : {})
+    },
+    rewardAmount: quest.rewardAmount,
+    enabled: quest.enabled,
+    sortOrder: quest.sortOrder
+  }
+}
+
+/** Key by questId so rapid quest edits can coalesce in the audit window. */
+function toQuestAuditMap(
+  quest: Parameters<typeof toQuestAuditSnapshot>[0]
+): Record<string, ReturnType<typeof toQuestAuditSnapshot>> {
+  return { [quest.questId]: toQuestAuditSnapshot(quest) }
 }
 
 const createQuestInputSchema = createQuestFormSchema
@@ -206,10 +241,18 @@ export async function createQuest(
     }
 
     const questId = generateId()
-    await Quest.create({
+    const created = await Quest.create({
       questId,
       guildId,
       ...parsed.data
+    })
+
+    await recordSettingsChange({
+      guildId,
+      changedBy: access.session.userId!,
+      section: 'quests',
+      before: {},
+      after: toQuestAuditMap(created)
     })
 
     revalidatePath(questsPath(guildId))
@@ -244,6 +287,14 @@ export async function updateQuest(
   try {
     await connectToDatabase()
 
+    const existing = await Quest.findOne({
+      guildId,
+      questId: parsed.data.questId
+    }).lean<TQuest | null>()
+    if (!existing) {
+      return { success: false, message: 'Quest not found.' }
+    }
+
     const duplicate = await Quest.findOne({
       guildId,
       name: parsed.data.name,
@@ -270,11 +321,19 @@ export async function updateQuest(
         }
       },
       { new: true }
-    ).lean()
+    ).lean<TQuest | null>()
 
     if (!updated) {
       return { success: false, message: 'Quest not found.' }
     }
+
+    await recordSettingsChange({
+      guildId,
+      changedBy: access.session.userId!,
+      section: 'quests',
+      before: toQuestAuditMap(existing),
+      after: toQuestAuditMap(updated)
+    })
 
     revalidatePath(questsPath(guildId))
     return { success: true, message: 'Quest updated.' }
@@ -304,15 +363,31 @@ export async function toggleQuestEnabled(
   try {
     await connectToDatabase()
 
+    const existing = await Quest.findOne({
+      guildId,
+      questId
+    }).lean<TQuest | null>()
+    if (!existing) {
+      return { success: false, message: 'Quest not found.' }
+    }
+
     const updated = await Quest.findOneAndUpdate(
       { guildId, questId },
       { $set: { enabled } },
       { new: true }
-    ).lean()
+    ).lean<TQuest | null>()
 
     if (!updated) {
       return { success: false, message: 'Quest not found.' }
     }
+
+    await recordSettingsChange({
+      guildId,
+      changedBy: access.session.userId!,
+      section: 'quests',
+      before: toQuestAuditMap(existing),
+      after: toQuestAuditMap(updated)
+    })
 
     revalidatePath(questsPath(guildId))
     return {
@@ -370,6 +445,16 @@ export async function seedDefaultQuests(
     }
 
     await Quest.insertMany(toInsert)
+
+    await recordSettingsChange({
+      guildId,
+      changedBy: access.session.userId!,
+      section: 'quests',
+      before: {},
+      after: Object.fromEntries(
+        toInsert.map((quest) => [quest.questId, toQuestAuditSnapshot(quest)])
+      )
+    })
 
     revalidatePath(questsPath(guildId))
     return {

@@ -30,6 +30,7 @@ const SettingsChangeLogSchema = new Schema<TSettingsChangeLog>(
         'casino',
         'bonus',
         'vip',
+        'quests',
         'reset'
       ]
     },
@@ -43,6 +44,12 @@ const SettingsChangeLogSchema = new Schema<TSettingsChangeLog>(
 SettingsChangeLogSchema.index({ guildId: 1, createdAt: -1 })
 SettingsChangeLogSchema.index({ guildId: 1, section: 1, createdAt: -1 })
 SettingsChangeLogSchema.index({ guildId: 1, changedBy: 1, createdAt: -1 })
+SettingsChangeLogSchema.index({
+  guildId: 1,
+  changedBy: 1,
+  section: 1,
+  createdAt: -1
+})
 
 export default getModel<TSettingsChangeLog>(
   'SettingsChangeLog',

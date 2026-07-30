@@ -60,6 +60,7 @@ export type SettingsChangeSectionBadgeKey =
   | 'casino'
   | 'bonus'
   | 'vip'
+  | 'quests'
   | 'reset'
 
 const MODERATION_BADGE_STYLES = {
@@ -84,6 +85,7 @@ const SETTINGS_CHANGE_SECTION_BADGE_STYLES: Record<
   casino: outline('orange'),
   bonus: outline('pink'),
   vip: outline('gold'),
+  quests: outline('teal'),
   reset: outline('red')
 }
 
