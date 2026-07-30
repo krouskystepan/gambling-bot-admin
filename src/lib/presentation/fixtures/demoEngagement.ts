@@ -1,7 +1,13 @@
 import type { TPrediction } from 'gambling-bot-shared/predictions'
+import {
+  DEFAULT_QUEST_TEMPLATES,
+  type QuestKind,
+  type TQuest
+} from 'gambling-bot-shared/quests'
 import type { TRaffleStatus } from 'gambling-bot-shared/raffle'
 
 import type { PredictionPageContext } from '@/actions/database/predictionActions.action'
+import type { QuestPageContext } from '@/actions/database/questActions.action'
 import type { RafflePageContext } from '@/actions/database/raffleActions.action'
 import type { VipPageContext } from '@/actions/database/vipActions.action'
 import type { TPredictionRow, TRaffleRow, TVipChannels } from '@/types/types'
@@ -328,5 +334,70 @@ export function getDemoVipPageContext(): VipPageContext {
     vipFeatureBlockMessage: null,
     activeVipOwnerIds: vips().map((vip) => vip.ownerId),
     members: getDemoDiscordMembers()
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Quests
+// ---------------------------------------------------------------------------
+
+function buildQuests(): TQuest[] {
+  const now = Date.now()
+
+  return DEFAULT_QUEST_TEMPLATES.map((template, index) => ({
+    questId: `demo-quest-${index}`,
+    guildId: '',
+    name: template.name,
+    description: template.description,
+    kind: template.kind,
+    condition: template.condition,
+    rewardAmount: template.rewardAmount,
+    enabled: index !== 5,
+    sortOrder: template.sortOrder,
+    createdAt: new Date(now - (index + 1) * DAY),
+    updatedAt: new Date(now - (index + 1) * DAY)
+  }))
+}
+
+let cachedQuests: TQuest[] | null = null
+function quests(): TQuest[] {
+  cachedQuests ??= buildQuests()
+  return cachedQuests
+}
+
+export type DemoQuestsQuery = {
+  page?: number
+  limit?: number
+  search?: string
+  kind?: QuestKind | 'all'
+}
+
+export function getDemoQuests(query: DemoQuestsQuery): {
+  quests: TQuest[]
+  total: number
+} {
+  let rows = quests()
+  if (query.kind && query.kind !== 'all') {
+    rows = rows.filter((row) => row.kind === query.kind)
+  }
+  if (query.search) {
+    const term = query.search.toLowerCase()
+    rows = rows.filter(
+      (row) =>
+        row.name.toLowerCase().includes(term) ||
+        row.description.toLowerCase().includes(term)
+    )
+  }
+
+  const page = query.page && query.page > 0 ? query.page : 1
+  const limit = query.limit && query.limit > 0 ? query.limit : 10
+  const start = (page - 1) * limit
+  return { quests: rows.slice(start, start + limit), total: rows.length }
+}
+
+export function getDemoQuestPageContext(): QuestPageContext {
+  return {
+    questFeatureBlocked: false,
+    questFeatureBlockMessage: null
   }
 }

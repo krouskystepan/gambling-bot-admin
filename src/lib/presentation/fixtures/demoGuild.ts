@@ -190,6 +190,7 @@ export const demoGlobalSettings: GlobalSettings = normalizeGlobalSettings({
   disableRaffleManagement: false,
   disableDailyBonus: false,
   disableVip: false,
+  disableQuests: false,
   maintenanceMode: false,
   timezone: DEMO_TIMEZONE,
   currencySymbol: '$',

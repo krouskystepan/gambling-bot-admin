@@ -14,6 +14,7 @@ import {
   Landmark,
   LayoutDashboard,
   LayoutTemplate,
+  ListChecks,
   MessagesSquare,
   ScrollText,
   Server,
@@ -44,6 +45,7 @@ export const GUILD_CONFIG_SIDEBAR_LINKS = [
       { id: 'users', label: 'Users', icon: User },
       { id: 'predictions', label: 'Predictions', icon: ChartBar },
       { id: 'raffles', label: 'Raffles', icon: Ticket },
+      { id: 'quests', label: 'Quests', icon: ListChecks },
       { id: 'vips', label: 'VIPs', icon: Crown }
     ]
   },

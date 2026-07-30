@@ -1,4 +1,5 @@
 import { TAtmRequest } from 'gambling-bot-shared/atm'
+import type { QuestKind } from 'gambling-bot-shared/quests'
 import {
   TRANSACTION_SOURCES,
   TRANSACTION_TYPES,
@@ -114,6 +115,18 @@ const RAFFLE_STATUS_COLOR_MAP: Record<TRaffleRow['status'], BadgeColor> = {
   canceled: 'burgundy'
 }
 
+const QUEST_KIND_COLOR_MAP: Record<QuestKind, BadgeColor> = {
+  daily: 'cyan',
+  normal: 'purple'
+}
+
+export type QuestEnabledBadgeKey = 'enabled' | 'disabled'
+
+const QUEST_ENABLED_BADGE_STYLES: Record<QuestEnabledBadgeKey, string> = {
+  enabled: filled('emerald'),
+  disabled: filled('gray')
+}
+
 const MANAGER_ACCESS_BADGE_STYLES: Record<ManagerAccessBadgeKey, string> = {
   allowed: outline('emerald'),
   denied: outline('red')
@@ -168,6 +181,15 @@ export const raffleStatusBadgeMap = Object.fromEntries(
   ])
 ) as Record<TRaffleRow['status'], string>
 
+export const questKindBadgeMap = Object.fromEntries(
+  Object.entries(QUEST_KIND_COLOR_MAP).map(([kind, color]) => [
+    kind,
+    filled(color)
+  ])
+) as Record<QuestKind, string>
+
+export const questEnabledBadgeMap = QUEST_ENABLED_BADGE_STYLES
+
 export const managerAccessBadgeMap = MANAGER_ACCESS_BADGE_STYLES
 export const banLogStatusBadgeMap = BAN_LOG_STATUS_BADGE_STYLES
 export const settingsChangeSectionBadgeMap =
@@ -211,6 +233,16 @@ export function getRaffleStatusBadgeClass(
   status: TRaffleRow['status']
 ): string {
   return raffleStatusBadgeMap[status] ?? filled('gray')
+}
+
+export function getQuestKindBadgeClass(kind: QuestKind): string {
+  return questKindBadgeMap[kind] ?? filled('gray')
+}
+
+export function getQuestEnabledBadgeClass(
+  enabled: QuestEnabledBadgeKey
+): string {
+  return questEnabledBadgeMap[enabled]
 }
 
 export function getManagerAccessBadgeClass(key: ManagerAccessBadgeKey): string {
