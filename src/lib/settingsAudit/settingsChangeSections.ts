@@ -5,6 +5,7 @@ export const SETTINGS_CHANGE_SECTIONS = [
   'casino',
   'bonus',
   'vip',
+  'quests',
   'reset'
 ] as const
 
@@ -20,6 +21,7 @@ export const SETTINGS_CHANGE_SECTION_LABELS: Record<
   casino: 'Casino',
   bonus: 'Bonuses',
   vip: 'VIP',
+  quests: 'Quests',
   reset: 'Reset'
 }
 

@@ -58,6 +58,22 @@ const TEMPLATES: Template[] = [
     after: { managerRoleId: 'role-b', bannedRoleId: 'ban-1' }
   },
   {
+    section: 'quests',
+    paths: ['name', 'rewardAmount', 'enabled'],
+    before: {
+      questId: 'q-1',
+      name: 'Play 5 games',
+      rewardAmount: 100,
+      enabled: true
+    },
+    after: {
+      questId: 'q-1',
+      name: 'Play 10 games',
+      rewardAmount: 250,
+      enabled: false
+    }
+  },
+  {
     section: 'reset',
     paths: ['casinoSettings', 'globalSettings'],
     before: {
