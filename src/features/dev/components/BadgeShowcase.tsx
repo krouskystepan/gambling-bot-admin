@@ -9,10 +9,12 @@ import {
   atmStatusBadgeMap,
   banLogStatusBadgeMap,
   getManagerAccessBadgeClass,
+  getQuestEnabledBadgeClass,
   getStaffActionBadgeClass,
   getUserProfileBadgeClass,
   getVipRoleBadgeClass,
   predictionStatusBadgeMap,
+  questKindBadgeMap,
   raffleStatusBadgeMap,
   settingsChangeSectionBadgeMap,
   sourceBadgeMap,
@@ -382,6 +384,58 @@ const BadgeShowcase = () => {
               {status}
             </ColoredBadge>
           ))}
+        </ThemePanel>
+      </BadgeSection>
+
+      <BadgeSection
+        title="Quest kind"
+        subtitle="Filled badges - daily and normal quests"
+        variant="filled"
+      >
+        <ThemePanel mode="light">
+          {Object.entries(questKindBadgeMap).map(([kind, className]) => (
+            <ColoredBadge
+              key={kind}
+              colorClass={className}
+              className="capitalize"
+            >
+              {kind}
+            </ColoredBadge>
+          ))}
+        </ThemePanel>
+        <ThemePanel mode="dark">
+          {Object.entries(questKindBadgeMap).map(([kind, className]) => (
+            <ColoredBadge
+              key={kind}
+              colorClass={className}
+              className="capitalize"
+            >
+              {kind}
+            </ColoredBadge>
+          ))}
+        </ThemePanel>
+      </BadgeSection>
+
+      <BadgeSection
+        title="Quest enabled"
+        subtitle="Filled badges - quest active state"
+        variant="filled"
+      >
+        <ThemePanel mode="light">
+          <ColoredBadge colorClass={getQuestEnabledBadgeClass('enabled')}>
+            Yes
+          </ColoredBadge>
+          <ColoredBadge colorClass={getQuestEnabledBadgeClass('disabled')}>
+            No
+          </ColoredBadge>
+        </ThemePanel>
+        <ThemePanel mode="dark">
+          <ColoredBadge colorClass={getQuestEnabledBadgeClass('enabled')}>
+            Yes
+          </ColoredBadge>
+          <ColoredBadge colorClass={getQuestEnabledBadgeClass('disabled')}>
+            No
+          </ColoredBadge>
         </ThemePanel>
       </BadgeSection>
 

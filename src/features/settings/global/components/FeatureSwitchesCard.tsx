@@ -95,6 +95,12 @@ const OTHER_SWITCHES: SwitchRow[] = [
     name: 'disableVip',
     label: 'Disable VIP',
     description: 'Block VIP purchase and room commands.'
+  },
+  {
+    name: 'disableQuests',
+    label: 'Disable quests',
+    description:
+      'Block quest progress and rewards in Discord and quest management in the admin panel.'
   }
 ]
 

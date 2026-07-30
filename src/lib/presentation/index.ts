@@ -68,6 +68,8 @@ export {
   getDemoPredictionPageContext,
   getDemoRaffles,
   getDemoRafflePageContext,
+  getDemoQuests,
+  getDemoQuestPageContext,
   getDemoVips,
   getDemoVipPageContext
 } from './fixtures/demoEngagement'
