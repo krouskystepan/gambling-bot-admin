@@ -23,7 +23,9 @@ const TYPE_COLOR_MAP: Record<TTransaction['type'], BadgeColor> = {
   win: 'teal',
   refund: 'purple',
   bonus: 'pink',
-  vip: 'gold'
+  vip: 'gold',
+  transfer_out: 'amber',
+  transfer_in: 'cyan'
 }
 
 const SOURCE_COLOR_MAP: Record<TTransaction['source'], BadgeColor> = {
@@ -60,6 +62,7 @@ export type SettingsChangeSectionBadgeKey =
   | 'casino'
   | 'bonus'
   | 'vip'
+  | 'pay'
   | 'quests'
   | 'reset'
 
@@ -85,6 +88,7 @@ const SETTINGS_CHANGE_SECTION_BADGE_STYLES: Record<
   casino: outline('orange'),
   bonus: outline('pink'),
   vip: outline('gold'),
+  pay: outline('cyan'),
   quests: outline('teal'),
   reset: outline('red')
 }

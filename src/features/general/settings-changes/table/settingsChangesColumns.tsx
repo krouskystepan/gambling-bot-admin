@@ -127,7 +127,7 @@ export const settingsChangesColumns = (): ColumnDef<SettingsChangeRow>[] => [
             >
               <span
                 className={cn(
-                  'max-w-[9rem] truncate text-red-600 dark:text-red-400',
+                  'max-w-36 truncate text-red-600 dark:text-red-400',
                   unchanged && 'text-muted-foreground'
                 )}
                 title={before}
@@ -139,7 +139,7 @@ export const settingsChangesColumns = (): ColumnDef<SettingsChangeRow>[] => [
               </span>
               <span
                 className={cn(
-                  'max-w-[9rem] truncate text-emerald-700 dark:text-emerald-400',
+                  'max-w-36 truncate text-emerald-700 dark:text-emerald-400',
                   unchanged && 'text-muted-foreground'
                 )}
                 title={after}
