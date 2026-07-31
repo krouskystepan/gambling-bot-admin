@@ -19,6 +19,7 @@ export { default as GlobalSettingsPage } from './settings/global/GlobalSettingsP
 export { default as ChannelSettingsPage } from './settings/channels/ChannelSettingsPage'
 export { default as ModerationSettingsPage } from './settings/moderation/ModerationSettingsPage'
 export { default as VipSettingsPage } from './settings/vip/VipSettingsPage'
+export { default as PaySettingsPage } from './settings/pay/PaySettingsPage'
 export { default as BonusesSettingsPage } from './settings/bonuses/BonusesSettingsPage'
 export { default as CasinoSettingsPage } from './settings/casino/CasinoSettingsPage'
 
