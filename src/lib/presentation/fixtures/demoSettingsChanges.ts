@@ -46,6 +46,12 @@ const TEMPLATES: Template[] = [
     after: { pricePerDay: 750, maxMembers: 5 }
   },
   {
+    section: 'pay',
+    paths: ['feePercent', 'maxDailyAmount'],
+    before: { feePercent: 0.02, maxDailyAmount: 0 },
+    after: { feePercent: 0.05, maxDailyAmount: 10000 }
+  },
+  {
     section: 'channels',
     paths: ['atm.actions', 'workerLogChannelId'],
     before: { atm: { actions: '111' }, workerLogChannelId: '' },
