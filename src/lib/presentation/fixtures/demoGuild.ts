@@ -182,6 +182,7 @@ export const demoGlobalSettings: GlobalSettings = normalizeGlobalSettings({
   disableRegistrations: false,
   disableDeposits: false,
   disableWithdrawals: false,
+  disablePeerTransfers: false,
   disableCasinoGames: false,
   disableCasinoGamesForMods: false,
   disablePredictions: false,

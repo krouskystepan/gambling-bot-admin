@@ -8,6 +8,11 @@ import {
   globalSettingsFormSchema,
   normalizeGlobalSettings
 } from 'gambling-bot-shared/guild'
+import {
+  defaultPaySettings,
+  normalizePaySettings,
+  paySettingsSchema
+} from 'gambling-bot-shared/pay'
 
 import { casinoSettingsSchema } from '@/types/schemas'
 import type {
@@ -15,6 +20,7 @@ import type {
   TCasinoSettingsValues,
   TChannelsFormValues,
   TGlobalSettingsFormValues,
+  TPaySettingsValues,
   TVipSettingsValues
 } from '@/types/types'
 import type { IGuildChannel, IGuildRole } from '@/types/types'
@@ -104,6 +110,10 @@ export function getDemoVipSettings(): TVipSettingsValues {
     pricePerAdditionalMember: 300,
     maxMembers: 5
   }
+}
+
+export function getDemoPaySettings(): TPaySettingsValues {
+  return paySettingsSchema.parse(normalizePaySettings(defaultPaySettings))
 }
 
 export function getDemoModerationSettings(): {

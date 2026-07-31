@@ -30,6 +30,7 @@ const SettingsChangeLogSchema = new Schema<TSettingsChangeLog>(
         'casino',
         'bonus',
         'vip',
+        'pay',
         'quests',
         'reset'
       ]

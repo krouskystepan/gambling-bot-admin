@@ -22,6 +22,7 @@ const SettingsChangesTableSummary = ({
         { label: SETTINGS_CHANGE_SECTION_LABELS.casino, value: counts.casino },
         { label: SETTINGS_CHANGE_SECTION_LABELS.bonus, value: counts.bonus },
         { label: SETTINGS_CHANGE_SECTION_LABELS.vip, value: counts.vip },
+        { label: SETTINGS_CHANGE_SECTION_LABELS.pay, value: counts.pay },
         { label: SETTINGS_CHANGE_SECTION_LABELS.quests, value: counts.quests },
         { label: SETTINGS_CHANGE_SECTION_LABELS.reset, value: counts.reset }
       ]}

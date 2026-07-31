@@ -17,6 +17,7 @@ import {
   ListChecks,
   MessagesSquare,
   ScrollText,
+  Send,
   Server,
   ShieldCheck,
   Ticket,
@@ -58,7 +59,8 @@ export const GUILD_CONFIG_SIDEBAR_LINKS = [
       { id: 'moderation-settings', label: 'Moderation', icon: ShieldCheck },
       { id: 'casino-settings', label: 'Casino', icon: Dices },
       { id: 'bonus-settings', label: 'Bonuses', icon: Award },
-      { id: 'vip-settings', label: 'VIP', icon: Crown }
+      { id: 'vip-settings', label: 'VIP', icon: Crown },
+      { id: 'pay-settings', label: 'Pay', icon: Send }
     ]
   },
   {

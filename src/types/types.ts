@@ -17,6 +17,7 @@ import {
   channelsFormSchema,
   globalSettingsFormSchema,
   managerRoleFormSchema,
+  paySettingsSchema,
   vipSettingsFormSchema
 } from './schemas'
 
@@ -34,6 +35,8 @@ export type TCasinoSettingsForm = UseFormReturn<
 >
 export type TManagerRoleValues = z.infer<typeof managerRoleFormSchema>
 export type TVipSettingsValues = z.infer<typeof vipSettingsFormSchema>
+export type TPaySettingsInput = z.input<typeof paySettingsSchema>
+export type TPaySettingsValues = z.output<typeof paySettingsSchema>
 export type TBonusFormInput = z.input<typeof bonusFormSchema>
 export type TBonusFormValues = z.output<typeof bonusFormSchema>
 export type TGlobalSettingsFormInput = z.input<typeof globalSettingsFormSchema>

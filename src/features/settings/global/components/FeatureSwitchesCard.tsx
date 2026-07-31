@@ -45,6 +45,11 @@ const ATM_SWITCHES: SwitchRow[] = [
     label: 'Disable withdrawals',
     description:
       'Block /withdraw and manual withdrawals from the admin Users table.'
+  },
+  {
+    name: 'disablePeerTransfers',
+    label: 'Disable peer transfers',
+    description: 'Block /pay peer transfers between users.'
   }
 ]
 

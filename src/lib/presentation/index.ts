@@ -80,6 +80,7 @@ export {
   getDemoChannels,
   getDemoBonusSettings,
   getDemoVipSettings,
+  getDemoPaySettings,
   getDemoModerationSettings,
   getDemoGuildChannels,
   getDemoGuildRoles,

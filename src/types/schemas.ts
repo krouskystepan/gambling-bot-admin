@@ -18,6 +18,7 @@ export {
   raffleCreateFormSchema
 } from 'gambling-bot-shared/raffle'
 export { vipSettingsFormSchema } from 'gambling-bot-shared/vip'
+export { paySettingsSchema } from 'gambling-bot-shared/pay'
 
 const VIP_DURATION_REGEX = /^(\d+[dw])+$/i
 

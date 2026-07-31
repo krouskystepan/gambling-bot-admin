@@ -13,6 +13,7 @@ import {
   HealthPage,
   ModerationSettingsPage,
   OverviewPage,
+  PaySettingsPage,
   PredictionsPage,
   QuestsPage,
   RafflesPage,
@@ -50,6 +51,7 @@ export const sections = {
   'moderation-settings': ModerationSettingsPage,
   'bonus-settings': BonusesSettingsPage,
   'vip-settings': VipSettingsPage,
+  'pay-settings': PaySettingsPage,
 
   // Dev
   dev: DevOverviewPage,
