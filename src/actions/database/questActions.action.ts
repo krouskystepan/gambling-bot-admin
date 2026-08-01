@@ -240,7 +240,7 @@ export async function createQuest(
       }
     }
 
-    const questId = generateId()
+    const questId = generateId('quest')
     const created = await Quest.create({
       questId,
       guildId,
@@ -426,7 +426,7 @@ export async function seedDefaultQuests(
     const toInsert = DEFAULT_QUEST_TEMPLATES.filter(
       (template) => !existingNames.has(template.name)
     ).map((template) => ({
-      questId: generateId(),
+      questId: generateId('quest'),
       guildId,
       name: template.name,
       description: template.description,

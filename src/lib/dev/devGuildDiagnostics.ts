@@ -35,6 +35,7 @@ import RouletteGame from '@/models/RouletteGame'
 import SlotsGame from '@/models/SlotsGame'
 import Transaction from '@/models/Transaction'
 import User from '@/models/User'
+import UserQuestProgress from '@/models/UserQuestProgress'
 import VipRoom from '@/models/VipRoom'
 
 const GLOBAL_FEATURES = Object.keys(
@@ -62,6 +63,7 @@ export type DevGuildCounts = {
   minesGames: number
   rouletteGames: number
   slotsGames: number
+  questProgress: number
 }
 
 export type DevFeatureFlag = {
@@ -149,7 +151,8 @@ export async function getDevGuildCounts(
     baccaratGames,
     minesGames,
     rouletteGames,
-    slotsGames
+    slotsGames,
+    questProgress
   ] = await Promise.all([
     User.countDocuments({ guildId }),
     User.countDocuments({ guildId, registered: true }),
@@ -164,7 +167,8 @@ export async function getDevGuildCounts(
     BaccaratGame.countDocuments({ guildId }),
     MinesGame.countDocuments({ guildId }),
     RouletteGame.countDocuments({ guildId }),
-    SlotsGame.countDocuments({ guildId })
+    SlotsGame.countDocuments({ guildId }),
+    UserQuestProgress.countDocuments({ guildId })
   ])
 
   return {
@@ -181,7 +185,8 @@ export async function getDevGuildCounts(
     baccaratGames,
     minesGames,
     rouletteGames,
-    slotsGames
+    slotsGames,
+    questProgress
   }
 }
 

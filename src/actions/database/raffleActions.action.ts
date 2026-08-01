@@ -377,7 +377,7 @@ export async function createRaffle(
     }
 
     const globalSettings = normalizeGlobalSettings(guildConfig?.globalSettings)
-    const drawId = generateId()
+    const drawId = generateId('raffle')
     const nextDrawAt = drawDt.toJSDate()
     const drawIntervalMs = intervalSeconds * 1000
 

@@ -82,17 +82,62 @@ export const transactionsColumns = (
 
         const meta = row.original.meta ?? {}
 
-        const metaFormatters: Record<string, (value: unknown) => string> = {
-          action: (value) => `Action: ${value}`,
-          durationDays: (value) => `Duration: ${value} days`,
-          adminAction: (value) => `Admin Action: ${value}`,
-          bonusStreak: (value) => `Streak: ${value} days`,
-          bypassUsed: (value) => `Bypass Used: ${value ? 'Yes' : 'No'}`,
+        const formatMoneyMeta = (value: unknown) =>
+          typeof value === 'number'
+            ? formatGuildMoney(value, globalSettings)
+            : String(value)
 
+        const metaFormatters: Record<string, (value: unknown) => string> = {
+          // Casino
+          game: (value) => `Game: ${value}`,
+          rounds: (value) => `Rounds: ${value}`,
+          reason: (value) => `Reason: ${value}`,
+
+          // Quests / bonus
+          questId: (value) => `Quest ID: ${value}`,
+          questName: (value) => `Quest Name: ${value}`,
+          kind: (value) => `Kind: ${value}`,
+          dateKey: (value) => `Date Key: ${value}`,
+          bonusStreak: (value) => `Streak: ${value} days`,
+
+          // VIP
+          action: (value) => `Action: ${value}`,
+          adminAction: (value) => `Admin Action: ${value}`,
+          durationDays: (value) => `Duration: ${value} days`,
+          bypassUsed: (value) => `Bypass Used: ${value ? 'Yes' : 'No'}`,
           purchaseId: (value) => `Purchase ID: ${value}`,
           channelId: (value) => `Channel ID: ${value}`,
           addedUserId: (value) => `Added User ID: ${value}`,
-          removedUserId: (value) => `Removed User ID: ${value}`
+          removedUserId: (value) => `Removed User ID: ${value}`,
+
+          // Peer pay
+          counterpartyId: (value) => `Counterparty ID: ${value}`,
+          grossAmount: (value) => `Gross: ${formatMoneyMeta(value)}`,
+          feeAmount: (value) => `Fee: ${formatMoneyMeta(value)}`,
+          feePercent: (value) => `Fee %: ${value}`,
+          netAmount: (value) => `Net: ${formatMoneyMeta(value)}`,
+
+          // ATM
+          source: (value) => `Source: ${value}`,
+          account: (value) => `Account: ${value}`,
+          notes: (value) => `Notes: ${value}`,
+          requestId: (value) => `Request ID: ${value}`,
+          requestedAmount: (value) =>
+            `Requested Amount: ${formatMoneyMeta(value)}`,
+          type: (value) => `Type: ${value}`,
+
+          // Predictions / raffles / repairs
+          predictionId: (value) => `Prediction ID: ${value}`,
+          raffleId: (value) => `Raffle ID: ${value}`,
+          drawId: (value) => `Draw ID: ${value}`,
+          title: (value) => `Title: ${value}`,
+          previousStatus: (value) => `Previous Status: ${value}`,
+          refundCount: (value) => `Refund Count: ${value}`,
+          userId: (value) => `User ID: ${value}`,
+          gameId: (value) => `Game ID: ${value}`,
+          betId: (value) => `Bet ID: ${value}`,
+          totalBet: (value) => `Total Bet: ${formatMoneyMeta(value)}`,
+          messageId: (value) => `Message ID: ${value}`
         }
 
         const hasMeta = Object.keys(meta).length > 0
@@ -115,8 +160,11 @@ export const transactionsColumns = (
 
                     return (
                       <p key={key}>
-                        {key.charAt(0).toUpperCase() + key.slice(1)}:{' '}
-                        {String(value)}
+                        {key
+                          .replace(/([A-Z])/g, ' $1')
+                          .replace(/^./, (c) => c.toUpperCase())
+                          .trim()}
+                        : {String(value)}
                       </p>
                     )
                   })}
@@ -198,7 +246,42 @@ export const transactionsColumns = (
     {
       id: 'referenceId',
       accessorKey: 'referenceId',
-      header: 'Reference ID',
+      header: () => (
+        <div className="flex items-center gap-1">
+          <span>Reference ID</span>
+          <Tooltip>
+            <TooltipTrigger className="text-muted-foreground">
+              <CircleQuestionMark size={16} />
+            </TooltipTrigger>
+            <TooltipContent className="max-w-md">
+              <p>
+                Links the ledger row to the Discord embed ID (footer). Filter by
+                the base id to find every related bet/win/refund.
+              </p>
+              <ul className="mb-0 list-disc space-y-1 pl-5">
+                <li>
+                  <span className="font-semibold">Instant games</span> - Usually
+                  the bare id (e.g. <code>dice-A1B2C3D4</code>).
+                </li>
+                <li>
+                  <span className="font-semibold">Session games</span> -{' '}
+                  <code>gameId:n</code> (e.g. <code>slots-871Q9XAP:5</code>).
+                  The part before <code>:</code> is the session id on the embed.
+                  The number after is a unique index within that session (based
+                  on spins/rounds already played), not necessarily &quot;bet
+                  #n&quot;. Multi-spin batches can skip numbers (1, then 5, then
+                  7) while Spins on the summary still counts every reel spin.
+                </li>
+              </ul>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+      ),
+      meta: {
+        label: 'Reference ID'
+      } as {
+        label?: string
+      },
       enableColumnFilter: true,
       size: 160,
       cell: ({ row }) => {

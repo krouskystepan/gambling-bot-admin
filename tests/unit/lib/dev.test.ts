@@ -92,6 +92,9 @@ vi.mock('@/models/Transaction', () => ({
 vi.mock('@/models/User', () => ({
   default: { countDocuments: vi.fn() }
 }))
+vi.mock('@/models/UserQuestProgress', () => ({
+  default: { countDocuments: vi.fn() }
+}))
 vi.mock('@/models/VipRoom', () => ({
   default: { countDocuments: vi.fn() }
 }))

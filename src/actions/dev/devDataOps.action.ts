@@ -30,6 +30,7 @@ import SlotsGame from '@/models/SlotsGame'
 import Transaction from '@/models/Transaction'
 import User from '@/models/User'
 import UserBan from '@/models/UserBan'
+import UserQuestProgress from '@/models/UserQuestProgress'
 import VipRoom from '@/models/VipRoom'
 
 const WIPE_MODELS = {
@@ -43,6 +44,20 @@ const WIPE_MODELS = {
   minesGames: MinesGame,
   rouletteGames: RouletteGame,
   slotsGames: SlotsGame,
+  userQuestProgress: UserQuestProgress,
+  userQuestStreaks: {
+    resetMany: async ({ guildId }: { guildId: string }) =>
+      User.updateMany(
+        { guildId },
+        {
+          $set: {
+            questDailyStreak: 0,
+            lastQuestDailyCompleteDate: null,
+            questActivityAfter: new Date()
+          }
+        }
+      )
+  },
   userBans: UserBan,
   users: User
 } as const
@@ -107,6 +122,7 @@ function revalidateGuildDashboard(guildId: string) {
     `/dashboard/g/${guildId}/predictions`,
     `/dashboard/g/${guildId}/raffles`,
     `/dashboard/g/${guildId}/vips`,
+    `/dashboard/g/${guildId}/quests`,
     `/dashboard/g/${guildId}/dev-data`
   ]
 
