@@ -131,15 +131,20 @@ export async function forceCloseStaleBlackjack(
       }
     }
 
-    const totalBet = game.hands.reduce((sum, hand) => sum + hand.betAmount, 0)
+    const totalBet =
+      game.phase === 'RESULT'
+        ? 0
+        : game.hands.reduce((sum, hand) => sum + hand.betAmount, 0)
 
-    await casinoBetService.refundLockedBet({
-      userId: game.userId,
-      guildId: game.guildId,
-      amount: totalBet,
-      betId: game.betId,
-      game: 'blackjack'
-    })
+    if (game.activeBetId && totalBet > 0) {
+      await casinoBetService.refundLockedBet({
+        userId: game.userId,
+        guildId: game.guildId,
+        amount: totalBet,
+        betId: game.activeBetId,
+        game: 'blackjack'
+      })
+    }
 
     await BlackjackGame.deleteOne({ userId, guildId })
 
@@ -151,7 +156,8 @@ export async function forceCloseStaleBlackjack(
       adminAction: STAFF_ADMIN_ACTIONS.BLACKJACK_FORCE_CLOSE,
       meta: {
         userId: game.userId,
-        betId: game.betId,
+        gameId: game.gameId,
+        betId: game.activeBetId ?? null,
         totalBet,
         channelId: game.channelId,
         messageId: game.messageId

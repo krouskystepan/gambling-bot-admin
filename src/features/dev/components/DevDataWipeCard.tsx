@@ -85,6 +85,11 @@ const WIPE_OPTIONS: Array<{
     id: 'slots',
     label: 'Slots games',
     getCount: (counts) => counts.slotsGames
+  },
+  {
+    id: 'quests',
+    label: 'Quest progress',
+    getCount: (counts) => counts.questProgress
   }
 ]
 
@@ -113,7 +118,9 @@ const DevDataWipeCard = ({ guildId, counts }: DevDataWipeCardProps) => {
           detail:
             option.id === 'users'
               ? 'Wiping users without transactions can leave orphan transaction rows.'
-              : undefined
+              : option.id === 'quests'
+                ? 'Deletes progress rows, resets quest streaks, and ignores prior casino activity so quests can be completed again.'
+                : undefined
         })
       ),
     [counts, selected]
