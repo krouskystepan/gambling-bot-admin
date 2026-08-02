@@ -26,6 +26,20 @@ type Props = {
   form: TCasinoSettingsForm
 }
 
+const BLACKJACK_NUMERIC_DESCRIPTIONS: Record<string, string> = {
+  deckCount: 'Number of decks in the shoe used for dealing. Clamped to 2-8.',
+  minBet: 'Lowest main bet allowed for this game. 0 = no minimum.',
+  maxBet: 'Highest main bet allowed for this game. 0 = no maximum.'
+}
+
+const numericFieldDescription = (
+  game: keyof TCasinoSettingsValues,
+  key: string
+): string | undefined => {
+  if (game !== 'blackjack') return undefined
+  return BLACKJACK_NUMERIC_DESCRIPTIONS[key]
+}
+
 const GameSection = ({ game, form }: Props) => {
   const numericKeys = (
     Object.keys(defaultCasinoSettings[game]) as Array<
@@ -46,7 +60,7 @@ const GameSection = ({ game, form }: Props) => {
           disabled.
         </p>
       )}
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 items-start gap-3 lg:grid-cols-3 xl:grid-cols-4">
         {numericKeys.map((key) => (
           <NumberField
             key={String(key)}
@@ -59,6 +73,7 @@ const GameSection = ({ game, form }: Props) => {
               ] as number
             }
             compactMoney={key === 'minBet' || key === 'maxBet'}
+            description={numericFieldDescription(game, String(key))}
           />
         ))}
       </div>

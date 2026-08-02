@@ -19,9 +19,11 @@ type Props = {
 }
 
 const GameNavRtpStatus = ({
-  status
+  status,
+  hasConfigWarning
 }: {
   status: ReturnType<typeof useGameRtp>['status']
+  hasConfigWarning: boolean
 }) => {
   if (status === 'hidden') return null
 
@@ -40,7 +42,17 @@ const GameNavRtpStatus = ({
       <TriangleAlert
         size={14}
         className="shrink-0 text-brand"
-        aria-label="RTP at or below 90%"
+        aria-label="RTP at or below 80%"
+      />
+    )
+  }
+
+  if (hasConfigWarning) {
+    return (
+      <TriangleAlert
+        size={14}
+        className="shrink-0 text-amber-600 dark:text-amber-400"
+        aria-label="Blackjack side bet config warning"
       />
     )
   }
@@ -62,9 +74,14 @@ const GameNavItem = ({
   onSelect,
   variant = 'list'
 }: Props) => {
-  const { hidden, status } = useGameRtp(game, form)
+  const { hidden, status, configWarning } = useGameRtp(game, form)
   const label = labelOverride ?? getReadableName(game, readableGameNames)
-  const rtpStatus = !hidden ? <GameNavRtpStatus status={status} /> : null
+  const rtpStatus = !hidden ? (
+    <GameNavRtpStatus
+      status={status}
+      hasConfigWarning={Boolean(configWarning)}
+    />
+  ) : null
   const gameValues = form.watch(game)
   const isDisabled =
     game !== 'winAnnouncements' &&
