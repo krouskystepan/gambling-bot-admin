@@ -170,7 +170,7 @@ export function getDemoSetupHealthChecks(): SetupHealthCheck[] {
       ok: false,
       warning: true,
       rtpStatus: 'high',
-      href: `${base}/casino-settings`
+      href: `${base}/casino-settings?game=slots`
     }
   ]
 }

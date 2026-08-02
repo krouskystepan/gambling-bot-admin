@@ -53,7 +53,8 @@ describe('rtpWarnings', () => {
 
   it('isRtpOutOfRange flags extremes', () => {
     expect(isRtpOutOfRange(100)).toBe(true)
-    expect(isRtpOutOfRange(90)).toBe(true)
+    expect(isRtpOutOfRange(80)).toBe(true)
+    expect(isRtpOutOfRange(88)).toBe(false)
     expect(isRtpOutOfRange(95)).toBe(false)
   })
 
@@ -63,6 +64,7 @@ describe('rtpWarnings', () => {
     expect(hasRtpWarning(95)).toBe(false)
     expect(hasRtpWarning(101)).toBe(true)
     expect(hasRtpWarning({ a: 95, b: 80 })).toBe(true)
+    expect(hasRtpWarning({ a: 95, b: 88 })).toBe(false)
     expect(hasRtpWarning({ a: 95, b: 96 })).toBe(false)
   })
 
@@ -71,9 +73,11 @@ describe('rtpWarnings', () => {
     expect(getRtpStatus(null, false)).toBe('hidden')
     expect(getRtpStatus(95, false)).toBe('ok')
     expect(getRtpStatus(100, false)).toBe('high')
-    expect(getRtpStatus(90, false)).toBe('low')
+    expect(getRtpStatus(88, false)).toBe('ok')
+    expect(getRtpStatus(80, false)).toBe('low')
     expect(getRtpStatus({ x: 95, y: 101 }, false)).toBe('high')
-    expect(getRtpStatus({ x: 95, y: 85 }, false)).toBe('low')
+    expect(getRtpStatus({ x: 95, y: 85 }, false)).toBe('ok')
+    expect(getRtpStatus({ x: 95, y: 79 }, false)).toBe('low')
   })
 })
 
@@ -128,7 +132,8 @@ describe('setupHealth helpers', () => {
     expect(rtp).toMatchObject({
       ok: false,
       warning: true,
-      rtpStatus: 'high'
+      rtpStatus: 'high',
+      href: '/dashboard/g/g1/casino-settings?game=dice'
     })
     expect(rtp?.label).toMatch(/RTP out of range \(\d+\.\d+%\)/)
   })
@@ -154,6 +159,7 @@ describe('setupHealth helpers', () => {
 
     const rtp = checks.find((check) => check.id === 'rtp-roulette')
     expect(rtp?.label).toMatch(/:/)
+    expect(rtp?.href).toBe('/dashboard/g/g1/casino-settings?game=roulette')
   })
 
   it('buildSetupHealth normalizes legacy blackjack without winMultipliers', () => {
@@ -164,6 +170,10 @@ describe('setupHealth helpers', () => {
       }
     } as never)
 
-    expect(checks.every((c) => !c.id.startsWith('rtp-blackjack'))).toBe(true)
+    // Defaults use enough decks for suitedTrips; no impossible-outcome warn.
+    expect(checks.some((c) => c.id === 'blackjack-plusThree-impossible')).toBe(
+      false
+    )
+    expect(checks.some((c) => c.id === 'rtp-blackjack')).toBe(false)
   })
 })

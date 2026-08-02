@@ -1,8 +1,10 @@
 import {
   calculateRTP,
   defaultCasinoSettings,
+  getBlackjackPlusThreeConfigWarning,
   normalizeCasinoSettings,
-  readableGameNames
+  readableGameNames,
+  readableGameValueNames
 } from 'gambling-bot-shared/casino'
 import { getReadableName } from 'gambling-bot-shared/common'
 import { type TGuildConfiguration } from 'gambling-bot-shared/guild'
@@ -18,6 +20,11 @@ export type SetupHealthCheck = {
   warning?: boolean
   rtpStatus?: 'high' | 'low'
 }
+
+const casinoSettingsGameHref = (
+  settingsBase: string,
+  game: keyof typeof defaultCasinoSettings
+) => `${settingsBase}/casino-settings?game=${game}`
 
 export function buildSetupHealth(
   guildId: string,
@@ -87,7 +94,10 @@ export function buildSetupHealth(
       typeof rtp === 'number'
         ? `${rtp.toFixed(1)}%`
         : Object.entries(rtp)
-            .map(([k, v]) => `${k}: ${v.toFixed(1)}%`)
+            .map(
+              ([k, v]) =>
+                `${getReadableName(k, readableGameValueNames)}: ${v.toFixed(1)}%`
+            )
             .join(', ')
 
     checks.push({
@@ -96,7 +106,20 @@ export function buildSetupHealth(
       ok: false,
       warning: true,
       rtpStatus: status,
-      href: `${settingsBase}/casino-settings`
+      href: casinoSettingsGameHref(settingsBase, game)
+    })
+  }
+
+  const plusThreeWarning = getBlackjackPlusThreeConfigWarning(
+    casinoSettings.blackjack
+  )
+  if (plusThreeWarning) {
+    checks.push({
+      id: 'blackjack-plusThree-impossible',
+      label: `Blackjack ${plusThreeWarning}`,
+      ok: false,
+      warning: true,
+      href: casinoSettingsGameHref(settingsBase, 'blackjack')
     })
   }
 
