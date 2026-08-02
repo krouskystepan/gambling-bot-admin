@@ -9,6 +9,7 @@ export { default as SettingsChangesPage } from './general/settings-changes/Setti
 
 // Manage
 export { default as UsersPage } from './manage/users/UsersPage'
+export { default as BansPage } from './manage/bans/BansPage'
 export { default as RafflesPage } from './manage/raffles/RafflesPage'
 export { default as PredictionsPage } from './manage/predictions/PredictionsPage'
 export { default as QuestsPage } from './manage/quests/QuestsPage'

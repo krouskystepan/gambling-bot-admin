@@ -45,9 +45,8 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { formatModerationWhen } from '@/features/manage/moderation/formatModerationWhen'
 import { cn } from '@/lib/utils'
-
-import { formatModerationWhen } from './formatModerationWhen'
 
 type StaffNotesDialogProps = {
   guildId: string

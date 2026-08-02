@@ -1,5 +1,6 @@
 import {
   AtmQueuePage,
+  BansPage,
   BonusesSettingsPage,
   CasinoSettingsPage,
   ChannelSettingsPage,
@@ -38,6 +39,7 @@ export const sections = {
 
   // Manage
   users: UsersPage,
+  bans: BansPage,
   raffles: RafflesPage,
   predictions: PredictionsPage,
   quests: QuestsPage,

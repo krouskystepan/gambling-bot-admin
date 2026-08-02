@@ -1,6 +1,7 @@
 import {
   Activity,
   Award,
+  Ban,
   Banknote,
   Calculator,
   ChartBar,
@@ -44,6 +45,7 @@ export const GUILD_CONFIG_SIDEBAR_LINKS = [
     value: 'manage',
     links: [
       { id: 'users', label: 'Users', icon: User },
+      { id: 'bans', label: 'Bans', icon: Ban },
       { id: 'predictions', label: 'Predictions', icon: ChartBar },
       { id: 'raffles', label: 'Raffles', icon: Ticket },
       { id: 'quests', label: 'Quests', icon: ListChecks },

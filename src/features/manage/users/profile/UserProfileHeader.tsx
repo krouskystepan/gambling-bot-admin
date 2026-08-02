@@ -13,7 +13,7 @@ import {
 import OverviewPeriodSelect from '@/features/general/overview/components/OverviewPeriodSelect'
 import { TGuildMemberStatus } from '@/types/types'
 
-import BanHistoryDialog from './BanHistoryDialog'
+import BanLogLink from './BanLogLink'
 import ProfileHeaderToolbarSeparator from './ProfileHeaderToolbarSeparator'
 import StaffNotesDialog from './StaffNotesDialog'
 import UserActionsMenu from './UserActionsMenu'
@@ -137,7 +137,12 @@ const UserProfileHeader = ({
           <div className="flex items-center gap-2">
             {showModerationToolbar ? (
               <>
-                <BanHistoryDialog bans={profile.bans} banned={profile.banned} />
+                <BanLogLink
+                  guildId={guildId}
+                  userId={profile.userId}
+                  banCount={profile.bans.length}
+                  banned={profile.banned}
+                />
                 <ProfileHeaderToolbarSeparator />
                 <StaffNotesDialog
                   guildId={guildId}

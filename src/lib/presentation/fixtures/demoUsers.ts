@@ -14,7 +14,7 @@ export type DemoUserRecord = TGuildMemberStatus & {
 
 // A few members are intentionally unregistered / banned for realism.
 const UNREGISTERED = new Set(['100000000000000021', '100000000000000022'])
-const BANNED = new Set(['100000000000000016'])
+const BANNED = new Set(['100000000000000012', '100000000000000016'])
 
 function buildRecords(): DemoUserRecord[] {
   const raw = getDemoRawTransactions()
