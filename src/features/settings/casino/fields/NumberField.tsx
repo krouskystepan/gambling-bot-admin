@@ -1,7 +1,7 @@
 'use client'
 
 import { parseReadableStringToNumber } from 'gambling-bot-shared/common'
-import { RotateCw } from 'lucide-react'
+import { CircleQuestionMark, RotateCw } from 'lucide-react'
 import { type ControllerRenderProps, Path } from 'react-hook-form'
 
 import { useState } from 'react'
@@ -9,12 +9,18 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 import { TCasinoSettingsForm, TCasinoSettingsInput } from '@/types/types'
 
 type Props = {
@@ -25,6 +31,9 @@ type Props = {
   onValueCommit?: (value: number) => void
   /** Accept compact money suffixes like `2k` / `4.5M` (minBet / maxBet). */
   compactMoney?: boolean
+  description?: string
+  /** Short tooltip next to the label explaining this specific field. */
+  help?: string
 }
 
 const parsePlainNumberFieldValue = (raw: string): number => {
@@ -51,6 +60,8 @@ type NumberFieldInputProps = {
   defaultValue?: number
   onValueCommit?: (value: number) => void
   compactMoney: boolean
+  description?: string
+  help?: string
 }
 
 const NumberFieldInput = ({
@@ -58,7 +69,9 @@ const NumberFieldInput = ({
   label,
   defaultValue,
   onValueCommit,
-  compactMoney
+  compactMoney,
+  description,
+  help
 }: NumberFieldInputProps) => {
   const [draft, setDraft] = useState(() => String(field.value ?? ''))
   const [isFocused, setIsFocused] = useState(false)
@@ -75,7 +88,25 @@ const NumberFieldInput = ({
 
   return (
     <FormItem>
-      <Label>{label}</Label>
+      <div className="flex items-center gap-1">
+        <Label>{label}</Label>
+        {help ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className="inline-flex text-muted-foreground hover:text-foreground"
+                aria-label={`About ${label}`}
+              >
+                <CircleQuestionMark size={14} />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs text-xs leading-relaxed">
+              {help}
+            </TooltipContent>
+          </Tooltip>
+        ) : null}
+      </div>
       <FormControl>
         <div className="flex rounded-md shadow-xs">
           <Input
@@ -126,6 +157,9 @@ const NumberFieldInput = ({
           )}
         </div>
       </FormControl>
+      {description ? (
+        <FormDescription className="text-xs">{description}</FormDescription>
+      ) : null}
       <FormMessage />
     </FormItem>
   )
@@ -137,7 +171,9 @@ export const NumberField = ({
   defaultValue,
   form,
   onValueCommit,
-  compactMoney = false
+  compactMoney = false,
+  description,
+  help
 }: Props) => (
   <FormField
     control={form.control}
@@ -149,6 +185,8 @@ export const NumberField = ({
         defaultValue={defaultValue}
         onValueCommit={onValueCommit}
         compactMoney={compactMoney}
+        description={description}
+        help={help}
       />
     )}
   />

@@ -41,7 +41,7 @@ export function PlinkoBinFields({ form }: Props) {
   }
 
   return (
-    <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-5">
+    <div className="mt-3 grid grid-cols-2 items-start gap-3 lg:grid-cols-3 xl:grid-cols-5">
       {PLINKO_EDITABLE_BINS.map((bin) => (
         <NumberField
           key={bin}
