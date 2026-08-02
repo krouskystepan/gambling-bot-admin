@@ -19,6 +19,7 @@ import {
   getDemoNickname,
   getDemoUsername
 } from './demoGuild'
+import { getDemoGuildBans } from './demoGuildBans'
 import { type DemoRawTx, getDemoRawTransactions } from './demoTransactions'
 import { getDemoUserRecord } from './demoUsers'
 
@@ -101,6 +102,35 @@ export function getDemoUserProfile(
     ? new Date(now.getTime() - 20 * 60 * 60 * 1000)
     : null
 
+  const userBans = getDemoGuildBans({
+    status: 'all',
+    userId,
+    limit: 50
+  }).bans.map(
+    ({
+      banId,
+      bannedAt,
+      bannedBy,
+      bannedByUsername,
+      banReason,
+      unbannedAt,
+      unbannedBy,
+      unbannedByUsername,
+      unbanReason
+    }) => ({
+      banId,
+      bannedAt,
+      bannedBy,
+      bannedByUsername,
+      banReason,
+      unbannedAt,
+      unbannedBy,
+      unbannedByUsername,
+      unbanReason
+    })
+  )
+  const activeBan = userBans.find((ban) => ban.unbannedAt == null)
+
   return {
     globalSettings: demoGlobalSettings,
     userId,
@@ -110,25 +140,11 @@ export function getDemoUserProfile(
     registered: record.registered,
     registeredAt: record.registeredAt,
     banned: record.banned,
-    bannedAt: record.banned ? new Date(now.getTime() - 6 * 86400000) : null,
-    bannedBy: record.banned ? '100000000000000001' : null,
-    bannedByUsername: record.banned
-      ? getDemoUsername('100000000000000001')
-      : undefined,
+    bannedAt: activeBan?.bannedAt ?? null,
+    bannedBy: activeBan?.bannedBy ?? null,
+    bannedByUsername: activeBan?.bannedByUsername,
     hasManagerRole: DEMO_STAFF_MEMBERS.some((m) => m.userId === userId),
-    bans: record.banned
-      ? [
-          {
-            banId: `demo-ban-${userId}`,
-            bannedAt: new Date(now.getTime() - 6 * 86400000),
-            bannedBy: '100000000000000001',
-            bannedByUsername: getDemoUsername('100000000000000001'),
-            banReason: 'Chargeback abuse.',
-            unbannedAt: null,
-            unbannedBy: null
-          }
-        ]
-      : [],
+    bans: userBans,
     staffNotes: record.registered
       ? [
           {

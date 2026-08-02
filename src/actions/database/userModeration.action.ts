@@ -162,6 +162,7 @@ export async function banUser(
 
     revalidatePath(profilePath(guildId, userId))
     revalidatePath(`/dashboard/g/${guildId}/users`)
+    revalidatePath(`/dashboard/g/${guildId}/bans`)
     revalidatePath(`/dashboard/g/${guildId}/staff-actions`)
 
     return { success: true, message: 'User banned successfully.' }
@@ -248,6 +249,7 @@ export async function unbanUser(
 
     revalidatePath(profilePath(guildId, userId))
     revalidatePath(`/dashboard/g/${guildId}/users`)
+    revalidatePath(`/dashboard/g/${guildId}/bans`)
     revalidatePath(`/dashboard/g/${guildId}/staff-actions`)
 
     return { success: true, message: 'User unbanned successfully.' }

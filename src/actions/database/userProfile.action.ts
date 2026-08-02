@@ -20,6 +20,7 @@ import {
 } from '@/features/general/overview/period'
 import { connectToDatabase } from '@/lib/db'
 import { userGuildDateRangeMatch } from '@/lib/guild/guildTimezone'
+import { mapUserBanRecord } from '@/lib/moderation/mapUserBanRecord'
 import { buildPnLTimeGroupStage } from '@/lib/overview/overviewPnLAggregation'
 import { netProfitSum } from '@/lib/overview/transactionTotals'
 import {
@@ -250,17 +251,9 @@ export async function getUserProfile(
     createdAt: note.createdAt
   }))
 
-  const bans: UserProfileBanRecord[] = userBans.map((ban) => ({
-    banId: ban.banId,
-    bannedAt: ban.bannedAt,
-    bannedBy: ban.bannedBy,
-    bannedByUsername: resolveUsername(ban.bannedBy),
-    banReason: ban.banReason,
-    unbannedAt: ban.unbannedAt,
-    unbannedBy: ban.unbannedBy,
-    unbannedByUsername: resolveUsername(ban.unbannedBy),
-    unbanReason: ban.unbanReason
-  }))
+  const bans: UserProfileBanRecord[] = userBans.map((ban) =>
+    mapUserBanRecord(ban, resolveUsername)
+  )
 
   const hasManagerRole = await resolveManagerStatus(
     guildId,

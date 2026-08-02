@@ -65,6 +65,13 @@ const GameNavItem = ({
   const { hidden, status } = useGameRtp(game, form)
   const label = labelOverride ?? getReadableName(game, readableGameNames)
   const rtpStatus = !hidden ? <GameNavRtpStatus status={status} /> : null
+  const gameValues = form.watch(game)
+  const isDisabled =
+    game !== 'winAnnouncements' &&
+    typeof gameValues === 'object' &&
+    gameValues !== null &&
+    'enabled' in gameValues &&
+    gameValues.enabled === false
 
   if (variant === 'tile') {
     return (
@@ -75,10 +82,18 @@ const GameNavItem = ({
           'flex items-start justify-between gap-2 rounded-lg border p-2.5 text-left transition',
           isActive
             ? 'border-primary bg-sidebar-accent/50 text-sidebar-primary'
-            : 'border-border hover:bg-muted/50'
+            : 'border-border hover:bg-muted/50',
+          isDisabled && 'opacity-60'
         )}
       >
-        <span className="truncate text-sm font-medium">{label}</span>
+        <span
+          className={cn(
+            'truncate text-sm font-medium',
+            isDisabled && 'text-muted-foreground'
+          )}
+        >
+          {label}
+        </span>
         {rtpStatus}
       </button>
     )
@@ -90,10 +105,13 @@ const GameNavItem = ({
       onClick={() => onSelect(game)}
       className={cn(
         'flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground transition hover:bg-sidebar-accent hover:text-sidebar-primary',
-        isActive && 'bg-sidebar-accent/50 font-medium text-sidebar-primary'
+        isActive && 'bg-sidebar-accent/50 font-medium text-sidebar-primary',
+        isDisabled && 'opacity-60'
       )}
     >
-      <span className="truncate">{label}</span>
+      <span className={cn('truncate', isDisabled && 'text-muted-foreground')}>
+        {label}
+      </span>
       {rtpStatus}
     </button>
   )

@@ -74,6 +74,7 @@ export {
   getDemoVipPageContext
 } from './fixtures/demoEngagement'
 export { getDemoUserProfile } from './fixtures/demoUserProfile'
+export { getDemoGuildBans } from './fixtures/demoGuildBans'
 export {
   getDemoGlobalSettings,
   getDemoCasinoSettings,
