@@ -16,6 +16,7 @@ import { useUpdateUrl } from '@/hooks/useUpdateUrl'
 import { casinoSettingsSchema } from '@/types/schemas'
 import { TCasinoSettingsInput, TCasinoSettingsValues } from '@/types/types'
 
+import GameAccessCard from './GameAccessCard'
 import GameDetailPanel from './GameDetailPanel'
 import GameNavList from './GameNavList'
 import { NON_GAME_CASINO_SECTIONS, sortCasinoGamesForNav } from './useGameRtp'
@@ -93,26 +94,29 @@ export default function CasinoSettingsForm({ guildId, savedSettings }: Props) {
             actions={
               <FormActionsFooter
                 label="Save casino settings"
-                hint="Saves RTP and limits for all games"
+                hint="Saves game access, RTP, and limits for all games"
               />
             }
           >
-            <div className="flex w-full flex-col gap-6 lg:flex-row lg:items-start">
-              <GameNavList
-                games={games}
-                sections={
-                  announcementSections.length > 0
-                    ? {
-                        title: 'Announcements',
-                        items: announcementSections
-                      }
-                    : undefined
-                }
-                selectedGame={selectedGame}
-                form={form}
-                onSelectGame={handleSelectGame}
-              />
-              <GameDetailPanel game={selectedGame} form={form} />
+            <div className="flex w-full flex-col gap-6">
+              <GameAccessCard games={games} form={form} />
+              <div className="flex w-full flex-col gap-6 lg:flex-row lg:items-start">
+                <GameNavList
+                  games={games}
+                  sections={
+                    announcementSections.length > 0
+                      ? {
+                          title: 'Announcements',
+                          items: announcementSections
+                        }
+                      : undefined
+                  }
+                  selectedGame={selectedGame}
+                  form={form}
+                  onSelectGame={handleSelectGame}
+                />
+                <GameDetailPanel game={selectedGame} form={form} />
+              </div>
             </div>
           </SettingsFormLayout>
         </form>
