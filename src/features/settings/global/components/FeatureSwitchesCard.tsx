@@ -57,7 +57,8 @@ const CASINO_SWITCHES: SwitchRow[] = [
   {
     name: 'disableCasinoGames',
     label: 'Disable casino games',
-    description: 'Block player casino commands in configured channels.'
+    description:
+      'Master switch: block all player casino commands. Disable individual games in Casino Settings.'
   },
   {
     name: 'disableCasinoGamesForMods',
@@ -68,19 +69,9 @@ const CASINO_SWITCHES: SwitchRow[] = [
 
 const EVENT_SWITCHES: SwitchRow[] = [
   {
-    name: 'disablePredictions',
-    label: 'Disable prediction betting',
-    description: 'Users cannot place bets via prediction buttons.'
-  },
-  {
     name: 'disablePredictionManagement',
     label: 'Disable prediction management',
     description: 'Mods cannot run /prediction management subcommands.'
-  },
-  {
-    name: 'disableRaffles',
-    label: 'Disable raffle purchases',
-    description: 'Users cannot buy raffle tickets.'
   },
   {
     name: 'disableRaffleManagement',
