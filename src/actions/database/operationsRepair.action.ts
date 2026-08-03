@@ -134,7 +134,10 @@ export async function forceCloseStaleBlackjack(
     const totalBet =
       game.phase === 'RESULT'
         ? 0
-        : game.hands.reduce((sum, hand) => sum + hand.betAmount, 0)
+        : game.hands.reduce((sum, hand) => sum + hand.betAmount, 0) +
+          (game.activePairsBetAmount ?? 0) +
+          (game.activePlusThreeBetAmount ?? 0) +
+          (game.insuranceBetAmount ?? 0)
 
     if (game.activeBetId && totalBet > 0) {
       await casinoBetService.refundLockedBet({

@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormMessage
@@ -30,11 +31,38 @@ type Props = {
   savedSettings: TVipSettingsValues
 }
 
-const VIP_PRICE_FIELDS = [
-  'pricePerDay',
-  'pricePerCreate',
-  'pricePerAdditionalMember'
-] as const
+const FIELD_META: {
+  name: keyof TVipSettingsValues
+  label: string
+  description: string
+  money?: boolean
+}[] = [
+  {
+    name: 'pricePerDay',
+    label: 'Price per Day',
+    description: 'Cost charged for each day of VIP duration (buy or extend).',
+    money: true
+  },
+  {
+    name: 'pricePerCreate',
+    label: 'Price per Create',
+    description:
+      'One-time fee added when purchasing a new VIP room. 0 = no create fee.',
+    money: true
+  },
+  {
+    name: 'pricePerAdditionalMember',
+    label: 'Price per Additional Member',
+    description: 'Cost to add one extra member to an existing VIP room.',
+    money: true
+  },
+  {
+    name: 'maxMembers',
+    label: 'Max Members',
+    description:
+      'Maximum members allowed in a VIP room (including the owner). 0 = uncapped.'
+  }
+]
 
 function roleColorHex(color: number) {
   return `#${color.toString(16).padStart(6, '0')}`
@@ -82,7 +110,7 @@ const VipSettingsForm = ({
                 <CardTitle>Roles and categories</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 pt-0">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   <FormField
                     control={form.control}
                     name="roleOwnerId"
@@ -110,6 +138,10 @@ const VipSettingsForm = ({
                             ))}
                           </OptionalSelect>
                         </FormControl>
+                        <FormDescription className="text-xs">
+                          Discord role given to the VIP room owner. Required for
+                          VIP to work.
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -142,6 +174,10 @@ const VipSettingsForm = ({
                             ))}
                           </OptionalSelect>
                         </FormControl>
+                        <FormDescription className="text-xs">
+                          Discord role given to members added to a VIP room.
+                          Required for VIP to work.
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -166,6 +202,10 @@ const VipSettingsForm = ({
                             ))}
                           </OptionalSelect>
                         </FormControl>
+                        <FormDescription className="text-xs">
+                          Category where private VIP voice/text channels are
+                          created. Required for VIP to work.
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -179,63 +219,48 @@ const VipSettingsForm = ({
                 <CardTitle>Prices</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 pt-0">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                  {(
-                    [
-                      ['pricePerDay', 'Price per Day'],
-                      ['pricePerCreate', 'Price per Create'],
-                      [
-                        'pricePerAdditionalMember',
-                        'Price per Additional Member'
-                      ],
-                      ['maxMembers', 'Max Members']
-                    ] as const
-                  ).map(([name, label]) => {
-                    const isPriceField = (
-                      VIP_PRICE_FIELDS as readonly string[]
-                    ).includes(name)
-
-                    return (
-                      <FormField
-                        key={name}
-                        control={form.control}
-                        name={name}
-                        render={({ field }) => (
-                          <FormItem>
-                            <Label>{label}</Label>
-                            <FormControl>
-                              <Input
-                                variant="muted"
-                                type="text"
-                                placeholder={
-                                  isPriceField
-                                    ? 'e.g. 1000, 2k, 4.5k'
-                                    : undefined
-                                }
-                                value={field.value}
-                                onChange={(e) => {
-                                  if (!isPriceField) {
-                                    field.onChange(
-                                      Number(e.target.value.replace(/\D/g, ''))
-                                    )
-                                    return
-                                  }
-
-                                  const parsed = parseVipPriceInput(
-                                    e.target.value
+                <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  {FIELD_META.map(({ name, label, description, money }) => (
+                    <FormField
+                      key={name}
+                      control={form.control}
+                      name={name}
+                      render={({ field }) => (
+                        <FormItem>
+                          <Label>{label}</Label>
+                          <FormControl>
+                            <Input
+                              variant="muted"
+                              type="text"
+                              placeholder={
+                                money ? 'e.g. 1000, 2k, 4.5k' : undefined
+                              }
+                              value={field.value}
+                              onChange={(e) => {
+                                if (!money) {
+                                  field.onChange(
+                                    Number(e.target.value.replace(/\D/g, ''))
                                   )
-                                  if (parsed !== null) {
-                                    field.onChange(parsed)
-                                  }
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    )
-                  })}
+                                  return
+                                }
+
+                                const parsed = parseVipPriceInput(
+                                  e.target.value
+                                )
+                                if (parsed !== null) {
+                                  field.onChange(parsed)
+                                }
+                              }}
+                            />
+                          </FormControl>
+                          <FormDescription className="text-xs">
+                            {description}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  ))}
                 </div>
               </CardContent>
             </Card>

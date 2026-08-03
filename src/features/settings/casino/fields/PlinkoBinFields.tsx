@@ -9,6 +9,7 @@ import { Path } from 'react-hook-form'
 
 import { TCasinoSettingsForm, TCasinoSettingsInput } from '@/types/types'
 
+import { PLINKO_BIN_DESCRIPTION, PLINKO_BIN_HELP } from '../fieldDescriptions'
 import { NumberField } from './NumberField'
 
 type Props = {
@@ -41,7 +42,7 @@ export function PlinkoBinFields({ form }: Props) {
   }
 
   return (
-    <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-5">
+    <div className="mt-3 grid grid-cols-2 items-start gap-3 lg:grid-cols-3 xl:grid-cols-5">
       {PLINKO_EDITABLE_BINS.map((bin) => (
         <NumberField
           key={bin}
@@ -49,6 +50,8 @@ export function PlinkoBinFields({ form }: Props) {
           name={`plinko.binMultipliers.${bin}` as Path<TCasinoSettingsInput>}
           label={BIN_LABELS[bin]}
           defaultValue={defaults[String(bin)]}
+          description={PLINKO_BIN_DESCRIPTION}
+          help={PLINKO_BIN_HELP}
           onValueCommit={(value) => syncMirrorBins(bin, value)}
         />
       ))}

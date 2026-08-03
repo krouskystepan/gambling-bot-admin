@@ -1,6 +1,9 @@
 'use client'
 
-import { calculateRTP } from 'gambling-bot-shared/casino'
+import {
+  calculateRTP,
+  getBlackjackPlusThreeConfigWarning
+} from 'gambling-bot-shared/casino'
 import { useWatch } from 'react-hook-form'
 
 import {
@@ -59,11 +62,26 @@ export const useGameRtp = <G extends keyof TCasinoSettingsValues>(
         )
       : null
 
+  const configWarning =
+    game === 'blackjack' &&
+    settings &&
+    typeof settings === 'object' &&
+    'deckCount' in settings &&
+    'plusThreeMultipliers' in settings
+      ? getBlackjackPlusThreeConfigWarning({
+          deckCount: settings.deckCount,
+          plusThreeMultipliers: settings.plusThreeMultipliers
+        })
+      : null
+
+  const rtpWarning = hidden ? false : hasRtpWarning(rtp)
+
   return {
     settings,
     rtp,
     hidden,
-    hasWarning: hidden ? false : hasRtpWarning(rtp),
+    configWarning,
+    hasWarning: rtpWarning || Boolean(configWarning),
     status: getRtpStatus(rtp, hidden)
   }
 }

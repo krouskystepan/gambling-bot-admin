@@ -29,8 +29,60 @@ describe('buildSetupHealth', () => {
       }
     } as never)
 
+    expect(checks.filter((check) => !check.warning).every((c) => c.ok)).toBe(
+      true
+    )
+  })
+
+  it('warns when 21+3 pays suitedTrips on a 2-deck shoe', () => {
+    const checks = buildSetupHealth('guild-1', {
+      guildId: 'guild-1',
+      casinoSettings: {
+        blackjack: {
+          deckCount: 2,
+          plusThreeMultipliers: {
+            suitedTrips: 101,
+            straightFlush: 41,
+            threeOfAKind: 31,
+            straight: 11,
+            flush: 6
+          }
+        }
+      }
+    } as never)
+
+    const warning = checks.find(
+      (check) => check.id === 'blackjack-plusThree-impossible'
+    )
+    expect(warning?.ok).toBe(false)
+    expect(warning?.warning).toBe(true)
+    expect(warning?.href).toBe(
+      '/dashboard/g/guild-1/casino-settings?game=blackjack'
+    )
+    expect(warning?.label).toMatch(/Suited Trips/)
+    expect(warning?.label).toMatch(/2 decks/)
+    expect(warning?.label).toMatch(/Set that 21\+3 payout to 0/)
+  })
+
+  it('does not warn about suitedTrips when that payout is disabled', () => {
+    const checks = buildSetupHealth('guild-1', {
+      guildId: 'guild-1',
+      casinoSettings: {
+        blackjack: {
+          deckCount: 2,
+          plusThreeMultipliers: {
+            suitedTrips: 0,
+            straightFlush: 41,
+            threeOfAKind: 31,
+            straight: 11,
+            flush: 6
+          }
+        }
+      }
+    } as never)
+
     expect(
-      checks.filter((check) => !check.id.startsWith('rtp-')).every((c) => c.ok)
+      checks.every((check) => check.id !== 'blackjack-plusThree-impossible')
     ).toBe(true)
   })
 })

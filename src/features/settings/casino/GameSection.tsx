@@ -17,6 +17,7 @@ import {
   TCasinoSettingsValues
 } from '@/types/types'
 
+import { numericFieldDescription, numericFieldHelp } from './fieldDescriptions'
 import { NumberField } from './fields/NumberField'
 import { PlinkoBinFields } from './fields/PlinkoBinFields'
 import { RecordFields } from './fields/RecordFields'
@@ -40,13 +41,7 @@ const GameSection = ({ game, form }: Props) => {
 
   return (
     <>
-      {game === 'winAnnouncements' && (
-        <p className="mb-3 text-xs text-muted-foreground">
-          Minimum win multiplier to announce in the configured channel. 0 =
-          disabled.
-        </p>
-      )}
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 items-start gap-3 lg:grid-cols-3 xl:grid-cols-4">
         {numericKeys.map((key) => (
           <NumberField
             key={String(key)}
@@ -59,6 +54,9 @@ const GameSection = ({ game, form }: Props) => {
               ] as number
             }
             compactMoney={key === 'minBet' || key === 'maxBet'}
+            percent={key === 'houseEdge'}
+            description={numericFieldDescription(game, String(key))}
+            help={numericFieldHelp(game, String(key))}
           />
         ))}
       </div>

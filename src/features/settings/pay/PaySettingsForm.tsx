@@ -39,12 +39,14 @@ const FIELD_META: {
   label: string
   description: string
   money?: boolean
+  percent?: boolean
 }[] = [
   {
     name: 'feePercent',
     label: 'Fee (%)',
     description:
-      'Fraction 0–1 (e.g. 0.02 = 2%). Sender pays the fee; it is burned from the economy.'
+      'Transfer fee in percent (e.g. 2 = 2%). Sender pays the fee; it is burned from the economy.',
+    percent: true
   },
   {
     name: 'minAmount',
@@ -66,6 +68,12 @@ const FIELD_META: {
     money: true
   }
 ]
+
+const fractionToPercentPoints = (fraction: number): number =>
+  parseFloat((fraction * 100).toPrecision(12))
+
+const percentPointsToFraction = (percentPoints: number): number =>
+  parseFloat((percentPoints / 100).toPrecision(12))
 
 const PaySettingsForm = ({ guildId, savedSettings }: Props) => {
   const form = useForm<TPaySettingsInput, unknown, TPaySettingsValues>({
@@ -97,51 +105,68 @@ const PaySettingsForm = ({ guildId, savedSettings }: Props) => {
               </CardHeader>
               <CardContent className="space-y-4 pt-0">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                  {FIELD_META.map(({ name, label, description, money }) => (
-                    <FormField
-                      key={name}
-                      control={form.control}
-                      name={name}
-                      render={({ field }) => (
-                        <FormItem>
-                          <Label>{label}</Label>
-                          <FormControl>
-                            <Input
-                              variant="muted"
-                              type="text"
-                              placeholder={
-                                money ? 'e.g. 1000, 2k, 4.5k' : 'e.g. 0.02'
-                              }
-                              value={field.value}
-                              onChange={(e) => {
-                                if (money) {
-                                  const parsed = parseMoneyInput(e.target.value)
-                                  if (parsed !== null) {
-                                    field.onChange(parsed)
-                                  }
-                                  return
-                                }
+                  {FIELD_META.map(
+                    ({ name, label, description, money, percent }) => (
+                      <FormField
+                        key={name}
+                        control={form.control}
+                        name={name}
+                        render={({ field }) => {
+                          const displayValue = percent
+                            ? fractionToPercentPoints(Number(field.value ?? 0))
+                            : field.value
 
-                                const raw = e.target.value.trim()
-                                if (raw === '') {
-                                  field.onChange(0)
-                                  return
-                                }
-                                const parsed = Number(raw)
-                                if (!Number.isNaN(parsed)) {
-                                  field.onChange(parsed)
-                                }
-                              }}
-                            />
-                          </FormControl>
-                          <p className="text-xs text-muted-foreground">
-                            {description}
-                          </p>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  ))}
+                          return (
+                            <FormItem>
+                              <Label>{label}</Label>
+                              <FormControl>
+                                <Input
+                                  variant="muted"
+                                  type="text"
+                                  placeholder={
+                                    money
+                                      ? 'e.g. 1000, 2k, 4.5k'
+                                      : percent
+                                        ? 'e.g. 2'
+                                        : undefined
+                                  }
+                                  value={displayValue}
+                                  onChange={(e) => {
+                                    if (money) {
+                                      const parsed = parseMoneyInput(
+                                        e.target.value
+                                      )
+                                      if (parsed !== null) {
+                                        field.onChange(parsed)
+                                      }
+                                      return
+                                    }
+
+                                    const raw = e.target.value.trim()
+                                    if (raw === '') {
+                                      field.onChange(0)
+                                      return
+                                    }
+                                    const parsed = Number(raw)
+                                    if (Number.isNaN(parsed)) return
+                                    field.onChange(
+                                      percent
+                                        ? percentPointsToFraction(parsed)
+                                        : parsed
+                                    )
+                                  }}
+                                />
+                              </FormControl>
+                              <p className="text-xs text-muted-foreground">
+                                {description}
+                              </p>
+                              <FormMessage />
+                            </FormItem>
+                          )
+                        }}
+                      />
+                    )
+                  )}
                 </div>
               </CardContent>
             </Card>

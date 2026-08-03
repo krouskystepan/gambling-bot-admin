@@ -3,7 +3,11 @@ const SKIPS_CASINO_RTP_CHECK = new Set(['prediction', 'winAnnouncements'])
 export const skipsCasinoRtpCheck = (game: string) =>
   SKIPS_CASINO_RTP_CHECK.has(game)
 
-export const isRtpOutOfRange = (value: number) => value >= 100 || value <= 90
+/** Low RTP warning threshold (inclusive). Values above this are allowed. */
+export const RTP_LOW_WARNING_MAX = 80
+
+export const isRtpOutOfRange = (value: number) =>
+  value >= 100 || value <= RTP_LOW_WARNING_MAX
 
 export const hasRtpWarning = (
   rtp: number | Record<string, number> | null | undefined
@@ -23,6 +27,6 @@ export const getRtpStatus = (
 
   const values = typeof rtp === 'number' ? [rtp] : Object.values(rtp)
   if (values.some((value) => value >= 100)) return 'high'
-  if (values.some((value) => value <= 90)) return 'low'
+  if (values.some((value) => value <= RTP_LOW_WARNING_MAX)) return 'low'
   return 'ok'
 }
