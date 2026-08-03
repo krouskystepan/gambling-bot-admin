@@ -9,6 +9,7 @@ import { Path } from 'react-hook-form'
 
 import { TCasinoSettingsForm, TCasinoSettingsInput } from '@/types/types'
 
+import { PLINKO_BIN_DESCRIPTION, PLINKO_BIN_HELP } from '../fieldDescriptions'
 import { NumberField } from './NumberField'
 
 type Props = {
@@ -49,6 +50,8 @@ export function PlinkoBinFields({ form }: Props) {
           name={`plinko.binMultipliers.${bin}` as Path<TCasinoSettingsInput>}
           label={BIN_LABELS[bin]}
           defaultValue={defaults[String(bin)]}
+          description={PLINKO_BIN_DESCRIPTION}
+          help={PLINKO_BIN_HELP}
           onValueCommit={(value) => syncMirrorBins(bin, value)}
         />
       ))}

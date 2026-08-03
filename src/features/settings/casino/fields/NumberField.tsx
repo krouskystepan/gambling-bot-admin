@@ -31,6 +31,11 @@ type Props = {
   onValueCommit?: (value: number) => void
   /** Accept compact money suffixes like `2k` / `4.5M` (minBet / maxBet). */
   compactMoney?: boolean
+  /**
+   * Stored as 0–1 fraction; UI shows/edits percent points (10 = 10% = 0.1).
+   * Mutually exclusive with compactMoney.
+   */
+  percent?: boolean
   description?: string
   /** Short tooltip next to the label explaining this specific field. */
   help?: string
@@ -54,12 +59,28 @@ const sanitizePlainDraft = (raw: string): string => raw.replace(/[^0-9.]/g, '')
 const sanitizeCompactMoneyDraft = (raw: string): string =>
   raw.replace(/[^0-9.kKmMbB]/g, '')
 
+/** Fraction (0.03) ↔ percent points (3) without float noise. */
+const fractionToPercentPoints = (fraction: number): number =>
+  parseFloat((fraction * 100).toPrecision(12))
+
+const percentPointsToFraction = (percentPoints: number): number =>
+  parseFloat((percentPoints / 100).toPrecision(12))
+
+const formatStoredForUi = (
+  stored: number | undefined,
+  percent: boolean
+): string => {
+  const value = Number(stored ?? 0)
+  return String(percent ? fractionToPercentPoints(value) : value)
+}
+
 type NumberFieldInputProps = {
   field: ControllerRenderProps<TCasinoSettingsInput, Path<TCasinoSettingsInput>>
   label: string
   defaultValue?: number
   onValueCommit?: (value: number) => void
   compactMoney: boolean
+  percent: boolean
   description?: string
   help?: string
 }
@@ -70,20 +91,30 @@ const NumberFieldInput = ({
   defaultValue,
   onValueCommit,
   compactMoney,
+  percent,
   description,
   help
 }: NumberFieldInputProps) => {
-  const [draft, setDraft] = useState(() => String(field.value ?? ''))
+  const [draft, setDraft] = useState(() =>
+    formatStoredForUi(field.value as number | undefined, percent)
+  )
   const [isFocused, setIsFocused] = useState(false)
-  const displayValue = isFocused ? draft : String(field.value ?? '')
+  const displayValue = isFocused
+    ? draft
+    : formatStoredForUi(field.value as number | undefined, percent)
+
+  const toStored = (uiValue: number): number =>
+    percent ? percentPointsToFraction(uiValue) : uiValue
 
   const commit = (raw: string) => {
-    const parsed = compactMoney
+    const uiParsed = compactMoney
       ? parseCompactMoneyFieldValue(raw)
       : parsePlainNumberFieldValue(raw)
-    field.onChange(parsed)
+    const stored = toStored(uiParsed)
+    field.onChange(stored)
     field.onBlur()
-    onValueCommit?.(parsed)
+    onValueCommit?.(stored)
+    setDraft(formatStoredForUi(stored, percent))
   }
 
   return (
@@ -101,9 +132,7 @@ const NumberFieldInput = ({
                 <CircleQuestionMark size={14} />
               </button>
             </TooltipTrigger>
-            <TooltipContent className="max-w-xs text-xs leading-relaxed">
-              {help}
-            </TooltipContent>
+            <TooltipContent className="leading-relaxed">{help}</TooltipContent>
           </Tooltip>
         ) : null}
       </div>
@@ -112,10 +141,18 @@ const NumberFieldInput = ({
           <Input
             variant="muted"
             className="rounded-r-none"
-            placeholder={compactMoney ? 'e.g. 1000, 2k, 4.5k' : undefined}
+            placeholder={
+              compactMoney
+                ? 'e.g. 1000, 2k, 4.5k'
+                : percent
+                  ? 'e.g. 3'
+                  : undefined
+            }
             value={displayValue}
             onFocus={() => {
-              setDraft(String(field.value ?? ''))
+              setDraft(
+                formatStoredForUi(field.value as number | undefined, percent)
+              )
               setIsFocused(true)
             }}
             onChange={(e) => {
@@ -134,7 +171,7 @@ const NumberFieldInput = ({
                 return
               }
 
-              field.onChange(parsePlainNumberFieldValue(cleaned))
+              field.onChange(toStored(parsePlainNumberFieldValue(cleaned)))
             }}
             onBlur={(e) => {
               commit(e.target.value)
@@ -147,7 +184,7 @@ const NumberFieldInput = ({
               variant="ghost"
               className="bg-muted text-destructive/60 hover:text-destructive w-9 rounded-none rounded-e-md"
               onClick={() => {
-                setDraft(String(defaultValue))
+                setDraft(formatStoredForUi(defaultValue, percent))
                 field.onChange(defaultValue)
                 onValueCommit?.(defaultValue)
               }}
@@ -172,6 +209,7 @@ export const NumberField = ({
   form,
   onValueCommit,
   compactMoney = false,
+  percent = false,
   description,
   help
 }: Props) => (
@@ -185,6 +223,7 @@ export const NumberField = ({
         defaultValue={defaultValue}
         onValueCommit={onValueCommit}
         compactMoney={compactMoney}
+        percent={percent}
         description={description}
         help={help}
       />
