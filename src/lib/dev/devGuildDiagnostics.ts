@@ -33,6 +33,7 @@ import Prediction from '@/models/Prediction'
 import Raffle from '@/models/Raffle'
 import RouletteGame from '@/models/RouletteGame'
 import SlotsGame from '@/models/SlotsGame'
+import PlinkoGame from '@/models/PlinkoGame'
 import Transaction from '@/models/Transaction'
 import User from '@/models/User'
 import UserQuestProgress from '@/models/UserQuestProgress'
@@ -63,6 +64,7 @@ export type DevGuildCounts = {
   minesGames: number
   rouletteGames: number
   slotsGames: number
+  plinkoGames: number
   questProgress: number
 }
 
@@ -152,6 +154,7 @@ export async function getDevGuildCounts(
     minesGames,
     rouletteGames,
     slotsGames,
+    plinkoGames,
     questProgress
   ] = await Promise.all([
     User.countDocuments({ guildId }),
@@ -168,6 +171,7 @@ export async function getDevGuildCounts(
     MinesGame.countDocuments({ guildId }),
     RouletteGame.countDocuments({ guildId }),
     SlotsGame.countDocuments({ guildId }),
+    PlinkoGame.countDocuments({ guildId }),
     UserQuestProgress.countDocuments({ guildId })
   ])
 
@@ -186,6 +190,7 @@ export async function getDevGuildCounts(
     minesGames,
     rouletteGames,
     slotsGames,
+    plinkoGames,
     questProgress
   }
 }

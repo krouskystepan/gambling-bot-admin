@@ -27,6 +27,7 @@ import Prediction from '@/models/Prediction'
 import Raffle from '@/models/Raffle'
 import RouletteGame from '@/models/RouletteGame'
 import SlotsGame from '@/models/SlotsGame'
+import PlinkoGame from '@/models/PlinkoGame'
 import Transaction from '@/models/Transaction'
 import User from '@/models/User'
 import UserBan from '@/models/UserBan'
@@ -44,6 +45,7 @@ const WIPE_MODELS = {
   minesGames: MinesGame,
   rouletteGames: RouletteGame,
   slotsGames: SlotsGame,
+  plinkoGames: PlinkoGame,
   userQuestProgress: UserQuestProgress,
   userQuestStreaks: {
     resetMany: async ({ guildId }: { guildId: string }) =>

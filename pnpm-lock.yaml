@@ -66,8 +66,8 @@ importers:
         specifier: ^12.40.0
         version: 12.40.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       gambling-bot-shared:
-        specifier: ^1.1.5
-        version: 1.1.5(mongoose@9.7.0)
+        specifier: ^1.1.6
+        version: 1.1.6(mongoose@9.7.0)
       lucide-react:
         specifier: ^1.17.0
         version: 1.17.0(react@19.2.6)
@@ -2469,8 +2469,8 @@ packages:
   functions-have-names@1.2.3:
     resolution: {integrity: sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==}
 
-  gambling-bot-shared@1.1.5:
-    resolution: {integrity: sha512-sPRR1jZfehtmTOnn3wO7T0bLXC99iyGkcR6qe+eFnN8JXSOmwTBM2F57Qw89/P8mUYQ+yzlksYvvftDa6G8Gwg==}
+  gambling-bot-shared@1.1.6:
+    resolution: {integrity: sha512-iAWuC6A6Gzk6gMdWLAdtYCoG16cEm7WOcQe0nQz70RuItUC4571Hyb5ZF3RfLQXpVF7ngSLB+0rdECCeHYuFMA==}
     peerDependencies:
       mongoose: ^9.0.0
 
@@ -6239,7 +6239,7 @@ snapshots:
 
   functions-have-names@1.2.3: {}
 
-  gambling-bot-shared@1.1.5(mongoose@9.7.0):
+  gambling-bot-shared@1.1.6(mongoose@9.7.0):
     dependencies:
       luxon: 3.7.2
       mongoose: 9.7.0

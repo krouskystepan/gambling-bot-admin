@@ -87,6 +87,11 @@ const WIPE_OPTIONS: Array<{
     getCount: (counts) => counts.slotsGames
   },
   {
+    id: 'plinko',
+    label: 'Plinko games',
+    getCount: (counts) => counts.plinkoGames
+  },
+  {
     id: 'quests',
     label: 'Quest progress',
     getCount: (counts) => counts.questProgress
