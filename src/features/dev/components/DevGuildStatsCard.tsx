@@ -64,6 +64,7 @@ const DevGuildStatsCard = async ({ guildId }: DevGuildStatsCardProps) => {
         <StatTile label="Mines" value={counts.minesGames} />
         <StatTile label="Roulette" value={counts.rouletteGames} />
         <StatTile label="Slots" value={counts.slotsGames} />
+        <StatTile label="Plinko" value={counts.plinkoGames} />
         <StatTile label="Quest progress" value={counts.questProgress} />
       </CardContent>
     </Card>

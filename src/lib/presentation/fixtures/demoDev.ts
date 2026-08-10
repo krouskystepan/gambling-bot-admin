@@ -58,6 +58,7 @@ export function getDemoDevGuildCounts(): DevGuildCounts {
     minesGames: 1,
     rouletteGames: 1,
     slotsGames: 1,
+    plinkoGames: 1,
     questProgress: 420
   }
 }
