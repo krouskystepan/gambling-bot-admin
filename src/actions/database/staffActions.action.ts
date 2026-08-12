@@ -5,12 +5,10 @@ import type { PipelineStage } from 'mongoose'
 import { Session } from 'next-auth'
 
 import { getDiscordGuildMembers } from '@/actions/discord/member.action'
-import {
-  getGuildAdminRoleIds,
-  resolveGuildStaffStatus
-} from '@/actions/discord/role.action'
+import { getGuildAdminRoleIds } from '@/actions/discord/role.action'
 import { connectToDatabase } from '@/lib/db'
 import { discordBotRequest } from '@/lib/discord/discordReq'
+import { isGuildStaffFromRoles } from '@/lib/discord/guildStaff'
 import { getGuildGlobalSettings } from '@/lib/guild/guildMoney.server'
 import {
   getDemoStaffActionCounts,
@@ -180,26 +178,19 @@ export async function getGuildStaffMembers(
     return []
   }
 
-  const staffMembers = await Promise.all(
-    members.map(async (member) => {
-      const isStaff = await resolveGuildStaffStatus(
-        guildId,
-        member.userId,
+  const staffMembers = members
+    .filter((member) =>
+      isGuildStaffFromRoles({
+        userId: member.userId,
+        roles: member.roles,
         managerRoleId,
         adminRoleIds,
         ownerId
-      )
-      return isStaff
-        ? { userId: member.userId, username: member.username }
-        : null
-    })
-  )
-
-  return staffMembers
-    .filter((member): member is { userId: string; username: string } =>
-      Boolean(member)
+      })
     )
-    .sort((a, b) => a.username.localeCompare(b.username))
+    .map((member) => ({ userId: member.userId, username: member.username }))
+
+  return staffMembers.sort((a, b) => a.username.localeCompare(b.username))
 }
 
 export async function getStaffActions(

@@ -23,6 +23,7 @@ import BaccaratGame from '@/models/BaccaratGame'
 import BlackjackGame from '@/models/BlackjackGame'
 import GuildConfiguration from '@/models/GuildConfiguration'
 import MinesGame from '@/models/MinesGame'
+import MockUserProfile from '@/models/MockUserProfile'
 import PlinkoGame from '@/models/PlinkoGame'
 import Prediction from '@/models/Prediction'
 import Raffle from '@/models/Raffle'
@@ -203,6 +204,14 @@ export async function devWipeGuildData({
     entities,
     models: WIPE_MODELS
   })
+
+  const wipeUsers = entities.includes('all') || entities.includes('users')
+  if (wipeUsers) {
+    const profiles = await MockUserProfile.deleteMany({ guildId })
+    if ((profiles.deletedCount ?? 0) > 0) {
+      summary.deleted.mockUserProfiles = profiles.deletedCount ?? 0
+    }
+  }
 
   revalidateGuildDashboard(guildId)
 

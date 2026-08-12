@@ -16,8 +16,8 @@ export type DemoMember = {
   staff?: boolean
 }
 
-function demoAvatar(gender: 'men' | 'women', index: number): string {
-  return `https://randomuser.me/api/portraits/${gender}/${index}.jpg`
+function demoAvatar(seed: string): string {
+  return `https://i.pravatar.cc/150?u=${encodeURIComponent(seed)}`
 }
 
 /**
@@ -29,136 +29,136 @@ export const DEMO_MEMBERS: DemoMember[] = [
     userId: '100000000000000001',
     username: 'nova',
     nickname: 'Nova',
-    avatar: demoAvatar('women', 1),
+    avatar: demoAvatar('nova'),
     staff: true
   },
   {
     userId: '100000000000000002',
     username: 'kaito',
     nickname: 'Kaito',
-    avatar: demoAvatar('men', 2),
+    avatar: demoAvatar('kaito'),
     staff: true
   },
   {
     userId: '100000000000000003',
     username: 'mira',
     nickname: 'Mira',
-    avatar: demoAvatar('women', 3),
+    avatar: demoAvatar('mira'),
     staff: true
   },
   {
     userId: '100000000000000004',
     username: 'lucaz',
     nickname: 'Luca',
-    avatar: demoAvatar('men', 4)
+    avatar: demoAvatar('lucaz')
   },
   {
     userId: '100000000000000005',
     username: 'sienna',
     nickname: 'Sienna',
-    avatar: demoAvatar('women', 5)
+    avatar: demoAvatar('sienna')
   },
   {
     userId: '100000000000000006',
     username: 'orion',
     nickname: 'Orion',
-    avatar: demoAvatar('men', 6)
+    avatar: demoAvatar('orion')
   },
   {
     userId: '100000000000000007',
     username: 'petra',
     nickname: 'Petra',
-    avatar: demoAvatar('women', 7)
+    avatar: demoAvatar('petra')
   },
   {
     userId: '100000000000000008',
     username: 'devan',
     nickname: 'Devan',
-    avatar: demoAvatar('men', 8)
+    avatar: demoAvatar('devan')
   },
   {
     userId: '100000000000000009',
     username: 'yuki',
     nickname: 'Yuki',
-    avatar: demoAvatar('women', 9)
+    avatar: demoAvatar('yuki')
   },
   {
     userId: '100000000000000010',
     username: 'marco',
     nickname: 'Marco',
-    avatar: demoAvatar('men', 10)
+    avatar: demoAvatar('marco')
   },
   {
     userId: '100000000000000011',
     username: 'freya',
     nickname: 'Freya',
-    avatar: demoAvatar('women', 11)
+    avatar: demoAvatar('freya')
   },
   {
     userId: '100000000000000012',
     username: 'idris',
     nickname: 'Idris',
-    avatar: demoAvatar('men', 12)
+    avatar: demoAvatar('idris')
   },
   {
     userId: '100000000000000013',
     username: 'talia',
     nickname: 'Talia',
-    avatar: demoAvatar('women', 13)
+    avatar: demoAvatar('talia')
   },
   {
     userId: '100000000000000014',
     username: 'bruno',
     nickname: 'Bruno',
-    avatar: demoAvatar('men', 14)
+    avatar: demoAvatar('bruno')
   },
   {
     userId: '100000000000000015',
     username: 'elle',
     nickname: 'Elle',
-    avatar: demoAvatar('women', 15)
+    avatar: demoAvatar('elle')
   },
   {
     userId: '100000000000000016',
     username: 'zane',
     nickname: 'Zane',
-    avatar: demoAvatar('men', 16)
+    avatar: demoAvatar('zane')
   },
   {
     userId: '100000000000000017',
     username: 'noor',
     nickname: 'Noor',
-    avatar: demoAvatar('women', 17)
+    avatar: demoAvatar('noor')
   },
   {
     userId: '100000000000000018',
     username: 'pavel',
     nickname: 'Pavel',
-    avatar: demoAvatar('men', 18)
+    avatar: demoAvatar('pavel')
   },
   {
     userId: '100000000000000019',
     username: 'greta',
     nickname: 'Greta',
-    avatar: demoAvatar('women', 19)
+    avatar: demoAvatar('greta')
   },
   {
     userId: '100000000000000020',
     username: 'hassan',
     nickname: 'Hassan',
-    avatar: demoAvatar('men', 20)
+    avatar: demoAvatar('hassan')
   },
   {
     userId: '100000000000000021',
     username: 'ines',
     nickname: 'Inès',
-    avatar: demoAvatar('women', 21)
+    avatar: demoAvatar('ines')
   },
   {
     userId: '100000000000000022',
     username: 'dominik',
     nickname: 'Dominik',
-    avatar: demoAvatar('men', 22)
+    avatar: demoAvatar('dominik')
   }
 ]
 
@@ -206,6 +206,7 @@ export type DemoDiscordMember = {
   username: string
   nickname: string | null
   avatarUrl: string
+  roles: string[]
 }
 
 export function getDemoDiscordMembers(): DemoDiscordMember[] {
@@ -213,7 +214,8 @@ export function getDemoDiscordMembers(): DemoDiscordMember[] {
     userId: m.userId,
     username: m.username,
     nickname: m.nickname,
-    avatarUrl: m.avatar
+    avatarUrl: m.avatar,
+    roles: []
   }))
 }
 

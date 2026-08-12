@@ -3,13 +3,15 @@
 import { connectToDatabase } from '@/lib/db'
 import { discordBotRequest } from '@/lib/discord/discordReq'
 import { getDemoDiscordMembers, isDemoGuild } from '@/lib/presentation'
-import User from '@/models/User'
+import MockUserProfile from '@/models/MockUserProfile'
 
-type GuildMember = {
+export type GuildMember = {
   userId: string
   username: string
   nickname: string | null
   avatarUrl: string
+  /** Discord role IDs from the members list payload. Empty for synthetic mock profiles. */
+  roles: string[]
 }
 
 const guildMembersCache = new Map<
@@ -25,25 +27,17 @@ const MEMBERS_CACHE_DURATION = 60_000 // 1 min
 async function getMockGuildMembers(guildId: string): Promise<GuildMember[]> {
   await connectToDatabase()
 
-  const rows = await User.find({
-    guildId,
-    mockAvatarUrl: { $type: 'string' },
-    mockUsername: { $type: 'string' }
-  })
-    .select({ userId: 1, mockUsername: 1, mockNickname: 1, mockAvatarUrl: 1 })
+  const rows = await MockUserProfile.find({ guildId })
+    .select({ userId: 1, username: 1, nickname: 1, avatarUrl: 1 })
     .lean()
 
-  return rows.flatMap((row) => {
-    if (!row.mockUsername || !row.mockAvatarUrl) return []
-    return [
-      {
-        userId: row.userId,
-        username: row.mockUsername,
-        nickname: row.mockNickname ?? null,
-        avatarUrl: row.mockAvatarUrl
-      }
-    ]
-  })
+  return rows.map((row) => ({
+    userId: row.userId,
+    username: row.username,
+    nickname: row.nickname ?? null,
+    avatarUrl: row.avatarUrl,
+    roles: []
+  }))
 }
 
 function mergeGuildMembers(
@@ -87,6 +81,7 @@ export const getDiscordGuildMembers = async (
           bot?: boolean
         }
         nick?: string | null
+        roles?: string[]
       }[]
     >({
       url: `/guilds/${guildId}/members`,
@@ -102,7 +97,8 @@ export const getDiscordGuildMembers = async (
         nickname: m.nick ?? null,
         avatarUrl: m.user.avatar
           ? `https://cdn.discordapp.com/avatars/${m.user.id}/${m.user.avatar}.png?size=128`
-          : '/default-avatar.jpg'
+          : '/default-avatar.jpg',
+        roles: m.roles ?? []
       }))
 
     const mockMembers = await getMockGuildMembers(guildId)
