@@ -16,6 +16,10 @@ export type DemoMember = {
   staff?: boolean
 }
 
+function demoAvatar(gender: 'men' | 'women', index: number): string {
+  return `https://randomuser.me/api/portraits/${gender}/${index}.jpg`
+}
+
 /**
  * Stable roster shared across every fixture so users, transactions, overview
  * leaderboards, ATM requests, etc. all reference the same cast of characters.
@@ -25,136 +29,136 @@ export const DEMO_MEMBERS: DemoMember[] = [
     userId: '100000000000000001',
     username: 'nova',
     nickname: 'Nova',
-    avatar: DEFAULT_DEMO_AVATAR,
+    avatar: demoAvatar('women', 1),
     staff: true
   },
   {
     userId: '100000000000000002',
     username: 'kaito',
     nickname: 'Kaito',
-    avatar: DEFAULT_DEMO_AVATAR,
+    avatar: demoAvatar('men', 2),
     staff: true
   },
   {
     userId: '100000000000000003',
     username: 'mira',
     nickname: 'Mira',
-    avatar: DEFAULT_DEMO_AVATAR,
+    avatar: demoAvatar('women', 3),
     staff: true
   },
   {
     userId: '100000000000000004',
     username: 'lucaz',
     nickname: 'Luca',
-    avatar: DEFAULT_DEMO_AVATAR
+    avatar: demoAvatar('men', 4)
   },
   {
     userId: '100000000000000005',
     username: 'sienna',
     nickname: 'Sienna',
-    avatar: DEFAULT_DEMO_AVATAR
+    avatar: demoAvatar('women', 5)
   },
   {
     userId: '100000000000000006',
     username: 'orion',
     nickname: 'Orion',
-    avatar: DEFAULT_DEMO_AVATAR
+    avatar: demoAvatar('men', 6)
   },
   {
     userId: '100000000000000007',
     username: 'petra',
     nickname: 'Petra',
-    avatar: DEFAULT_DEMO_AVATAR
+    avatar: demoAvatar('women', 7)
   },
   {
     userId: '100000000000000008',
     username: 'devan',
     nickname: 'Devan',
-    avatar: DEFAULT_DEMO_AVATAR
+    avatar: demoAvatar('men', 8)
   },
   {
     userId: '100000000000000009',
     username: 'yuki',
     nickname: 'Yuki',
-    avatar: DEFAULT_DEMO_AVATAR
+    avatar: demoAvatar('women', 9)
   },
   {
     userId: '100000000000000010',
     username: 'marco',
     nickname: 'Marco',
-    avatar: DEFAULT_DEMO_AVATAR
+    avatar: demoAvatar('men', 10)
   },
   {
     userId: '100000000000000011',
     username: 'freya',
     nickname: 'Freya',
-    avatar: DEFAULT_DEMO_AVATAR
+    avatar: demoAvatar('women', 11)
   },
   {
     userId: '100000000000000012',
     username: 'idris',
     nickname: 'Idris',
-    avatar: DEFAULT_DEMO_AVATAR
+    avatar: demoAvatar('men', 12)
   },
   {
     userId: '100000000000000013',
     username: 'talia',
     nickname: 'Talia',
-    avatar: DEFAULT_DEMO_AVATAR
+    avatar: demoAvatar('women', 13)
   },
   {
     userId: '100000000000000014',
     username: 'bruno',
     nickname: 'Bruno',
-    avatar: DEFAULT_DEMO_AVATAR
+    avatar: demoAvatar('men', 14)
   },
   {
     userId: '100000000000000015',
     username: 'elle',
     nickname: 'Elle',
-    avatar: DEFAULT_DEMO_AVATAR
+    avatar: demoAvatar('women', 15)
   },
   {
     userId: '100000000000000016',
     username: 'zane',
     nickname: 'Zane',
-    avatar: DEFAULT_DEMO_AVATAR
+    avatar: demoAvatar('men', 16)
   },
   {
     userId: '100000000000000017',
     username: 'noor',
     nickname: 'Noor',
-    avatar: DEFAULT_DEMO_AVATAR
+    avatar: demoAvatar('women', 17)
   },
   {
     userId: '100000000000000018',
     username: 'pavel',
     nickname: 'Pavel',
-    avatar: DEFAULT_DEMO_AVATAR
+    avatar: demoAvatar('men', 18)
   },
   {
     userId: '100000000000000019',
     username: 'greta',
     nickname: 'Greta',
-    avatar: DEFAULT_DEMO_AVATAR
+    avatar: demoAvatar('women', 19)
   },
   {
     userId: '100000000000000020',
     username: 'hassan',
     nickname: 'Hassan',
-    avatar: DEFAULT_DEMO_AVATAR
+    avatar: demoAvatar('men', 20)
   },
   {
     userId: '100000000000000021',
     username: 'ines',
     nickname: 'Inès',
-    avatar: DEFAULT_DEMO_AVATAR
+    avatar: demoAvatar('women', 21)
   },
   {
     userId: '100000000000000022',
     username: 'dominik',
     nickname: 'Dominik',
-    avatar: DEFAULT_DEMO_AVATAR
+    avatar: demoAvatar('men', 22)
   }
 ]
 
