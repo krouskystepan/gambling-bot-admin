@@ -3,6 +3,7 @@
 import { PermissionFlagsBits } from 'discord-api-types/v10'
 
 import { discordBotRequest } from '@/lib/discord/discordReq'
+import { isGuildStaffFromRoles } from '@/lib/discord/guildStaff'
 import { getDemoGuildRoles, isDemoGuild } from '@/lib/presentation'
 import type { IGuildRole, IMemberCacheEntry } from '@/types/types'
 
@@ -88,12 +89,13 @@ export const resolveGuildStaffStatus = async (
   }
 
   const roles = await fetchMemberRoles(guildId, userId)
-
-  if (managerRoleId && roles.includes(managerRoleId.toString())) {
-    return true
-  }
-
-  return roles.some((roleId) => adminRoleIds.includes(roleId))
+  return isGuildStaffFromRoles({
+    userId,
+    roles,
+    managerRoleId,
+    adminRoleIds,
+    ownerId
+  })
 }
 
 export const getGuildRoles = async (guildId: string): Promise<IGuildRole[]> => {

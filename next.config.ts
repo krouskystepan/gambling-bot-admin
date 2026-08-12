@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'cdn.discordapp.com',
         pathname: '/avatars/**'
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.pravatar.cc',
+        pathname: '/**'
       }
     ]
   }
